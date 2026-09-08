@@ -1,0 +1,846 @@
+[
+    {
+        "instansi": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "unit_kerja": "BIDANG MUTASI DAN PROMOSI"
+    },
+    {
+        "instansi": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "unit_kerja": "BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI"
+    },
+    {
+        "instansi": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "unit_kerja": "BIDANG PENGEMBANGAN KOMPETENSI APARATUR"
+    },
+    {
+        "instansi": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "unit_kerja": "BIDANG PENILAIAN KINERJA APARATUR DAN PENGHARGAAN"
+    },
+    {
+        "instansi": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "unit_kerja": "BIDANG IDEOLOGI, WAWASAN KEBANGSAAN DAN KARAKTER BANGSA"
+    },
+    {
+        "instansi": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "unit_kerja": "BIDANG KETAHANAN EKONOMI, SOSIAL BUDAYA, AGAMA DAN ORGANISASI KEMASYARAKATAN"
+    },
+    {
+        "instansi": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "unit_kerja": "BIDANG KEWASPADAAN NASIONAL DAN PENANGANAN KONFLIK"
+    },
+    {
+        "instansi": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "unit_kerja": "BIDANG POLITIK DALAM NEGERI"
+    },
+    {
+        "instansi": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "BADAN PENANGGGULANGAN BENCANA DAERAH",
+        "unit_kerja": "BIDANG KEDARURATAN DAN LOGISTIK"
+    },
+    {
+        "instansi": "BADAN PENANGGGULANGAN BENCANA DAERAH",
+        "unit_kerja": "BIDANG PENCEGAHAN DAN KESIAPSIAGAAN"
+    },
+    {
+        "instansi": "BADAN PENANGGGULANGAN BENCANA DAERAH",
+        "unit_kerja": "BIDANG REHABILITASI DAN REKONSTRUKSI"
+    },
+    {
+        "instansi": "BADAN PENANGGGULANGAN BENCANA DAERAH",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "unit_kerja": "BIDANG AKUNTANSI DAN TEKNOLOGI INFORMASI"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "unit_kerja": "BIDANG ANGGARAN"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "unit_kerja": "BIDANG ASET DAERAH"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "unit_kerja": "BIDANG PERBENDAHARAAN"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "unit_kerja": "BIDANG PELAYANAN DAN PENETAPAN"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "unit_kerja": "BIDANG PENAGIHAN, KEBERATAN DAN PENGAWASAN PENDAPATAN DAERAH"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "unit_kerja": "BIDANG PENDATAAN DAN PENILAIAN"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "unit_kerja": "BIDANG PERENCANAAN DAN PENGEMBANGAN PENDAPATAN DAERAH"
+    },
+    {
+        "instansi": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "BIDANG INFRASTRUKTUR DAN PENGEMBANGAN WILAYAH"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "BIDANG PEMERINTAHAN DAN PENGEMBANGAN MANUSIA"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "BIDANG PEREKONOMIAN DAN SUMBER DAYA ALAM"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "BIDANG PERENCANAAN, PENGENDALIAN DAN EVALUASI PEMBANGUNAN DAERAH"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "BIDANG RISET DAN INOVASI DAERAH"
+    },
+    {
+        "instansi": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS ARSIP DAN PERPUSTAKAAN",
+        "unit_kerja": "BIDANG PEMBINAAN KEARSIPAN"
+    },
+    {
+        "instansi": "DINAS ARSIP DAN PERPUSTAKAAN",
+        "unit_kerja": "BIDANG PENGELOLAAN KEARSIPAN DAN SISTEM INFORMASI KEARSIPAN"
+    },
+    {
+        "instansi": "DINAS ARSIP DAN PERPUSTAKAAN",
+        "unit_kerja": "BIDANG PERPUSTAKAAN"
+    },
+    {
+        "instansi": "DINAS ARSIP DAN PERPUSTAKAAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "unit_kerja": "BIDANG PELAYANAN PENCATATAN SIPIL"
+    },
+    {
+        "instansi": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "unit_kerja": "BIDANG PELAYANAN PENDAFTARAN PENDUDUK"
+    },
+    {
+        "instansi": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "unit_kerja": "BIDANG PEMANFAATAN DATA DAN INOVASI PELAYANAN"
+    },
+    {
+        "instansi": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "unit_kerja": "BIDANG PENGELOLAAN INFORMASI ADMINISTRASI KEPENDUDUKAN"
+    },
+    {
+        "instansi": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS KESEHATAN",
+        "unit_kerja": "BIDANG PELAYANAN KESEHATAN"
+    },
+    {
+        "instansi": "DINAS KESEHATAN",
+        "unit_kerja": "BIDANG PENCEGAHAN DAN PENGENDALIAN PENYAKIT"
+    },
+    {
+        "instansi": "DINAS KESEHATAN",
+        "unit_kerja": "BIDANG SUMBER DAYA KESEHATAN"
+    },
+    {
+        "instansi": "DINAS KESEHATAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS KETAHANAN PANGAN",
+        "unit_kerja": "BIDANG DISTRIBUSI DAN CADANGAN PANGAN"
+    },
+    {
+        "instansi": "DINAS KETAHANAN PANGAN",
+        "unit_kerja": "BIDANG KEAMANAN PANGAN"
+    },
+    {
+        "instansi": "DINAS KETAHANAN PANGAN",
+        "unit_kerja": "BIDANG KETERSEDIAAN DAN KERAWANAN PANGAN"
+    },
+    {
+        "instansi": "DINAS KETAHANAN PANGAN",
+        "unit_kerja": "BIDANG KONSUMSI DAN PENGANEKARAGAMAN PANGAN"
+    },
+    {
+        "instansi": "DINAS KETAHANAN PANGAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS KOMUNIKASI DAN INFORMATIKA",
+        "unit_kerja": "BIDANG APLIKASI INFORMATIKA"
+    },
+    {
+        "instansi": "DINAS KOMUNIKASI DAN INFORMATIKA",
+        "unit_kerja": "BIDANG INFRASTRUKTUR TEKNOLOGI"
+    },
+    {
+        "instansi": "DINAS KOMUNIKASI DAN INFORMATIKA",
+        "unit_kerja": "BIDANG PERSANDIAN DAN STATISTIK"
+    },
+    {
+        "instansi": "DINAS KOMUNIKASI DAN INFORMATIKA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS KOPERASI, USAHA KECIL DAN MENENGAH",
+        "unit_kerja": "BIDANG KELEMBAGAAN DAN PEMBERDAYAAN KOPERASI"
+    },
+    {
+        "instansi": "DINAS KOPERASI, USAHA KECIL DAN MENENGAH",
+        "unit_kerja": "BIDANG PEMBERDAYAAN USAHA MIKRO"
+    },
+    {
+        "instansi": "DINAS KOPERASI, USAHA KECIL DAN MENENGAH",
+        "unit_kerja": "BIDANG PENGAWASAN DAN PEMERIKSAAN KOPERASI"
+    },
+    {
+        "instansi": "DINAS KOPERASI, USAHA KECIL DAN MENENGAH",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS LINGKUNGAN HIDUP",
+        "unit_kerja": "BIDANG PENEGAKAN HUKUM DAN PENGELOLAAN LIMBAH BAHAN BERBAHAYA DAN BERACUN (LB3)"
+    },
+    {
+        "instansi": "DINAS LINGKUNGAN HIDUP",
+        "unit_kerja": "BIDANG PENGELOLAAN SAMPAH"
+    },
+    {
+        "instansi": "DINAS LINGKUNGAN HIDUP",
+        "unit_kerja": "BIDANG PENGENDALIAN PENCEMARAN DAN KEMITRAAN"
+    },
+    {
+        "instansi": "DINAS LINGKUNGAN HIDUP",
+        "unit_kerja": "BIDANG TATA LINGKUNGAN"
+    },
+    {
+        "instansi": "DINAS LINGKUNGAN HIDUP",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "unit_kerja": "BIDANG DESTINASI PARIWISATA"
+    },
+    {
+        "instansi": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "unit_kerja": "BIDANG PEMASARAN PARIWISATA DAN EKONOMI KREATIF"
+    },
+    {
+        "instansi": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "unit_kerja": "BIDANG PENGEMBANGAN EKONOMI KREATIF"
+    },
+    {
+        "instansi": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "unit_kerja": "BIDANG SUMBER DAYA MANUSIA DAN EKONOMI KREATIF"
+    },
+    {
+        "instansi": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PEKERJAAN UMUM",
+        "unit_kerja": "BIDANG IRIGASI DAN SUMBER DAYA AIR"
+    },
+    {
+        "instansi": "DINAS PEKERJAAN UMUM",
+        "unit_kerja": "BIDANG JASA KONSTRUKSI"
+    },
+    {
+        "instansi": "DINAS PEKERJAAN UMUM",
+        "unit_kerja": "BIDANG PEMBANGUNAN JALAN DAN JEMBATAN"
+    },
+    {
+        "instansi": "DINAS PEKERJAAN UMUM",
+        "unit_kerja": "BIDANG PEMELIHARAAN JALAN DAN JEMBATAN"
+    },
+    {
+        "instansi": "DINAS PEKERJAAN UMUM",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PEMADAM KEBAKARAN DAN PENYELAMATAN",
+        "unit_kerja": "BIDANG PEMADAMAN"
+    },
+    {
+        "instansi": "DINAS PEMADAM KEBAKARAN DAN PENYELAMATAN",
+        "unit_kerja": "BIDANG PENCEGAHAN DAN KESIAGAAN BAHAYA KEBAKARAN"
+    },
+    {
+        "instansi": "DINAS PEMADAM KEBAKARAN DAN PENYELAMATAN",
+        "unit_kerja": "BIDANG SARANA PRASARANA DAN DATA"
+    },
+    {
+        "instansi": "DINAS PEMADAM KEBAKARAN DAN PENYELAMATAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "unit_kerja": "BIDANG KEUANGAN DAN KEKAYAAN DESA"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "unit_kerja": "BIDANG PEMBERDAYAAN MASYARAKAT DESA"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "unit_kerja": "BIDANG PEMERINTAHAN DESA"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "unit_kerja": "BIDANG SARANA PRASARANA DAN KEWILAYAHAN"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK, PENGENDALIAN PENDUDUK DAN KB",
+        "unit_kerja": "BIDANG PEMBINAAN KELUARGA SEJAHTERA"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK, PENGENDALIAN PENDUDUK DAN KB",
+        "unit_kerja": "BIDANG PEMENUHAN HAK DAN PERLINDUNGAN KHUSUS ANAK"
+    },
+    {
+        "instansi": "DINAS PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK, PENGENDALIAN PENDUDUK DAN KB",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PEMUDA DAN OLAH RAGA",
+        "unit_kerja": "BIDANG PEMBUDAYAAN OLAHRAGA"
+    },
+    {
+        "instansi": "DINAS PEMUDA DAN OLAH RAGA",
+        "unit_kerja": "BIDANG PENINGKATAN PRESTASI OLAHRAGA"
+    },
+    {
+        "instansi": "DINAS PEMUDA DAN OLAH RAGA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "unit_kerja": "BIDANG DATA"
+    },
+    {
+        "instansi": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "unit_kerja": "BIDANG PELAYANAN PERIZINAN PEMANFAATAN RUANG"
+    },
+    {
+        "instansi": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "unit_kerja": "BIDANG PENGEMBANGAN DAN PROMOSI"
+    },
+    {
+        "instansi": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PENDIDIKAN",
+        "unit_kerja": "BIDANG PEMBINAAN PAUD DAN PENDIDIKAN MASYARAKAT"
+    },
+    {
+        "instansi": "DINAS PENDIDIKAN",
+        "unit_kerja": "BIDANG PEMBINAAN SEKOLAH DASAR"
+    },
+    {
+        "instansi": "DINAS PENDIDIKAN",
+        "unit_kerja": "BIDANG PEMBINAAN SEKOLAH MENENGAH PERTAMA"
+    },
+    {
+        "instansi": "DINAS PENDIDIKAN",
+        "unit_kerja": "BIDANG SARANA DAN PRASARANA"
+    },
+    {
+        "instansi": "DINAS PENDIDIKAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PERDAGANGAN DAN PERINDUSTRIAN",
+        "unit_kerja": "BIDANG PERDAGANGAN"
+    },
+    {
+        "instansi": "DINAS PERDAGANGAN DAN PERINDUSTRIAN",
+        "unit_kerja": "BIDANG TERTIB NIAGA"
+    },
+    {
+        "instansi": "DINAS PERDAGANGAN DAN PERINDUSTRIAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PERHUBUNGAN",
+        "unit_kerja": "BIDANG ANGKUTAN"
+    },
+    {
+        "instansi": "DINAS PERHUBUNGAN",
+        "unit_kerja": "BIDANG LALU LINTAS JALAN"
+    },
+    {
+        "instansi": "DINAS PERHUBUNGAN",
+        "unit_kerja": "BIDANG PRASARANA DAN PERLENGKAPAN JALAN"
+    },
+    {
+        "instansi": "DINAS PERHUBUNGAN",
+        "unit_kerja": "BIDANG SARANA TRANSPORTASI JALAN"
+    },
+    {
+        "instansi": "DINAS PERHUBUNGAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PERIKANAN DAN PETERNAKAN",
+        "unit_kerja": "BIDANG KESEHATAN HEWAN DAN KESMAVET"
+    },
+    {
+        "instansi": "DINAS PERIKANAN DAN PETERNAKAN",
+        "unit_kerja": "BIDANG PENGUATAN DAYA SAING PRODUK PERIKANAN"
+    },
+    {
+        "instansi": "DINAS PERIKANAN DAN PETERNAKAN",
+        "unit_kerja": "BIDANG PERIKANAN BUDIDAYA DAN PERIKANAN TANGKAP"
+    },
+    {
+        "instansi": "DINAS PERIKANAN DAN PETERNAKAN",
+        "unit_kerja": "BIDANG PETERNAKAN"
+    },
+    {
+        "instansi": "DINAS PERIKANAN DAN PETERNAKAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS PERTANAHAN DAN TATA RUANG",
+        "unit_kerja": "BIDANG PENATAAN BANGUNAN GEDUNG"
+    },
+    {
+        "instansi": "DINAS PERTANAHAN DAN TATA RUANG",
+        "unit_kerja": "BIDANG PENGENDALIAN PEMANFAATAN RUANG DAN BANGUNAN"
+    },
+    {
+        "instansi": "DINAS PERTANAHAN DAN TATA RUANG",
+        "unit_kerja": "BIDANG PERTANAHAN"
+    },
+    {
+        "instansi": "DINAS PERUMAHAN DAN KAWASAN PERMUKIMAN",
+        "unit_kerja": "BIDANG KAWASAN PERMUKIMAN"
+    },
+    {
+        "instansi": "DINAS PERUMAHAN DAN KAWASAN PERMUKIMAN",
+        "unit_kerja": "BIDANG PENYEHATAN LINGKUNGAN"
+    },
+    {
+        "instansi": "DINAS PERUMAHAN DAN KAWASAN PERMUKIMAN",
+        "unit_kerja": "BIDANG PRASARANA, SARANA DAN UTILITAS UMUM"
+    },
+    {
+        "instansi": "DINAS PERUMAHAN DAN KAWASAN PERMUKIMAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS SOSIAL",
+        "unit_kerja": "BIDANG PEMBERDAYAAN SOSIAL"
+    },
+    {
+        "instansi": "DINAS SOSIAL",
+        "unit_kerja": "BIDANG PERLINDUNGAN DAN JAMINAN SOSIAL"
+    },
+    {
+        "instansi": "DINAS SOSIAL",
+        "unit_kerja": "BIDANG REHABILITASI SOSIAL"
+    },
+    {
+        "instansi": "DINAS SOSIAL",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "unit_kerja": "BIDANG PENYULUHAN"
+    },
+    {
+        "instansi": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "unit_kerja": "BIDANG PERLINDUNGAN DAN PELAYANAN USAHA PERTANIAN"
+    },
+    {
+        "instansi": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "unit_kerja": "BIDANG PRASARANA"
+    },
+    {
+        "instansi": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "unit_kerja": "BIDANG SARANA"
+    },
+    {
+        "instansi": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "DINAS TENAGA KERJA",
+        "unit_kerja": "BIDANG HUBUNGAN INDUSTRIAL DAN SYARAT KERJA"
+    },
+    {
+        "instansi": "DINAS TENAGA KERJA",
+        "unit_kerja": "BIDANG PELATIHAN DAN PRODUKTIVITAS KERJA"
+    },
+    {
+        "instansi": "DINAS TENAGA KERJA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "INSPEKTORAT PEMBANTU I"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "INSPEKTORAT PEMBANTU II"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "INSPEKTORAT PEMBANTU III"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "INSPEKTORAT PEMBANTU IV"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "INSPEKTORAT PEMBANTU V"
+    },
+    {
+        "instansi": "INSPEKTORAT",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN BABAKAN MADANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN BOJONGGEDE",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CARIU",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIAMPEA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIAWI",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIBINONG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIBUNGBULANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIGOMBONG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIGUDEG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIJERUK",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CILEUNGSI",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CIOMAS",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CISARUA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CISEENG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN CITEUREUP",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN DRAMAGA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN GUNUNG PUTRI",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN GUNUNG SINDUR",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN JASINGA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN JONGGOL",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN KEMANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN KLAPANUNGGAL",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN LEUWILIANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN LEUWISADENG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN NANGGUNG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN PARUNG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN PARUNG PANJANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN RANCABUNGUR",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN RUMPIN",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN SUKAJAYA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN SUKAMAKMUR",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN SUKARAJA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN TAJURHALANG",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN TAMANSARI",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN TANJUNGSARI",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN TENJO",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "KECAMATAN TENJOLAYA",
+        "unit_kerja": "SEKRETARIAT"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "unit_kerja": "BAGIAN KEUANGAN RSUD CIBINONG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "unit_kerja": "BAGIAN TATA USAHA RSUD CIBINONG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "unit_kerja": "BIDANG ADMINISTRASI"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "unit_kerja": "BIDANG MEDIK RSUD CIBINONG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "unit_kerja": "BIDANG PELAYANAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BAGIAN KEUANGAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BAGIAN TATA USAHA"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BIDANG ADMINISTRASI"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BIDANG KEPERAWATAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BIDANG MEDIK"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "unit_kerja": "BIDANG PELAYANAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "unit_kerja": "BAGIAN KEUANGAN RSUD LEUWILIANG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "unit_kerja": "BAGIAN TATA USAHA RSUD LEUWILIANG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "unit_kerja": "BIDANG KEPERAWATAN RSUD LEUWILIANG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "unit_kerja": "BIDANG MEDIK RSUD LEUWILIANG"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "unit_kerja": "BIDANG PELAYANAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BAGIAN KEUANGAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BAGIAN TATA USAHA"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BIDANG ADMINISTRASI"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BIDANG KEPERAWATAN"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BIDANG MEDIK"
+    },
+    {
+        "instansi": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "unit_kerja": "BIDANG PELAYANAN"
+    },
+    {
+        "instansi": "SATUAN POLISI PAMONG PRAJA",
+        "unit_kerja": "BIDANG KETERTIBAN UMUM"
+    },
+    {
+        "instansi": "SATUAN POLISI PAMONG PRAJA",
+        "unit_kerja": "BIDANG PEMBINAAN"
+    },
+    {
+        "instansi": "SATUAN POLISI PAMONG PRAJA",
+        "unit_kerja": "BIDANG PENEGAKAN PERUNDANG-UNDANGAN DAERAH"
+    },
+    {
+        "instansi": "SATUAN POLISI PAMONG PRAJA",
+        "unit_kerja": "BIDANG PERLINDUNGAN MASYARAKAT"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN ADMINISTRASI PEMBANGUNAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN KERJASAMA DAN BANTUAN HUKUM"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN KESEJAHTERAAN RAKYAT"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN ORGANISASI"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN PENGADAAN BARANG/JASA"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN PEREKONOMIAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN PERENCANAAN DAN KEUANGAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN PERUNDANG-UNDANGAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN PROTOKOL DAN KOMUNIKASI PIMPINAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN SUMBER DAYA ALAM"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN TATA PEMERINTAHAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DAERAH",
+        "unit_kerja": "BAGIAN UMUM"
+    },
+    {
+        "instansi": "SEKRETARIAT DPRD",
+        "unit_kerja": "BAGIAN FASILTASI PENGANGGARAN DAN PENGAWASAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DPRD",
+        "unit_kerja": "BAGIAN PERSIDANGAN DAN PERUNDANG-UNDANGAN"
+    },
+    {
+        "instansi": "SEKRETARIAT DPRD",
+        "unit_kerja": "BAGIAN PROGRAM DAN KEUANGAN"
+    }
+]

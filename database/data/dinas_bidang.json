@@ -1,0 +1,583 @@
+[
+    {
+        "nama": "BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA",
+        "bidangs": [
+            "BIDANG MUTASI DAN PROMOSI",
+            "BIDANG PENGADAAN, PEMBERHENTIAN DAN INFORMASI",
+            "BIDANG PENGEMBANGAN KOMPETENSI APARATUR",
+            "BIDANG PENILAIAN KINERJA APARATUR DAN PENGHARGAAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "BADAN KESATUAN BANGSA DAN POLITIK",
+        "bidangs": [
+            "BIDANG IDEOLOGI, WAWASAN KEBANGSAAN DAN KARAKTER BANGSA",
+            "BIDANG KETAHANAN EKONOMI, SOSIAL BUDAYA, AGAMA DAN ORGANISASI KEMASYARAKATAN",
+            "BIDANG KEWASPADAAN NASIONAL DAN PENANGANAN KONFLIK",
+            "BIDANG POLITIK DALAM NEGERI",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "BADAN PENANGGGULANGAN BENCANA DAERAH",
+        "bidangs": [
+            "BIDANG KEDARURATAN DAN LOGISTIK",
+            "BIDANG PENCEGAHAN DAN KESIAPSIAGAAN",
+            "BIDANG REHABILITASI DAN REKONSTRUKSI",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH",
+        "bidangs": [
+            "BIDANG AKUNTANSI DAN TEKNOLOGI INFORMASI",
+            "BIDANG ANGGARAN",
+            "BIDANG ASET DAERAH",
+            "BIDANG PERBENDAHARAAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "BADAN PENGELOLAAN PENDAPATAN DAERAH",
+        "bidangs": [
+            "BIDANG PELAYANAN DAN PENETAPAN",
+            "BIDANG PENAGIHAN, KEBERATAN DAN PENGAWASAN PENDAPATAN DAERAH",
+            "BIDANG PENDATAAN DAN PENILAIAN",
+            "BIDANG PERENCANAAN DAN PENGEMBANGAN PENDAPATAN DAERAH",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "BADAN PERENCANAAN PEMBANGUNAN, RISET DAN INOVASI DAERAH",
+        "bidangs": [
+            "BIDANG INFRASTRUKTUR DAN PENGEMBANGAN WILAYAH",
+            "BIDANG PEMERINTAHAN DAN PENGEMBANGAN MANUSIA",
+            "BIDANG PEREKONOMIAN DAN SUMBER DAYA ALAM",
+            "BIDANG PERENCANAAN, PENGENDALIAN DAN EVALUASI PEMBANGUNAN DAERAH",
+            "BIDANG RISET DAN INOVASI DAERAH",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS ARSIP DAN PERPUSTAKAAN",
+        "bidangs": [
+            "BIDANG PEMBINAAN KEARSIPAN",
+            "BIDANG PENGELOLAAN KEARSIPAN DAN SISTEM INFORMASI KEARSIPAN",
+            "BIDANG PERPUSTAKAAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL",
+        "bidangs": [
+            "BIDANG PELAYANAN PENCATATAN SIPIL",
+            "BIDANG PELAYANAN PENDAFTARAN PENDUDUK",
+            "BIDANG PEMANFAATAN DATA DAN INOVASI PELAYANAN",
+            "BIDANG PENGELOLAAN INFORMASI ADMINISTRASI KEPENDUDUKAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS KESEHATAN",
+        "bidangs": [
+            "BIDANG PELAYANAN KESEHATAN",
+            "BIDANG PENCEGAHAN DAN PENGENDALIAN PENYAKIT",
+            "BIDANG SUMBER DAYA KESEHATAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS KETAHANAN PANGAN",
+        "bidangs": [
+            "BIDANG DISTRIBUSI DAN CADANGAN PANGAN",
+            "BIDANG KEAMANAN PANGAN",
+            "BIDANG KETERSEDIAAN DAN KERAWANAN PANGAN",
+            "BIDANG KONSUMSI DAN PENGANEKARAGAMAN PANGAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS KOMUNIKASI DAN INFORMATIKA",
+        "bidangs": [
+            "BIDANG APLIKASI INFORMATIKA",
+            "BIDANG INFRASTRUKTUR TEKNOLOGI",
+            "BIDANG PERSANDIAN DAN STATISTIK",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS KOPERASI, USAHA KECIL DAN MENENGAH",
+        "bidangs": [
+            "BIDANG KELEMBAGAAN DAN PEMBERDAYAAN KOPERASI",
+            "BIDANG PEMBERDAYAAN USAHA MIKRO",
+            "BIDANG PENGAWASAN DAN PEMERIKSAAN KOPERASI",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS LINGKUNGAN HIDUP",
+        "bidangs": [
+            "BIDANG PENEGAKAN HUKUM DAN PENGELOLAAN LIMBAH BAHAN BERBAHAYA DAN BERACUN (LB3)",
+            "BIDANG PENGELOLAAN SAMPAH",
+            "BIDANG PENGENDALIAN PENCEMARAN DAN KEMITRAAN",
+            "BIDANG TATA LINGKUNGAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PARIWISATA DAN EKONOMI KREATIF",
+        "bidangs": [
+            "BIDANG DESTINASI PARIWISATA",
+            "BIDANG PEMASARAN PARIWISATA DAN EKONOMI KREATIF",
+            "BIDANG PENGEMBANGAN EKONOMI KREATIF",
+            "BIDANG SUMBER DAYA MANUSIA DAN EKONOMI KREATIF",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PEKERJAAN UMUM",
+        "bidangs": [
+            "BIDANG IRIGASI DAN SUMBER DAYA AIR",
+            "BIDANG JASA KONSTRUKSI",
+            "BIDANG PEMBANGUNAN JALAN DAN JEMBATAN",
+            "BIDANG PEMELIHARAAN JALAN DAN JEMBATAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PEMADAM KEBAKARAN DAN PENYELAMATAN",
+        "bidangs": [
+            "BIDANG PEMADAMAN",
+            "BIDANG PENCEGAHAN DAN KESIAGAAN BAHAYA KEBAKARAN",
+            "BIDANG SARANA PRASARANA DAN DATA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PEMBERDAYAAN MASYARAKAT DAN DESA",
+        "bidangs": [
+            "BIDANG KEUANGAN DAN KEKAYAAN DESA",
+            "BIDANG PEMBERDAYAAN MASYARAKAT DESA",
+            "BIDANG PEMERINTAHAN DESA",
+            "BIDANG SARANA PRASARANA DAN KEWILAYAHAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK, PENGENDALIAN PENDUDUK DAN KB",
+        "bidangs": [
+            "BIDANG PEMBINAAN KELUARGA SEJAHTERA",
+            "BIDANG PEMENUHAN HAK DAN PERLINDUNGAN KHUSUS ANAK",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PEMUDA DAN OLAH RAGA",
+        "bidangs": [
+            "BIDANG PEMBUDAYAAN OLAHRAGA",
+            "BIDANG PENINGKATAN PRESTASI OLAHRAGA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU",
+        "bidangs": [
+            "BIDANG DATA",
+            "BIDANG PELAYANAN PERIZINAN PEMANFAATAN RUANG",
+            "BIDANG PENGEMBANGAN DAN PROMOSI",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PENDIDIKAN",
+        "bidangs": [
+            "BIDANG PEMBINAAN PAUD DAN PENDIDIKAN MASYARAKAT",
+            "BIDANG PEMBINAAN SEKOLAH DASAR",
+            "BIDANG PEMBINAAN SEKOLAH MENENGAH PERTAMA",
+            "BIDANG SARANA DAN PRASARANA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PERDAGANGAN DAN PERINDUSTRIAN",
+        "bidangs": [
+            "BIDANG PERDAGANGAN",
+            "BIDANG TERTIB NIAGA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PERHUBUNGAN",
+        "bidangs": [
+            "BIDANG ANGKUTAN",
+            "BIDANG LALU LINTAS JALAN",
+            "BIDANG PRASARANA DAN PERLENGKAPAN JALAN",
+            "BIDANG SARANA TRANSPORTASI JALAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PERIKANAN DAN PETERNAKAN",
+        "bidangs": [
+            "BIDANG KESEHATAN HEWAN DAN KESMAVET",
+            "BIDANG PENGUATAN DAYA SAING PRODUK PERIKANAN",
+            "BIDANG PERIKANAN BUDIDAYA DAN PERIKANAN TANGKAP",
+            "BIDANG PETERNAKAN",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS PERTANAHAN DAN TATA RUANG",
+        "bidangs": [
+            "BIDANG PENATAAN BANGUNAN GEDUNG",
+            "BIDANG PENGENDALIAN PEMANFAATAN RUANG DAN BANGUNAN",
+            "BIDANG PERTANAHAN"
+        ]
+    },
+    {
+        "nama": "DINAS PERUMAHAN DAN KAWASAN PERMUKIMAN",
+        "bidangs": [
+            "BIDANG KAWASAN PERMUKIMAN",
+            "BIDANG PENYEHATAN LINGKUNGAN",
+            "BIDANG PRASARANA, SARANA DAN UTILITAS UMUM",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS SOSIAL",
+        "bidangs": [
+            "BIDANG PEMBERDAYAAN SOSIAL",
+            "BIDANG PERLINDUNGAN DAN JAMINAN SOSIAL",
+            "BIDANG REHABILITASI SOSIAL",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN",
+        "bidangs": [
+            "BIDANG PENYULUHAN",
+            "BIDANG PERLINDUNGAN DAN PELAYANAN USAHA PERTANIAN",
+            "BIDANG PRASARANA",
+            "BIDANG SARANA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "DINAS TENAGA KERJA",
+        "bidangs": [
+            "BIDANG HUBUNGAN INDUSTRIAL DAN SYARAT KERJA",
+            "BIDANG PELATIHAN DAN PRODUKTIVITAS KERJA",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "INSPEKTORAT",
+        "bidangs": [
+            "INSPEKTORAT PEMBANTU I",
+            "INSPEKTORAT PEMBANTU II",
+            "INSPEKTORAT PEMBANTU III",
+            "INSPEKTORAT PEMBANTU IV",
+            "INSPEKTORAT PEMBANTU V",
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN BABAKAN MADANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN BOJONGGEDE",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CARIU",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIAMPEA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIAWI",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIBINONG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIBUNGBULANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIGOMBONG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIGUDEG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIJERUK",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CILEUNGSI",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CIOMAS",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CISARUA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CISEENG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN CITEUREUP",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN DRAMAGA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN GUNUNG PUTRI",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN GUNUNG SINDUR",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN JASINGA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN JONGGOL",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN KEMANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN KLAPANUNGGAL",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN LEUWILIANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN LEUWISADENG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN NANGGUNG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN PARUNG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN PARUNG PANJANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN RANCABUNGUR",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN RUMPIN",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN SUKAJAYA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN SUKAMAKMUR",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN SUKARAJA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN TAJURHALANG",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN TAMANSARI",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN TANJUNGSARI",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN TENJO",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "KECAMATAN TENJOLAYA",
+        "bidangs": [
+            "SEKRETARIAT"
+        ]
+    },
+    {
+        "nama": "RUMAH SAKIT UMUM DAERAH BAKTI PAJAJARAN",
+        "bidangs": [
+            "BAGIAN KEUANGAN RSUD CIBINONG",
+            "BAGIAN TATA USAHA RSUD CIBINONG",
+            "BIDANG ADMINISTRASI",
+            "BIDANG MEDIK RSUD CIBINONG",
+            "BIDANG PELAYANAN"
+        ]
+    },
+    {
+        "nama": "RUMAH SAKIT UMUM DAERAH DR. KH. IDHAM CHALID",
+        "bidangs": [
+            "BAGIAN KEUANGAN",
+            "BAGIAN TATA USAHA",
+            "BIDANG ADMINISTRASI",
+            "BIDANG KEPERAWATAN",
+            "BIDANG MEDIK",
+            "BIDANG PELAYANAN"
+        ]
+    },
+    {
+        "nama": "RUMAH SAKIT UMUM DAERAH R. MOH. NOH NUR",
+        "bidangs": [
+            "BAGIAN KEUANGAN RSUD LEUWILIANG",
+            "BAGIAN TATA USAHA RSUD LEUWILIANG",
+            "BIDANG KEPERAWATAN RSUD LEUWILIANG",
+            "BIDANG MEDIK RSUD LEUWILIANG",
+            "BIDANG PELAYANAN"
+        ]
+    },
+    {
+        "nama": "RUMAH SAKIT UMUM DAERAH RH. SATIBI",
+        "bidangs": [
+            "BAGIAN KEUANGAN",
+            "BAGIAN TATA USAHA",
+            "BIDANG ADMINISTRASI",
+            "BIDANG KEPERAWATAN",
+            "BIDANG MEDIK",
+            "BIDANG PELAYANAN"
+        ]
+    },
+    {
+        "nama": "SATUAN POLISI PAMONG PRAJA",
+        "bidangs": [
+            "BIDANG KETERTIBAN UMUM",
+            "BIDANG PEMBINAAN",
+            "BIDANG PENEGAKAN PERUNDANG-UNDANGAN DAERAH",
+            "BIDANG PERLINDUNGAN MASYARAKAT"
+        ]
+    },
+    {
+        "nama": "SEKRETARIAT DAERAH",
+        "bidangs": [
+            "BAGIAN ADMINISTRASI PEMBANGUNAN",
+            "BAGIAN KERJASAMA DAN BANTUAN HUKUM",
+            "BAGIAN KESEJAHTERAAN RAKYAT",
+            "BAGIAN ORGANISASI",
+            "BAGIAN PENGADAAN BARANG/JASA",
+            "BAGIAN PEREKONOMIAN",
+            "BAGIAN PERENCANAAN DAN KEUANGAN",
+            "BAGIAN PERUNDANG-UNDANGAN",
+            "BAGIAN PROTOKOL DAN KOMUNIKASI PIMPINAN",
+            "BAGIAN SUMBER DAYA ALAM",
+            "BAGIAN TATA PEMERINTAHAN",
+            "BAGIAN UMUM"
+        ]
+    },
+    {
+        "nama": "SEKRETARIAT DPRD",
+        "bidangs": [
+            "BAGIAN FASILTASI PENGANGGARAN DAN PENGAWASAN",
+            "BAGIAN PERSIDANGAN DAN PERUNDANG-UNDANGAN",
+            "BAGIAN PROGRAM DAN KEUANGAN"
+        ]
+    }
+]
