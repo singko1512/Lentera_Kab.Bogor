@@ -169,11 +169,11 @@ Route::middleware(['auth'])->group(function () {
         
         // Peserta & Penempatan
         Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
-        Route::get('/participants/{id}/detail', function($id) { return "Detail Peserta $id"; })->name('participants.detail');
+        Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
         Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
-        Route::get('/participants/placement/{id}', function($id) { return "Detail Placement $id"; })->name('placement.show');
+        Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
         Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
-        Route::get('/participants/extend/{id}', function($id) { return "Detail Extend $id"; })->name('extend.show');
+        Route::get('/participants/extend/{id}', [KesbangpolParticipantController::class, 'showExtend'])->name('extend.show');
         
         // History
         Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');
