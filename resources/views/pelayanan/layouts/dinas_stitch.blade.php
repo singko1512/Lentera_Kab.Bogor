@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Admin Dashboard - Kesbangpol Kab. Bogor</title>
+<link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=2"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>

@@ -25,6 +25,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MasterDataSeeder::class,
             DinasSeeder::class,
+            AdminSeeder::class,
+            ExcelDinasSeeder::class,
         ]);
     }
 }
