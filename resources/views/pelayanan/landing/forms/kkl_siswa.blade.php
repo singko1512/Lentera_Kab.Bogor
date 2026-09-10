@@ -430,7 +430,7 @@
         
         <h3 class="font-headline-md text-headline-md text-primary mb-3">Pengajuan Berhasil!</h3>
         <p class="font-body-md text-body-md text-on-surface-variant mb-8 leading-relaxed">
-            Silahkan tunggu <span class="font-bold text-on-surface">3-5 jam kerja</span> dan nantikan informasinya melalui email atau whatsapp.
+            Silahkan tunggu <span class="font-bold text-on-surface">1-3 hari kerja</span> dan nantikan informasinya melalui email atau whatsapp.
         </p>
         
         <a href="{{ route('home') }}" class="inline-block w-full py-3.5 bg-primary text-white font-label-md text-label-md rounded-xl hover:bg-primary-container hover:text-white transition-colors shadow-sm">

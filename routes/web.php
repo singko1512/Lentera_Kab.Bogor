@@ -14,6 +14,20 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
 Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
+Route::get('/surat-rekomendasi/pdf/{id}', [\App\Http\Controllers\Kesbangpol\LayananController::class, 'downloadPdf'])->name('surat.pdf');
+
+// Fallback storage route to serve attachment files (KTP, KTM, Proposal, Surat) seamlessly on production deployments
+Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+    $mimeType = \Illuminate\Support\Facades\File::mimeType($fullPath);
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
 
 Route::get('/login', function (\Illuminate\Http\Request $request) {
     if (Auth::check()) {
@@ -142,6 +156,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/layanan/submit', [LayananController::class, 'submit'])->name('layanan.submit');
     Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.show');
     Route::post('/layanan/{id}/update', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
+    Route::post('/layanan/{id}/delete', [LayananController::class, 'destroy']);
 
     // Rute Pendaftaran Magang
     Route::get('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applyForm'])->name('magang.apply');
@@ -166,14 +182,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/layanan/{id}', [KesbangpolLayananController::class, 'show'])->name('layanan.show');
         Route::post('/layanan/{id}/verify', [KesbangpolLayananController::class, 'verify'])->name('layanan.verify');
         Route::get('/layanan/{id}/generate-docx', [KesbangpolLayananController::class, 'generateDocx'])->name('layanan.generate_docx');
+        Route::get('/layanan/{id}/generate-pdf', [KesbangpolLayananController::class, 'downloadPdf'])->name('layanan.generate_pdf');
         
         // Peserta & Penempatan
         Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
-        Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
+        Route::get('/participants/{id}/detail', function($id) { return "Detail Peserta $id"; })->name('participants.detail');
         Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
-        Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
+        Route::get('/participants/placement/{id}', function($id) { return "Detail Placement $id"; })->name('placement.show');
         Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
-        Route::get('/participants/extend/{id}', [KesbangpolParticipantController::class, 'showExtend'])->name('extend.show');
+        Route::get('/participants/extend/{id}', function($id) { return "Detail Extend $id"; })->name('extend.show');
         
         // History
         Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');

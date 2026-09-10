@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\PermohonanLayanan;
 use App\Models\StatusMaster;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LayananController extends Controller
 {
@@ -235,5 +236,22 @@ class LayananController extends Controller
         return response()->download($tempOutput, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ]);
+    }
+
+    /**
+     * Generate & Download / View Surat Rekomendasi Kesbangpol (.pdf) dengan QR Code.
+     */
+    public function downloadPdf($id)
+    {
+        $layanan = PermohonanLayanan::with(['jenisLayanan', 'user', 'statusMaster'])->findOrFail($id);
+
+        $qrUrl = route('surat.pdf', $id);
+
+        $pdf = Pdf::loadView('pdf.surat_kesbangpol', compact('layanan', 'qrUrl'))
+            ->setPaper('a4', 'portrait');
+
+        $fileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';
+
+        return $pdf->stream($fileName);
     }
 }

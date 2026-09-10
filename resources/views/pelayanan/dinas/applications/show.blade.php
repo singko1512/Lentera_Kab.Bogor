@@ -249,6 +249,12 @@
                         <p class="text-xs text-on-surface-variant mt-1">Peserta akan ditempatkan di bidang ini dan dapat mulai melakukan presensi harian.</p>
                     </div>
 
+                    <!-- Upload Surat Penerimaan Dinas -->
+                    <div id="surat_penerimaan_container" class="{{ $application->status == 'diterima' ? '' : 'hidden' }}">
+                        <label class="block text-label-sm font-bold text-on-surface mb-2">Upload Surat Penerimaan Dinas (Optional, PDF)</label>
+                        <input type="file" name="file_surat_penerimaan" accept=".pdf" class="block w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                    </div>
+
                     <div>
                         <label class="block text-label-sm font-medium text-on-surface mb-2">Catatan Admin Dinas (Opsional)</label>
                         <textarea name="catatan_admin" rows="3" class="w-full px-3 py-2 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm" placeholder="Tuliskan catatan atau instruksi penempatan...">{{ $application->catatan_admin }}</textarea>
@@ -267,13 +273,16 @@
 <script>
 function toggleDinasFields(val) {
     const bidangContainer = document.getElementById('bidang_container');
+    const suratContainer = document.getElementById('surat_penerimaan_container');
     const bidangSelect = document.getElementById('bidang_id');
 
     if (val === 'diterima') {
-        if (bidangContainer) bidangContainer.classList.remove('hidden');
+        bidangContainer.classList.remove('hidden');
+        suratContainer.classList.remove('hidden');
         if (bidangSelect) bidangSelect.required = true;
     } else {
-        if (bidangContainer) bidangContainer.classList.add('hidden');
+        bidangContainer.classList.add('hidden');
+        suratContainer.classList.add('hidden');
         if (bidangSelect) bidangSelect.required = false;
     }
 }

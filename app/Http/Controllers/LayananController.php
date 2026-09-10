@@ -101,10 +101,23 @@ class LayananController extends Controller
     {
         $permohonan = PermohonanLayanan::where('user_id', Auth::id())->findOrFail($id);
 
-        // Hanya bisa update jika statusnya perlu_revisi
-        if ($permohonan->statusMaster->kode !== 'perlu_revisi') {
-            return redirect()->back()->with('error', 'Permohonan tidak dapat direvisi pada status saat ini.');
+        $kodeStatus = optional($permohonan->statusMaster)->kode;
+        // Hanya bisa edit jika statusnya perlu_revisi atau menunggu_verifikasi
+        if (!in_array($kodeStatus, ['perlu_revisi', 'menunggu_verifikasi'])) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Permohonan tidak dapat diubah pada status saat ini.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permohonan tidak dapat diubah pada status saat ini.');
         }
+
+        // Update text fields jika ada dalam request
+        if ($request->has('atas_nama')) $permohonan->atas_nama = $request->atas_nama;
+        if ($request->has('no_hp')) $permohonan->no_hp = $request->no_hp;
+        if ($request->has('asal_instansi')) $permohonan->asal_instansi = $request->asal_instansi;
+        if ($request->has('judul_kegiatan')) $permohonan->judul_kegiatan = $request->judul_kegiatan;
+        if ($request->has('tempat_kegiatan')) $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
+        if ($request->has('tanggal_mulai')) $permohonan->tanggal_mulai = $request->tanggal_mulai;
+        if ($request->has('tanggal_selesai')) $permohonan->tanggal_selesai = $request->tanggal_selesai;
 
         $fileFields = [
             'file_ktp', 'file_ktm', 'file_surat_permohonan', 'file_surat_pengantar',
@@ -124,12 +137,57 @@ class LayananController extends Controller
             }
         }
 
-        // Kembalikan status ke menunggu_verifikasi setelah revisi
-        $statusMenunggu = StatusMaster::where('kode', 'menunggu_verifikasi')->firstOrFail();
-        $permohonan->status_master_id = $statusMenunggu->id;
+        // Kembalikan status ke menunggu_verifikasi setelah revisi/edit
+        $statusMenunggu = StatusMaster::where('kode', 'menunggu_verifikasi')->first();
+        if ($statusMenunggu) {
+            $permohonan->status_master_id = $statusMenunggu->id;
+        }
         
         $permohonan->save();
 
-        return redirect()->route('layanan.show', $id)->with('success', 'Revisi permohonan berhasil dikirim!');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Permohonan berhasil diperbarui!'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pembaruan permohonan berhasil dikirim!');
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $permohonan = PermohonanLayanan::where('user_id', Auth::id())->findOrFail($id);
+
+        $kodeStatus = optional($permohonan->statusMaster)->kode;
+        // Hapus cuma bisa kalau status pengajuannya baru terkirim (menunggu_verifikasi)
+        if ($kodeStatus !== 'menunggu_verifikasi') {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Permohonan hanya dapat dihapus saat berstatus baru terkirim / menunggu verifikasi.'], 403);
+            }
+            return redirect()->back()->with('error', 'Permohonan hanya dapat dihapus saat berstatus baru terkirim / menunggu verifikasi.');
+        }
+
+        // Hapus file-file terlampir
+        $fileFields = [
+            'file_ktp', 'file_ktm', 'file_surat_permohonan', 'file_surat_pengantar',
+            'file_surat_lokasi', 'file_proposal', 'file_surat_kesbangpol_jabar',
+            'file_surat_kemendagri', 'file_surat_rekomendasi_lama', 'file_pendukung',
+            'file_daftar_peserta', 'file_id_card', 'file_kartu_pelajar', 'file_surat_keluaran'
+        ];
+
+        foreach ($fileFields as $field) {
+            if ($permohonan->{$field}) {
+                Storage::disk('public')->delete($permohonan->{$field});
+            }
+        }
+
+        $permohonan->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Permohonan berhasil dihapus!']);
+        }
+
+        return redirect()->back()->with('success', 'Permohonan berhasil dihapus!');
     }
 }

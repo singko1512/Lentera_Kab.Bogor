@@ -20,14 +20,18 @@ class DashboardController extends Controller
             ->whereIn('status', ['diterima', 'aktif'])
             ->first();
 
-        $absensiHariIni = $magang ? \App\Models\Absensi::where('magang_application_id', $magang->id)
+        if (!$magang) {
+            return redirect('/profile')->with('error', 'Fitur absensi belum terbuka. Anda harus berstatus diterima di instansi (Dinas) terlebih dahulu.');
+        }
+
+        $absensiHariIni = \App\Models\Absensi::where('magang_application_id', $magang->id)
             ->where('tanggal', \Carbon\Carbon::today()->format('Y-m-d'))
-            ->first() : null;
+            ->first();
             
-        $jurnals = $magang ? \App\Models\Jurnal::where('magang_application_id', $magang->id)
+        $jurnals = \App\Models\Jurnal::where('magang_application_id', $magang->id)
             ->orderBy('tanggal', 'desc')
             ->take(5)
-            ->get() : collect([]);
+            ->get();
 
         $projects = \App\Models\Simalam\Project::whereHas('members', function($q) use ($user) {
             $q->where('users.id', $user->id);

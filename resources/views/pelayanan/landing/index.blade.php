@@ -341,6 +341,8 @@
                         <th class="p-4">Jenis Layanan</th>
                         <th class="p-4">Instansi / Topik</th>
                         <th class="p-4 text-center">Status</th>
+                        <th class="p-4">Keterangan Kesbangpol</th>
+                        <th class="p-4 text-center">Tanggal Pembaruan</th>
                         <th class="p-4 pr-6 text-center">Aksi / Dokumen</th>
                     </tr>
                 </thead>
@@ -368,6 +370,11 @@
                                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
                                     <span>{{ $statusNama }}</span>
                                 </span>
+                            @elseif($statusKode == 'perlu_revisi')
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-300 rounded-full text-xs font-bold uppercase">
+                                    <span class="material-symbols-outlined text-[14px]">edit_note</span>
+                                    <span>{{ $statusNama }}</span>
+                                </span>
                             @elseif($statusKode == 'ditolak')
                                 <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#FFEBEE] text-[#C62828] border border-[#FFCDD2] rounded-full text-xs font-bold uppercase">
                                     <span class="material-symbols-outlined text-[14px]">cancel</span>
@@ -380,15 +387,45 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="p-4 pr-6 text-center">
-                            @if($app->file_surat_keluaran)
-                                <a href="{{ asset('storage/' . $app->file_surat_keluaran) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs">
-                                    <span class="material-symbols-outlined text-[16px]">download</span>
-                                    <span>Unduh Surat</span>
-                                </a>
+                        <td class="p-4">
+                            @if($app->keterangan)
+                                <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium">
+                                    <span class="font-bold">Deskripsi Kesbangpol:</span> {{ $app->keterangan }}
+                                </div>
                             @else
-                                <span class="text-xs text-on-surface-variant italic">Menunggu verifikasi</span>
+                                <span class="text-xs text-on-surface-variant italic">-</span>
                             @endif
+                        </td>
+                        <td class="p-4 text-center whitespace-nowrap">
+                            <div class="text-xs text-gray-700 font-medium">{{ $app->updated_at ? $app->updated_at->format('d M Y, H:i') : '-' }}</div>
+                        </td>
+                        <td class="p-4 pr-6 text-center">
+                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                @if($app->file_surat_keluaran)
+                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi (PDF)">
+                                        <span class="material-symbols-outlined text-[15px]">picture_as_pdf</span>
+                                        <span>Unduh Surat</span>
+                                    </a>
+                                @endif
+
+                                @if(in_array($statusKode, ['perlu_revisi', 'menunggu_verifikasi']))
+                                    <button type="button" onclick="openEditModal('{{ $app->id }}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700 transition-all shadow-xs" title="Edit / Revisi Permohonan">
+                                        <span class="material-symbols-outlined text-[15px]">edit</span>
+                                        <span>Edit</span>
+                                    </button>
+                                @endif
+
+                                @if($statusKode == 'menunggu_verifikasi')
+                                    <form action="{{ route('layanan.destroy', $app->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus permohonan ini?')" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-all shadow-xs" title="Hapus Permohonan">
+                                            <span class="material-symbols-outlined text-[15px]">delete</span>
+                                            <span>Hapus</span>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @endforeach
@@ -408,6 +445,125 @@
         </div>
         @endif
     </div>
+
+    <!-- Edit Application Modals -->
+    @if(isset($userApplications) && $userApplications->count() > 0)
+        @foreach($userApplications as $app)
+        @php
+            $appStatusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
+        @endphp
+        @if(in_array($appStatusKode, ['perlu_revisi', 'menunggu_verifikasi']))
+        <div id="edit_modal_{{ $app->id }}" class="fixed inset-0 z-[120] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div id="edit_backdrop_{{ $app->id }}" class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 opacity-0" onclick="closeEditModal('{{ $app->id }}')"></div>
+                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                <div id="edit_modal_box_{{ $app->id }}" class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                    <div class="bg-surface-container-low px-6 py-4 border-b border-outline-variant/20 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-600 text-[24px]">edit_square</span>
+                            <h3 class="font-title-lg text-title-lg text-on-surface font-bold">Edit / Revisi Permohonan #{{ $app->id }}</h3>
+                        </div>
+                        <button type="button" onclick="closeEditModal('{{ $app->id }}')" class="text-on-surface-variant hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+                            <span class="material-symbols-outlined text-[24px]">close</span>
+                        </button>
+                    </div>
+
+                    <form action="{{ route('layanan.update', $app->id) }}" method="POST" enctype="multipart/form-data" class="p-6 flex flex-col gap-4">
+                        @csrf
+
+                        @if($app->keterangan)
+                        <div class="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-3">
+                            <span class="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5">error</span>
+                            <div>
+                                <strong class="font-bold text-red-900 block mb-0.5">Catatan Revisi dari Kesbangpol:</strong>
+                                <p class="leading-relaxed">{{ $app->keterangan }}</p>
+                            </div>
+                        </div>
+                        @endif
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Atas Nama Pemohon / Ketua</label>
+                                <input type="text" name="atas_nama" value="{{ $app->atas_nama }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5" required>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Nomor WhatsApp / HP</label>
+                                <input type="text" name="no_hp" value="{{ $app->no_hp }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5" required>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Asal Instansi / Universitas</label>
+                                <input type="text" name="asal_instansi" value="{{ $app->asal_instansi }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5" required>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Lokasi / Dinas Tujuan</label>
+                                <input type="text" name="tempat_kegiatan" value="{{ $app->tempat_kegiatan }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5" required>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block font-bold text-gray-700 mb-1">Judul / Tema Kegiatan</label>
+                                <input type="text" name="judul_kegiatan" value="{{ $app->judul_kegiatan }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Tanggal Mulai</label>
+                                <input type="date" name="tanggal_mulai" value="{{ $app->tanggal_mulai }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-gray-700 mb-1">Tanggal Selesai</label>
+                                <input type="date" name="tanggal_selesai" value="{{ $app->tanggal_selesai }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
+                            </div>
+                        </div>
+
+                        <hr class="my-2 border-gray-200">
+                        <h4 class="font-bold text-gray-800 text-xs uppercase tracking-wider">Unggah Ulang Dokumen Lampiran (Opsional jika ingin mengganti file):</h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Surat Pengantar Asli (PDF)</label>
+                                <input type="file" name="file_surat_pengantar" accept="application/pdf" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Proposal (PDF)</label>
+                                <input type="file" name="file_proposal" accept="application/pdf" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">KTP / Identitas (PDF/JPG/PNG)</label>
+                                <input type="file" name="file_ktp" accept="application/pdf,image/*" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">KTM / Kartu Pelajar (PDF/JPG/PNG)</label>
+                                <input type="file" name="file_ktm" accept="application/pdf,image/*" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block font-semibold text-gray-700 mb-1">Dokumen Pendukung Lainnya (PDF)</label>
+                                <input type="file" name="file_pendukung" accept="application/pdf" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+                            <button type="button" onclick="closeEditModal('{{ $app->id }}')" class="px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 text-xs transition-colors">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-5 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-secondary text-xs transition-colors shadow-sm flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px]">send</span>
+                                <span>Simpan & Kirim Ulang</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
+        @endforeach
+    @endif
 </section>
 @endauth
 <!-- Jenis Pelayanan Surat Izin Rekomendasi Section -->
@@ -1252,6 +1408,37 @@
         modalBox.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
         
         // Hide container after animation
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
+
+    function openEditModal(id) {
+        const modal = document.getElementById('edit_modal_' + id);
+        const backdrop = document.getElementById('edit_backdrop_' + id);
+        const modalBox = document.getElementById('edit_modal_box_' + id);
+        if (!modal) return;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            backdrop.classList.remove('opacity-0');
+            modalBox.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+            modalBox.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditModal(id) {
+        const modal = document.getElementById('edit_modal_' + id);
+        const backdrop = document.getElementById('edit_backdrop_' + id);
+        const modalBox = document.getElementById('edit_modal_box_' + id);
+        if (!modal) return;
+        
+        backdrop.classList.add('opacity-0');
+        modalBox.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+        modalBox.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+        
         setTimeout(() => {
             modal.classList.add('hidden');
             document.body.style.overflow = '';

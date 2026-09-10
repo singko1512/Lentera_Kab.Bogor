@@ -42,9 +42,9 @@ class ParticipantController extends Controller
 
     public function extend()
     {
-        $menungguPersetujuan = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->where('kode', 'menunggu_verifikasi'); })->count();
-        $disetujui = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->whereIn('kode', ['disetujui', 'selesai']); })->count();
-        $ditolak = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->where('kode', 'ditolak'); })->count();
+        $menungguPersetujuan = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->where('nama', 'Menunggu'); })->count();
+        $disetujui = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->where('nama', 'Selesai'); })->count();
+        $ditolak = \App\Models\PermohonanLayanan::whereHas('statusMaster', function($q) { $q->where('nama', 'Ditolak'); })->count();
         $selesaiPeriode = \App\Models\PermohonanLayanan::whereNotNull('tanggal_selesai')->where('tanggal_selesai', '<', now())->count();
 
         $pengajuanPerpanjangan = \App\Models\PermohonanLayanan::with(['jenisLayanan', 'statusMaster'])
@@ -52,23 +52,5 @@ class ParticipantController extends Controller
             ->paginate(10);
             
         return view('pelayanan.kesbangpol.participants.extend', compact('menungguPersetujuan', 'disetujui', 'ditolak', 'selesaiPeriode', 'pengajuanPerpanjangan'));
-    }
-
-    public function show($id)
-    {
-        $user = \App\Models\User::findOrFail($id);
-        return view('pelayanan.kesbangpol.participants.detail', compact('user'));
-    }
-
-    public function showPlacement($id)
-    {
-        $application = \App\Models\MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang'])->findOrFail($id);
-        return view('pelayanan.kesbangpol.participants.placement_show', compact('application'));
-    }
-
-    public function showExtend($id)
-    {
-        $permohonan = \App\Models\PermohonanLayanan::with(['jenisLayanan', 'statusMaster', 'user'])->findOrFail($id);
-        return view('pelayanan.kesbangpol.participants.extend_show', compact('permohonan'));
     }
 }
