@@ -509,12 +509,12 @@
 
                             <div>
                                 <label class="block font-bold text-gray-700 mb-1">Tanggal Mulai</label>
-                                <input type="date" name="tanggal_mulai" value="{{ $app->tanggal_mulai }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
+                                <input type="date" name="tanggal_mulai" value="{{ $app->tanggal_mulai ? \Carbon\Carbon::parse($app->tanggal_mulai)->format('Y-m-d') : '' }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
                             </div>
 
                             <div>
                                 <label class="block font-bold text-gray-700 mb-1">Tanggal Selesai</label>
-                                <input type="date" name="tanggal_selesai" value="{{ $app->tanggal_selesai }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
+                                <input type="date" name="tanggal_selesai" value="{{ $app->tanggal_selesai ? \Carbon\Carbon::parse($app->tanggal_selesai)->format('Y-m-d') : '' }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5">
                             </div>
                         </div>
 
@@ -545,6 +545,11 @@
                             <div class="md:col-span-2">
                                 <label class="block font-semibold text-gray-700 mb-1">Dokumen Pendukung Lainnya (PDF)</label>
                                 <input type="file" name="file_pendukung" accept="application/pdf" class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block font-semibold text-gray-700 mb-1">Catatan / Pesan Revisi untuk Admin (Opsional)</label>
+                                <textarea name="catatan_pemohon" rows="2" placeholder="Contoh: Dokumen KTP sudah di-scan ulang dalam format PDF yang jelas." class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary/20 text-xs p-2.5"></textarea>
                             </div>
                         </div>
 

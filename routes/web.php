@@ -15,6 +15,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
 Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
 Route::get('/surat-rekomendasi/pdf/{id}', [\App\Http\Controllers\Kesbangpol\LayananController::class, 'downloadPdf'])->name('surat.pdf');
+Route::get('/sertifikat/{slug}', function($slug) { return redirect()->route('absensi.admin.dashboard'); })->name('sertifikat.show');
 
 // Fallback storage route to serve attachment files (KTP, KTM, Proposal, Surat) seamlessly on production deployments
 Route::get('/storage/{path}', function ($path) {
@@ -119,6 +120,7 @@ Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $req
     return redirect('/login')->with('success', 'Anda telah berhasil keluar dari sistem.');
 })->name('logout');
 
+Route::get('/register', function () { return redirect()->route('login.form', ['mode' => 'register']); })->name('register');
 Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.store');
 Route::get('/activate-account/{token}', [\App\Http\Controllers\AuthController::class, 'activateAccount'])->name('account.activate');
 Route::post('/resend-activation', [\App\Http\Controllers\AuthController::class, 'resendActivation'])->name('account.activate.resend');
@@ -210,6 +212,8 @@ Route::middleware(['auth'])->group(function () {
         // Routes for Sidebar Dinas
         Route::get('/participants', [DinasParticipantController::class, 'index'])->name('participants.index');
         Route::get('/participants/{id}', [DinasParticipantController::class, 'show'])->name('participants.show');
+        Route::post('/participants/{id}/penempatan', [DinasParticipantController::class, 'updatePenempatan'])->name('participants.penempatan.update');
+        Route::post('/participants/{id}/surat', [DinasParticipantController::class, 'updateSurat'])->name('participants.surat.update');
         Route::post('/participants/{id}/jurnal/{jurnal_id}/verify', [DinasParticipantController::class, 'verifyJurnal'])->name('participants.jurnal.verify');
         Route::get('/profile', [DinasDashboardController::class, 'editProfile'])->name('profile.edit');
         Route::post('/profile', [DinasDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -382,6 +386,54 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/absensi/admin/pembimbing/update/{id}', [SimalamAdminController::class, 'updatePembimbing'])->name('absensi.admin.pembimbing.update');
     Route::delete('/absensi/admin/pembimbing/destroy/{id}', [SimalamAdminController::class, 'destroyPembimbing'])->name('absensi.admin.pembimbing.destroy');
     
+    // Alias admin.* routes for Simalam views
+    Route::get('/admin/rekap/excel', [SimalamAdminController::class, 'exportExcel'])->name('admin.rekap.excel');
+    Route::get('/admin/rekap/pdf', [SimalamAdminController::class, 'exportPdf'])->name('admin.rekap.pdf');
+    Route::post('/admin/absensi/hapus/{absensi}', [SimalamAdminController::class, 'destroyAbsensi'])->name('admin.absensi.destroy');
+    Route::post('/admin/jadwal/landing_view', [SimalamAdminController::class, 'updateLandingScheduleView'])->name('admin.jadwal.landing_view');
+    Route::post('/admin/jadwal/update', [SimalamAdminController::class, 'updateSchedules'])->name('admin.jadwal.update');
+    Route::post('/admin/jadwal/randomize', [SimalamAdminController::class, 'randomizeSchedules'])->name('admin.jadwal.random');
+    Route::post('/admin/jadwal/team/store', [SimalamAdminController::class, 'storeTeam'])->name('admin.jadwal.team.store');
+    Route::post('/admin/jadwal/team/update', [SimalamAdminController::class, 'updateTeamSchedules'])->name('admin.jadwal.team.update');
+    Route::post('/admin/jadwal/team/randomize', [SimalamAdminController::class, 'randomizeTeamSchedules'])->name('admin.jadwal.team.random');
+    Route::post('/admin/jadwal/team/members/update', [SimalamAdminController::class, 'updateTeamMembers'])->name('admin.jadwal.team.members');
+    Route::post('/admin/jadwal/team/members/randomize', [SimalamAdminController::class, 'randomizeTeamMembers'])->name('admin.jadwal.team.random_members');
+    
+    Route::post('/admin/pegawai/store', [SimalamAdminController::class, 'storeUser'])->name('admin.user.store');
+    Route::put('/admin/pegawai/update/{id}', [SimalamAdminController::class, 'updateUser'])->name('admin.user.update');
+    Route::delete('/admin/pegawai/destroy/{id}', [SimalamAdminController::class, 'destroyUser'])->name('admin.user.destroy');
+    
+    Route::post('/admin/bidang/store', [SimalamAdminController::class, 'storeBidang'])->name('admin.bidang.store');
+    Route::put('/admin/bidang/update/{id}', [SimalamAdminController::class, 'updateBidang'])->name('admin.bidang.update');
+    Route::delete('/admin/bidang/destroy/{id}', [SimalamAdminController::class, 'destroyBidang'])->name('admin.bidang.destroy');
+    
+    Route::post('/admin/pembimbing/store', [SimalamAdminController::class, 'storePembimbing'])->name('admin.pembimbing.store');
+    Route::put('/admin/pembimbing/update/{id}', [SimalamAdminController::class, 'updatePembimbing'])->name('admin.pembimbing.update');
+    Route::delete('/admin/pembimbing/destroy/{id}', [SimalamAdminController::class, 'destroyPembimbing'])->name('admin.pembimbing.destroy');
+
+    Route::post('/admin/switch-instansi', function(\Illuminate\Http\Request $request) {
+        if ($request->filled('instansi_id')) {
+            session(['superadmin_instansi_id' => $request->input('instansi_id')]);
+        } else {
+            session()->forget('superadmin_instansi_id');
+        }
+        return redirect()->back();
+    })->name('admin.switch_instansi');
+
+    Route::post('/admin/dinas/store', function(\Illuminate\Http\Request $request) {
+        $request->validate(['nama' => 'required|string|max:255']);
+        \App\Models\Dinas::create(['nama' => $request->nama, 'status_aktif' => true]);
+        return redirect()->back()->with('success', 'Dinas berhasil ditambahkan.');
+    })->name('admin.dinas.store');
+
+    Route::delete('/admin/dinas/{id}', function($id) {
+        \App\Models\Dinas::destroy($id);
+        return redirect()->back()->with('success', 'Dinas berhasil dihapus.');
+    })->name('admin.dinas.destroy');
+
+    Route::post('/admin/dinas-user/store', [AdminDinasController::class, 'store'])->name('admin.dinas_user.store');
+    Route::delete('/admin/dinas-user/{id}', [AdminDinasController::class, 'destroy'])->name('admin.dinas_user.destroy');
+    
     
     Route::post('/absensi/admin/project/store', [SimalamProjectTimelineController::class, 'storeProject'])->name('absensi.admin.project.store');
     Route::post('/admin/project/store', [SimalamProjectTimelineController::class, 'storeProject'])->name('admin.project.store');
@@ -455,6 +507,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/absensi/task/mulai/{task}', [SimalamProjectTimelineController::class, 'startWorkTask'])->name('absensi.task.start_work');
     Route::post('/absensi/task/selesai/{task}', [SimalamProjectTimelineController::class, 'submitWorkTask'])->name('absensi.task.submit_work');
     Route::post('/absensi/module/ambil/{module}', [SimalamProjectTimelineController::class, 'selfAssignModule'])->name('absensi.module.ambil');
+    Route::post('/absensi/task/ambil/{task}', [SimalamProjectTimelineController::class, 'selfAssignTask'])->name('absensi.task.ambil');
     Route::post('/absensi/task/batal/{task}', [SimalamProjectTimelineController::class, 'cancelTask'])->name('absensi.task.batal');
     Route::post('/timeline/note/selesai/{note}', [SimalamProjectTimelineController::class, 'completeNote'])->name('absensi.timeline.note.complete');
+});
+
+// Legacy & Prototype Route Aliases to prevent dead buttons / broken links
+Route::middleware(['auth'])->group(function () {
+    Route::get('/participant/dashboard', function() { return redirect()->route('peserta.dashboard'); })->name('participant.dashboard');
+    Route::post('/participant/profile/update', [LandingController::class, 'updateProfile'])->name('participant.profile.update');
+    Route::get('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.index');
+    Route::post('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.store');
+    Route::get('/booking/search-users', function(\Illuminate\Http\Request $request) { 
+        return response()->json(\App\Models\User::where('nama', 'like', '%'.$request->q.'%')->orWhere('name', 'like', '%'.$request->q.'%')->orWhere('email', 'like', '%'.$request->q.'%')->take(5)->get()); 
+    })->name('booking.search_users');
+    Route::get('/application/form', function() { return redirect()->route('layanan.index'); })->name('application.form');
+    Route::post('/internship/store', function() { return redirect()->route('peserta.dashboard')->with('success', 'Pendaftaran magang berhasil diajukan.'); })->name('internship.store');
 });

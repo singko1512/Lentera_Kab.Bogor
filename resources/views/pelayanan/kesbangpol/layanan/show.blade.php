@@ -27,12 +27,104 @@
                                 default => 'bg-slate-100 text-slate-700 border border-slate-200'
                             };
                         @endphp
-                        <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $badgeClass }}">
-                            {{ $layanan->statusMaster->nama ?? 'Unknown' }}
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $badgeClass }}">
+                                {{ $layanan->statusMaster->nama ?? 'Unknown' }}
+                            </span>
+                            @if($layanan->isRevisiSelesai())
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs animate-pulse">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                                    Revisi Baru Masuk
+                                </span>
+                            @elseif($layanan->isMenungguRevisiUser())
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-300 shadow-xs">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                                    Menunggu Revisi Pemohon
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 </div>
                 <div class="p-6">
+                    {{-- Alert Box Informasi Revisi --}}
+                    @if($layanan->isRevisiSelesai())
+                        <div class="mb-6 p-4 bg-emerald-50/90 border-2 border-emerald-400 rounded-xl shadow-xs text-emerald-950">
+                            <div class="flex items-start gap-3.5">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                                    <span class="material-symbols-outlined text-[24px]">published_with_changes</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <h4 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+                                            Pemohon Telah Mengunggah Dokumen Revisi
+                                            <span class="text-[11px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-full">Siap Diverifikasi Ulang</span>
+                                        </h4>
+                                        <span class="text-xs font-semibold text-emerald-800 bg-white/80 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                            <span class="material-symbols-outlined text-[14px] align-middle mr-0.5">schedule</span>
+                                            {{ $layanan->tanggal_revisi ? $layanan->tanggal_revisi->format('d/m/Y H:i') : $layanan->updated_at->format('d/m/Y H:i') }} WIB
+                                        </span>
+                                    </div>
+                                    <div class="mt-2.5 text-xs space-y-2 text-emerald-900 leading-relaxed">
+                                        @if($layanan->keterangan)
+                                            <div class="bg-white/90 p-2.5 rounded-lg border border-emerald-200">
+                                                <span class="font-bold text-gray-700">Permintaan Revisi Sebelumnya (dari Kesbangpol):</span>
+                                                <p class="text-rose-700 font-semibold mt-0.5">{{ $layanan->keterangan }}</p>
+                                            </div>
+                                        @endif
+                                        @if($layanan->catatan_pemohon)
+                                            <div class="bg-white/90 p-2.5 rounded-lg border border-emerald-200">
+                                                <span class="font-bold text-gray-700">Pesan / Keterangan dari Pemohon:</span>
+                                                <p class="text-gray-900 font-medium mt-0.5 italic">"{{ $layanan->catatan_pemohon }}"</p>
+                                            </div>
+                                        @endif
+                                        @if(!empty($layanan->dokumen_direvisi))
+                                            <div class="flex items-center flex-wrap gap-1.5 pt-0.5">
+                                                <span class="font-bold text-emerald-950">Dokumen yang baru diupload:</span>
+                                                @php
+                                                    $labels = [
+                                                        'file_ktp' => 'KTP / Identitas',
+                                                        'file_ktm' => 'KTM / Kartu Pelajar',
+                                                        'file_surat_permohonan' => 'Surat Permohonan',
+                                                        'file_surat_pengantar' => 'Surat Pengantar',
+                                                        'file_surat_lokasi' => 'Surat dari Lokasi',
+                                                        'file_proposal' => 'Proposal',
+                                                        'file_surat_kesbangpol_jabar' => 'Surat Kesbangpol Jabar',
+                                                        'file_surat_kemendagri' => 'Surat Kemendagri',
+                                                        'file_surat_rekomendasi_lama' => 'Surat Rekomendasi Lama',
+                                                        'file_pendukung' => 'Dokumen Pendukung',
+                                                    ];
+                                                @endphp
+                                                @foreach($layanan->dokumen_direvisi as $docKey)
+                                                    <span class="px-2 py-0.5 bg-emerald-600 text-white rounded font-bold text-[11px] shadow-xs">
+                                                        {{ $labels[$docKey] ?? $docKey }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($layanan->isMenungguRevisiUser())
+                        <div class="mb-6 p-4 bg-amber-50/90 border-2 border-amber-300 rounded-xl shadow-xs text-amber-950">
+                            <div class="flex items-start gap-3.5">
+                                <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+                                    <span class="material-symbols-outlined text-[24px]">pending_actions</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-sm text-amber-950">Menunggu Pemohon Mengunggah Dokumen Revisi</h4>
+                                    <p class="text-xs text-amber-800 mt-0.5">Kesbangpol telah meminta perbaikan pada permohonan ini. Pemohon belum mengunggah file revisi terbaru.</p>
+                                    @if($layanan->keterangan)
+                                        <div class="mt-2 bg-white/90 p-2.5 rounded-lg border border-amber-200 text-xs">
+                                            <span class="font-bold text-gray-700">Catatan Revisi yang Diminta:</span>
+                                            <p class="text-rose-600 font-bold mt-0.5">{{ $layanan->keterangan }}</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-2 text-sm text-gray-700">
                         <div class="font-semibold md:col-span-1">ID Permohonan</div>
                         <div class="md:col-span-2">#{{ $layanan->id }}</div>
@@ -58,14 +150,39 @@
                         <div class="md:col-span-2">{{ \Carbon\Carbon::parse($layanan->tanggal_mulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($layanan->tanggal_selesai)->format('d/m/Y') }}</div>
                         
                         @if($layanan->keterangan)
-                            <div class="font-semibold md:col-span-1">Keterangan (Revisi)</div>
-                            <div class="md:col-span-2 text-red-600 font-medium">{{ $layanan->keterangan }}</div>
+                            <div class="font-semibold md:col-span-1">Catatan Revisi Kesbangpol</div>
+                            <div class="md:col-span-2">
+                                <span class="text-rose-600 font-semibold">{{ $layanan->keterangan }}</span>
+                                @if($layanan->isRevisiSelesai())
+                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                        Sudah ditindaklanjuti pemohon
+                                    </span>
+                                @elseif($layanan->isMenungguRevisiUser())
+                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                        Menunggu respon pemohon
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if($layanan->catatan_pemohon)
+                            <div class="font-semibold md:col-span-1">Pesan Pemohon</div>
+                            <div class="md:col-span-2 text-gray-800 font-medium italic">"{{ $layanan->catatan_pemohon }}"</div>
                         @endif
                     </div>
 
                     <hr class="my-6 border-gray-200">
                     
-                    <h3 class="text-md font-bold text-gray-800 mb-4">Dokumen Lampiran</h3>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-md font-bold text-gray-800 m-0">Dokumen Lampiran</h3>
+                        @if($layanan->isRevisiSelesai())
+                            <span class="text-xs text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                                <span class="material-symbols-outlined text-[14px]">info</span>
+                                Dokumen bertanda hijau adalah hasil revisi terbaru
+                            </span>
+                        @endif
+                    </div>
+
                     <div class="flex flex-col gap-3">
                         @php
                             $dokumens = [
@@ -83,16 +200,35 @@
                         @endphp
                         @foreach($dokumens as $field => $info)
                             @if($layanan->$field)
-                            <div class="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center text-gray-700">
-                                    <span class="material-symbols-outlined text-primary mr-3">{{ $info['icon'] }}</span>
-                                    <span class="font-medium">{{ $info['label'] }}</span>
+                            @php
+                                $isNewlyRevised = is_array($layanan->dokumen_direvisi) && in_array($field, $layanan->dokumen_direvisi);
+                                if (!$isNewlyRevised && $layanan->isRevisiSelesai() && !empty($layanan->keterangan)) {
+                                    $ketLower = strtolower($layanan->keterangan);
+                                    if (str_contains($field, 'ktp') && (str_contains($ketLower, 'ktp') || str_contains($ketLower, 'identitas'))) {
+                                        $isNewlyRevised = true;
+                                    } elseif (str_contains($field, 'proposal') && str_contains($ketLower, 'proposal')) {
+                                        $isNewlyRevised = true;
+                                    } elseif (str_contains($field, 'pengantar') && str_contains($ketLower, 'pengantar')) {
+                                        $isNewlyRevised = true;
+                                    }
+                                }
+                            @endphp
+                            <div class="flex items-center justify-between p-3 rounded-lg border {{ $isNewlyRevised ? 'border-emerald-300 bg-emerald-50/50 shadow-xs' : 'border-gray-200 hover:bg-gray-50' }} transition-colors">
+                                <div class="flex items-center text-gray-700 flex-wrap gap-2">
+                                    <span class="material-symbols-outlined {{ $isNewlyRevised ? 'text-emerald-600' : 'text-primary' }} mr-1">{{ $info['icon'] }}</span>
+                                    <span class="font-medium {{ $isNewlyRevised ? 'text-emerald-950 font-bold' : '' }}">{{ $info['label'] }}</span>
+                                    @if($isNewlyRevised)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-xs">
+                                            <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                                            Baru Direvisi
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" @click="previewUrl = '{{ asset('storage/' . $layanan->$field) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary/10 text-primary transition-colors focus:outline-none" title="Lihat Preview">
+                                    <button type="button" @click="previewUrl = '{{ asset('storage/' . $layanan->$field) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
-                                    <a href="{{ asset('storage/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-primary/10 text-primary transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
+                                    <a href="{{ asset('storage/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
                                         <span class="material-symbols-outlined text-[20px]">open_in_new</span>
                                     </a>
                                 </div>
@@ -106,24 +242,30 @@
         
         <!-- Kolom Aksi Verifikasi -->
         <div class="w-full lg:w-1/3 flex flex-col gap-6">
-            <!-- Box Quick Action: Generate Surat Rekomendasi (.docx) -->
+            <!-- Box Quick Action: Surat Rekomendasi Kesbangpol (PDF Resmi + QR Code) -->
             <div class="bg-blue-50/80 rounded-xl shadow-sm border border-blue-200 p-5">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                        <span class="material-symbols-outlined text-[20px]">description</span>
+                        <span class="material-symbols-outlined text-[20px]">verified</span>
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-gray-900">Surat Rekomendasi Kesbangpol</h3>
-                        <p class="text-[11px] text-gray-600">Generate draf dokumen resmi (.docx)</p>
+                        <p class="text-[11px] text-gray-600">Dokumen resmi PDF ber-QR Code</p>
                     </div>
                 </div>
                 <p class="text-xs text-gray-600 mb-3.5 leading-relaxed">
-                    Unduh draf Surat Rekomendasi Kesbangpol otomatis berbasis format Word (.docx) kapan saja.
+                    Lihat atau unduh Surat Rekomendasi Kesbangpol resmi berformat PDF lengkap dengan tanda tangan elektronik dan QR Code verifikasi.
                 </p>
-                <a href="{{ route('kesbangpol.layanan.generate_docx', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <span class="material-symbols-outlined text-[18px]">download</span>
-                    Generate & Download Surat (.docx)
-                </a>
+                <div class="flex flex-col gap-2">
+                    <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                        Lihat / Download Surat (.pdf)
+                    </a>
+                    <a href="{{ route('kesbangpol.layanan.generate_docx', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-blue-300 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">description</span>
+                        Unduh Draf Word (.docx)
+                    </a>
+                </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -167,7 +309,7 @@
                                     <input type="file" name="file_surat_keluaran" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer" accept=".pdf">
                                     <div class="mt-2 text-xs text-blue-800 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200/80 flex items-start gap-2">
                                         <span class="material-symbols-outlined text-blue-600 text-[16px] mt-0.5 shrink-0">info</span>
-                                        <span>Jika tidak diunggah manual, sistem akan <strong>otomatis membuat Surat Rekomendasi (.docx)</strong> saat menyetujui.</span>
+                                        <span>Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf) ber-QR Code</strong> saat menyetujui.</span>
                                     </div>
                                 </div>
                             </div>
@@ -190,10 +332,10 @@
                             </div>
                         </div>
                         
-                        @if($layanan->file_surat_keluaran)
-                        <a href="{{ asset('storage/' . $layanan->file_surat_keluaran) }}" target="_blank" class="w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors mt-4">
-                            <span class="material-symbols-outlined mr-2 text-[18px]">download</span>
-                            Download Surat Kesbangpol (Hasil Upload/PDF)
+                        @if($layanan->file_surat_keluaran || ($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['disetujui', 'selesai'])))
+                        <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors mt-4">
+                            <span class="material-symbols-outlined mr-2 text-[18px]">picture_as_pdf</span>
+                            Download Surat Rekomendasi (PDF + QR Code)
                         </a>
                         @endif
                     @endif

@@ -274,17 +274,17 @@
                     </div>
                     
                     <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-center">
-                            <label class="text-[14px] font-medium text-on-surface">Kata Sandi</label>
-                            @if(! in_array($loginRole, ['admin', 'superadmin'], true))
-                                <a href="{{ route('password.request') }}" class="text-[12px] text-secondary font-medium hover:underline">Lupa sandi?</a>
-                            @endif
-                        </div>
-                        <input name="password" type="password" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                        <label class="text-[14px] font-medium text-on-surface">Kata Sandi</label>
+                        <input name="password" type="password" placeholder="Masukkan Kata Sandi Anda" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                         @error('password')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
+                        @if(! in_array($loginRole, ['admin', 'superadmin'], true))
+                            <div class="flex justify-end -mt-0.5">
+                                <a href="{{ route('password.request') }}" class="text-[13px] text-secondary font-medium hover:underline">Lupa sandi?</a>
+                            </div>
+                        @endif
                     </div>
 
-                    <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-4">
+                    <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-3">
                         Masuk Sistem
                         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </button>

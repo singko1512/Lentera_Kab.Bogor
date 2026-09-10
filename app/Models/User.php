@@ -90,6 +90,11 @@ class User extends Authenticatable
     }
 
     // SIMALAM Relations
+    public function absensi()
+    {
+        return $this->hasMany(\App\Models\Simalam\Absensi::class, 'user_id');
+    }
+
     public function absensiSimalam()
     {
         return $this->hasMany(\App\Models\Simalam\Absensi::class, 'user_id');

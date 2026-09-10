@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -601,9 +602,18 @@ class AttendanceController extends Controller
         return $this->serveAbsensiFile($absensi->foto);
     }
 
-    public function kamera(Absensi $absensi)
+    public function kamera(Request $request, Absensi $absensi)
     {
-        return $this->serveAbsensiFile($absensi->foto_kamera ?: $absensi->foto_masuk ?: $absensi->foto_pulang);
+        $tipe = $request->query('tipe');
+        if ($tipe === 'pulang') {
+            $photo = $absensi->foto_pulang ?: $absensi->foto_kamera ?: $absensi->foto_masuk;
+        } elseif ($tipe === 'masuk') {
+            $photo = $absensi->foto_masuk ?: $absensi->foto_kamera ?: $absensi->foto_pulang;
+        } else {
+            $photo = $absensi->foto_kamera ?: $absensi->foto_masuk ?: $absensi->foto_pulang;
+        }
+
+        return $this->serveAbsensiFile($photo);
     }
 
     public function sertifikat(string $slug)
@@ -653,14 +663,25 @@ class AttendanceController extends Controller
             abort(404);
         }
 
-        $uploadsRoot = realpath(public_path('uploads'));
-        $filePath = realpath(public_path($path));
-
-        if (! $uploadsRoot || ! $filePath || ! Str::startsWith($filePath, $uploadsRoot) || ! File::isFile($filePath)) {
-            abort(404);
+        // 1. Check in public direct (e.g. uploads/absensi/...)
+        $publicTarget = public_path($path);
+        if (File::isFile($publicTarget)) {
+            return response()->file($publicTarget);
         }
 
-        return response()->file($filePath);
+        // 2. Check in Storage public disk (e.g. absensi/masuk/...)
+        $cleanStoragePath = Str::after($path, 'storage/');
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanStoragePath)) {
+            return response()->file(\Illuminate\Support\Facades\Storage::disk('public')->path($cleanStoragePath));
+        }
+
+        // 3. Fallback check raw storage_path
+        $rawStorage = storage_path('app/public/' . ltrim($path, '/\\'));
+        if (File::isFile($rawStorage)) {
+            return response()->file($rawStorage);
+        }
+
+        abort(404);
     }
 
     private function joinTaskForUser(int $taskId, int $userId): void

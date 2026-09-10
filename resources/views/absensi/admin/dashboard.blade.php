@@ -1036,11 +1036,22 @@
                                         </td>
                                         <td>
                                             @if ($rec->foto_kamera || $rec->foto_masuk || $rec->foto_pulang)
-                                                @php $kameraUrl = route('absensi.kamera', $rec); @endphp
-                                                <a href="{{ $kameraUrl }}" target="_blank" title="Lihat foto kamera" class="attachment-link">
-                                                    <img src="{{ $kameraUrl }}" alt="Foto Kamera" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-                                                    <span class="d-none"><i class="fa-solid fa-camera"></i> Lihat</span>
-                                                </a>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    @if ($rec->foto_masuk || $rec->foto_kamera)
+                                                        @php $kameraMasukUrl = route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'masuk']); @endphp
+                                                        <a href="{{ $kameraMasukUrl }}" target="_blank" title="Foto Masuk" class="attachment-link">
+                                                            <img src="{{ $kameraMasukUrl }}" alt="Foto Masuk" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                                            <span class="d-none badge bg-primary-subtle text-primary" style="font-size:0.75rem;"><i class="fa-solid fa-camera"></i> In</span>
+                                                        </a>
+                                                    @endif
+                                                    @if ($rec->foto_pulang)
+                                                        @php $kameraPulangUrl = route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'pulang']); @endphp
+                                                        <a href="{{ $kameraPulangUrl }}" target="_blank" title="Foto Pulang" class="attachment-link">
+                                                            <img src="{{ $kameraPulangUrl }}" alt="Foto Pulang" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                                            <span class="d-none badge bg-success-subtle text-success" style="font-size:0.75rem;"><i class="fa-solid fa-camera"></i> Out</span>
+                                                        </a>
+                                                    @endif
+                                                </div>
                                             @else
                                                 <span class="text-muted" style="font-size:0.82rem;">-</span>
                                             @endif

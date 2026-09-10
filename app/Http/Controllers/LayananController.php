@@ -41,13 +41,6 @@ class LayananController extends Controller
     public function submit(Request $request)
     {
         try {
-            $request->validate([
-                'tanggal_mulai' => 'nullable|date',
-                'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            ], [
-                'tanggal_selesai.after_or_equal' => 'Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai.'
-            ]);
-
             $jenisLayanan = JenisLayanan::where('slug', $request->jenis_layanan_slug)->firstOrFail();
             $statusMenunggu = StatusMaster::where('kode', 'menunggu_verifikasi')->firstOrFail();
 
@@ -110,14 +103,14 @@ class LayananController extends Controller
             return redirect()->back()->with('error', 'Permohonan tidak dapat diubah pada status saat ini.');
         }
 
-        // Update text fields jika ada dalam request
-        if ($request->has('atas_nama')) $permohonan->atas_nama = $request->atas_nama;
-        if ($request->has('no_hp')) $permohonan->no_hp = $request->no_hp;
-        if ($request->has('asal_instansi')) $permohonan->asal_instansi = $request->asal_instansi;
-        if ($request->has('judul_kegiatan')) $permohonan->judul_kegiatan = $request->judul_kegiatan;
-        if ($request->has('tempat_kegiatan')) $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
-        if ($request->has('tanggal_mulai')) $permohonan->tanggal_mulai = $request->tanggal_mulai;
-        if ($request->has('tanggal_selesai')) $permohonan->tanggal_selesai = $request->tanggal_selesai;
+        // Update text fields jika ada dalam request dan tidak bernilai kosong
+        if ($request->filled('atas_nama')) $permohonan->atas_nama = $request->atas_nama;
+        if ($request->filled('no_hp')) $permohonan->no_hp = $request->no_hp;
+        if ($request->filled('asal_instansi')) $permohonan->asal_instansi = $request->asal_instansi;
+        if ($request->filled('judul_kegiatan')) $permohonan->judul_kegiatan = $request->judul_kegiatan;
+        if ($request->filled('tempat_kegiatan')) $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
+        if ($request->filled('tanggal_mulai')) $permohonan->tanggal_mulai = $request->tanggal_mulai;
+        if ($request->filled('tanggal_selesai')) $permohonan->tanggal_selesai = $request->tanggal_selesai;
 
         $fileFields = [
             'file_ktp', 'file_ktm', 'file_surat_permohonan', 'file_surat_pengantar',
@@ -126,6 +119,7 @@ class LayananController extends Controller
             'file_daftar_peserta', 'file_id_card', 'file_kartu_pelajar'
         ];
 
+        $updatedFiles = [];
         foreach ($fileFields as $field) {
             if ($request->hasFile($field)) {
                 // Delete old file if exists
@@ -134,7 +128,18 @@ class LayananController extends Controller
                 }
                 $path = $request->file($field)->store('permohonan/' . $field, 'public');
                 $permohonan->{$field} = $path;
+                $updatedFiles[] = $field;
             }
+        }
+
+        // Catat metadata revisi agar Admin Kesbangpol langsung mengetahui update ini
+        $permohonan->status_revisi = 'sudah_direvisi';
+        $permohonan->tanggal_revisi = now();
+        if (!empty($updatedFiles)) {
+            $permohonan->dokumen_direvisi = $updatedFiles;
+        }
+        if ($request->filled('catatan_pemohon')) {
+            $permohonan->catatan_pemohon = $request->catatan_pemohon;
         }
 
         // Kembalikan status ke menunggu_verifikasi setelah revisi/edit
@@ -144,6 +149,22 @@ class LayananController extends Controller
         }
         
         $permohonan->save();
+
+        // Kirim notifikasi ke admin/kesbangpol
+        try {
+            $adminUsers = \App\Models\User::whereIn('role', ['admin', 'superadmin', 'kesbangpol'])->get();
+            foreach ($adminUsers as $admin) {
+                \App\Models\Notification::create([
+                    'user_id' => $admin->id,
+                    'judul' => 'Revisi Dokumen Masuk',
+                    'pesan' => 'Pemohon ' . ($permohonan->atas_nama ?? 'Peserta') . ' telah memperbarui dokumen revisi untuk permohonan #' . $permohonan->id . '.',
+                    'link' => route('kesbangpol.layanan.show', $permohonan->id),
+                    'dibaca' => false,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Non-blocking notification fail
+        }
 
         if ($request->wantsJson()) {
             return response()->json([

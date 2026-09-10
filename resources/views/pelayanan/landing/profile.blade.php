@@ -149,9 +149,9 @@
                 <p class="text-sm font-semibold text-on-surface mt-1">{{ $latestLayanan->jenisLayanan->nama ?? 'Layanan Rekomendasi' }}</p>
                 <p class="text-xs text-on-surface-variant">Lokasi/Tujuan: <strong>{{ $latestLayanan->tempat_kegiatan }}</strong></p>
 
-                @if($latestLayanan->file_surat_keluaran)
-                <a href="{{ Storage::url($latestLayanan->file_surat_keluaran) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                    <span class="material-symbols-outlined text-[16px]">download</span> Unduh Surat Kesbangpol
+                @if($latestLayanan->file_surat_keluaran || ($latestLayanan->statusMaster && in_array($latestLayanan->statusMaster->kode, ['disetujui', 'selesai'])))
+                <a href="{{ route('surat.pdf', $latestLayanan->id) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                    <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Unduh Surat Rekomendasi (PDF)
                 </a>
                 @endif
             </div>

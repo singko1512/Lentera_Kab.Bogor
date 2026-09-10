@@ -36,12 +36,34 @@ class PermohonanLayanan extends Model
         'file_surat_rekomendasi_lama',
         'file_pendukung',
         'file_surat_keluaran',
+        'status_revisi',
+        'catatan_pemohon',
+        'dokumen_direvisi',
+        'tanggal_revisi',
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
+        'tanggal_revisi' => 'datetime',
+        'dokumen_direvisi' => 'array',
     ];
+
+    public function isRevisiSelesai(): bool
+    {
+        if ($this->status_revisi === 'sudah_direvisi') {
+            return true;
+        }
+        return optional($this->statusMaster)->kode === 'menunggu_verifikasi'
+            && !empty($this->keterangan)
+            && ($this->tanggal_revisi !== null || $this->updated_at > $this->created_at);
+    }
+
+    public function isMenungguRevisiUser(): bool
+    {
+        return $this->status_revisi === 'menunggu_user'
+            || optional($this->statusMaster)->kode === 'perlu_revisi';
+    }
 
     public function user(): BelongsTo
     {

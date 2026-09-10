@@ -36,9 +36,21 @@
                                 default => 'bg-slate-100 text-slate-700 border border-slate-200'
                             };
                         @endphp
-                        <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $badgeClass }}">
-                            {{ $layanan->statusMaster->nama ?? 'Unknown' }}
-                        </span>
+                        <div class="flex flex-col items-start gap-1">
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $badgeClass }}">
+                                {{ $layanan->statusMaster->nama ?? 'Unknown' }}
+                            </span>
+                            @if($layanan->isRevisiSelesai())
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                    Revisi Baru Masuk
+                                </span>
+                            @elseif($layanan->isMenungguRevisiUser())
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                                    ⏳ Menunggu Pemohon
+                                </span>
+                            @endif
+                        </div>
                     </td>
                     <td class="p-4 border-b border-gray-100 text-sm">
                         <div class="flex items-center gap-2">

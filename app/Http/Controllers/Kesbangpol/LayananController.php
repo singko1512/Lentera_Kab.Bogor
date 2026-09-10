@@ -62,8 +62,17 @@ class LayananController extends Controller
 
         $layanan->status_master_id = $statusMaster->id;
 
-        if (in_array($request->status, ['perlu_revisi', 'ditolak'])) {
+        if ($request->status === 'perlu_revisi') {
             $layanan->keterangan = $request->keterangan;
+            $layanan->status_revisi = 'menunggu_user';
+            $layanan->dokumen_direvisi = null;
+            $layanan->catatan_pemohon = null;
+            $layanan->tanggal_revisi = null;
+        } elseif ($request->status === 'ditolak') {
+            $layanan->keterangan = $request->keterangan;
+            $layanan->status_revisi = null;
+        } elseif ($request->status === 'disetujui') {
+            $layanan->status_revisi = null;
         }
 
         if ($request->status === 'disetujui') {
@@ -71,7 +80,28 @@ class LayananController extends Controller
                 $path = $request->file('file_surat_keluaran')->store('permohonan/keluaran', 'public');
                 $layanan->file_surat_keluaran = $path;
             } else {
-                // Generate DOCX otomatis dari template_kesbangpol.docx jika tidak ada upload manual
+                // 1. Generate PDF Resmi otomatis dengan Kop Surat, TTE, dan QR Code
+                try {
+                    $pdfFileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';
+                    $relativePdfPath = 'permohonan/keluaran/' . $pdfFileName;
+                    $outputPdfPath = storage_path('app/public/' . $relativePdfPath);
+
+                    if (!file_exists(dirname($outputPdfPath))) {
+                        mkdir(dirname($outputPdfPath), 0755, true);
+                    }
+
+                    $qrUrl = route('surat.pdf', $layanan->id);
+                    $pdf = Pdf::loadView('pdf.surat_kesbangpol', compact('layanan', 'qrUrl'))
+                        ->setPaper('a4', 'portrait');
+                    $pdf->save($outputPdfPath);
+
+                    // Simpan path PDF resmi ke database
+                    $layanan->file_surat_keluaran = $relativePdfPath;
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Gagal generate PDF rekomendasi: ' . $e->getMessage());
+                }
+
+                // 2. Generate juga draf DOCX cadangan jika template tersedia
                 try {
                     $templatePath = resource_path('templates/template_kesbangpol.docx');
                     if (!file_exists($templatePath)) {
@@ -79,17 +109,17 @@ class LayananController extends Controller
                     }
 
                     if (file_exists($templatePath)) {
-                        $fileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.docx';
-                        $relativeStoragePath = 'permohonan/keluaran/' . $fileName;
-                        $outputPath = storage_path('app/public/' . $relativeStoragePath);
+                        $docxFileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.docx';
+                        $relativeDocxPath = 'permohonan/keluaran/' . $docxFileName;
+                        $outputDocxPath = storage_path('app/public/' . $relativeDocxPath);
 
-                        if (!file_exists(dirname($outputPath))) {
-                            mkdir(dirname($outputPath), 0755, true);
+                        if (!file_exists(dirname($outputDocxPath))) {
+                            mkdir(dirname($outputDocxPath), 0755, true);
                         }
-                        copy($templatePath, $outputPath);
+                        copy($templatePath, $outputDocxPath);
 
                         $zip = new \ZipArchive();
-                        if ($zip->open($outputPath) === TRUE) {
+                        if ($zip->open($outputDocxPath) === TRUE) {
                             $xml = $zip->getFromName('word/document.xml');
                             $dinasName = $layanan->tempat_kegiatan ?? 'Dinas Tujuan';
 
@@ -123,12 +153,10 @@ class LayananController extends Controller
                             $xml = str_replace(array_keys($replacements), array_values($replacements), $xml);
                             $zip->addFromString('word/document.xml', $xml);
                             $zip->close();
-
-                            $layanan->file_surat_keluaran = $relativeStoragePath;
                         }
                     }
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Gagal generate docx rekomendasi: ' . $e->getMessage());
+                    \Illuminate\Support\Facades\Log::error('Gagal generate draf docx cadangan: ' . $e->getMessage());
                 }
             }
         }
@@ -251,6 +279,10 @@ class LayananController extends Controller
             ->setPaper('a4', 'portrait');
 
         $fileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';
+
+        if (request()->has('download')) {
+            return $pdf->download($fileName);
+        }
 
         return $pdf->stream($fileName);
     }
