@@ -11,6 +11,13 @@ use Illuminate\Support\Str;
 
 class AdminDinasController extends Controller
 {
+    public function __construct()
+    {
+        if (auth()->check() && auth()->user()->role !== 'superadmin') {
+            abort(403, 'Hanya superadmin yang berhak mengakses halaman ini.');
+        }
+    }
+
     public function index(Request $request)
     {
         $search = $request->input('search');

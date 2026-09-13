@@ -1,14 +1,24 @@
 @extends('pelayanan.layouts.dinas_stitch')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-    <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Edit Lowongan Rekrutmen</h2>
+<div class="max-w-container-max mx-auto space-y-stack-lg pb-12">
+    <!-- Page Header -->
+    <div class="mb-stack-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-2">
+                <a href="{{ route('dinas.rekrutmen.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <h2 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">Edit Lowongan Rekrutmen</h2>
+            </div>
+            <p class="text-body-md font-body-md text-on-surface-variant ml-8">Perbarui data lowongan magang yang ada.</p>
+        </div>
     </div>
 
     @if ($errors->any())
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-        <ul class="list-disc pl-5">
+    <div class="mb-6 bg-error/10 text-error p-4 rounded-xl border border-error/20 flex gap-2">
+        <span class="material-symbols-outlined shrink-0 mt-0.5">error</span>
+        <ul class="list-disc pl-5 text-sm font-semibold">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
@@ -16,52 +26,71 @@
     </div>
     @endif
 
-    <form action="{{ route('dinas.rekrutmen.update', $rekrutmen->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Penempatan Bidang / Unit Kerja (Opsional)</label>
-            <select name="bidang_id" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                <option value="">Semua Bidang / Tidak Spesifik</option>
-                @foreach($bidangs as $bidang)
-                <option value="{{ $bidang->id }}" {{ $rekrutmen->bidang_id == $bidang->id ? 'selected' : '' }}>{{ $bidang->name }}</option>
-                @endforeach
-            </select>
-        </div>
+    <div class="bg-white rounded-2xl shadow-soft border border-outline-variant/30 overflow-hidden">
+        <div class="p-6 md:p-8">
+            <form action="{{ route('dinas.rekrutmen.update', $rekrutmen->id) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
+                
+                <div class="space-y-2">
+                    <label class="text-label-md font-bold text-on-surface block">Penempatan Bidang / Unit Kerja</label>
+                    <div class="relative">
+                        <select name="bidang_id" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none pr-10">
+                            <option value="" disabled {{ empty($rekrutmen->bidang_id) ? 'selected' : '' }}>Pilih Bidang / Unit Kerja</option>
+                            @foreach($bidangs as $bidang)
+                            <option value="{{ $bidang->id }}" {{ $rekrutmen->bidang_id == $bidang->id ? 'selected' : '' }}>{{ $bidang->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+                            <span class="material-symbols-outlined text-[20px]">expand_more</span>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Judul Lowongan / Posisi</label>
-            <input type="text" name="judul" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->judul }}" required maxlength="150">
-        </div>
+                <div class="space-y-2">
+                    <label class="text-label-md font-bold text-on-surface block">Judul Lowongan / Posisi</label>
+                    <input type="text" name="judul" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->judul }}" required maxlength="150">
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Kuota Dibutuhkan</label>
-                <input type="number" name="kuota" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->kuota }}" required min="1">
-            </div>
-            <div>
-                <label class="block text-gray-700 font-medium mb-2">Tanggal Penutupan (Opsional)</label>
-                <input type="date" name="tanggal_berakhir" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->tanggal_berakhir ? $rekrutmen->tanggal_berakhir->format('Y-m-d') : '' }}">
-            </div>
-        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-label-md font-bold text-on-surface block">Kuota Dibutuhkan</label>
+                        <input type="number" name="kuota" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->kuota }}" required min="1">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-label-md font-bold text-on-surface block">Tanggal Penutupan (Opsional)</label>
+                        <input type="date" name="tanggal_berakhir" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" value="{{ $rekrutmen->tanggal_berakhir ? $rekrutmen->tanggal_berakhir->format('Y-m-d') : '' }}">
+                    </div>
+                </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 font-medium mb-2">Persyaratan Khusus (Opsional)</label>
-            <textarea name="deskripsi_persyaratan" rows="4" class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ $rekrutmen->deskripsi_persyaratan }}</textarea>
-        </div>
+                <div class="space-y-2">
+                    <label class="text-label-md font-bold text-on-surface block">Persyaratan Khusus (Opsional)</label>
+                    <textarea name="deskripsi_persyaratan" rows="4" class="w-full bg-surface-container-lowest border border-outline-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">{{ $rekrutmen->deskripsi_persyaratan }}</textarea>
+                </div>
 
-        <div class="mb-6">
-            <label class="inline-flex items-center">
-                <input type="checkbox" name="is_active" value="1" {{ $rekrutmen->is_active ? 'checked' : '' }} class="form-checkbox h-5 w-5 text-primary border-gray-300 rounded">
-                <span class="ml-2 text-gray-700 font-medium">Aktif / Dibuka</span>
-            </label>
-        </div>
+                <div class="space-y-3">
+                    <label class="text-label-md font-bold text-on-surface block">Status Publikasi</label>
+                    <div class="flex items-center gap-6">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="is_active" value="1" {{ $rekrutmen->is_active ? 'checked' : '' }} class="w-5 h-5 text-primary bg-surface-container-lowest border-outline-variant focus:ring-primary focus:ring-offset-0">
+                            <span class="text-body-md text-on-surface group-hover:text-primary transition-colors">Aktif / Dibuka</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="radio" name="is_active" value="0" {{ !$rekrutmen->is_active ? 'checked' : '' }} class="w-5 h-5 text-primary bg-surface-container-lowest border-outline-variant focus:ring-primary focus:ring-offset-0">
+                            <span class="text-body-md text-on-surface group-hover:text-primary transition-colors">Draft / Ditutup</span>
+                        </label>
+                    </div>
+                </div>
 
-        <div class="flex justify-end gap-3">
-            <a href="{{ route('dinas.rekrutmen.index') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded font-medium hover:bg-gray-300">Batal</a>
-            <button type="submit" class="px-4 py-2 bg-primary text-white rounded font-medium hover:bg-primary-dark">Simpan Perubahan</button>
+                <div class="pt-6 border-t border-outline-variant/30 flex justify-end gap-3">
+                    <a href="{{ route('dinas.rekrutmen.index') }}" class="px-6 py-3 bg-surface-container text-on-surface-variant font-bold rounded-xl hover:bg-surface-container-high transition-all">Batal</a>
+                    <button type="submit" class="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 hover:shadow-lg transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 @endsection

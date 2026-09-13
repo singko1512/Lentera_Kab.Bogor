@@ -243,7 +243,7 @@
 <main class="max-w-container-max mx-auto px-margin-desktop py-stack-lg flex flex-col gap-stack-lg">
 <!-- Header Section -->
 <div class="flex flex-col gap-stack-sm w-full">
-<nav aria-label="Breadcrumb" class="flex text-on-surface-variant font-caption text-caption">
+<nav aria-label="Breadcrumb" class="flex text-on-surface-variant dark:text-white/70 font-caption text-caption">
 <ol class="inline-flex items-center space-x-1 md:space-x-2">
 <li class="inline-flex items-center"><a href="{{ route('home') }}" class="hover:text-secondary transition-colors cursor-pointer">Beranda</a></li>
 <li><span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span></li>
@@ -253,7 +253,7 @@
 </ol>
 </nav>
 <h1 class="font-headline-lg text-headline-lg text-primary mt-2">Form Pengajuan KKL / PKL / Magang (Siswa Sekolah)</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Lengkapi formulir di bawah ini untuk mengajukan permohonan rekomendasi pelaksanaan program Kuliah Kerja Nyata (KKN) di wilayah Kabupaten Bogor.</p>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-white/70 max-w-3xl">Lengkapi formulir di bawah ini untuk mengajukan permohonan rekomendasi pelaksanaan program Kuliah Kerja Nyata (KKN) di wilayah Kabupaten Bogor.</p>
 </div>
 <div class="flex flex-col md:flex-row gap-stack-lg">
 <!-- Sidebar (Tahapan Pengajuan) -->
@@ -316,7 +316,7 @@
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Nomor WhatsApp Aktif <span class="text-error">*</span></label>
-<input name="no_hp" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan nomor HP/WhatsApp aktif" type="tel" required value="{{ auth()->check() ? auth()->user()->no_hp : '' }}">
+<input name="no_hp" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan nomor HP/WhatsApp aktif" type="tel" required value="{{ auth()->check() ? auth()->user()->no_hp : '' }}">
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Asal Sekolah <span class="text-error">*</span></label>

@@ -12,8 +12,7 @@ class RekrutmenController extends Controller
 {
     public function index()
     {
-        $dinas = Auth::user()->dinas;
-        $rekrutmen = Rekrutmen::with('bidang')->where('dinas_id', $dinas->id)->get();
+        $rekrutmen = Rekrutmen::with('bidang')->where('dinas_id', Auth::user()->dinas_id)->get();
         return view('pelayanan.dinas.rekrutmen.index', compact('rekrutmen'));
     }
 
@@ -27,7 +26,7 @@ class RekrutmenController extends Controller
     {
         $request->validate([
             'judul' => 'required|string',
-            'bidang_id' => 'nullable|exists:bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
             'deskripsi_persyaratan' => 'nullable|string',
             'kuota' => 'required|integer|min:1',
             'tanggal_berakhir' => 'nullable|date',
@@ -54,7 +53,7 @@ class RekrutmenController extends Controller
 
         $request->validate([
             'judul' => 'required|string',
-            'bidang_id' => 'nullable|exists:bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
             'deskripsi_persyaratan' => 'nullable|string',
             'kuota' => 'required|integer|min:1',
             'tanggal_berakhir' => 'nullable|date',

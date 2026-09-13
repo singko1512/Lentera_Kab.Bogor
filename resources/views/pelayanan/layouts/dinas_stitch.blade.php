@@ -6,6 +6,7 @@
 <title>Admin Dashboard - Kesbangpol Kab. Bogor</title>
 <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=2"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/+esm"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -100,8 +101,18 @@
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md antialiased h-screen flex overflow-hidden">
+@php
+    $isKesbangpol = auth()->check() && (
+        in_array(auth()->user()->role, ['admin', 'superadmin']) || 
+        (auth()->user()->dinas && auth()->user()->dinas->is_kesbangpol)
+    );
+@endphp
 <!-- Sidebar -->
-@include('pelayanan.partials.sidebar_dinas')
+@if($isKesbangpol)
+    @include('pelayanan.partials.sidebar_kesbangpol_stitch')
+@else
+    @include('pelayanan.partials.sidebar_dinas')
+@endif
 <!-- Main Content Area -->
 <main class="flex-1 md:ml-72 flex flex-col h-screen overflow-hidden bg-background">
 <!-- TopAppBar -->
@@ -112,8 +123,13 @@
     <span class="material-symbols-outlined">menu</span>
 </button>
 <div class="flex items-center gap-2">
-    <span class="material-symbols-outlined text-primary text-[22px]">domain</span>
-    <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin Dinas") }}</h2>
+    @if($isKesbangpol)
+        <span class="material-symbols-outlined text-primary text-[22px]">admin_panel_settings</span>
+        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin") }}</h2>
+    @else
+        <span class="material-symbols-outlined text-primary text-[22px]">domain</span>
+        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin Dinas") }}</h2>
+    @endif
 </div>
 </div>
 <div class="flex items-center gap-3">

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Surat Rekomendasi Kesbangpol - #{{ $layanan->id }}</title>
     <style>
         @page {
@@ -238,6 +239,7 @@
         }
     </style>
 </head>
+
 <body>
     @php
         // Logo Kabupaten Bogor
@@ -253,12 +255,12 @@
         $tglAsal = \Carbon\Carbon::parse($layanan->created_at ?? now())->translatedFormat('d F Y');
         $tglMulai = \Carbon\Carbon::parse($layanan->tanggal_mulai ?? now())->translatedFormat('d F Y');
         $tglSelesai = \Carbon\Carbon::parse($layanan->tanggal_selesai ?? now())->translatedFormat('d F Y');
-        
+
         $nomorSurat = '400.14.5.4 / ' . $layanan->id . ' - Wasnas';
-        
+
         $jenisLayananNama = $layanan->jenisLayanan->nama ?? 'Praktik Kerja Lapangan (PKL)';
         $halSurat = 'Rekomendasi ' . $jenisLayananNama;
-        
+
         $singkatanLayanan = 'PKL/Magang';
         if (str_contains(strtolower($jenisLayananNama), 'penelitian')) {
             $singkatanLayanan = 'Penelitian';
@@ -293,12 +295,12 @@
 
         $jumlahAnggota = count($namaList) > 1 ? count($namaList) : ($layanan->jumlah_anggota ?? 1);
         $terbilangMap = [1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima', 6 => 'Enam', 7 => 'Tujuh', 8 => 'Delapan', 9 => 'Sembilan', 10 => 'Sepuluh'];
-        $terbilang = $terbilangMap[$jumlahAnggota] ?? (string)$jumlahAnggota;
+        $terbilang = $terbilangMap[$jumlahAnggota] ?? (string) $jumlahAnggota;
         $jumlahPesertaFormatted = $jumlahAnggota . ' (' . $terbilang . ') Orang';
 
         $alamatPemohon = $layanan->user->alamat ?? ($layanan->alamat ?? 'Jl. Pakuan P.O. Box 452');
         $penanggungJawab = $layanan->user->pembimbing_magang ?: ($layanan->atas_nama ?: ($layanan->user->name ?? '-'));
-        
+
         $pimpinanAsalInstansi = 'Pimpinan ' . $asalInstansi;
         if (str_contains(strtolower($asalInstansi), 'universitas') || str_contains(strtolower($asalInstansi), 'fakultas')) {
             $pimpinanAsalInstansi = 'Dekan / Rektor ' . $asalInstansi;
@@ -325,7 +327,8 @@
                     @endif
                 </td>
                 <td class="footer-text">
-                    Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh<br>
+                    Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang
+                    diterbitkan oleh<br>
                     <strong>Balai Sertifikasi Elektronik (BSrE) Badan Siber dan Sandi Negara</strong>
                 </td>
             </tr>
@@ -346,7 +349,8 @@
                     <h2>PEMERINTAH KABUPATEN BOGOR</h2>
                     <h1>BADAN KESATUAN BANGSA DAN POLITIK</h1>
                     <p>Jl. KSR Dadi Kusmayadi Komplek Pemda Kel. Tengah Cibinong – Bogor 16914</p>
-                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id</p>
+                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id
+                    </p>
                 </td>
             </tr>
         </table>
@@ -394,22 +398,29 @@
         <table class="list-table">
             <tr>
                 <td class="list-no">1.</td>
-                <td class="list-content">Peraturan Menteri Dalam Negeri Republik Indonesia Nomor 3 Tahun 2018 tentang Penerbitan Surat Keterangan Penelitian;</td>
+                <td class="list-content">Peraturan Menteri Dalam Negeri Republik Indonesia Nomor 3 Tahun 2018 tentang
+                    Penerbitan Surat Keterangan Penelitian;</td>
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">2.</td>
-                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 56 Tahun 2020 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi, serta Tata Kerja Badan Kesatuan Bangsa dan Politik sebagaimana telah diubah dengan Peraturan Bupati Bogor Nomor 27 Tahun 2022 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi serta Tata Kerja Badan Kesatuan Bangsa dan Politik;</td>
+                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 56 Tahun 2020 tentang
+                    Kedudukan, Susunan Organisasi, Tugas dan Fungsi, serta Tata Kerja Badan Kesatuan Bangsa dan Politik
+                    sebagaimana telah diubah dengan Peraturan Bupati Bogor Nomor 27 Tahun 2022 tentang Kedudukan,
+                    Susunan Organisasi, Tugas dan Fungsi serta Tata Kerja Badan Kesatuan Bangsa dan Politik;</td>
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">3.</td>
-                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 65 Tahun 2023 tentang Sistem Kerja Aparatur Sipil Negara Untuk Penyederhanaan Birokrasi Di Lingkungan Pemerintah Daerah.</td>
+                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 65 Tahun 2023 tentang
+                    Sistem Kerja Aparatur Sipil Negara Untuk Penyederhanaan Birokrasi Di Lingkungan Pemerintah Daerah.
+                </td>
             </tr>
         </table>
 
         <!-- MEMPERHATIKAN -->
         <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 6px; text-align: justify;">
             Memperhatikan :<br>
-            Surat dari {{ $asalInstansi }}, Nomor : {{ $nomorAsal }}, tanggal {{ $tglAsal }}, Perihal {{ $perihalSurat }}.
+            Surat dari {{ $asalInstansi }}, Nomor : {{ $nomorAsal }}, tanggal {{ $tglAsal }}, Perihal
+            {{ $perihalSurat }}.
         </div>
 
         <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 8px; text-indent: 25px; text-align: justify;">
@@ -474,7 +485,8 @@
                     <h2>PEMERINTAH KABUPATEN BOGOR</h2>
                     <h1>BADAN KESATUAN BANGSA DAN POLITIK</h1>
                     <p>Jl. KSR Dadi Kusmayadi Komplek Pemda Kel. Tengah Cibinong – Bogor 16914</p>
-                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id</p>
+                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id
+                    </p>
                 </td>
             </tr>
         </table>
@@ -495,19 +507,23 @@
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">2.</td>
-                <td class="list-content" style="padding-top: 3px;">Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi {{ $singkatanLayanan }};</td>
+                <td class="list-content" style="padding-top: 3px;">Ikut menjaga situasi, stabilitas kerukunan,
+                    ketentraman dan ketertiban di lokasi {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">3.</td>
-                <td class="list-content" style="padding-top: 3px;">Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan {{ $singkatanLayanan }};</td>
+                <td class="list-content" style="padding-top: 3px;">Berkoordinasi dan mengikuti petunjuk dan arahan dari
+                    Pimpinan Instansi tempat pelaksanaan {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">4.</td>
-                <td class="list-content" style="padding-top: 3px;">Mematuhi aturan dan jam kerja yang berlaku di lokasi {{ $singkatanLayanan }};</td>
+                <td class="list-content" style="padding-top: 3px;">Mematuhi aturan dan jam kerja yang berlaku di lokasi
+                    {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
                 <td class="list-no" style="padding-top: 3px;">5.</td>
-                <td class="list-content" style="padding-top: 3px;">Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas.</td>
+                <td class="list-content" style="padding-top: 3px;">Tidak diperkenankan melaksanakan kegiatan di luar
+                    ketentuan yang ditetapkan di atas.</td>
             </tr>
         </table>
 
@@ -534,11 +550,13 @@
                             </tr>
                             <tr>
                                 <td style="vertical-align: top; padding-top: 2px;">3.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. Sekretaris Daerah Kabupaten Bogor;</td>
+                                <td style="vertical-align: top; padding-top: 2px;">Yth. Sekretaris Daerah Kabupaten
+                                    Bogor;</td>
                             </tr>
                             <tr>
                                 <td style="vertical-align: top; padding-top: 2px;">4.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. {{ $pimpinanAsalInstansi }}.</td>
+                                <td style="vertical-align: top; padding-top: 2px;">Yth. {{ $pimpinanAsalInstansi }}.
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -549,28 +567,26 @@
                     <div class="tte-box">
                         <table class="tte-badge-table">
                             <tr>
-                                <td style="width: 52px; vertical-align: middle; text-align: center;">
-                                    <!-- Badge e-sign Kabupaten Bogor -->
-                                    <svg width="42" height="42" viewBox="0 0 100 100">
-                                        <circle cx="50" cy="50" r="46" fill="#3B82F6" />
-                                        <path d="M58 26 A 16 16 0 0 0 36 44 L 22 58 L 22 72 L 36 72 L 36 62 L 44 62 L 44 54 L 52 46 A 16 16 0 0 0 58 26 Z M 62 32 A 4.5 4.5 0 1 1 62 41 A 4.5 4.5 0 0 1 62 32 Z" fill="#FFFFFF" />
-                                    </svg>
-                                    <div style="font-size: 5pt; color: #555; text-align: center; margin-top: 2px;">e-sign Kabupaten Bogor</div>
+                                <td style="width: 50px; vertical-align: top; text-align: center; padding-top: 4px;">
+                                    <div style="border-left: 1px solid #aaa; height: 55px; margin: 0 auto; width: 1px;"></div>
+                                    <div style="font-size: 6pt; color: #777; line-height: 1.1; margin-top: 4px;">
+                                        e-sign<br>Kabupaten<br>Bogor
+                                    </div>
                                 </td>
-                                <td style="width: 44px; vertical-align: middle; text-align: center; padding-left: 4px;">
+                                <td style="width: 44px; vertical-align: top; text-align: center; padding-left: 6px; padding-top: 10px;">
                                     @if($logoBase64)
                                         <img src="{{ $logoBase64 }}" style="width: 36px; height: auto;" alt="Logo Bogor">
                                     @endif
                                 </td>
-                                <td style="padding-left: 8px; vertical-align: middle;">
-                                    <div style="font-size: 7.5pt; color: #222; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
-                                    <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2;">
+                                <td style="padding-left: 6px; vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
+                                    <div style="font-size: 7.5pt; color: #444; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
+                                    <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2; color: #222;">
                                         KEPALA BADAN KESATUAN BANGSA<br>DAN POLITIK KABUPATEN BOGOR
                                     </div>
-                                    <div style="font-size: 9pt; font-weight: bold; text-decoration: underline; margin-top: 10px;">
+                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 10px; color: #222;">
                                         FERDINANDO SELMI PARDEDE, S.IP, M.AP
                                     </div>
-                                    <div style="font-size: 8pt; color: #333; margin-top: 1px;">
+                                    <div style="font-size: 8.5pt; color: #333; margin-top: 1px;">
                                         Pembina Tk. I
                                     </div>
                                 </td>
@@ -582,4 +598,5 @@
         </table>
     </div>
 </body>
+
 </html>

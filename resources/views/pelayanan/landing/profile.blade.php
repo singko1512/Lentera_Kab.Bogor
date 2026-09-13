@@ -208,14 +208,14 @@
                 <!-- NIK -->
                 <div class="flex flex-col gap-2">
                     <label class="text-[14px] font-semibold text-on-surface">NIK (Nomor Induk Kependudukan)</label>
-                    <input name="nik" type="text" value="{{ old('nik', $user->nik) }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                    <input name="nik" type="text" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('nik', $user->nik) }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                     @error('nik')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                 </div>
 
                 <!-- No WhatsApp -->
                 <div class="flex flex-col gap-2">
                     <label class="text-[14px] font-semibold text-on-surface">Nomor WhatsApp</label>
-                    <input name="no_hp" type="text" value="{{ old('no_hp', $user->no_hp) }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                    <input name="no_hp" type="text" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" value="{{ old('no_hp', $user->no_hp) }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                     @error('no_hp')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                 </div>
 

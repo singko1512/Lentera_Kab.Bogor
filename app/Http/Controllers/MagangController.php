@@ -13,7 +13,7 @@ class MagangController extends Controller
 {
     public function instansiList(Request $request)
     {
-        $query = Dinas::where('is_kesbangpol', false)->with('rekrutmens');
+        $query = Dinas::with('rekrutmens');
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');

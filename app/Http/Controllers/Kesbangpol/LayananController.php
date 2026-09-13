@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PermohonanLayanan;
 use App\Models\StatusMaster;
+use App\Models\MagangApplication;
+use App\Models\Rekrutmen;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class LayananController extends Controller
 {
@@ -28,9 +31,28 @@ class LayananController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
+            
+        // Data Internal Kesbangpol (Sebagai Dinas)
+        $user = Auth::user();
+        $dinas = $user->dinas;
+        
+        $totalKuota = 0;
+        $slotTersedia = 0;
+        $pesertaAktif = 0;
+        
+        if ($dinas) {
+            $rekrutmens = Rekrutmen::where('dinas_id', $dinas->id)->get();
+            $totalKuota = $rekrutmens->sum('kuota');
+            $slotTersedia = $rekrutmens->sum('slot_tersedia');
+
+            $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinas) {
+                $q->where('dinas_id', $dinas->id);
+            })->where('status', 'diterima')->count();
+        }
 
         return view('pelayanan.kesbangpol.dashboard', compact(
-            'totalPermohonan', 'sedangDiproses', 'selesai', 'ditolak', 'pengajuanTerbarus'
+            'totalPermohonan', 'sedangDiproses', 'selesai', 'ditolak', 'pengajuanTerbarus',
+            'dinas', 'totalKuota', 'slotTersedia', 'pesertaAktif'
         ));
     }
 

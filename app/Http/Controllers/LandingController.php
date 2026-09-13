@@ -29,8 +29,7 @@ class LandingController extends Controller
         }
 
         // 2. Ambil Instansi (Dinas) Populer / Membuka kuota
-        $featuredInstansis = Dinas::where('is_kesbangpol', false)
-            ->with(['rekrutmens' => function($q) {
+        $featuredInstansis = Dinas::with(['rekrutmens' => function($q) {
                 $q->where('is_active', true);
             }])
             ->take(6)
@@ -65,7 +64,7 @@ class LandingController extends Controller
             'total_pendaftar' => $totalRegistered,
             'diterima' => $totalAccepted,
             'aktif' => MagangApplication::where('status', 'diterima')->count(),
-            'dinas_tersedia' => Dinas::where('is_kesbangpol', false)->count()
+            'dinas_tersedia' => Dinas::count()
         ];
 
         $pastDayNames = [];
@@ -213,7 +212,7 @@ class LandingController extends Controller
         })->pluck('asal_instansi')->filter()->unique()->values();
 
         // Ambil semua dinas untuk filter
-        $semuaDinas = \App\Models\Dinas::where('is_kesbangpol', false)->orderBy('name')->get();
+        $semuaDinas = \App\Models\Dinas::orderBy('name')->get();
 
         foreach ($pesertas as $p) {
             $p->jurusan = $p->permohonanLayanan->jenisLayanan->nama ?? 'Umum';

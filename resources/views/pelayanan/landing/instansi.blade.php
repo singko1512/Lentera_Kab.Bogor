@@ -196,7 +196,7 @@
 </header>
 <!-- Search and Filter Bar -->
 <section class="bg-surface-container-lowest rounded-xl p-6 shadow-level-1 mb-stack-lg border border-outline-variant/30">
-    <form action="{{ route('landing.instansi') }}" method="GET" class="flex flex-col gap-4">
+    <form id="filter-form" action="{{ route('landing.instansi') }}" method="GET" class="flex flex-col gap-4">
         <!-- Preserve current filter if search or sort is submitted -->
         <input type="hidden" name="filter" value="{{ request('filter', 'semua') }}">
         
@@ -209,7 +209,7 @@
             </div>
             <!-- Sorting -->
             <div class="relative group">
-                <select name="sort" onchange="this.form.submit()" class="w-full md:w-64 appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg py-3 pl-4 pr-10 text-body-md font-body-md text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none cursor-pointer" style="background-image: none !important;">
+                <select name="sort" class="w-full md:w-64 appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg py-3 pl-4 pr-10 text-body-md font-body-md text-on-surface focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none cursor-pointer" style="background-image: none !important;">
                     <option value="nama_asc" {{ request('sort') == 'nama_asc' ? 'selected' : '' }}>Urutkan: Nama Instansi A-Z</option>
                     <option value="nama_desc" {{ request('sort') == 'nama_desc' ? 'selected' : '' }}>Urutkan: Nama Instansi Z-A</option>
                     <option value="kuota_terbanyak" {{ request('sort') == 'kuota_terbanyak' ? 'selected' : '' }}>Urutkan: Kuota Terbanyak</option>
@@ -221,7 +221,7 @@
     </form>
     
     <!-- Bottom Row: Filter Buttons -->
-    <div class="flex flex-wrap gap-2 items-center w-full pt-4 mt-4 border-t border-outline-variant/20">
+    <div id="filter-buttons" class="flex flex-wrap gap-2 items-center w-full pt-4 mt-4 border-t border-outline-variant/20">
         @php
             $currentFilter = request('filter', 'semua');
             $activeClass = 'bg-primary-container text-on-primary border-primary-container shadow-sm';
@@ -243,6 +243,7 @@
     </div>
 </section>
 <!-- Directory Grid -->
+<div id="instansi-grid-container">
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 @foreach($instansis as $instansi)
 <a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-ambient hover:shadow-hover hover:-translate-y-1 border border-surface-container-high hover:border-primary transition-all duration-300 relative overflow-hidden flex flex-col h-full" href="{{ route('landing.instansi_detail', $instansi->id) }}">
@@ -261,9 +262,27 @@
   </div>
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface group-hover:text-primary mb-2 transition-colors line-clamp-2">{{ $instansi->name }}</h3>
-<p class="font-body-md text-body-md text-on-surface-variant mb-6 flex-grow line-clamp-3">
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-3">
     {{ $instansi->deskripsi ?? 'Fasilitas pelayanan, riset, dan magang di ' . $instansi->name . '.' }}
 </p>
+
+@if(isset($instansi->rekrutmens) && $instansi->rekrutmens->isNotEmpty())
+<div class="mt-2 mb-4">
+    <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Lowongan Magang Tersedia:</p>
+    <div class="flex flex-col gap-2">
+        @foreach($instansi->rekrutmens as $lowongan)
+        <div class="flex justify-between items-center bg-primary/5 border border-primary/10 px-3 py-2.5 rounded-lg">
+            <div class="flex flex-col">
+                <span class="text-sm font-bold text-primary leading-tight">{{ $lowongan->judul }}</span>
+                <span class="text-[11px] text-on-surface-variant mt-0.5">{{ $lowongan->bidang->name ?? 'Bidang Penempatan' }}</span>
+            </div>
+            <span class="text-[11px] font-bold bg-green-100 border border-green-200 text-green-700 px-2.5 py-1 rounded-md shrink-0">{{ $lowongan->kuota }} Kuota</span>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 <div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
   @php $badge = $instansi->status_badge; @endphp
   <div class="flex items-center gap-1 px-3 py-1 {{ $badge['bg_class'] }} rounded-md font-label-md text-caption font-bold">
@@ -278,13 +297,85 @@
 <div class="mt-8 flex justify-center w-full">
     {{ $instansis->links('pagination::tailwind') }}
 </div>
+</div>
 </main>
 <!-- Footer -->
 
+@endsection
 
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function loadUrl(url) {
+        if (!url) return;
+        
+        const container = document.getElementById('instansi-grid-container');
+        container.style.opacity = '0.5';
+        container.style.transition = 'opacity 0.2s';
+        
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                const newFilters = doc.getElementById('filter-buttons');
+                if (newFilters) document.getElementById('filter-buttons').innerHTML = newFilters.innerHTML;
+                
+                const newGrid = doc.getElementById('instansi-grid-container');
+                if (newGrid) container.innerHTML = newGrid.innerHTML;
+                
+                window.history.pushState({path: url}, '', url);
+                container.style.opacity = '1';
+                setupAjaxLinks();
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                window.location.href = url;
+            });
+    }
 
+    function setupAjaxLinks() {
+        const links = document.querySelectorAll('#filter-buttons a, #instansi-grid-container nav a');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadUrl(this.getAttribute('href'));
+            });
+        });
+    }
+    
+    setupAjaxLinks();
 
+    const filterForm = document.getElementById('filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = new URL(this.action);
+            const formData = new FormData(this);
+            const searchParams = new URLSearchParams();
+            for (const pair of formData) {
+                if(pair[1]) searchParams.append(pair[0], pair[1]);
+            }
+            url.search = searchParams.toString();
+            loadUrl(url.toString());
+        });
 
+        const sortSelect = filterForm.querySelector('select[name="sort"]');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', () => {
+                filterForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
+        }
+        
+        // Let search input submit form on Enter, or we could add a timeout for typing
+    }
+    
+    window.addEventListener('popstate', function() {
+        window.location.reload();
+    });
+});
+</script>
 @endsection
 
 

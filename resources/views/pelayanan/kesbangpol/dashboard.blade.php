@@ -10,6 +10,7 @@
     Kelola pendaftaran, verifikasi, dan manajemen akun instansi dinas di lingkungan Pemerintah Kabupaten Bogor.
 </p>
 </div>
+@if(Auth::user()->role === 'superadmin')
 <div class="relative z-10 shrink-0">
     <a href="{{ route('kesbangpol.dinas.index') }}" class="inline-flex items-center gap-2.5 px-6 py-3.5 bg-primary text-white font-label-md font-bold rounded-xl hover:bg-secondary transition-all shadow-md hover:shadow-lg">
         <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span>
@@ -17,6 +18,7 @@
         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
     </a>
 </div>
+@endif
 <!-- Decorative element -->
 <div class="absolute right-0 -top-10 h-[150%] w-1/3 opacity-[0.03] group-hover:scale-105 group-hover:-rotate-3 transition-transform duration-700 pointer-events-none">
 <svg class="w-full h-full" viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +26,77 @@
 </svg>
 </div>
 </section>
+
+@if(isset($dinas) && $dinas)
+<!-- Status Ketersediaan Magang Instansi (Internal Kesbangpol) -->
+<section class="bg-gradient-to-r from-primary/5 via-primary/5 to-white rounded-2xl p-6 border border-primary/10 shadow-soft">
+    <form action="{{ route('dinas.status_magang.update') }}" method="POST" class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        @csrf
+        <div class="flex flex-col gap-1">
+            <label for="status_magang" class="text-title-md font-bold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[24px]">tune</span>
+                Status Ketersediaan Magang Internal Kesbangpol
+            </label>
+            <p class="text-body-md text-on-surface-variant">Atur status penerimaan magang khusus untuk pendaftar di instansi Kesbangpol.</p>
+        </div>
+        
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <select name="status_magang" id="status_magang" onchange="this.form.submit()" class="bg-white text-on-surface text-label-md font-semibold rounded-xl border border-outline-variant focus:ring-primary focus:border-primary px-4 py-3 shadow-sm cursor-pointer w-full md:w-64">
+                <option value="otomatis" {{ ($dinas->status_magang ?? 'otomatis') == 'otomatis' ? 'selected' : '' }}>🔄 Otomatis (Cek Kuota)</option>
+                <option value="tersedia" {{ ($dinas->status_magang ?? '') == 'tersedia' ? 'selected' : '' }}>🟢 KUOTA TERSEDIA</option>
+                <option value="penuh" {{ ($dinas->status_magang ?? '') == 'penuh' ? 'selected' : '' }}>🔴 KUOTA PENUH</option>
+                <option value="tidak_tersedia" {{ ($dinas->status_magang ?? '') == 'tidak_tersedia' ? 'selected' : '' }}>⚪ TIDAK TERSEDIA</option>
+            </select>
+            <button type="submit" class="px-5 py-3 bg-primary text-white text-label-md font-bold rounded-xl hover:bg-secondary transition-all shadow-md shrink-0 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">save</span>
+                Simpan
+            </button>
+        </div>
+    </form>
+</section>
+
+<!-- Statistik Rekrutmen Internal Kesbangpol -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white rounded-2xl p-6 shadow-soft flex flex-col justify-between min-h-[140px] border border-outline-variant/30 relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <p class="text-label-md font-label-md text-on-surface-variant tracking-wide">Total Kuota Internal</p>
+            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined icon-filled text-[20px]">group</span>
+            </div>
+        </div>
+        <div class="mt-auto relative z-10">
+            <h3 class="text-display-lg font-display-lg text-on-surface leading-none">{{ $totalKuota }}</h3>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl p-6 shadow-soft flex flex-col justify-between min-h-[140px] border border-outline-variant/30 relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#10B981]/5 rounded-full"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <p class="text-label-md font-label-md text-on-surface-variant tracking-wide">Sisa Slot Internal</p>
+            <div class="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981]">
+                <span class="material-symbols-outlined icon-filled text-[20px]">event_seat</span>
+            </div>
+        </div>
+        <div class="mt-auto relative z-10">
+            <h3 class="text-display-lg font-display-lg text-on-surface leading-none">{{ $slotTersedia }}</h3>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl p-6 shadow-soft flex flex-col justify-between min-h-[140px] border border-outline-variant/30 relative overflow-hidden">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-[#F59E0B]/5 rounded-full"></div>
+        <div class="flex justify-between items-start relative z-10">
+            <p class="text-label-md font-label-md text-on-surface-variant tracking-wide">Peserta Aktif Internal</p>
+            <div class="w-10 h-10 rounded-full bg-[#F59E0B]/10 flex items-center justify-center text-[#F59E0B]">
+                <span class="material-symbols-outlined icon-filled text-[20px]">assignment_ind</span>
+            </div>
+        </div>
+        <div class="mt-auto relative z-10">
+            <h3 class="text-display-lg font-display-lg text-on-surface leading-none">{{ $pesertaAktif }}</h3>
+        </div>
+    </div>
+</section>
+@endif
 
 <!-- Statistics Grid (Bento Style) -->
 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

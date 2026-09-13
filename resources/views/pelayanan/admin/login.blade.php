@@ -80,7 +80,7 @@
                 Mulai Perjalanan Karir Anda Bersama Kami.
             </h1>
             <p class="text-[18px] text-on-primary-container mt-stack-md max-w-md">
-                Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor membuka peluang bagi talenta terbaik untuk berkontribusi dan berkembang.
+                Layanan Integrasi Izin Riset dan Magang <br class="hidden lg:block"> Kabupaten Bogor membuka peluang bagi talenta terbaik untuk berkontribusi dan berkembang.
             </p>
         
 
@@ -156,7 +156,7 @@
 
             @if($activeAuthMode === 'register')
                 <!-- REGISTRATION FORM -->
-                <form action="{{ route('register.store') }}" method="POST" class="flex flex-col gap-stack-md">
+                <form data-turbo="false" action="{{ route('register.store') }}" method="POST" class="flex flex-col gap-stack-md">
                     @csrf
                     <!-- Grid Layout for 2 columns -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,12 +172,12 @@
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-[14px] font-medium text-on-surface">NIK</label>
-                            <input name="nik" type="text" value="{{ old('nik') }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                            <input name="nik" type="text" maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('nik') }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                             @error('nik')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-[14px] font-medium text-on-surface">No WhatsApp</label>
-                            <input name="no_hp" type="text" value="{{ old('no_hp') }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                            <input name="no_hp" type="text" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" value="{{ old('no_hp') }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                             @error('no_hp')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="flex flex-col gap-2">
@@ -233,7 +233,7 @@
 
             @elseif($activeAuthMode === 'forgot')
                 <!-- FORGOT PASSWORD FORM (NIK + EMAIL) -->
-                <form action="{{ route('password.verify') }}" method="POST" class="flex flex-col gap-stack-md">
+                <form data-turbo="false" action="{{ route('password.verify') }}" method="POST" class="flex flex-col gap-stack-md">
                     @csrf
                     <div class="flex flex-col gap-2">
                         <label class="text-[14px] font-medium text-on-surface">NIK (Nomor Induk Kependudukan) <span class="text-error">*</span></label>
@@ -250,7 +250,7 @@
                             <span class="material-symbols-outlined text-[18px]">send</span>
                             Kirim Tautan Reset ke Email
                         </button>
-                        <a href="{{ route('login.form') }}" class="w-full bg-white border border-outline text-on-surface text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors flex justify-center items-center gap-2">
+                        <a href="{{ route('login.form') }}" data-turbo="false" class="w-full bg-white border border-outline text-on-surface text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors flex justify-center items-center gap-2">
                             Kembali
                         </a>
                     </div>
@@ -258,7 +258,7 @@
 
             @else
                 <!-- LOGIN FORM -->
-                <form action="{{ $action }}" method="POST" class="flex flex-col gap-stack-md">
+                <form data-turbo="false" action="{{ $action }}" method="POST" class="flex flex-col gap-stack-md">
                     @csrf
                     @if(in_array($loginRole, ['admin', 'superadmin'], true))
                         <input type="hidden" name="expected_role" value="{{ $loginRole }}">
@@ -295,7 +295,7 @@
                         </p>
                     @endif
                     <div class="mt-4 text-center">
-                        <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-[14px] text-outline hover:text-on-surface transition-colors">
+                        <a href="{{ route('home') }}" data-turbo="false" class="inline-flex items-center gap-2 text-[14px] text-outline hover:text-on-surface transition-colors">
                             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
                             Kembali ke Beranda
                         </a>

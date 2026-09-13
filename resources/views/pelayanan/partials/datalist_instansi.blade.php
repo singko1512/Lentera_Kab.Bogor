@@ -1,5 +1,5 @@
 @php
-    $instansiList = \App\Models\Dinas::where('is_kesbangpol', false)->orderBy('name')->pluck('name')->toJson();
+    $instansiList = \App\Models\Dinas::orderBy('name')->pluck('name')->toJson();
 @endphp
 
 <script>

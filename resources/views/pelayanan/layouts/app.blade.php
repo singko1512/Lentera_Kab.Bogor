@@ -73,11 +73,11 @@
         }
 
         /* Smooth transition for theme switching */
-        *, *::before, *::after {
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                        border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                        color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                        box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        body.theme-transition *, body.theme-transition *::before, body.theme-transition *::after {
+            transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                        color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; }
@@ -279,6 +279,11 @@
             border-top: 1px solid var(--border);
         }
     </style>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => document.body.classList.add('theme-transition'), 100);
+        });
+    </script>
     @yield('styles')
 </head>
 <body>
