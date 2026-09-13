@@ -204,6 +204,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/status-magang', [DinasDashboardController::class, 'updateStatusMagang'])->name('status_magang.update');
         Route::resource('/rekrutmen', RekrutmenController::class);
         Route::resource('/bidang', DinasBidangController::class)->except(['create', 'show', 'edit']);
+        Route::post('/bidang/{id}/reset-password', [DinasBidangController::class, 'resetPassword'])->name('bidang.reset_password');
         
         Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
         Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');

@@ -22,6 +22,11 @@ class Bidang extends Model
         return $this->belongsTo(Dinas::class);
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class, 'bidang_id');
+    }
+
     public function pembimbingMagangs()
     {
         return $this->hasMany(\App\Models\Simalam\PembimbingMagang::class, 'bidang_id');

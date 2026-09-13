@@ -6,7 +6,7 @@
     <div class="mb-stack-lg flex justify-between items-center">
         <div>
             <h2 class="text-headline-lg font-headline-lg text-on-surface mb-2 tracking-tight">Kelola Bidang</h2>
-            <p class="text-body-md font-body-md text-on-surface-variant">Kelola daftar bidang atau unit kerja di instansi Anda.</p>
+            <p class="text-body-md font-body-md text-on-surface-variant">Kelola daftar bidang dan akun login untuk masing-masing bidang di instansi Anda.</p>
         </div>
         <button onclick="document.getElementById('addModal').classList.remove('hidden')" class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 flex items-center gap-2">
             <span class="material-symbols-outlined">add</span> Tambah Bidang
@@ -19,6 +19,12 @@
     </div>
     @endif
 
+    @if(session('error_swal'))
+    <div class="bg-red-500/10 border border-red-500/20 text-red-600 px-4 py-3 rounded-lg relative mb-4">
+        <span class="block sm:inline font-medium">{{ session('error_swal') }}</span>
+    </div>
+    @endif
+
     <!-- Data Table Card -->
     <div class="bg-white rounded-2xl shadow-soft overflow-hidden border border-outline-variant/30">
         <div class="overflow-x-auto w-full">
@@ -27,21 +33,60 @@
                     <tr class="bg-surface-container-low border-b border-outline-variant/40">
                         <th class="p-4 pl-6 text-[13px] font-bold text-on-surface-variant uppercase tracking-wider w-16">No</th>
                         <th class="p-4 text-[13px] font-bold text-on-surface-variant uppercase tracking-wider">Nama Bidang / Unit Kerja</th>
-                        <th class="p-4 pr-6 text-[13px] font-bold text-on-surface-variant uppercase tracking-wider text-right w-32">Aksi</th>
+                        <th class="p-4 text-[13px] font-bold text-on-surface-variant uppercase tracking-wider">Akun Login (Email)</th>
+                        <th class="p-4 pr-6 text-[13px] font-bold text-on-surface-variant uppercase tracking-wider text-right w-48">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/30">
                     @forelse($bidangs as $index => $bidang)
+                    @php $bidangUser = $bidang->users->first(); @endphp
                     <tr class="hover:bg-primary/5 transition-colors group">
                         <td class="p-4 pl-6 text-on-surface-variant">{{ $index + 1 }}</td>
                         <td class="p-4">
                             <span class="text-body-md font-body-md text-on-surface font-semibold">{{ $bidang->name }}</span>
                         </td>
+                        <td class="p-4">
+                            @if($bidangUser)
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                                    <span class="material-symbols-outlined text-[16px]">account_circle</span>
+                                    {{ $bidangUser->email }}
+                                </span>
+                            @else
+                                <span class="text-xs text-on-surface-variant italic">Belum ada akun</span>
+                            @endif
+                        </td>
                         <td class="p-4 pr-6 text-right">
                             <div class="flex justify-end gap-2">
-                                <button onclick="openEditModal({{ $bidang->id }}, '{{ addslashes($bidang->name) }}')" class="p-2 text-secondary hover:bg-secondary/10 rounded-lg transition-colors inline-flex items-center" title="Edit">
+                                @if($bidangUser)
+                                <div x-data="{ showResetModal: false }" class="inline-block">
+                                    <button @click="showResetModal = true" type="button" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors inline-flex items-center" title="Reset Password">
+                                        <span class="material-symbols-outlined text-[20px]">lock_reset</span>
+                                    </button>
+
+                                    <!-- Reset Password Modal -->
+                                    <div x-show="showResetModal" x-transition.opacity class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" x-cloak>
+                                        <div @click.away="showResetModal = false" x-transition.scale.origin.bottom class="bg-white rounded-xl p-6 w-85 shadow-2xl text-center relative border-t-4 border-amber-500">
+                                            <div class="mb-4 text-amber-500 flex justify-center">
+                                                <span class="material-symbols-outlined text-[48px]">lock_reset</span>
+                                            </div>
+                                            <h3 class="text-gray-900 font-bold mb-2 text-lg">Reset Password Akun?</h3>
+                                            <p class="text-sm text-gray-600 mb-6">Password untuk akun <strong>{{ $bidangUser->email }}</strong> akan di-reset menjadi <strong>password123</strong>.</p>
+                                            <div class="flex justify-center gap-3">
+                                                <button @click="showResetModal = false" type="button" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">Batal</button>
+                                                <form action="{{ route('dinas.bidang.reset_password', $bidang->id) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors">Ya, Reset</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <button onclick="openEditModal({{ $bidang->id }}, '{{ addslashes($bidang->name) }}', '{{ $bidangUser ? addslashes($bidangUser->email) : '' }}')" class="p-2 text-secondary hover:bg-secondary/10 rounded-lg transition-colors inline-flex items-center" title="Edit">
                                     <span class="material-symbols-outlined text-[20px]">edit</span>
                                 </button>
+                                
                                 <div x-data="{ showModal: false }" class="inline-block">
                                     <button @click="showModal = true" type="button" class="p-2 text-error hover:bg-error/10 rounded-lg transition-colors inline-flex items-center" title="Hapus">
                                         <span class="material-symbols-outlined text-[20px]">delete</span>
@@ -70,7 +115,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="3" class="p-8 text-center text-on-surface-variant">
+                        <td colspan="4" class="p-8 text-center text-on-surface-variant">
                             <div class="flex flex-col items-center justify-center gap-2">
                                 <span class="material-symbols-outlined text-[48px] text-outline-variant">domain_disabled</span>
                                 <p>Belum ada data bidang. Silakan tambahkan bidang baru.</p>
@@ -97,8 +142,17 @@
             @csrf
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Nama Bidang / Unit Kerja</label>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Nama Bidang / Unit Kerja <span class="text-red-500">*</span></label>
                     <input type="text" name="name" required class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface" placeholder="Contoh: Bidang Bina Marga">
+                </div>
+                <div>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Email Akun Bidang (Opsional)</label>
+                    <input type="email" name="email" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface" placeholder="Contoh: bidang.binamarga@bogorkab.go.id">
+                    <p class="text-xs text-on-surface-variant mt-1">Jika diisi, akun login bidang akan dibuat otomatis.</p>
+                </div>
+                <div>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Password Akun (Opsional)</label>
+                    <input type="password" name="password" minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface" placeholder="Default: password123">
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-outline-variant/30 flex justify-end gap-3 bg-surface-container-lowest">
@@ -113,7 +167,7 @@
 <div id="editModal" class="fixed inset-0 z-[100] hidden bg-black/50 flex items-center justify-center backdrop-blur-sm transition-opacity">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-in">
         <div class="px-6 py-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container-lowest">
-            <h3 class="text-title-lg font-title-lg text-on-surface font-semibold">Edit Bidang</h3>
+            <h3 class="text-title-lg font-title-lg text-on-surface font-semibold">Edit Bidang & Akun</h3>
             <button onclick="document.getElementById('editModal').classList.add('hidden')" class="text-on-surface-variant hover:bg-surface-container p-2 rounded-full transition-colors">
                 <span class="material-symbols-outlined">close</span>
             </button>
@@ -123,8 +177,16 @@
             @method('PUT')
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Nama Bidang / Unit Kerja</label>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Nama Bidang / Unit Kerja <span class="text-red-500">*</span></label>
                     <input type="text" name="name" id="editName" required class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface">
+                </div>
+                <div>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Email Akun Bidang</label>
+                    <input type="email" name="email" id="editEmail" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface" placeholder="Contoh: bidang.binamarga@bogorkab.go.id">
+                </div>
+                <div>
+                    <label class="block text-label-md font-label-md text-on-surface mb-1.5">Password Baru (Opsional)</label>
+                    <input type="password" name="password" minlength="6" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none bg-surface" placeholder="Kosongkan jika tidak ingin mengubah password">
                 </div>
             </div>
             <div class="px-6 py-4 border-t border-outline-variant/30 flex justify-end gap-3 bg-surface-container-lowest">
@@ -136,8 +198,9 @@
 </div>
 
 <script>
-    function openEditModal(id, name) {
+    function openEditModal(id, name, email) {
         document.getElementById('editName').value = name;
+        document.getElementById('editEmail').value = email || '';
         document.getElementById('editForm').action = '/dinas/bidang/' + id;
         document.getElementById('editModal').classList.remove('hidden');
     }

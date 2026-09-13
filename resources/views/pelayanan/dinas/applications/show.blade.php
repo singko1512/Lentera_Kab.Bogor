@@ -256,7 +256,7 @@
 
                     <button type="submit" class="w-full py-3 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl font-semibold text-sm transition-colors text-center shadow-md shadow-primary/20 flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined text-[18px]">save</span>
-                        Simpan Keputusan Dinas
+                        Simpan
                     </button>
                 </form>
             </div>
