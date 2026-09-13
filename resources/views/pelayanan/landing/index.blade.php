@@ -390,7 +390,7 @@
                         <td class="p-4">
                             @if($app->keterangan)
                                 <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium">
-                                    <span class="font-bold">Deskripsi Kesbangpol:</span> {{ $app->keterangan }}
+                                    {{ $app->keterangan }}
                                 </div>
                             @else
                                 <span class="text-xs text-on-surface-variant italic">-</span>

@@ -315,7 +315,7 @@
                             </div>
 
                             <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors mt-2">
-                                Simpan Keputusan
+                                Simpan
                             </button>
                         </form>
                     @else
