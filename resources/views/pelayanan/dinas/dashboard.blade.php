@@ -53,27 +53,35 @@
         </form>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <a href="{{ route('dinas.applications.index') }}" class="p-4 bg-purple-50 rounded-lg border border-purple-100 hover:bg-purple-100/70 transition-colors block cursor-pointer">
             <h3 class="text-purple-800 font-semibold mb-1 flex items-center justify-between">
-                <span>Total Pengajuan Masuk</span>
+                <span>Pengajuan Masuk</span>
                 <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
             </h3>
             <p class="text-3xl font-bold text-purple-900">{{ $totalPengajuanLayanan }}</p>
-            <p class="text-xs text-purple-700 mt-1">Klik untuk verifikasi & ACC</p>
+            <p class="text-xs text-purple-700 mt-1">Verifikasi & ACC</p>
         </a>
         <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <h3 class="text-blue-800 font-semibold mb-1">Total Kuota Magang</h3>
+            <h3 class="text-blue-800 font-semibold mb-1">Total Kuota</h3>
             <p class="text-3xl font-bold text-blue-900">{{ $totalKuota }}</p>
         </div>
         <div class="p-4 bg-green-50 rounded-lg border border-green-100">
-            <h3 class="text-green-800 font-semibold mb-1">Sisa Slot Magang</h3>
+            <h3 class="text-green-800 font-semibold mb-1">Sisa Slot</h3>
             <p class="text-3xl font-bold text-green-900">{{ $slotTersedia }}</p>
         </div>
         <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-            <h3 class="text-yellow-800 font-semibold mb-1">Peserta Magang Aktif</h3>
+            <h3 class="text-yellow-800 font-semibold mb-1">Peserta Aktif</h3>
             <p class="text-3xl font-bold text-yellow-900">{{ $pesertaAktif }}</p>
         </div>
+        <a href="{{ route('absensi.admin.dashboard', ['tab' => 'sertifikat']) }}" class="p-4 bg-amber-50 rounded-lg border border-amber-200 hover:bg-amber-100/70 transition-colors block cursor-pointer">
+            <h3 class="text-amber-800 font-semibold mb-1 flex items-center justify-between">
+                <span>Kelola Sertifikat</span>
+                <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+            </h3>
+            <p class="text-xs font-semibold text-amber-900 mt-2">Cetak & Draf Sertifikat</p>
+            <p class="text-xs text-amber-700 mt-1">Menu Sertifikat Magang &rarr;</p>
+        </a>
     </div>
 
     <!-- Daftar Peserta Diterima -->

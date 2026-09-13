@@ -37,7 +37,9 @@ return new class extends Migration
         });
 
         // Set default value of status column to 'belum_dikerjakan'
-        DB::statement("ALTER TABLE md_project_tasks MODIFY COLUMN status VARCHAR(30) NOT NULL DEFAULT 'belum_dikerjakan'");
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE md_project_tasks MODIFY COLUMN status VARCHAR(30) NOT NULL DEFAULT 'belum_dikerjakan'");
+        }
 
         // Update existing tasks to have status 'belum_dikerjakan'
         DB::table('md_project_tasks')->where('status', 'open')->update(['status' => 'belum_dikerjakan']);
@@ -61,7 +63,9 @@ return new class extends Migration
         Schema::dropIfExists('md_activity_logs');
 
         Schema::table('md_project_tasks', function (Blueprint $table) {
-            DB::statement("ALTER TABLE md_project_tasks MODIFY COLUMN status VARCHAR(30) NOT NULL DEFAULT 'open'");
+            if (DB::getDriverName() !== 'sqlite') {
+                DB::statement("ALTER TABLE md_project_tasks MODIFY COLUMN status VARCHAR(30) NOT NULL DEFAULT 'open'");
+            }
 
             $table->dropForeign(['user_id']);
 

@@ -1365,7 +1365,7 @@
                                                     <i class="fa-solid fa-eye"></i>
                                                     <span>Preview</span>
                                                 </a>
-                                                <a href="{{ route('absensi.admin.sertifikat.generate', $u) }}" target="_blank" class="btn btn-sm btn-outline-danger font-semibold d-inline-flex align-items-center gap-1" style="padding:0.35rem 0.65rem; font-size:0.78rem; border-radius:6px;" title="Download PDF sertifikat">
+                                                <a href="{{ route('absensi.admin.sertifikat.generate', $u) }}" target="_blank" class="btn btn-sm btn-outline-primary font-semibold d-inline-flex align-items-center gap-1" style="padding:0.35rem 0.65rem; font-size:0.78rem; border-radius:6px;" title="Download PDF sertifikat">
                                                     <i class="fa-solid fa-file-pdf"></i>
                                                     <span>PDF</span>
                                                 </a>

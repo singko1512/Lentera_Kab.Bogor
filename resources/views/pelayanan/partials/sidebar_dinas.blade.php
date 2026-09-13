@@ -45,6 +45,11 @@
 <span class="material-symbols-outlined {{ Route::is('dinas.bidang*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">corporate_fare</span>
 <span class="text-label-md font-label-md">Kelola Bidang</span>
 </a>
+
+<a class="flex items-center gap-3 px-4 py-3 {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('absensi.admin.dashboard', ['tab' => 'sertifikat']) }}">
+<span class="material-symbols-outlined {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">workspace_premium</span>
+<span class="text-label-md font-label-md">Kelola Sertifikat</span>
+</a>
 </nav>
 <div class="mt-auto space-y-1.5 pt-6 border-t border-outline-variant/50">
 <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.profile*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} transition-all duration-200 rounded-xl group" href="{{ route('dinas.profile.edit') }}">

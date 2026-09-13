@@ -9,7 +9,7 @@
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-2">
                     <h2 class="text-lg font-bold text-gray-800 m-0">Data Pemohon</h2>
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Surat Rekomendasi PDF dengan QR Code">
+                        <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Surat Rekomendasi PDF dengan QR Code">
                             <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
                             Surat PDF (QR Code)
                         </a>
@@ -281,7 +281,7 @@
                                 <select name="status" id="status" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" required onchange="toggleRevisiField()">
                                     <option value="">-- Pilih --</option>
                                     <option value="disetujui">Setujui Layanan</option>
-                                    <option value="perlu_revisi">Minta Revisi</option>
+                                    <option value="perlu_revisi">Revisi Layanan</option>
                                     <option value="ditolak">Tolak Layanan</option>
                                 </select>
                             </div>

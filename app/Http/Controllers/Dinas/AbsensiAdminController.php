@@ -20,7 +20,7 @@ class AbsensiAdminController extends Controller
 
         // Variables needed by the overly complex SIMALAM admin template
         $isSuperAdmin = false;
-        $activeAdminTab = 'pegawai';
+        $activeAdminTab = (string) $request->get('tab', 'pegawai');
         $month = $request->get('month', date('n'));
         $year = $request->get('year', date('Y'));
         $status = $request->get('status', 'all');
@@ -106,7 +106,7 @@ class AbsensiAdminController extends Controller
 
         $bidangRowNumber = 1;
 
-        // Dummy variables for SIMALAM layout
+        // Variables for SIMALAM layout
         $projectCount = 0;
         $projectAktifCount = 0;
         $projectSelesaiCount = 0;
@@ -116,7 +116,7 @@ class AbsensiAdminController extends Controller
         $moduleCount = 0;
         $pendingTasks = collect();
         $activityLogs = collect();
-        $certificateTemplate = null;
+        $certificateTemplate = \App\Support\CertificateTemplate::current();
         $dinasName = $dinas->nama ?? 'Instansi';
         $jadwalStatus = [];
         $jadwalLandingView = null;
@@ -131,7 +131,23 @@ class AbsensiAdminController extends Controller
         $adminBidangOptions = collect();
         $magangGroups = [];
         $projects = collect();
-        $sertifikatUsers = collect();
+
+        $userGroupIds = $users->pluck('id');
+        $sertifikatUsersQuery = \App\Models\User::query()
+            ->whereIn('role', ['peserta', 'user'])
+            ->orderByRaw('tanggal_selesai_magang is null asc')
+            ->orderBy('tanggal_selesai_magang', 'desc')
+            ->orderBy('name', 'asc');
+
+        if ($activeBidangId) {
+            $sertifikatUsersQuery->where('bidang_id', $activeBidangId);
+        } else {
+            $sertifikatUsersQuery->where(function($q) use ($dinas, $userGroupIds) {
+                $q->where('dinas_id', $dinas->id)
+                  ->orWhereIn('id', $userGroupIds);
+            });
+        }
+        $sertifikatUsers = $sertifikatUsersQuery->get();
 
         $projectMembers = collect();
         $projectModules = collect();
