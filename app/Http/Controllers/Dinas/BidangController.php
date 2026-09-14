@@ -14,7 +14,7 @@ class BidangController extends Controller
     public function index()
     {
         $dinas = Auth::user()->dinas;
-        $bidangs = Bidang::where('dinas_id', $dinas->id)
+        $bidangs = Bidang::where('dinas_id', Auth::user()->dinas_id)
             ->with(['users' => function($query) {
                 $query->where('role', 'bidang');
             }])

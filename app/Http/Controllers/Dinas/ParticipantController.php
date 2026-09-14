@@ -13,7 +13,7 @@ class ParticipantController extends Controller
         $dinas = Auth::user()->dinas;
         $participants = \App\Models\MagangApplication::with(['user', 'rekrutmen.bidang'])
             ->whereHas('rekrutmen', function($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id);
+                $q->where('dinas_id', Auth::user()->dinas_id);
             })
             ->whereIn('status', ['diterima', 'aktif', 'selesai'])
             ->orderBy('updated_at', 'desc')
@@ -29,7 +29,7 @@ class ParticipantController extends Controller
             $q->orderBy('tanggal', 'desc');
         }])
             ->whereHas('rekrutmen', function($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id);
+                $q->where('dinas_id', Auth::user()->dinas_id);
             })
             ->whereIn('status', ['diterima', 'aktif', 'selesai'])
             ->findOrFail($id);
@@ -46,7 +46,7 @@ class ParticipantController extends Controller
     {
         $dinas = Auth::user()->dinas;
         $participant = \App\Models\MagangApplication::whereHas('rekrutmen', function($q) use ($dinas) {
-            $q->where('dinas_id', $dinas->id);
+            $q->where('dinas_id', Auth::user()->dinas_id);
         })->findOrFail($id);
 
         $request->validate([
@@ -64,7 +64,7 @@ class ParticipantController extends Controller
     {
         $dinas = Auth::user()->dinas;
         $participant = \App\Models\MagangApplication::whereHas('rekrutmen', function($q) use ($dinas) {
-            $q->where('dinas_id', $dinas->id);
+            $q->where('dinas_id', Auth::user()->dinas_id);
         })->findOrFail($id);
 
         $request->validate([
@@ -85,7 +85,7 @@ class ParticipantController extends Controller
         $dinas = Auth::user()->dinas;
         
         $participant = \App\Models\MagangApplication::whereHas('rekrutmen', function($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id);
+                $q->where('dinas_id', Auth::user()->dinas_id);
             })
             ->findOrFail($id);
 

@@ -13,22 +13,27 @@ class DashboardController extends Controller
     public function index()
     {
         $dinas = Auth::user()->dinas;
+        $dinasId = Auth::user()->dinas_id;
 
-        $rekrutmens = Rekrutmen::where('dinas_id', $dinas->id)->get();
+        if (!$dinasId) {
+            return redirect('/')->with('error', 'Akun Anda tidak tertaut dengan instansi manapun.');
+        }
+
+        $rekrutmens = Rekrutmen::where('dinas_id', $dinasId)->get();
         $totalKuota = $rekrutmens->sum('kuota');
         $slotTersedia = $rekrutmens->sum('slot_tersedia');
 
-        $totalPengajuanLayanan = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinas) {
-            $q->where('dinas_id', $dinas->id);
+        $totalPengajuanLayanan = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinasId) {
+            $q->where('dinas_id', $dinasId);
         })->count();
 
-        $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinas) {
-            $q->where('dinas_id', $dinas->id);
+        $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinasId) {
+            $q->where('dinas_id', $dinasId);
         })->where('status', 'diterima')->count();
 
         $pesertaDiterima = MagangApplication::with(['user', 'rekrutmen.bidang'])
-            ->whereHas('rekrutmen', function ($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id);
+            ->whereHas('rekrutmen', function ($q) use ($dinasId) {
+                $q->where('dinas_id', $dinasId);
             })->where('status', 'diterima')->get();
 
         return view('pelayanan.dinas.dashboard', compact(

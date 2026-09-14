@@ -872,22 +872,7 @@
     {{ $instansi->deskripsi ?? 'Fasilitas pelayanan, riset, dan magang di ' . $instansi->name . '.' }}
 </p>
 
-@if(isset($instansi->rekrutmens) && $instansi->rekrutmens->isNotEmpty())
-<div class="mt-2 mb-4">
-    <p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-2">Lowongan Magang Tersedia:</p>
-    <div class="flex flex-col gap-2">
-        @foreach($instansi->rekrutmens as $lowongan)
-        <div class="flex justify-between items-center bg-primary/5 border border-primary/10 px-3 py-2.5 rounded-lg">
-            <div class="flex flex-col">
-                <span class="text-sm font-bold text-primary leading-tight">{{ $lowongan->judul }}</span>
-                <span class="text-[11px] text-on-surface-variant mt-0.5">{{ $lowongan->bidang->name ?? 'Bidang Penempatan' }}</span>
-            </div>
-            <span class="text-[11px] font-bold bg-green-100 border border-green-200 text-green-700 px-2.5 py-1 rounded-md shrink-0">{{ $lowongan->kuota }} Kuota</span>
-        </div>
-        @endforeach
-    </div>
-</div>
-@endif
+
 
 <div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
   @php $badge = $instansi->status_badge; @endphp

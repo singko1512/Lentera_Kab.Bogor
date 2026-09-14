@@ -14,7 +14,7 @@ class ApplicationController extends Controller
     public function index()
     {
         $dinas = Auth::user()->dinas;
-        $dinasId = $dinas->id;
+        $dinasId = Auth::user()->dinas_id;
 
         $applications = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
@@ -31,7 +31,7 @@ class ApplicationController extends Controller
     public function show($id)
     {
         $dinas = Auth::user()->dinas;
-        $dinasId = $dinas->id;
+        $dinasId = Auth::user()->dinas_id;
 
         $application = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
@@ -49,7 +49,7 @@ class ApplicationController extends Controller
     public function verify(Request $request, $id)
     {
         $dinas = Auth::user()->dinas;
-        $dinasId = $dinas->id;
+        $dinasId = Auth::user()->dinas_id;
 
         $application = MagangApplication::where(function($q) use ($dinasId) {
             $q->where('dinas_id', $dinasId)

@@ -55,9 +55,9 @@ class AbsensiAdminController extends Controller
         
         $magangUsersQuery = MagangApplication::with(['user', 'bidang', 'rekrutmen'])
             ->where(function($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id)
+                $q->where('dinas_id', Auth::user()->dinas_id)
                   ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
-                      $sq->where('dinas_id', $dinas->id);
+                      $sq->where('dinas_id', Auth::user()->dinas_id);
                   });
             })
             ->whereIn('status', ['diterima', 'aktif', 'selesai']);
@@ -143,7 +143,7 @@ class AbsensiAdminController extends Controller
             $sertifikatUsersQuery->where('bidang_id', $activeBidangId);
         } else {
             $sertifikatUsersQuery->where(function($q) use ($dinas, $userGroupIds) {
-                $q->where('dinas_id', $dinas->id)
+                $q->where('dinas_id', Auth::user()->dinas_id)
                   ->orWhereIn('id', $userGroupIds);
             });
         }
