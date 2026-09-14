@@ -272,14 +272,24 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label-admin">Password</label>
-                        <input type="password" name="password" class="form-control form-control-admin w-100" autocomplete="new-password" required>
+                        <div class="position-relative">
+                            <input type="password" id="register_absensi_password" name="password" class="form-control form-control-admin w-100 pe-5" autocomplete="new-password" required>
+                            <button type="button" onclick="togglePasswordVisibility('register_absensi_password', this)" class="btn border-0 position-absolute end-0 top-50 translate-middle-y text-muted px-3" title="Tampilkan / Sembunyikan Password" style="z-index: 10;">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                         @error('password')
                             <div class="text-danger mt-1" style="font-size:0.78rem;">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-6">
                         <label class="form-label-admin">Konfirmasi Password</label>
-                        <input type="password" name="password_confirmation" class="form-control form-control-admin w-100" autocomplete="new-password" required>
+                        <div class="position-relative">
+                            <input type="password" id="register_absensi_password_confirmation" name="password_confirmation" class="form-control form-control-admin w-100 pe-5" autocomplete="new-password" required>
+                            <button type="button" onclick="togglePasswordVisibility('register_absensi_password_confirmation', this)" class="btn border-0 position-absolute end-0 top-50 translate-middle-y text-muted px-3" title="Tampilkan / Sembunyikan Password" style="z-index: 10;">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -306,14 +316,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label-admin">Password Baru</label>
-                        <input type="password" name="password" class="form-control form-control-admin w-100" autocomplete="new-password" placeholder="Minimal 6 karakter" required autofocus>
+                        <div class="position-relative">
+                            <input type="password" id="reset_absensi_password" name="password" class="form-control form-control-admin w-100 pe-5" autocomplete="new-password" placeholder="Minimal 6 karakter" required autofocus>
+                            <button type="button" onclick="togglePasswordVisibility('reset_absensi_password', this)" class="btn border-0 position-absolute end-0 top-50 translate-middle-y text-muted px-3" title="Tampilkan / Sembunyikan Password" style="z-index: 10;">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                         @error('password')
                             <div class="text-danger mt-1" style="font-size:0.78rem;">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="mb-4">
                         <label class="form-label-admin">Konfirmasi Password Baru</label>
-                        <input type="password" name="password_confirmation" class="form-control form-control-admin w-100" autocomplete="new-password" placeholder="Ulangi password baru" required>
+                        <div class="position-relative">
+                            <input type="password" id="reset_absensi_password_confirmation" name="password_confirmation" class="form-control form-control-admin w-100 pe-5" autocomplete="new-password" placeholder="Ulangi password baru" required>
+                            <button type="button" onclick="togglePasswordVisibility('reset_absensi_password_confirmation', this)" class="btn border-0 position-absolute end-0 top-50 translate-middle-y text-muted px-3" title="Tampilkan / Sembunyikan Password" style="z-index: 10;">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="login-actions">
@@ -387,7 +407,12 @@
                 </div>
                 <div class="mb-4">
                     <label class="form-label-admin">Password</label>
-                    <input type="password" name="password" class="form-control form-control-admin w-100" autocomplete="current-password" placeholder="Masukkan password" required>
+                    <div class="position-relative">
+                        <input type="password" id="login_absensi_password" name="password" class="form-control form-control-admin w-100 pe-5" autocomplete="current-password" placeholder="Masukkan password" required>
+                        <button type="button" onclick="togglePasswordVisibility('login_absensi_password', this)" class="btn border-0 position-absolute end-0 top-50 translate-middle-y text-muted px-3" title="Tampilkan / Sembunyikan Password" style="z-index: 10;">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
                     @error('password')
                         <div class="text-danger mt-1" style="font-size:0.78rem;">{{ $message }}</div>
                     @enderror
@@ -417,6 +442,34 @@
 
 @section('scripts')
 <script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn ? (btn.querySelector('.fa-eye, .fa-eye-slash, .material-symbols-outlined') || btn.querySelector('i')) : null;
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            if (icon.classList.contains('fa-eye')) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility_off';
+            }
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            if (icon.classList.contains('fa-eye-slash')) {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility';
+            }
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const bidangSelect = document.getElementById('register_bidang_id');
     const pembimbingSelect = document.getElementById('register_pembimbing_magang_id');

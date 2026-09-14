@@ -212,12 +212,22 @@
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-[14px] font-medium text-on-surface">Kata Sandi</label>
-                            <input name="password" type="password" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                            <div class="relative flex items-center">
+                                <input id="register_password" name="password" type="password" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-4 pr-11 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                                <button type="button" onclick="togglePasswordVisibility('register_password', this)" class="absolute right-3 text-on-surface-variant hover:text-on-surface focus:outline-none p-1 flex items-center justify-center rounded transition-colors" title="Tampilkan / Sembunyikan Password">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
                             @error('password')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div class="flex flex-col gap-2">
                             <label class="text-[14px] font-medium text-on-surface">Konfirmasi Sandi</label>
-                            <input name="password_confirmation" type="password" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                            <div class="relative flex items-center">
+                                <input id="register_password_confirmation" name="password_confirmation" type="password" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-4 pr-11 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                                <button type="button" onclick="togglePasswordVisibility('register_password_confirmation', this)" class="absolute right-3 text-on-surface-variant hover:text-on-surface focus:outline-none p-1 flex items-center justify-center rounded transition-colors" title="Tampilkan / Sembunyikan Password">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -275,7 +285,12 @@
                     
                     <div class="flex flex-col gap-2">
                         <label class="text-[14px] font-medium text-on-surface">Kata Sandi</label>
-                        <input name="password" type="password" placeholder="Masukkan Kata Sandi Anda" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                        <div class="relative flex items-center">
+                            <input id="login_password" name="password" type="password" placeholder="Masukkan Kata Sandi Anda" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-4 pr-11 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                            <button type="button" onclick="togglePasswordVisibility('login_password', this)" class="absolute right-3 text-on-surface-variant hover:text-on-surface focus:outline-none p-1 flex items-center justify-center rounded transition-colors" title="Tampilkan / Sembunyikan Password">
+                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                            </button>
+                        </div>
                         @error('password')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                         @if(! in_array($loginRole, ['admin', 'superadmin'], true))
                             <div class="flex justify-end -mt-0.5">
@@ -306,4 +321,34 @@
         </div>
     </div>
 </div>
+
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn ? (btn.querySelector('.material-symbols-outlined') || btn.querySelector('i')) : null;
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility_off';
+            } else if (icon.classList.contains('fa-eye')) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility';
+            } else if (icon.classList.contains('fa-eye-slash')) {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    }
+}
+</script>
 @endsection

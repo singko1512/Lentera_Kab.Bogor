@@ -66,7 +66,12 @@
                     <span class="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">key</span>
                     Kata Sandi Baru
                 </label>
-                <input name="password" type="password" required autofocus placeholder="Minimal 8 karakter" class="w-full bg-slate-50 dark:bg-[#0f243d] border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all">
+                <div class="relative flex items-center">
+                    <input id="reset_password" name="password" type="password" required autofocus placeholder="Minimal 8 karakter" class="w-full bg-slate-50 dark:bg-[#0f243d] border border-slate-300 dark:border-slate-700 rounded-xl pl-4 pr-11 py-3.5 text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all">
+                    <button type="button" onclick="togglePasswordVisibility('reset_password', this)" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none p-1 flex items-center justify-center rounded transition-colors" title="Tampilkan / Sembunyikan Password">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                </div>
                 @error('password')
                     <div class="text-rose-600 dark:text-rose-400 text-xs mt-1 font-medium">{{ $message }}</div>
                 @enderror
@@ -77,7 +82,12 @@
                     <span class="material-symbols-outlined text-[18px] text-blue-600 dark:text-blue-400">published_with_changes</span>
                     Konfirmasi Kata Sandi Baru
                 </label>
-                <input name="password_confirmation" type="password" required placeholder="Ulangi kata sandi baru" class="w-full bg-slate-50 dark:bg-[#0f243d] border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3.5 text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all">
+                <div class="relative flex items-center">
+                    <input id="reset_password_confirmation" name="password_confirmation" type="password" required placeholder="Ulangi kata sandi baru" class="w-full bg-slate-50 dark:bg-[#0f243d] border border-slate-300 dark:border-slate-700 rounded-xl pl-4 pr-11 py-3.5 text-base text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none transition-all">
+                    <button type="button" onclick="togglePasswordVisibility('reset_password_confirmation', this)" class="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus:outline-none p-1 flex items-center justify-center rounded transition-colors" title="Tampilkan / Sembunyikan Password">
+                        <span class="material-symbols-outlined text-[20px]">visibility</span>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 flex items-center justify-center gap-2 group text-base mt-2">
@@ -91,4 +101,34 @@
         </form>
     </div>
 </main>
+
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn ? (btn.querySelector('.material-symbols-outlined') || btn.querySelector('i')) : null;
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility_off';
+            } else if (icon.classList.contains('fa-eye')) {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            if (icon.classList.contains('material-symbols-outlined')) {
+                icon.textContent = 'visibility';
+            } else if (icon.classList.contains('fa-eye-slash')) {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    }
+}
+</script>
 @endsection
