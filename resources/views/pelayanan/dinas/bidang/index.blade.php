@@ -201,7 +201,7 @@
     function openEditModal(id, name, email) {
         document.getElementById('editName').value = name;
         document.getElementById('editEmail').value = email || '';
-        document.getElementById('editForm').action = '/dinas/bidang/' + id;
+        document.getElementById('editForm').action = '{{ url('/dinas/bidang') }}/' + id;
         document.getElementById('editModal').classList.remove('hidden');
     }
 </script>

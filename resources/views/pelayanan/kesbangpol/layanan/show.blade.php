@@ -225,10 +225,10 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" @click="previewUrl = '{{ asset('storage/' . $layanan->$field) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
+                                    <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $layanan->$field) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
-                                    <a href="{{ asset('storage/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
+                                    <a href="{{ url('/dokumen/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
                                         <span class="material-symbols-outlined text-[20px]">open_in_new</span>
                                     </a>
                                 </div>

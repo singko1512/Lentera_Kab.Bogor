@@ -287,7 +287,7 @@
 
     <script>
         function loadNotifications() {
-            fetch('/api/notifications', {
+            fetch('{{ url('/api/notifications') }}', {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -337,7 +337,7 @@
         }
 
         function markAllNotificationsAsRead() {
-            fetch('/api/notifications/read-all', {
+            fetch('{{ url('/api/notifications/read-all') }}', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -350,7 +350,7 @@
         }
 
         function markNotificationAsRead(id) {
-            fetch('/api/notifications/' + id + '/read', {
+            fetch('{{ url('/api/notifications') }}/' + id + '/read', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

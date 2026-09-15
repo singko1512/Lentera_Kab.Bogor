@@ -130,10 +130,10 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <a href="{{ asset('storage/' . $application->file_surat_pengantar) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Preview Dokumen">
+                                        <a href="{{ url('/dokumen/' . $application->file_surat_pengantar) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Preview Dokumen">
                                             <span class="material-symbols-outlined">visibility</span>
                                         </a>
-                                        <a href="{{ asset('storage/' . $application->file_surat_pengantar) }}" download class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Unduh Dokumen">
+                                        <a href="{{ url('/dokumen/' . $application->file_surat_pengantar) }}" download class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Unduh Dokumen">
                                             <span class="material-symbols-outlined">download</span>
                                         </a>
                                     </div>
@@ -160,10 +160,10 @@
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        <a href="{{ asset('storage/' . $application->file_proposal) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Preview Dokumen">
+                                        <a href="{{ url('/dokumen/' . $application->file_proposal) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Preview Dokumen">
                                             <span class="material-symbols-outlined">visibility</span>
                                         </a>
-                                        <a href="{{ asset('storage/' . $application->file_proposal) }}" download class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Unduh Dokumen">
+                                        <a href="{{ url('/dokumen/' . $application->file_proposal) }}" download class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Unduh Dokumen">
                                             <span class="material-symbols-outlined">download</span>
                                         </a>
                                     </div>

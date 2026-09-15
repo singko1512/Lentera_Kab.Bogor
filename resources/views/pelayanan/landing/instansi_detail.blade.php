@@ -118,7 +118,7 @@
 <section class="bg-surface-container-lowest rounded-xl p-6 md:p-8 shadow-ambient border-t-4 border-primary-container flex flex-col md:flex-row gap-stack-lg items-start md:items-center justify-between">
     <div class="flex flex-col md:flex-row gap-stack-lg items-start md:items-center w-full">
         <div class="w-24 h-24 bg-surface-container-low rounded-lg flex items-center justify-center shrink-0 border border-outline-variant">
-            <img class="w-16 h-16 object-contain" alt="Official logo" src="{{ $instansi->logo ? asset('storage/'.$instansi->logo) : asset('assets/certificate/lambang_kabupaten_bogor.png') }}"/>
+            <img class="w-16 h-16 object-contain" alt="Official logo" src="{{ $instansi->logo ? url('/dokumen/'.$instansi->logo) : asset('assets/certificate/lambang_kabupaten_bogor.png') }}"/>
         </div>
         <div class="flex flex-col gap-2 w-full">
             <div class="flex items-center justify-between gap-3 flex-wrap">

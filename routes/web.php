@@ -17,18 +17,74 @@ Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name
 Route::get('/surat-rekomendasi/pdf/{id}', [\App\Http\Controllers\Kesbangpol\LayananController::class, 'downloadPdf'])->name('surat.pdf');
 Route::get('/sertifikat/{slug}', function($slug) { return redirect()->route('absensi.admin.dashboard'); })->name('sertifikat.show');
 
-// Fallback storage route to serve attachment files (KTP, KTM, Proposal, Surat) seamlessly on production deployments
-Route::get('/storage/{path}', function ($path) {
-    $fullPath = storage_path('app/public/' . $path);
+// Route langsung untuk melayani preview file dokumen lampiran (KTP, KTM, Proposal, Surat) tanpa bergantung symlink server
+Route::get('/dokumen/{path}', function ($path) {
+    $cleanPath = ltrim(preg_replace('#^storage/#', '', $path), '/');
+    $fullPath = storage_path('app/public/' . $cleanPath);
+
     if (!file_exists($fullPath)) {
-        abort(404);
+        // Fallback alternatif cek di storage/app/
+        $altPath = storage_path('app/' . $cleanPath);
+        if (file_exists($altPath)) {
+            $fullPath = $altPath;
+        } else {
+            abort(404, 'File lampiran tidak ditemukan di server.');
+        }
     }
+
     $mimeType = \Illuminate\Support\Facades\File::mimeType($fullPath);
     return response()->file($fullPath, [
         'Content-Type' => $mimeType,
+        'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*')->name('dokumen.preview');
+
+// Fallback storage route to serve attachment files seamlessly on production deployments
+Route::get('/storage/{path}', function ($path) {
+    $cleanPath = ltrim(preg_replace('#^storage/#', '', $path), '/');
+    $fullPath = storage_path('app/public/' . $cleanPath);
+
+    if (!file_exists($fullPath)) {
+        $altPath = storage_path('app/' . $cleanPath);
+        if (file_exists($altPath)) {
+            $fullPath = $altPath;
+        } else {
+            abort(404);
+        }
+    }
+
+    $mimeType = \Illuminate\Support\Facades\File::mimeType($fullPath);
+    return response()->file($fullPath, [
+        'Content-Type' => $mimeType,
+        'Content-Disposition' => 'inline; filename="' . basename($fullPath) . '"',
         'Cache-Control' => 'public, max-age=86400',
     ]);
 })->where('path', '.*');
+
+// Route helper untuk generate symlink di cPanel
+Route::get('/buat-symlink', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return '<h3 style="font-family:sans-serif;color:green;">✓ Berhasil membuat symlink storage via Artisan!</h3>';
+    } catch (\Exception $e) {
+        return '<h3 style="font-family:sans-serif;color:red;">Gagal: ' . $e->getMessage() . '</h3>';
+    }
+});
+
+// Route diagnosa untuk audit storage dan path di production
+Route::get('/diagnosa', function () {
+    return response()->json([
+        'base_path' => base_path(),
+        'storage_path' => storage_path('app/public'),
+        'public_path' => public_path(),
+        'app_url' => config('app.url'),
+        'storage_public_exists' => is_dir(storage_path('app/public')),
+        'storage_public_scandir' => is_dir(storage_path('app/public')) ? scandir(storage_path('app/public')) : null,
+        'permohonan_exists' => is_dir(storage_path('app/public/permohonan')),
+        'permohonan_scandir' => is_dir(storage_path('app/public/permohonan')) ? scandir(storage_path('app/public/permohonan')) : null,
+    ]);
+});
 
 Route::get('/login', function (\Illuminate\Http\Request $request) {
     if (Auth::check()) {
