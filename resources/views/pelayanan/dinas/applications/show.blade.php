@@ -3,7 +3,7 @@
 @section('title', 'Detail Pengajuan Magang')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto" x-data="{ previewModalOpen: false, previewUrl: '' }">
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto" x-data="{ previewModalOpen: false, previewUrl: '', previewTitle: '', previewExt: '' }">
     <!-- Page Header -->
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -115,7 +115,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ route('surat.pdf', $application->permohonanLayanan->id) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ route('surat.pdf', $application->permohonanLayanan->id) }}'; previewTitle = 'Surat Rekomendasi Kesbangpol'; previewExt = 'pdf'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Lihat
                             </button>
                             <a href="{{ route('surat.pdf', $application->permohonanLayanan->id) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
@@ -135,7 +135,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_ktp) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_ktp) }}'; previewTitle = 'KTP / Identitas'; previewExt = '{{ strtolower(pathinfo($application->permohonanLayanan->file_ktp, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
                             <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_ktp) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
@@ -155,7 +155,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}'; previewTitle = 'Surat Permohonan'; previewExt = '{{ strtolower(pathinfo($application->permohonanLayanan->file_surat_permohonan, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
                             <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
@@ -175,7 +175,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_proposal) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_proposal) }}'; previewTitle = 'Proposal Kegiatan'; previewExt = '{{ strtolower(pathinfo($application->permohonanLayanan->file_proposal, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
                             <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_proposal) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
@@ -195,11 +195,11 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->file_surat_penerimaan) }}'; previewModalOpen = true" class="text-white bg-green-600 hover:bg-green-700 font-medium text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->file_surat_penerimaan) }}'; previewTitle = 'Surat Penerimaan'; previewExt = '{{ strtolower(pathinfo($application->file_surat_penerimaan, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-white bg-green-600 hover:bg-green-700 font-medium text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $application->file_surat_penerimaan) }}" target="_blank" class="text-green-700 hover:text-green-900 p-1.5 rounded-lg hover:bg-green-100 transition-colors" title="Unduh / Buka di Tab Baru">
-                                <span class="material-symbols-outlined text-[16px]">download</span>
+                            <a href="{{ url('/dokumen/' . $application->file_surat_penerimaan) }}" target="_blank" class="text-green-700 hover:text-green-900 p-1.5 rounded-lg hover:bg-green-100 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                             </a>
                         </div>
                     </div>
@@ -261,12 +261,48 @@
                     </div>
 
                     <!-- Bidang Penempatan Dropdown -->
+                    @php
+                        $targetBidangId = $application->bidang_id 
+                            ?? optional($application->rekrutmen)->bidang_id 
+                            ?? optional($application->user)->bidang_id;
+
+                        if (!$targetBidangId && !empty($bidangs)) {
+                            $searchTerms = array_filter([
+                                $application->bidang->name ?? (is_string($application->bidang) ? $application->bidang : null),
+                                optional(optional($application->rekrutmen)->bidang)->name,
+                                $application->bidang_nama ?? null,
+                                optional($application->permohonanLayanan)->tempat_kegiatan,
+                                optional($application->permohonanLayanan)->keterangan,
+                                optional($application->user)->program_studi,
+                            ]);
+
+                            foreach ($searchTerms as $term) {
+                                $termClean = strtolower(trim($term));
+                                if (!$termClean) continue;
+
+                                foreach ($bidangs as $b) {
+                                    $bName = strtolower(trim($b->name));
+                                    if ($bName === $termClean || str_contains($bName, $termClean) || str_contains($termClean, $bName)) {
+                                        $targetBidangId = $b->id;
+                                        break 2;
+                                    }
+                                    if (str_contains($termClean, 'aptika') && (str_contains($bName, 'aptika') || str_contains($bName, 'aplikasi') || str_contains($bName, 'informatika'))) {
+                                        $targetBidangId = $b->id;
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                    @endphp
                     <div id="bidang_container" class="{{ $application->status == 'diterima' ? '' : 'hidden' }}">
                         <label class="block text-label-sm font-bold text-on-surface mb-2">Penempatan Bidang Kerja <span class="text-red-500">*</span></label>
                         <select name="bidang_id" id="bidang_id" class="w-full px-3 py-2.5 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium">
                             <option value="">-- Pilih Bidang Penempatan --</option>
                             @foreach($bidangs ?? [] as $b)
-                                <option value="{{ $b->id }}" {{ ($application->bidang_id == $b->id || (optional($application->user)->bidang_id == $b->id)) ? 'selected' : '' }}>
+                                @php
+                                    $isSelected = ($targetBidangId == $b->id);
+                                @endphp
+                                <option value="{{ $b->id }}" {{ $isSelected ? 'selected' : '' }}>
                                     {{ $b->name }}
                                 </option>
                             @endforeach
@@ -303,7 +339,7 @@
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-primary">visibility</span>
-                    <h3 class="text-lg font-bold text-gray-800">Preview Dokumen Lampiran</h3>
+                    <h3 class="text-lg font-bold text-gray-800" x-text="previewTitle || 'Preview Dokumen Lampiran'">Preview Dokumen Lampiran</h3>
                     <a :href="previewUrl" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
                         <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                         Buka di Tab Baru
@@ -315,9 +351,35 @@
             </div>
             
             <!-- Content Frame -->
-            <div class="flex-1 overflow-hidden bg-gray-100 relative">
+            <div class="flex-1 overflow-hidden bg-slate-900/5 relative flex items-center justify-center">
                 <template x-if="previewUrl">
-                    <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                    <div class="w-full h-full flex flex-col">
+                        <!-- Image Viewer -->
+                        <template x-if="['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(previewExt)">
+                            <div class="w-full h-full flex items-center justify-center p-6 bg-slate-900/90 overflow-auto">
+                                <img :src="previewUrl" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10" alt="Preview Image" />
+                            </div>
+                        </template>
+
+                        <!-- Office Doc Viewer (Word / Excel) -->
+                        <template x-if="['doc', 'docx', 'xls', 'xlsx'].includes(previewExt)">
+                            <div class="w-full h-full flex flex-col">
+                                <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between shrink-0">
+                                    <span class="flex items-center gap-1.5 font-semibold">
+                                        <span class="material-symbols-outlined text-[16px]">info</span>
+                                        Dokumen Office (.docx/.xlsx) ditampilkan via Online Viewer
+                                    </span>
+                                    <a :href="previewUrl + '?download=1'" download class="font-bold text-amber-900 underline hover:text-amber-700">Unduh File Asli</a>
+                                </div>
+                                <iframe :src="'https://docs.google.com/gview?url=' + encodeURIComponent(previewUrl) + '&embedded=true'" class="w-full h-full border-0"></iframe>
+                            </div>
+                        </template>
+
+                        <!-- Default PDF / Standard Web Viewer -->
+                        <template x-if="!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'doc', 'docx', 'xls', 'xlsx'].includes(previewExt)">
+                            <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                        </template>
+                    </div>
                 </template>
             </div>
         </div>
@@ -331,12 +393,21 @@ function toggleDinasFields(val) {
 
     if (val === 'diterima') {
         bidangContainer.classList.remove('hidden');
-        if (bidangSelect) bidangSelect.required = true;
+        if (bidangSelect) {
+            bidangSelect.required = true;
+            if (!bidangSelect.value) {
+                const preselected = bidangSelect.querySelector('option[selected]');
+                if (preselected && preselected.value) {
+                    bidangSelect.value = preselected.value;
+                } else if (bidangSelect.options.length > 1) {
+                    bidangSelect.selectedIndex = 1;
+                }
+            }
+        }
     } else {
         bidangContainer.classList.add('hidden');
         if (bidangSelect) {
             bidangSelect.required = false;
-            bidangSelect.value = '';
         }
     }
 }

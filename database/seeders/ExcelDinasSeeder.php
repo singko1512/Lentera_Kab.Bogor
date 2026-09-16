@@ -70,12 +70,13 @@ class ExcelDinasSeeder extends Seeder
                 $bCode = implode('_', array_slice(array_filter(explode(' ', Str::slug($cleanB, ' '))), 0, 3));
 
                 $username = strtolower($bCode . '_' . $dCode);
-                $bidangEmail = strtolower($bCode . '.' . $dCode . '@bidang.com');
+                $bidangEmail = strtolower($username . '@bidang.com');
 
                 User::firstOrCreate(
-                    ['email' => $bidangEmail],
+                    ['username' => $username],
                     [
                         'name' => 'Admin ' . $bidangName . ' (' . $dinasName . ')',
+                        'email' => $bidangEmail,
                         'username' => $username,
                         'password' => $defaultPassword,
                         'role' => 'bidang',

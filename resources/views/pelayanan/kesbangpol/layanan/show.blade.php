@@ -1,7 +1,7 @@
 @extends('pelayanan.layouts.kesbangpol_stitch')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" x-data="{ previewModalOpen: false, previewUrl: '' }">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" x-data="{ previewModalOpen: false, previewUrl: '', previewTitle: '', previewExt: '' }">
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Kolom Data Pemohon -->
         <div class="w-full lg:w-2/3">
@@ -225,7 +225,7 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $layanan->$field) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
+                                    <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $layanan->$field) }}'; previewTitle = '{{ $info['label'] }}'; previewExt = '{{ strtolower(pathinfo($layanan->$field, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
                                     <a href="{{ url('/dokumen/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
@@ -348,7 +348,7 @@
         </div>
     </div>
 
-    <!-- Preview Modal -->
+    <!-- Smart Preview Modal -->
     <div x-show="previewModalOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
         <div x-show="previewModalOpen" x-transition.opacity class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="previewModalOpen = false"></div>
         <div x-show="previewModalOpen" 
@@ -359,7 +359,7 @@
             <!-- Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
                 <div class="flex items-center gap-3">
-                    <h3 class="text-lg font-bold text-gray-800">Preview Dokumen</h3>
+                    <h3 class="text-lg font-bold text-gray-800" x-text="previewTitle || 'Preview Dokumen'">Preview Dokumen</h3>
                     <a :href="previewUrl" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
                         <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                         Buka di Tab Baru
@@ -370,10 +370,36 @@
                 </button>
             </div>
             
-            <!-- Content -->
-            <div class="flex-1 overflow-hidden bg-gray-100 relative">
+            <!-- Content Renderer -->
+            <div class="flex-1 overflow-hidden bg-slate-900/5 relative flex items-center justify-center">
                 <template x-if="previewUrl">
-                    <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                    <div class="w-full h-full flex flex-col">
+                        <!-- Image Viewer -->
+                        <template x-if="['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(previewExt)">
+                            <div class="w-full h-full flex items-center justify-center p-6 bg-slate-900/90 overflow-auto">
+                                <img :src="previewUrl" class="max-h-full max-w-full object-contain rounded-lg shadow-2xl border border-white/10" alt="Preview Image" />
+                            </div>
+                        </template>
+
+                        <!-- Office Doc Viewer (Word / Excel) -->
+                        <template x-if="['doc', 'docx', 'xls', 'xlsx'].includes(previewExt)">
+                            <div class="w-full h-full flex flex-col">
+                                <div class="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between shrink-0">
+                                    <span class="flex items-center gap-1.5 font-semibold">
+                                        <span class="material-symbols-outlined text-[16px]">info</span>
+                                        Dokumen Office (.docx/.xlsx) ditampilkan via Online Viewer
+                                    </span>
+                                    <a :href="previewUrl + '?download=1'" download class="font-bold text-amber-900 underline hover:text-amber-700">Unduh File Asli</a>
+                                </div>
+                                <iframe :src="'https://docs.google.com/gview?url=' + encodeURIComponent(previewUrl) + '&embedded=true'" class="w-full h-full border-0"></iframe>
+                            </div>
+                        </template>
+
+                        <!-- Default PDF / Standard Web Viewer -->
+                        <template x-if="!['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'doc', 'docx', 'xls', 'xlsx'].includes(previewExt)">
+                            <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                        </template>
+                    </div>
                 </template>
             </div>
         </div>

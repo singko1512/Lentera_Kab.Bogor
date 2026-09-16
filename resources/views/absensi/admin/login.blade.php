@@ -382,12 +382,8 @@
                 <div class="mb-3">
                     @php
                         $isAdminLoginRole = in_array($loginRole, ['admin', 'superadmin'], true);
-                        $loginLabel = $isAdminLoginRole
-                            ? ($loginRole === 'superadmin' ? 'ID Super Admin / Email' : 'ID Admin / Email')
-                            : 'Email';
-                        $loginPlaceholder = $isAdminLoginRole
-                            ? ($loginRole === 'superadmin' ? 'superadmin' : 'admin.aplikasi')
-                            : 'Masukkan email';
+                        $loginLabel = 'Username / Email';
+                        $loginPlaceholder = 'contoh: aptika_diskominfo atau aptika_diskominfo@bidang.com';
                     @endphp
                     <label class="form-label-admin">{{ $loginLabel }}</label>
                     <input
@@ -395,8 +391,8 @@
                         name="login"
                         class="form-control form-control-admin w-100"
                         value="{{ old('login', old('username')) }}"
-                        autocomplete="{{ $isAdminLoginRole ? 'username' : 'email' }}"
-                        inputmode="{{ $isAdminLoginRole ? 'text' : 'email' }}"
+                        autocomplete="username"
+                        inputmode="text"
                         placeholder="{{ $loginPlaceholder }}"
                         required
                         autofocus

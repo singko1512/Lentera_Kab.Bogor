@@ -1,42 +1,117 @@
 <style>
+    /* Clean Open Center Navigation Links with Fluid Sliding Indicator & Dividers */
+    .nav-sliding-wrapper {
+        position: relative;
+        padding: 4px 8px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0 !important;
+    }
+
+    .nav-divider {
+        color: #d1d5db;
+        font-weight: 300;
+        font-size: 1.2rem;
+        margin: 0 18px;
+        user-select: none;
+        pointer-events: none;
+        line-height: 1;
+        transition: color 0.3s ease, opacity 0.3s ease;
+        opacity: 0.75;
+    }
+
+    html.dark .nav-divider {
+        color: rgba(255, 255, 255, 0.22);
+    }
+
+    /* Fluid Organic Liquid Sliding Indicator - Hardware Accelerated 120FPS */
+    .nav-sliding-pill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(17, 92, 185, 0.08) 0%, rgba(59, 130, 246, 0.14) 100%);
+        border: 1px solid rgba(17, 92, 185, 0.16);
+        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.08);
+        pointer-events: none;
+        opacity: 0;
+        z-index: 1;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform-style: preserve-3d;
+        will-change: transform, width, height, opacity;
+        /* Ultra smooth Apple-style spring ease-out bezier curve */
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                    height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                    opacity 0.2s ease;
+    }
+
+    .nav-sliding-pill::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 15%;
+        width: 70%;
+        height: 3px;
+        background: linear-gradient(90deg, #1f477b, #115cb9, #3b82f6);
+        border-radius: 99px;
+        box-shadow: 0 0 10px rgba(17, 92, 185, 0.7);
+    }
+
+    html.dark .nav-sliding-pill {
+        background: linear-gradient(135deg, rgba(167, 200, 255, 0.12) 0%, rgba(59, 130, 246, 0.2) 100%);
+        border-color: rgba(167, 200, 255, 0.28);
+        box-shadow: 0 4px 16px rgba(167, 200, 255, 0.16);
+    }
+
     .nav-center-link {
         position: relative;
-        padding: 6px 14px;
-        border-radius: 20px;
-        color: var(--text);
-        font-weight: 600;
-        font-size: 0.92rem;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 2;
+        padding: 6px 16px;
+        border-radius: 14px;
+        color: #2d3748;
+        font-weight: 700;
+        font-size: 1.02rem;
+        letter-spacing: -0.01em;
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
         display: inline-flex;
         align-items: center;
         gap: 6px;
         text-decoration: none !important;
+        cursor: pointer;
     }
-    .nav-center-link::after {
-        content: '';
-        position: absolute;
-        bottom: 2px;
-        left: 50%;
-        width: 0%;
-        height: 2.5px;
-        background: linear-gradient(90deg, #1f477b, #115cb9);
-        border-radius: 4px;
-        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        transform: translateX(-50%);
-        box-shadow: 0 0 8px rgba(17, 92, 185, 0.5);
+
+    html.dark .nav-center-link {
+        color: #e2e8f0;
     }
-    .nav-center-link:hover {
+
+    .nav-center-link:hover,
+    .nav-center-link.active-nav {
         color: #115cb9 !important;
-        background: rgba(17, 92, 185, 0.08);
-        transform: translateY(-2px) scale(1.03);
-        box-shadow: 0 4px 12px rgba(17, 92, 185, 0.12);
+        transform: translateY(-2px) scale(1.04);
+        text-shadow: 0 2px 10px rgba(17, 92, 185, 0.12);
     }
-    .nav-center-link:hover::after {
-        width: 65%;
+
+    html.dark .nav-center-link:hover,
+    html.dark .nav-center-link.active-nav {
+        color: #60a5fa !important;
+        text-shadow: 0 2px 12px rgba(96, 165, 250, 0.25);
     }
 
     .nav-blue-glow-btn {
         transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+    .nav-blue-glow-btn:hover {
+        background: rgba(17, 92, 185, 0.1) !important;
+        color: #115cb9 !important;
+        transform: translateY(-2px) scale(1.06) !important;
+        box-shadow: 0 4px 12px rgba(17, 92, 185, 0.15) !important;
     }
     .nav-blue-glow-btn:hover {
         background: rgba(17, 92, 185, 0.1) !important;
@@ -91,19 +166,33 @@
             @endphp
 
             <!-- Center Navigation Links -->
-            <ul class="d-none d-md-flex align-items-center gap-2 mb-0 list-unstyled mx-auto">
+            <ul class="d-none d-md-flex align-items-center mb-0 list-unstyled mx-auto nav-sliding-wrapper" id="nav-sliding-wrapper">
+                <div id="nav-sliding-pill" class="nav-sliding-pill"></div>
                 @guest
-                <li><a href="{{ route('home') }}#timeline-section" class="nav-center-link">Alur Permohonan</a></li>
-                <li><span class="text-muted opacity-30">|</span></li>
-                @endguest
-                <li><a href="{{ route('home') }}#services-section" class="nav-center-link">Jenis Layanan</a></li>
-                <li><span class="text-muted opacity-30">|</span></li>
-                <li><a href="{{ route('home') }}#instansi-section" class="nav-center-link">Instansi Tujuan</a></li>
-                @if($hasAcceptedMagang)
-                <li><span class="text-muted opacity-30">|</span></li>
                 <li>
-                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="nav-center-link text-primary font-weight-bold" style="background: rgba(17, 92, 185, 0.08); border: 1px solid rgba(17, 92, 185, 0.2);">
-                        <i class="fa-solid fa-fingerprint text-primary"></i> Absensi
+                    <a href="{{ route('home') }}#timeline-section" class="nav-center-link" data-nav-target="timeline-section">
+                        <span>Alur Permohonan</span>
+                    </a>
+                </li>
+                <li><span class="nav-divider">|</span></li>
+                @endguest
+                <li>
+                    <a href="{{ route('home') }}#services-section" class="nav-center-link" data-nav-target="services-section">
+                        <span>Jenis Layanan</span>
+                    </a>
+                </li>
+                <li><span class="nav-divider">|</span></li>
+                <li>
+                    <a href="{{ route('home') }}#instansi-section" class="nav-center-link" data-nav-target="instansi-section">
+                        <span>Instansi Tujuan</span>
+                    </a>
+                </li>
+                @if($hasAcceptedMagang)
+                <li><span class="nav-divider">|</span></li>
+                <li>
+                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="nav-center-link nav-absensi-link text-primary font-weight-bold" data-nav-target="jadwal-magang-section">
+                        <i class="fa-solid fa-fingerprint text-primary me-1"></i>
+                        <span>Absensi</span>
                     </a>
                 </li>
                 @endif
@@ -457,7 +546,7 @@
                 }, 460);
             }
 
-            // Sync UI state initially
+            // Sliding Navbar Hover & Active Pill Controller & Theme UI Sync
             document.addEventListener('DOMContentLoaded', () => {
                 updateThemeUI();
 
@@ -467,6 +556,140 @@
                         toggleThemeWithRipple(e);
                     });
                 }
+
+                const wrapper = document.getElementById('nav-sliding-wrapper');
+                const pill = document.getElementById('nav-sliding-pill');
+                if (!wrapper || !pill) return;
+
+                const links = wrapper.querySelectorAll('.nav-center-link');
+                let activeLink = null;
+                let isHoveringWrapper = false;
+
+                function movePillTo(element) {
+                    if (!element) {
+                        pill.style.opacity = '0';
+                        return;
+                    }
+
+                    const wrapperRect = wrapper.getBoundingClientRect();
+                    const elemRect = element.getBoundingClientRect();
+
+                    const x = elemRect.left - wrapperRect.left;
+                    const y = elemRect.top - wrapperRect.top;
+                    const w = elemRect.width;
+                    const h = elemRect.height;
+
+                    // GPU 120 FPS hardware accelerated translate3d
+                    pill.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                    pill.style.width = `${w}px`;
+                    pill.style.height = `${h}px`;
+                    pill.style.opacity = '1';
+                }
+
+                function checkActiveState() {
+                    const hash = window.location.hash.replace('#', '');
+                    let found = false;
+
+                    links.forEach(link => {
+                        const target = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
+                        if (hash && target === hash) {
+                            links.forEach(l => l.classList.remove('active-nav'));
+                            link.classList.add('active-nav');
+                            activeLink = link;
+                            found = true;
+                        }
+                    });
+
+                    if (activeLink && !isHoveringWrapper) {
+                        movePillTo(activeLink);
+                    }
+                }
+
+                links.forEach(link => {
+                    link.addEventListener('mouseenter', () => {
+                        movePillTo(link);
+                    });
+
+                    link.addEventListener('click', (e) => {
+                        const targetId = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
+                        if (targetId) {
+                            const targetSection = document.getElementById(targetId);
+                            if (targetSection) {
+                                e.preventDefault();
+                                const offset = 85;
+                                const bodyRect = document.body.getBoundingClientRect().top;
+                                const elementRect = targetSection.getBoundingClientRect().top;
+                                const elementPosition = elementRect - bodyRect;
+                                const offsetPosition = elementPosition - offset;
+
+                                window.scrollTo({
+                                    top: offsetPosition,
+                                    behavior: 'smooth'
+                                });
+
+                                if (history.pushState) {
+                                    history.pushState(null, null, '#' + targetId);
+                                }
+                            }
+                        }
+
+                        links.forEach(l => l.classList.remove('active-nav'));
+                        link.classList.add('active-nav');
+                        activeLink = link;
+                        movePillTo(link);
+                    });
+                });
+
+                wrapper.addEventListener('mouseenter', () => {
+                    isHoveringWrapper = true;
+                });
+
+                wrapper.addEventListener('mouseleave', () => {
+                    isHoveringWrapper = false;
+                    if (activeLink) {
+                        movePillTo(activeLink);
+                    } else {
+                        pill.style.opacity = '0';
+                    }
+                });
+
+                window.addEventListener('resize', () => {
+                    if (activeLink && !isHoveringWrapper) {
+                        movePillTo(activeLink);
+                    }
+                });
+
+                // ScrollSpy for Landing Page Sections
+                const sectionItems = [];
+                links.forEach(link => {
+                    const targetId = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
+                    if (targetId) {
+                        const sec = document.getElementById(targetId);
+                        if (sec) sectionItems.push({ id: targetId, elem: sec, link: link });
+                    }
+                });
+
+                if (sectionItems.length > 0) {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const matched = sectionItems.find(s => s.elem === entry.target);
+                                if (matched) {
+                                    links.forEach(l => l.classList.remove('active-nav'));
+                                    matched.link.classList.add('active-nav');
+                                    activeLink = matched.link;
+                                    if (!isHoveringWrapper) {
+                                        movePillTo(activeLink);
+                                    }
+                                }
+                            }
+                        });
+                    }, { threshold: 0.35 });
+
+                    sectionItems.forEach(s => observer.observe(s.elem));
+                }
+
+                checkActiveState();
             });
         })();
     </script>

@@ -274,8 +274,8 @@
                         <input type="hidden" name="expected_role" value="{{ $loginRole }}">
                     @endif
                     @php
-                        $loginLabel = 'Email / Username';
-                        $loginPlaceholder = 'Masukkan Email atau Username Anda';
+                        $loginLabel = 'Username / Email';
+                        $loginPlaceholder = 'contoh: aptika_diskominfo atau aptika_diskominfo@bidang.com';
                     @endphp
                     <div class="flex flex-col gap-2">
                         <label class="text-[14px] font-medium text-on-surface">{{ $loginLabel }}</label>

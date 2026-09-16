@@ -171,62 +171,135 @@
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
-        /* Hero Action Buttons Styling & Shimmer Animation */
-        .hero-btn-primary {
-            background: linear-gradient(135deg, #115cb9 0%, #1d4ed8 50%, #2563eb 100%);
-            box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        /* Hero Action Buttons Advanced Dynamic Styling & Keyframe Animations */
+        @keyframes buttonShimmerContinuous {
+            0% { transform: translateX(-160%) skewX(-25deg); }
+            45%, 100% { transform: translateX(220%) skewX(-25deg); }
         }
-        
+
+        @keyframes heroGlowPulse {
+            0%, 100% {
+                box-shadow: 0 10px 25px -5px rgba(29, 78, 216, 0.5), 0 0 18px rgba(59, 130, 246, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+            }
+            50% {
+                box-shadow: 0 16px 35px -4px rgba(29, 78, 216, 0.75), 0 0 30px rgba(59, 130, 246, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.75);
+            }
+        }
+
+        @keyframes iconFloatGentle {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(-6deg); }
+        }
+
+        @keyframes arrowBounceDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+
+        @keyframes arrowSlideRight {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+
+        .hero-btn-primary {
+            background: linear-gradient(135deg, #0d47a1 0%, #115cb9 50%, #2563eb 100%);
+            background-size: 200% 200%;
+            animation: heroGlowPulse 3s ease-in-out infinite;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
+        .hero-btn-primary .hero-btn-icon-main {
+            animation: iconFloatGentle 3s ease-in-out infinite;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .hero-btn-primary .hero-btn-icon-arrow {
+            animation: arrowBounceDown 2s ease-in-out infinite;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         .hero-btn-primary::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
+            left: 0;
+            width: 50%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .hero-btn-primary:hover::before {
-            left: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+            animation: buttonShimmerContinuous 3.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
         }
 
         .hero-btn-primary:hover {
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 16px 32px -6px rgba(29, 78, 216, 0.65), 0 0 20px rgba(59, 130, 246, 0.4);
-            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-5px) scale(1.05) !important;
+            box-shadow: 0 20px 42px -6px rgba(29, 78, 216, 0.8), 0 0 35px rgba(59, 130, 246, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .hero-btn-primary:hover .hero-btn-icon-main {
+            transform: scale(1.25) rotate(-15deg) !important;
+        }
+
+        .hero-btn-primary:hover .hero-btn-icon-arrow {
+            transform: translateY(6px) scale(1.2) !important;
+        }
+
+        .hero-btn-primary:active {
+            transform: translateY(-2px) scale(0.96) !important;
         }
 
         .hero-btn-secondary {
             background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+
+        .hero-btn-secondary .hero-btn-icon-main {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .hero-btn-secondary .hero-btn-icon-arrow {
+            animation: arrowSlideRight 2s ease-in-out infinite;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .hero-btn-secondary::before {
             content: '';
             position: absolute;
             top: 0;
-            left: -100%;
-            width: 100%;
+            left: 0;
+            width: 50%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-            transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .hero-btn-secondary:hover::before {
-            left: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: buttonShimmerContinuous 3.8s 1.9s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
         }
 
         .hero-btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.22);
-            transform: translateY(-4px) scale(1.03);
-            border-color: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 0 15px rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-5px) scale(1.05) !important;
+            border-color: rgba(255, 255, 255, 0.85) !important;
+            box-shadow: 0 18px 38px rgba(0, 0, 0, 0.35), 0 0 28px rgba(255, 255, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .hero-btn-secondary:hover .hero-btn-icon-main {
+            transform: scale(1.25) rotate(12deg) !important;
+        }
+
+        .hero-btn-secondary:hover .hero-btn-icon-arrow {
+            transform: translateX(8px) scale(1.2) !important;
+        }
+
+        .hero-btn-secondary:active {
+            transform: translateY(-2px) scale(0.96) !important;
         }
     </style>
 @endsection
@@ -252,17 +325,17 @@
 <!-- Hero Action Buttons -->
 <div class="flex flex-wrap items-center justify-center gap-4 mt-3 reveal-element">
     <!-- Button 1: Data Layanan -->
-    <a href="#analytics-section" class="hero-btn-primary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base transition-all duration-300 relative overflow-hidden shadow-lg">
-        <span class="material-symbols-outlined text-[22px] transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-12">monitoring</span>
-        <span>Data Layanan</span>
-        <span class="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:translate-y-1">arrow_downward</span>
+    <a href="#analytics-section" class="hero-btn-primary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base relative overflow-hidden shadow-lg">
+        <span class="material-symbols-outlined text-[22px] hero-btn-icon-main">monitoring</span>
+        <span class="tracking-wide">Data Layanan</span>
+        <span class="material-symbols-outlined text-[18px] hero-btn-icon-arrow">arrow_downward</span>
     </a>
 
     <!-- Button 2: Peserta Magang -->
-    <a href="{{ route('landing.peserta') }}" class="hero-btn-secondary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base transition-all duration-300 relative overflow-hidden">
-        <span class="material-symbols-outlined text-[22px] transition-transform duration-300 group-hover:scale-110">groups</span>
-        <span>Peserta Magang</span>
-        <span class="material-symbols-outlined text-[18px] transition-transform duration-300 group-hover:translate-x-1.5">arrow_forward</span>
+    <a href="{{ route('landing.peserta') }}" class="hero-btn-secondary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base relative overflow-hidden">
+        <span class="material-symbols-outlined text-[22px] hero-btn-icon-main">groups</span>
+        <span class="tracking-wide">Peserta Magang</span>
+        <span class="material-symbols-outlined text-[18px] hero-btn-icon-arrow">arrow_forward</span>
     </a>
 </div>
 
@@ -1772,6 +1845,38 @@
                         targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }
+            });
+        });
+
+        // Dynamic Hero Buttons Click Impulse Ripple Effect
+        document.querySelectorAll('.hero-btn-primary, .hero-btn-secondary').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const circle = document.createElement('span');
+                const diameter = Math.max(rect.width, rect.height);
+                const radius = diameter / 2;
+
+                circle.style.width = circle.style.height = `${diameter}px`;
+                circle.style.left = `${e.clientX - rect.left - radius}px`;
+                circle.style.top = `${e.clientY - rect.top - radius}px`;
+                circle.style.position = 'absolute';
+                circle.style.borderRadius = '50%';
+                circle.style.backgroundColor = 'rgba(255, 255, 255, 0.45)';
+                circle.style.transform = 'scale(0)';
+                circle.style.pointerEvents = 'none';
+                circle.style.transition = 'transform 0.6s ease-out, opacity 0.6s ease-out';
+                circle.style.zIndex = '10';
+
+                this.appendChild(circle);
+
+                requestAnimationFrame(() => {
+                    circle.style.transform = 'scale(2.5)';
+                    circle.style.opacity = '0';
+                });
+
+                setTimeout(() => {
+                    circle.remove();
+                }, 600);
             });
         });
     });
