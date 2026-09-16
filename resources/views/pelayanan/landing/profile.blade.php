@@ -169,7 +169,7 @@
                 <p class="text-xs text-on-surface-variant">Penempatan Bidang: <strong class="text-secondary">{{ $latestApp->bidang->name ?? 'Belum ditentukan' }}</strong></p>
 
                 @if($latestApp->file_surat_penerimaan)
-                <a href="{{ Storage::url($latestApp->file_surat_penerimaan) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                <a href="{{ url('/dokumen/' . $latestApp->file_surat_penerimaan) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
                     <span class="material-symbols-outlined text-[16px]">download</span> Unduh Surat Penerimaan Dinas
                 </a>
                 @endif

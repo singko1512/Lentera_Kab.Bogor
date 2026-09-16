@@ -28,13 +28,13 @@
                 <h6 class="text-muted fw-bold mb-2">Dokumen Terlampir</h6>
                 <div class="d-flex flex-column gap-2">
                     @if($layanan->file_ktp)
-                        <a href="{{ Storage::url($layanan->file_ktp) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP</a>
+                        <a href="{{ url('/dokumen/' . $layanan->file_ktp) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP</a>
                     @endif
                     @if($layanan->file_surat_pengantar)
-                        <a href="{{ Storage::url($layanan->file_surat_pengantar) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar</a>
+                        <a href="{{ url('/dokumen/' . $layanan->file_surat_pengantar) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar</a>
                     @endif
                     @if($layanan->file_proposal)
-                        <a href="{{ Storage::url($layanan->file_proposal) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Proposal / Rencana Kegiatan</a>
+                        <a href="{{ url('/dokumen/' . $layanan->file_proposal) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Proposal / Rencana Kegiatan</a>
                     @endif
                 </div>
             </div>

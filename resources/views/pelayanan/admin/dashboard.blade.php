@@ -1820,7 +1820,7 @@
                             @endif
                             @if ($task->file_lampiran)
                                 <div class="mb-2">
-                                    <a href="{{ asset('storage/' . $task->file_lampiran) }}" target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-2.5" style="font-size:0.72rem;">
+                                    <a href="{{ url('/dokumen/' . $task->file_lampiran) }}" target="_blank" class="btn btn-sm btn-outline-secondary py-1 px-2.5" style="font-size:0.72rem;">
                                         <i class="fa-solid fa-paperclip me-1"></i> Buka Lampiran
                                     </a>
                                 </div>

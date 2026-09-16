@@ -1,7 +1,7 @@
 @extends('pelayanan.layouts.dinas_stitch')
 
 @section('content')
-<div class="max-w-container-max mx-auto space-y-stack-lg pb-12">
+<div class="max-w-container-max mx-auto space-y-stack-lg pb-12" x-data="{ previewModalOpen: false, previewUrl: '' }">
     <!-- Page Header -->
     <div class="mb-stack-lg flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
@@ -77,11 +77,11 @@
                 </div>
             </div>
             
-            <!-- Dokumen Magang -->
-            <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30">
+            <!-- Dokumen Persyaratan -->
+            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
                 <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <span class="material-symbols-outlined text-primary text-[20px]">folder_open</span>
-                    Dokumen & File
+                    <span class="material-symbols-outlined text-primary text-[20px]">folder</span>
+                    Berkas Persyaratan
                 </h3>
                 <div class="space-y-3">
                     @if($participant->ktp_file)
@@ -92,9 +92,14 @@
                                 <p class="text-body-sm font-semibold text-on-surface">KTP Peserta</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($participant->ktp_file) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->ktp_file) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $participant->ktp_file) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -106,9 +111,14 @@
                                 <p class="text-body-sm font-semibold text-on-surface">Surat Pengantar</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($participant->surat_pengantar) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->surat_pengantar) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $participant->surat_pengantar) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -120,12 +130,19 @@
                                 <p class="text-body-sm font-semibold text-on-surface">Proposal Magang</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($participant->proposal) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->proposal) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $participant->proposal) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
                 </div>
+            </div>
+
             <!-- Absensi -->
             <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30">
                 <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant/40 pb-3">
@@ -149,7 +166,7 @@
                                 <td class="p-3">
                                     {{ $absen->waktu_masuk ?? '-' }}
                                     @if($absen->foto_masuk)
-                                        <a href="{{ Storage::url($absen->foto_masuk) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
+                                        <a href="{{ url('/dokumen/' . $absen->foto_masuk) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
                                     @endif
                                     @if($absen->lokasi_masuk)
                                         <a href="https://maps.google.com/?q={{ $absen->lokasi_masuk }}" target="_blank" class="text-xs text-primary underline ml-1">Map</a>
@@ -158,7 +175,7 @@
                                 <td class="p-3">
                                     {{ $absen->waktu_pulang ?? '-' }}
                                     @if($absen->foto_pulang)
-                                        <a href="{{ Storage::url($absen->foto_pulang) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
+                                        <a href="{{ url('/dokumen/' . $absen->foto_pulang) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
                                     @endif
                                     @if($absen->lokasi_pulang)
                                         <a href="https://maps.google.com/?q={{ $absen->lokasi_pulang }}" target="_blank" class="text-xs text-primary underline ml-1">Map</a>
@@ -178,81 +195,60 @@
                 </div>
             </div>
 
-            <!-- Jurnal -->
-            <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30">
+            <!-- Jurnal Magang -->
+            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
                 <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <span class="material-symbols-outlined text-primary text-[20px]">edit_note</span>
-                    Jurnal Kegiatan
+                    <span class="material-symbols-outlined text-primary text-[20px]">book</span>
+                    Jurnal Aktivitas Harian
                 </h3>
                 <div class="space-y-4">
                     @forelse($participant->jurnals ?? [] as $jurnal)
-                    <div class="p-4 bg-surface-container-lowest border border-outline-variant/30 rounded-xl">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-sm font-semibold text-on-surface-variant">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('l, d M Y') }}</span>
+                    <div class="p-4 rounded-xl border border-outline-variant/40 bg-surface-container-low">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-primary">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('d F Y') }}</span>
                             @if($jurnal->status_verifikasi)
-                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[14px]">verified</span> Terverifikasi
-                                </span>
+                                <span class="text-[10px] px-2 py-0.5 bg-green-100 text-green-700 font-bold rounded-full">DIVERIFIKASI</span>
                             @else
-                                <form action="{{ route('dinas.participants.jurnal.verify', ['id' => $participant->id, 'jurnal_id' => $jurnal->id]) }}" method="POST">
+                                <form action="{{ route('dinas.participants.jurnal.verify', [$participant->id, $jurnal->id]) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="px-3 py-1 bg-primary text-white rounded-md text-xs font-bold hover:bg-primary-dark transition-colors">
-                                        Verifikasi
-                                    </button>
+                                    <button type="submit" class="text-xs px-2.5 py-1 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">Verifikasi</button>
                                 </form>
                             @endif
                         </div>
-                        <p class="text-sm text-on-surface">{{ $jurnal->kegiatan }}</p>
+                        <p class="text-sm text-on-surface whitespace-pre-line">{{ $jurnal->kegiatan }}</p>
                     </div>
                     @empty
-                    <p class="text-center text-on-surface-variant italic py-4">Belum ada jurnal kegiatan.</p>
+                    <p class="text-on-surface-variant text-sm italic">Belum ada log aktivitas jurnal magang.</p>
                     @endforelse
                 </div>
             </div>
-
         </div>
 
-        <!-- Sidebar Content: Placement & Letters -->
-        <div class="space-y-6">
-            <!-- Penempatan -->
-            <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30">
-                <h3 class="text-title-md font-title-md text-on-surface mb-4 border-b border-outline-variant/40 pb-3">
-                    Informasi Penempatan
+        <!-- Right: Actions & Surat Balasan (1 col) -->
+        <div class="space-y-stack-lg">
+            <!-- Penempatan Bidang Action -->
+            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
+                <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">corporate_fare</span>
+                    Penempatan Bidang
                 </h3>
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant mb-1">Dinas</p>
-                        <p class="text-body-md font-semibold text-on-surface">{{ $participant->dinas->nama ?? '-' }}</p>
+                <form action="{{ route('dinas.participants.penempatan.update', $participant->id) }}" method="POST">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-label-sm font-medium text-on-surface mb-2">Pilih Bidang Penempatan</label>
+                        <select name="bidang_id" required class="w-full px-3 py-2 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary text-sm">
+                            <option value="">-- Pilih Bidang --</option>
+                            @foreach($bidangs as $b)
+                                <option value="{{ $b->id }}" {{ $participant->bidang_id == $b->id ? 'selected' : '' }}>
+                                    {{ $b->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant mb-2">Bidang / Sub-unit Penempatan</p>
-                        <form action="{{ route('dinas.participants.penempatan.update', $participant->id) }}" method="POST" class="flex items-center gap-2">
-                            @csrf
-                            <select name="bidang_id" class="flex-1 rounded-xl border-outline-variant/30 text-sm focus:ring-primary focus:border-primary bg-surface-container-lowest">
-                                <option value="">Pilih Bidang Penempatan</option>
-                                @foreach($dinas->bidangs as $bidang)
-                                    <option value="{{ $bidang->id }}" {{ $participant->bidang_id == $bidang->id ? 'selected' : '' }}>
-                                        {{ $bidang->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="py-2 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl text-sm font-medium transition-colors shadow-md shadow-primary/20">
-                                Simpan
-                            </button>
-                        </form>
-                    </div>
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant mb-1">Periode Magang</p>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
-                            <span class="text-sm font-medium">
-                                {{ $participant->tanggal_mulai ? \Carbon\Carbon::parse($participant->tanggal_mulai)->format('d M Y') : '-' }}
-                                <span class="text-on-surface-variant mx-1">-</span>
-                                {{ $participant->tanggal_selesai ? \Carbon\Carbon::parse($participant->tanggal_selesai)->format('d M Y') : '-' }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                    <button type="submit" class="w-full py-2.5 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl font-semibold text-sm transition-colors text-center shadow-md shadow-primary/20">
+                        Simpan Penempatan
+                    </button>
+                </form>
             </div>
 
             <!-- Surat Balasan -->
@@ -266,9 +262,14 @@
                     <div class="bg-primary/5 p-4 rounded-xl border border-primary/20 text-center mb-4">
                         <span class="material-symbols-outlined text-[32px] text-primary mb-2">task</span>
                         <p class="text-body-sm text-on-surface font-semibold mb-3">Surat Balasan / Penerimaan Tersedia</p>
-                        <a href="{{ Storage::url($suratPenerimaan->file_path) }}" target="_blank" class="w-full inline-flex justify-center items-center gap-2 bg-primary text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">download</span> Unduh Surat
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $suratPenerimaan->file_path) }}'; previewModalOpen = true" class="flex-1 inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $suratPenerimaan->file_path) }}" target="_blank" class="inline-flex justify-center items-center p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors" title="Unduh / Tab Baru">
+                                <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     
                     <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-outline-variant/30">
@@ -307,6 +308,41 @@
                 @else
                 <p class="text-body-sm text-on-surface-variant italic">Tidak ada catatan admin terkait penerimaan peserta ini.</p>
                 @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Preview Dokumen -->
+    <div x-show="previewModalOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" 
+         style="display: none;">
+        <div @click.away="previewModalOpen = false" class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">visibility</span>
+                    <h3 class="text-lg font-bold text-gray-800">Preview Dokumen</h3>
+                    <a :href="previewUrl" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        Buka di Tab Baru
+                    </a>
+                </div>
+                <button type="button" @click="previewModalOpen = false" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 text-gray-500 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            
+            <!-- Content Frame -->
+            <div class="flex-1 overflow-hidden bg-gray-100 relative">
+                <template x-if="previewUrl">
+                    <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                </template>
             </div>
         </div>
     </div>

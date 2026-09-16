@@ -3,7 +3,7 @@
 @section('title', 'Detail Pengajuan Magang')
 
 @section('content')
-<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto" x-data="{ previewModalOpen: false, previewUrl: '' }">
     <!-- Page Header -->
     <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -114,9 +114,14 @@
                                 <p class="text-[11px] text-on-surface-variant">Surat Resmi Kesbangpol (PDF + QR Code)</p>
                             </div>
                         </div>
-                        <a href="{{ route('surat.pdf', $application->permohonanLayanan->id) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Lihat PDF
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ route('surat.pdf', $application->permohonanLayanan->id) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Lihat
+                            </button>
+                            <a href="{{ route('surat.pdf', $application->permohonanLayanan->id) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -129,9 +134,14 @@
                                 <p class="text-[11px] text-on-surface-variant">Identitas Pemohon</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($application->permohonanLayanan->file_ktp) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_ktp) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_ktp) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -144,9 +154,14 @@
                                 <p class="text-[11px] text-on-surface-variant">Dari Perguruan Tinggi / Sekolah</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($application->permohonanLayanan->file_surat_permohonan) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -159,9 +174,14 @@
                                 <p class="text-[11px] text-on-surface-variant">Rencana Kegiatan Magang</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($application->permohonanLayanan->file_proposal) }}" target="_blank" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_proposal) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_proposal) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
 
@@ -174,9 +194,14 @@
                                 <p class="text-[11px] text-green-700">Diupload oleh Dinas</p>
                             </div>
                         </div>
-                        <a href="{{ Storage::url($application->file_surat_penerimaan) }}" target="_blank" class="text-white bg-green-600 hover:bg-green-700 font-medium text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg">
-                            <span class="material-symbols-outlined text-[16px]">download</span> Unduh
-                        </a>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->file_surat_penerimaan) }}'; previewModalOpen = true" class="text-white bg-green-600 hover:bg-green-700 font-medium text-sm flex items-center gap-1 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->file_surat_penerimaan) }}" target="_blank" class="text-green-700 hover:text-green-900 p-1.5 rounded-lg hover:bg-green-100 transition-colors" title="Unduh / Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">download</span>
+                            </a>
+                        </div>
                     </div>
                     @endif
                 </div>
@@ -259,6 +284,41 @@
                         Simpan
                     </button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Preview Dokumen -->
+    <div x-show="previewModalOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" 
+         style="display: none;">
+        <div @click.away="previewModalOpen = false" class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50 shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">visibility</span>
+                    <h3 class="text-lg font-bold text-gray-800">Preview Dokumen Lampiran</h3>
+                    <a :href="previewUrl" target="_blank" class="inline-flex items-center gap-1 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        Buka di Tab Baru
+                    </a>
+                </div>
+                <button type="button" @click="previewModalOpen = false" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 text-gray-500 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">close</span>
+                </button>
+            </div>
+            
+            <!-- Content Frame -->
+            <div class="flex-1 overflow-hidden bg-gray-100 relative">
+                <template x-if="previewUrl">
+                    <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
+                </template>
             </div>
         </div>
     </div>
