@@ -207,9 +207,25 @@ class LayananController extends Controller
             \App\Models\Notification::create([
                 'user_id' => $layanan->user_id,
                 'judul' => 'Rekomendasi Kesbangpol Disetujui',
-                'pesan' => 'Permohonan Rekomendasi Kesbangpol Anda (#' . $layanan->id . ') telah disetujui dan Surat Rekomendasi telah diterbitkan. Silakan mendaftar ke lowongan Dinas tujuan Anda melalui halaman Lowongan Magang.',
-                'link' => route('landing.instansi'),
+                'pesan' => 'Permohonan Rekomendasi Kesbangpol Anda (#' . $layanan->id . ') telah disetujui dan diteruskan ke Dinas tujuan Anda.',
+                'link' => route('landing.profile'),
             ]);
+
+            // AUTO-FORWARD KE DINAS JIKA DINAS ID ADA
+            if ($layanan->dinas_id && (!$layanan->jenisLayanan || $layanan->jenisLayanan->slug !== 'perpanjangan')) {
+                \App\Models\MagangApplication::updateOrCreate(
+                    [
+                        'user_id' => $layanan->user_id,
+                        'permohonan_layanan_id' => $layanan->id,
+                    ],
+                    [
+                        'dinas_id' => $layanan->dinas_id,
+                        'status' => 'menunggu',
+                        'tanggal_mulai' => $layanan->tanggal_mulai,
+                        'tanggal_selesai' => $layanan->tanggal_selesai,
+                    ]
+                );
+            }
 
             // Update untuk perpanjangan
             if ($layanan->jenisLayanan && $layanan->jenisLayanan->slug === 'perpanjangan') {
