@@ -81,7 +81,7 @@ class AdminController extends Controller
         $isSuperAdmin = in_array($adminRole, ['admin', 'superadmin'], true);
         $dashboardRouteName = 'absensi.admin.dashboard';
         $activeAdminTab = (string) $request->input('tab', 'pegawai');
-        $allowedTabs = ['rekap', 'pegawai', 'jadwal', 'timeline', 'sertifikat'];
+        $allowedTabs = ['rekap', 'pegawai', 'jadwal', 'laporan', 'sertifikat'];
         if ($isSuperAdmin) {
             $allowedTabs[] = 'bidang';
         }
@@ -209,6 +209,14 @@ class AdminController extends Controller
             $absensiQuery->whereHas('user', function ($query) use ($adminBidangScope) {
                 $this->applyUserBidangScope($query, $adminBidangScope);
             });
+        } elseif ($activeBidangId) {
+            $absensiQuery->whereHas('user', function ($query) use ($activeBidangId) {
+                $query->where('bidang_id', $activeBidangId);
+            });
+        } elseif ($dinasId) {
+            $absensiQuery->whereHas('user', function ($query) use ($dinasId) {
+                $query->where('dinas_id', $dinasId);
+            });
         }
 
         if ($search !== '') {
@@ -223,21 +231,7 @@ class AdminController extends Controller
         }
 
         $absensiRecords = $absensiQuery->get();
-        $selesaiProjectStatusId = MasterData::idFor(MasterData::PROJECT_STATUS, 'selesai');
-        $projectsQuery = Project::with([
-            'user',
-            'members',
-            'statusMaster',
-            'notes.user',
-            'notes.kategoriMaster',
-            'dayAssignments.user',
-            'modules.tasks.user',
-            'tasks.user',
-        ])
-            ->orderByRaw('status_id = ? asc', [$selesaiProjectStatusId])
-            ->orderBy('tanggal_mulai', 'desc');
-        $this->applyProjectBidangScope($projectsQuery, $adminBidangScope);
-        $projects = $projectsQuery->get();
+        // Project dependencies removed
 
         $bidangs = Bidang::orderBy('name', 'asc')->get();
         $manageableBidangs = $adminBidangScope && ! $isSuperAdmin
@@ -260,61 +254,19 @@ class AdminController extends Controller
         }
         $sertifikatUsers = $sertifikatUsersQuery->get();
 
-        // 1. Jumlah Project, Module, Task
-        $projectCountQuery = Project::query();
-        $this->applyProjectBidangScope($projectCountQuery, $adminBidangScope);
-        $projectCount = $projectCountQuery->count();
+        // Project stat counters removed
 
-        $moduleCountQuery = ProjectModule::query();
-        if ($adminBidangScope) {
-            $moduleCountQuery->whereHas('project', function ($query) use ($adminBidangScope) {
-                $this->applyProjectBidangScope($query, $adminBidangScope);
-            });
-        }
-        $moduleCount = $moduleCountQuery->count();
-
-        $taskCountQuery = ProjectTask::query();
-        if ($adminBidangScope) {
-            $taskCountQuery->whereHas('project', function ($query) use ($adminBidangScope) {
-                $this->applyProjectBidangScope($query, $adminBidangScope);
-            });
-        }
-        $taskCount = $taskCountQuery->count();
-
-        // 2. Project Aktif & Selesai
-        $selesaiStatusId = MasterData::idFor(MasterData::PROJECT_STATUS, 'selesai');
-        $projectAktifQuery = Project::where(function ($q) use ($selesaiStatusId) {
-            $q->whereNull('status_id')->orWhere('status_id', '!=', $selesaiStatusId);
-        });
-        $this->applyProjectBidangScope($projectAktifQuery, $adminBidangScope);
-        $projectAktifCount = $projectAktifQuery->count();
-
-        $projectSelesaiQuery = Project::where('status_id', $selesaiStatusId);
-        $this->applyProjectBidangScope($projectSelesaiQuery, $adminBidangScope);
-        $projectSelesaiCount = $projectSelesaiQuery->count();
-
-        // 3. Task Menunggu Review & Terlambat
-        $taskReviewQuery = ProjectTask::where('status', 'review');
-        if ($adminBidangScope) {
-            $taskReviewQuery->whereHas('project', function ($query) use ($adminBidangScope) {
-                $this->applyProjectBidangScope($query, $adminBidangScope);
-            });
-        }
-        $taskReviewCount = $taskReviewQuery->count();
-
-        $taskTerlambatQuery = ProjectTask::where('status', '!=', 'selesai')
-            ->where('tanggal_selesai', '<', now()->toDateString())
-            ->whereNotNull('tanggal_selesai');
-        if ($adminBidangScope) {
-            $taskTerlambatQuery->whereHas('project', function ($query) use ($adminBidangScope) {
-                $this->applyProjectBidangScope($query, $adminBidangScope);
-            });
-        }
-        $taskTerlambatCount = $taskTerlambatQuery->count();
+        // Task terlambat removed
 
         // 4. Peserta Magang Aktif
         $pesertaAktifQuery = User::whereIn('role', ['peserta', 'user'])->where('status_akun', 'aktif');
-        $this->applyUserBidangScope($pesertaAktifQuery, $adminBidangScope);
+        if ($adminBidangScope) {
+            $this->applyUserBidangScope($pesertaAktifQuery, $adminBidangScope);
+        } elseif ($activeBidangId) {
+            $pesertaAktifQuery->where('bidang_id', $activeBidangId);
+        } elseif ($dinasId) {
+            $pesertaAktifQuery->where('dinas_id', $dinasId);
+        }
         $pesertaAktifCount = $pesertaAktifQuery->count();
 
         // 5. Statistik Kehadiran Hari Ini
@@ -322,6 +274,14 @@ class AdminController extends Controller
         if ($adminBidangScope) {
             $todayAbsensQuery->whereHas('user', function ($query) use ($adminBidangScope) {
                 $this->applyUserBidangScope($query, $adminBidangScope);
+            });
+        } elseif ($activeBidangId) {
+            $todayAbsensQuery->whereHas('user', function ($query) use ($activeBidangId) {
+                $query->where('bidang_id', $activeBidangId);
+            });
+        } elseif ($dinasId) {
+            $todayAbsensQuery->whereHas('user', function ($query) use ($dinasId) {
+                $query->where('dinas_id', $dinasId);
             });
         }
         $todayAbsens = $todayAbsensQuery->get();
@@ -354,6 +314,14 @@ class AdminController extends Controller
                 })->orWhereHas('project', function ($projectQuery) use ($adminBidangScope) {
                     $this->applyProjectBidangScope($projectQuery, $adminBidangScope);
                 });
+            });
+        } elseif ($activeBidangId) {
+            $activityLogsQuery->whereHas('user', function ($userQuery) use ($activeBidangId) {
+                $userQuery->where('bidang_id', $activeBidangId);
+            });
+        } elseif ($dinasId) {
+            $activityLogsQuery->whereHas('user', function ($userQuery) use ($dinasId) {
+                $userQuery->where('dinas_id', $dinasId);
             });
         }
         $activityLogs = $activityLogsQuery->get();
@@ -389,7 +357,6 @@ class AdminController extends Controller
             'projectStatuses',
             'noteCategories',
             'absensiRecords',
-            'projects',
             'bidangs',
             'manageableBidangs',
             'pembimbingMagangs',
@@ -401,13 +368,6 @@ class AdminController extends Controller
             'magangSearch',
             'pembimbingMagang',
             // Data statistik baru
-            'projectCount',
-            'moduleCount',
-            'taskCount',
-            'projectAktifCount',
-            'projectSelesaiCount',
-            'taskReviewCount',
-            'taskTerlambatCount',
             'pesertaAktifCount',
             'hadirCount',
             'wfhCount',

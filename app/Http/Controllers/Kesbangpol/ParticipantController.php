@@ -56,8 +56,12 @@ class ParticipantController extends Controller
 
     public function show($id)
     {
-        $user = \App\Models\User::findOrFail($id);
-        return view('pelayanan.kesbangpol.participants.detail', compact('user'));
+        $user = \App\Models\User::with(['magangApplications' => function($q) {
+            $q->latest();
+        }, 'magangApplications.rekrutmen.dinas', 'magangApplications.rekrutmen.bidang', 'magangApplications.permohonanLayanan'])->findOrFail($id);
+        
+        $application = $user->magangApplications->first();
+        return view('pelayanan.kesbangpol.participants.detail', compact('user', 'application'));
     }
 
     public function showPlacement($id)

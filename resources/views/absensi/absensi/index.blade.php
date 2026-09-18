@@ -182,9 +182,9 @@
 .upload-preview { display: none; width: 100%; max-height: 200px; margin-top: 0.85rem; border-radius: 10px; object-fit: contain; }
 .file-name { display: none; margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--primary); }
 .camera-panel { display: none; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #0f172a; margin-top: 0.85rem; }
-.camera-panel video { display: block; width: 100%; max-height: 260px; object-fit: cover; }
+.camera-panel video { display: block; width: 100%; max-height: 480px; height: 100%; object-fit: cover; }
 .camera-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem; background: #fff; border-top: 1px solid var(--border); }
-.camera-preview { display: none; width: 100%; max-height: 200px; object-fit: contain; background: #fff; }
+.camera-preview { display: none; width: 100%; max-height: 480px; height: 100%; object-fit: contain; background: #fff; }
 .camera-start-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-top: 0.85rem; }
 .location-panel { display: none; }
 .location-panel.show { display: block; }
@@ -238,8 +238,8 @@
 <div class="container py-3">
     <!-- Workspace Header -->
     <div class="workspace-header mb-3">
-        <h5>Ruang Kerja Peserta Magang</h5>
-        <span>Kelola tugas harian dan catat kehadiran Anda di satu tempat</span>
+        <h5>Absensi dan Laporan Harian</h5>
+        <span>Catat kehadiran harian dan buat laporan kegiatan magang Anda secara rutin</span>
     </div>
 
     <!-- 1. Project Overview or Project Selector (Top - Full Width) -->
@@ -359,316 +359,19 @@
                 </div>
             </div>
         </div>
-    @else
-        <!-- Placeholder if no project exists in the system -->
-        <div class="project-overview-card text-center py-4">
-            <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:48px; height:48px; background:rgba(17, 92, 185,0.06);">
-                <i class="fa-solid fa-folder-open text-primary" style="font-size:1.2rem;"></i>
-            </div>
-            <h6 class="fw-bold mb-1">Belum Ada Proyek Aktif</h6>
-            <p class="text-muted small mb-0">Hubungi admin untuk mendaftarkan proyek magang baru ke sistem.</p>
-        </div>
     @endif
 
     <!-- 2. Workspace Grid (Middle - Two Column Layout) -->
     <div class="row g-4">
         <!-- Kolom Kiri -->
         <div class="col-lg-8">
-            <!-- Task Saya Hari Ini -->
-            <div class="ws-card mb-4">
-                <div class="ws-card-header">
-                    <h6><i class="fa-solid fa-list-check me-2" style="color:var(--primary);"></i>Tugas Saya Hari Ini</h6>
-                    <span class="badge bg-primary rounded-pill">{{ $myTodayTasks->count() + $myReviewTasks->count() }} tugas</span>
-                </div>
-                <div class="ws-card-body">
-                    @if ($myTodayTasks->isEmpty() && $myReviewTasks->isEmpty())
-                        <!-- Empty State -->
-                        <div class="empty-state-ws">
-                            <div class="empty-icon"><i class="fa-solid fa-list-check"></i></div>
-                            <h6>Tidak ada tugas aktif</h6>
-                            <p>Ambil tugas baru di bawah untuk mulai mengerjakannya.</p>
-                        </div>
-                    @else
-                        <!-- List of Tasks -->
-                        @foreach ($myTodayTasks as $task)
-                            <div class="task-active-card p-3 mb-3">
-                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                                    <div>
-                                        <div class="text-muted small" style="font-size:0.75rem;">
-                                            {{ $task->project->nama }} &middot; {{ $task->module->nama ?? 'Umum' }}
-                                        </div>
-                                        <h6 class="fw-bold mt-1 text-dark mb-1">{{ $task->judul }}</h6>
-                                        <p class="text-muted small mb-0"><i class="fa-regular fa-calendar me-1"></i>Batas Waktu: {{ $task->tanggal_selesai ? $task->tanggal_selesai->translatedFormat('d M Y') : '-' }}</p>
-                                    </div>
-                                    @if ($task->catatan_revisi)
-                                        <span class="task-badge task-badge-revision"><i class="fa-solid fa-triangle-exclamation"></i> Revisi</span>
-                                    @else
-                                        <span class="task-badge task-badge-working"><i class="fa-solid fa-spinner fa-spin"></i> Dikerjakan</span>
-                                    @endif
-                                </div>
-                                
-                                @if ($task->deskripsi)
-                                    <div class="bg-light p-2 rounded-3 small mb-3 text-muted">
-                                        <strong>Deskripsi:</strong> {{ $task->deskripsi }}
-                                    </div>
-                                @endif
 
-                                @if ($task->catatan_revisi)
-                                    <div class="alert alert-danger py-2 px-3 rounded-3 small mb-3">
-                                        <strong><i class="fa-solid fa-circle-exclamation me-1"></i> Catatan Revisi Admin:</strong>
-                                        <div class="mt-1">{{ $task->catatan_revisi }}</div>
-                                    </div>
-                                @endif
-
-                                <!-- Actions: Serahkan Tugas & Batal Pilih -->
-                                <div class="border-top pt-3 mt-2 d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                    <button class="btn btn-outline-primary btn-sm rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#submitForm-{{ $task->id }}">
-                                        <i class="fa-solid fa-paper-plane me-1"></i> Serahkan Pekerjaan
-                                    </button>
-
-                                    <form action="{{ route('absensi.task.batal', $task) }}" method="POST" id="form-cancel-{{ $task->id }}" class="d-inline">
-                                        @csrf
-                                        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill" onclick="confirmCancelTask('{{ $task->id }}', '{{ addslashes($task->judul) }}')">
-                                            <i class="fa-solid fa-rotate-left me-1"></i> Batal Pilih
-                                        </button>
-                                    </form>
-                                </div>
-                                
-                                <div class="collapse mt-3" id="submitForm-{{ $task->id }}">
-                                    <form action="{{ route('absensi.task.submit_work', $task) }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="mb-3">
-                                            <label class="form-label-admin">Laporan Hasil Pekerjaan <span class="text-danger">*</span></label>
-                                            <textarea name="laporan_kerja" rows="3" class="form-control form-control-admin w-100" placeholder="Tuliskan rincian, kendala, atau tautan hasil pekerjaan Anda..." required></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label-admin">Unggah File Lampiran (Opsional)</label>
-                                            <input type="file" name="lampiran" class="form-control form-control-admin w-100" accept=".pdf,.jpg,.jpeg,.png,.webp,.zip">
-                                            <div class="text-muted small mt-1" style="font-size:0.7rem;">Format: PDF, JPG, JPEG, PNG, WEBP, ZIP. Maks 10 MB.</div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary btn-sm rounded-3">Kirim Laporan</button>
-                                    </form>
-                                </div>
-                            </div>
-                        @endforeach
-
-                        @foreach ($myReviewTasks as $task)
-                            <div class="task-active-card p-3 mb-3" style="border-left-color: #f59e0b !important;">
-                                <div class="d-flex justify-content-between align-items-start gap-2">
-                                    <div>
-                                        <div class="text-muted small" style="font-size:0.75rem;">
-                                            {{ $task->project->nama }} &middot; {{ $task->module->nama ?? 'Umum' }}
-                                        </div>
-                                        <h6 class="fw-bold mt-1 text-dark mb-1">{{ $task->judul }}</h6>
-                                        <p class="text-muted small mb-0"><i class="fa-regular fa-calendar me-1"></i>Diserahkan pada: {{ $task->tanggal_selesai_kerja ? $task->tanggal_selesai_kerja->translatedFormat('d M Y H:i') : '-' }}</p>
-                                    </div>
-                                    <span class="task-badge task-badge-review"><i class="fa-regular fa-clock"></i> Menunggu Ditinjau</span>
-                                </div>
-                            </div>
-                        @endforeach
-                    @endif
-                </div>
-            </div>
-
-            <!-- Available Tasks & Warnings -->
-            @if ($hasActiveTask)
-                <div class="focus-banner mb-4">
-                    <div class="focus-banner-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <div>
-                        <div class="fw-bold text-dark small">Tugas Sedang Dikerjakan</div>
-                        <p class="text-muted small mb-0 mt-0.5">Selesaikan tugas aktif Anda atau klik tombol <strong>Batal Pilih</strong> pada tugas di atas jika ingin mengganti proyek.</p>
-                    </div>
-                </div>
-            @else
-                <div class="ws-card mb-4">
-                    <div class="ws-card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0"><i class="fa-solid fa-briefcase me-2" style="color:var(--primary);"></i>Tugas & Modul yang Tersedia</h6>
-                        @if ($selectedProject)
-                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill" style="font-size:0.75rem;">
-                                <i class="fa-solid fa-folder me-1"></i> {{ $selectedProject->nama }}
-                            </span>
-                        @endif
-                    </div>
-                    <div class="ws-card-body">
-                        @if (!$selectedProject)
-                            <div class="text-center py-4">
-                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:48px; height:48px; background:rgba(17, 92, 185,0.06);">
-                                    <i class="fa-solid fa-hand-pointer text-primary" style="font-size:1.2rem;"></i>
-                                </div>
-                                <h6 class="fw-bold mb-1">Proyek Belum Dipilih</h6>
-                                <p class="text-muted small mb-0">Silakan pilih proyek magang di bagian atas terlebih dahulu untuk menampilkan tugas dan modul yang tersedia.</p>
-                            </div>
-                        @elseif ($selectedProject->modules->isEmpty() && $allAvailableTasks->isEmpty())
-                            <div class="text-center py-4">
-                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width:48px; height:48px; background:rgba(17, 92, 185,0.06);">
-                                    <i class="fa-solid fa-circle-check text-primary" style="font-size:1.2rem;"></i>
-                                </div>
-                                <h6 class="fw-bold mb-1">Belum Ada Modul / Tugas</h6>
-                                <p class="text-muted small mb-0">Belum ada modul atau tugas yang dibuat oleh admin untuk proyek <strong>{{ $selectedProject->nama }}</strong> saat ini.</p>
-                            </div>
-                        @else
-                            @php
-                                $standaloneTasks = $allAvailableTasks->whereNull('module_id');
-                            @endphp
-
-                            {{-- Render Each Module with its Breakdown Tasks --}}
-                            @foreach ($selectedProject->modules as $module)
-                                @php
-                                    $moduleTasks = $module->tasks->sortBy('urutan')->values();
-                                    $breakdownTasks = $moduleTasks->reject(fn ($task) => $task->isModuleAssignment())->values();
-                                    $moduleIsChosen = $module->is_chosen;
-                                @endphp
-                                <div class="p-3 mb-4 rounded-3 border bg-white shadow-xs" style="border-color: var(--border) !important;">
-                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div class="module-icon" style="background:rgba(17, 92, 185,0.1); color:var(--primary); width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;">
-                                                <i class="fa-solid fa-cubes" style="font-size:0.9rem;"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dark fs-6">{{ $module->nama }}</div>
-                                                <div class="text-muted" style="font-size:0.75rem;">
-                                                    Bobot: <strong class="text-primary">{{ $module->bobot }}%</strong> &middot;
-                                                    Jadwal: {{ $module->tanggal_mulai ? $module->tanggal_mulai->translatedFormat('d M') : '-' }} s/d {{ $module->tanggal_selesai ? $module->tanggal_selesai->translatedFormat('d M Y') : '-' }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="badge bg-light text-primary border px-2.5 py-1 rounded-pill" style="font-size:0.72rem;">
-                                            <i class="fa-solid fa-chart-pie me-1"></i>{{ $module->progress }}% Selesai
-                                        </span>
-                                    </div>
-
-                                    @if ($module->deskripsi)
-                                        <p class="text-muted small mb-3" style="font-size:0.75rem; line-height:1.45;">{{ $module->deskripsi }}</p>
-                                    @endif
-
-                                    {{-- Sub-task breakdown --}}
-                                    @if ($breakdownTasks->isNotEmpty() && $moduleIsChosen)
-                                        <div class="mt-2 pt-2 border-top" style="border-color: rgba(0,0,0,0.05) !important;">
-                                            <div class="fw-bold text-dark mb-2.5" style="font-size:0.78rem;">
-                                                <i class="fa-solid fa-list-check me-1 text-primary"></i> Pembagian Tugas Tim ({{ $breakdownTasks->count() }} tugas):
-                                            </div>
-                                            <div class="row g-2.5">
-                                                @foreach ($breakdownTasks as $task)
-                                                    <div class="col-md-6 mb-2">
-                                                        <div class="task-item p-3 h-100 d-flex flex-column justify-content-between rounded-3 border {{ $task->user_id ? 'bg-light opacity-90' : 'bg-white' }}" style="border-color: var(--border) !important;">
-                                                            <div>
-                                                                <div class="d-flex justify-content-between align-items-start gap-1 mb-1">
-                                                                    <div class="task-item-title fw-bold text-dark" style="font-size:0.85rem;">{{ $task->judul }}</div>
-                                                                    @if ($task->status === 'selesai')
-                                                                        <span class="badge bg-success-subtle text-success border border-success-subtle py-0.5 px-1.5 rounded" style="font-size:0.65rem;">Selesai</span>
-                                                                    @elseif ($task->status === 'review')
-                                                                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle py-0.5 px-1.5 rounded" style="font-size:0.65rem;">Ditinjau</span>
-                                                                    @elseif ($task->status === 'sedang_dikerjakan')
-                                                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle py-0.5 px-1.5 rounded" style="font-size:0.65rem;">Dikerjakan</span>
-                                                                    @else
-                                                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle py-0.5 px-1.5 rounded" style="font-size:0.65rem;">Tersedia</span>
-                                                                    @endif
-                                                                </div>
-                                                                @if ($task->deskripsi)
-                                                                    <p class="text-muted mb-2" style="font-size:0.75rem; line-height:1.4;">{{ \Illuminate\Support\Str::limit($task->deskripsi, 85) }}</p>
-                                                                @endif
-                                                                <div class="task-item-meta text-muted" style="font-size:0.72rem;">
-                                                                    <i class="fa-regular fa-calendar-xmark me-1"></i>Batas: {{ $task->tanggal_selesai ? $task->tanggal_selesai->translatedFormat('d M Y') : '-' }}
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="mt-2.5 pt-2 border-top" style="border-color: rgba(0,0,0,0.06) !important;">
-                                                                @if (!$task->user_id && $task->status === 'belum_dikerjakan')
-                                                                    <form action="{{ route('absensi.task.ambil', $task) }}" method="POST">
-                                                                        @csrf
-                                                                        <button type="submit" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
-                                                                            <i class="fa-solid fa-hand-holding-hand me-1"></i> Ambil Tugas Ini
-                                                                        </button>
-                                                                    </form>
-                                                                @else
-                                                                    <div class="d-flex align-items-center justify-content-between" style="font-size:0.73rem;">
-                                                                        <span class="text-muted">
-                                                                            <i class="fa-regular fa-user me-1"></i> Penanggung jawab: <strong class="text-dark">{{ $task->user->nama ?? '-' }}</strong>
-                                                                        </span>
-                                                                        <span class="text-muted fst-italic" style="font-size:0.7rem;">Sudah diambil</span>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @elseif ($breakdownTasks->isNotEmpty())
-                                        <div class="p-3 rounded-2 bg-light border border-dashed text-center">
-                                            <p class="text-muted small mb-2" style="font-size:0.75rem;">
-                                                <i class="fa-solid fa-lock me-1 text-primary"></i> Sub-tugas modul akan terbuka setelah modul ini dipilih.
-                                            </p>
-                                            <form action="{{ route('absensi.module.ambil', $module) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3">
-                                                    <i class="fa-solid fa-hand-holding-hand me-1"></i> Ambil Modul Pekerjaan
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @else
-                                        {{-- Empty module without tasks: allow taking full module --}}
-                                        <div class="p-3 rounded-2 bg-light border border-dashed text-center">
-                                            @if ($moduleIsChosen)
-                                                <p class="text-muted small mb-0" style="font-size:0.75rem;">
-                                                    <i class="fa-solid fa-circle-check me-1 text-primary"></i> Modul ini sudah dipilih dan sedang dikerjakan.
-                                                </p>
-                                            @else
-                                                <p class="text-muted small mb-2" style="font-size:0.75rem;">
-                                                    <i class="fa-solid fa-circle-info me-1 text-primary"></i> Modul ini belum dipecah menjadi sub-tugas. Anda dapat mengambil seluruh modul untuk dikerjakan.
-                                                </p>
-                                                <form action="{{ route('absensi.module.ambil', $module) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3">
-                                                        <i class="fa-solid fa-hand-holding-hand me-1"></i> Ambil Modul Pekerjaan Utuh
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-
-                            {{-- Standalone tasks not attached to any module --}}
-                            @if ($standaloneTasks->isNotEmpty())
-                                <div class="module-header mt-3">
-                                    <div class="module-icon"><i class="fa-solid fa-list-check"></i></div>
-                                    <span class="module-title">Tugas Tambahan / Umum</span>
-                                </div>
-                                <div class="row g-3 mb-4">
-                                    @foreach ($standaloneTasks as $task)
-                                        <div class="col-md-6 mb-2">
-                                            <div class="task-item p-3 h-100 d-flex flex-column justify-content-between rounded-3 border bg-white" style="border-color: var(--border) !important;">
-                                                <div>
-                                                    <div class="task-item-title fw-bold text-dark mb-1">{{ $task->judul }}</div>
-                                                    @if ($task->deskripsi)
-                                                        <p class="text-muted mb-2" style="font-size:0.75rem; line-height:1.4;">{{ \Illuminate\Support\Str::limit($task->deskripsi, 80) }}</p>
-                                                    @endif
-                                                    <div class="task-item-meta text-muted" style="font-size:0.72rem;">
-                                                        <i class="fa-regular fa-calendar-xmark me-1"></i>Batas: {{ $task->tanggal_selesai ? $task->tanggal_selesai->translatedFormat('d M Y') : '-' }}
-                                                    </div>
-                                                </div>
-                                                <form action="{{ route('absensi.task.ambil', $task) }}" method="POST" class="mt-2.5 pt-2 border-top" style="border-color: rgba(0,0,0,0.06) !important;">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-primary btn-sm w-100 rounded-pill">
-                                                        <i class="fa-solid fa-hand-holding-hand me-1"></i> Ambil Tugas
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                        @endif
-                    </div>
-                </div>
-            @endif
 
             <!-- Form Presensi Kehadiran -->
-            <div class="presensi-card">
+            <div class="presensi-card h-100">
                 @if ($todayAttendance && $todayAttendance->jam_masuk && $todayAttendance->jam_pulang)
                     <!-- Completed attendance -->
-                    <div class="text-center py-3">
+                    <div class="text-center py-4 h-100 d-flex flex-column justify-content-center align-items-center">
                         <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; background:rgba(16,185,129,0.06); color:#00b894;">
                             <i class="fa-solid fa-circle-check" style="font-size:1.5rem;"></i>
                         </div>
@@ -716,31 +419,6 @@
                             </div>
                         </div>
 
-                        @if ($todayAttendance->status === 'sakit')
-                            <!-- Required camera capture for sakit checkout -->
-                            <div class="mb-3" id="camera_section" style="display: block;">
-                                <label class="form-label-admin" id="camera_label">Foto Kamera Terkini <span class="text-danger">*</span></label>
-                                <input type="file" name="foto_kamera" id="foto_kamera" accept="image/*" class="d-none">
-                                <div class="camera-start-actions" id="camera_start_actions">
-                                    <span class="camera-message small">Nyalakan kamera lalu ambil foto diri untuk bukti.</span>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="start_camera">
-                                        <i class="fa-solid fa-video me-1"></i> Kamera
-                                    </button>
-                                </div>
-                                <div class="camera-panel" id="camera_panel" style="display: none;">
-                                    <video id="camera_video" autoplay playsinline muted></video>
-                                    <img src="" class="camera-preview" id="camera_preview" alt="Pratinjau foto">
-                                    <canvas id="camera_canvas" class="d-none"></canvas>
-                                    <div class="camera-actions p-2 bg-light border-top d-flex justify-content-between align-items-center">
-                                        <span class="camera-message small text-muted" id="camera_message">Kamera Aktif</span>
-                                        <button type="button" class="btn btn-primary btn-sm rounded-3" id="capture_photo">
-                                            <i class="fa-solid fa-camera me-1"></i> Ambil Foto
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-
                         @if (in_array($todayAttendance->status, ['hadir', 'wfh'], true))
                             <!-- Required file upload for Hadir/WFH checkout -->
                             <div class="mb-3" id="photo_section" style="display: block;">
@@ -778,28 +456,8 @@
                     <h6 class="fw-bold mb-3"><i class="fa-solid fa-right-to-bracket me-2 text-primary"></i>Absen Masuk</h6>
                     
                     @php
-                        $hasProjects = isset($allActiveProjects) && $allActiveProjects->isNotEmpty();
-                        $hasAvailableTasks = $allAvailableTasks->isNotEmpty();
-                        $isProjectNotSelected = !$selectedProject && !$hasActiveTask;
-                        $isHadirWfhDisabled = ($hasProjects && !$hasActiveTask) || $isProjectNotSelected;
+                        $isHadirWfhDisabled = false;
                     @endphp
-
-                    @if ($isProjectNotSelected && $hasProjects)
-                        <div class="alert alert-info py-2.5 px-3 rounded-3 small mb-3">
-                            <i class="fa-solid fa-circle-info me-1"></i>
-                            Silakan <strong>pilih proyek aktif</strong> terlebih dahulu pada bagian atas sebelum melakukan absensi Hadir/WFH.
-                        </div>
-                    @elseif ($isHadirWfhDisabled)
-                        <!-- Warning banner for workflow terfokus when no tasks available -->
-                        <div class="alert alert-warning py-2.5 px-3 rounded-3 small mb-3">
-                            <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                            @if ($hasAvailableTasks)
-                                Pilih dan ambil <strong>satu tugas</strong> dari daftar di atas sebelum melakukan absensi Hadir/WFH.
-                            @else
-                                Pilihan <strong>Hadir/WFH</strong> belum bisa dipakai karena belum ada tugas yang tersedia di proyek ini. Hubungi admin untuk menambahkan tugas baru.
-                            @endif
-                        </div>
-                    @endif
 
                     <form action="{{ route('absensi.store') }}" method="POST" enctype="multipart/form-data" id="attendanceForm">
                         @csrf
@@ -938,7 +596,7 @@
         <!-- Kolom Kanan -->
         <div class="col-lg-4">
             <!-- Ringkasan Kehadiran -->
-            <div class="stat-widget">
+            <div class="stat-widget h-100">
                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Kehadiran Bulanan</h6>
                 
                 <div class="d-flex align-items-center justify-content-center mb-4">
@@ -972,9 +630,6 @@
                         <span class="badge bg-warning-subtle text-warning">{{ $stats['izin'] }} hari</span>
                     </div>
                 </div>
-                <div class="text-muted text-center mt-3" style="font-size: 0.72rem;">
-                    Total hari kerja: {{ $stats['total_hari_kerja'] }} hari
-                </div>
             </div>
         </div>
     </div> <!-- /row -->
@@ -1001,9 +656,8 @@
                         <tr>
                             <th>Tanggal & Waktu</th>
                             <th>Status</th>
-                            <th>Tugas Terkait</th>
-                            <th>Foto Masuk/Pulang</th>
-                            <th>Lampiran</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Pulang</th>
                             <th>Catatan Pekerjaan</th>
                         </tr>
                     </thead>
@@ -1022,14 +676,6 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @if ($rec->task)
-                                        <div class="fw-medium text-dark" style="font-size:0.8rem;">{{ $rec->task->judul }}</div>
-                                        <div class="text-muted" style="font-size:0.7rem;">{{ $rec->task->project->nama }}</div>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
-                                <td>
                                     <div class="d-flex gap-2">
                                         @if ($rec->foto_kamera)
                                             <a href="{{ route('absensi.kamera', $rec) }}" target="_blank">
@@ -1039,29 +685,38 @@
                                             <a href="{{ route('absensi.kamera', $rec) }}" target="_blank">
                                                 <img src="{{ asset($rec->foto_masuk) }}" class="attachment-thumb" title="Foto Masuk">
                                             </a>
-                                        @endif
-                                        @if ($rec->foto_pulang)
-                                            <a href="{{ asset($rec->foto_pulang) }}" target="_blank">
-                                                <img src="{{ asset($rec->foto_pulang) }}" class="attachment-thumb" title="Foto Pulang">
-                                            </a>
-                                        @endif
-                                        @if (!$rec->foto_kamera && !$rec->foto_masuk && !$rec->foto_pulang)
+                                        @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </div>
                                 </td>
                                 <td>
-                                    @if ($rec->foto)
-                                        <a href="{{ route('absensi.lampiran', $rec) }}" target="_blank">
-                                            <img src="{{ route('absensi.lampiran', $rec) }}" class="attachment-thumb" title="Lampiran Bukti">
-                                        </a>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
+                                    <div class="d-flex align-items-center gap-1">
+                                        @if ($rec->foto_pulang)
+                                            <a href="{{ asset($rec->foto_pulang) }}" target="_blank">
+                                                <img src="{{ asset($rec->foto_pulang) }}" class="attachment-thumb" title="Foto Jam Pulang">
+                                            </a>
+                                        @endif
+                                        @if ($rec->foto)
+                                            <a href="{{ asset($rec->foto) }}" target="_blank">
+                                                <img src="{{ asset($rec->foto) }}" class="attachment-thumb" title="File Lampiran">
+                                            </a>
+                                        @elseif ($rec->jurnal && $rec->jurnal->file_lampiran)
+                                            <a href="{{ asset($rec->jurnal->file_lampiran) }}" target="_blank">
+                                                <img src="{{ asset($rec->jurnal->file_lampiran) }}" class="attachment-thumb" title="File Lampiran">
+                                            </a>
+                                        @endif
+                                        @if (!$rec->foto_pulang && !$rec->foto && !($rec->jurnal && $rec->jurnal->file_lampiran))
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td style="max-width: 250px;">
-                                    <div class="text-muted small text-truncate" title="{{ $rec->laporan }}">
-                                        {{ $rec->laporan ?: '-' }}
+                                    @php
+                                        $catatan = $rec->jurnal ? $rec->jurnal->hasil_pekerjaan : ($rec->laporan ?: '-');
+                                    @endphp
+                                    <div class="text-muted small text-truncate" title="{{ $catatan }}">
+                                        {{ $catatan }}
                                     </div>
                                 </td>
                             </tr>
@@ -1338,7 +993,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 audio: false
             });
             cameraVideo.srcObject = cameraStream;
-            if (cameraMessage) cameraMessage.innerText = 'Kamera aktif. Klik Ambil Foto sebelum kirim absensi.';
+            cameraVideo.play().catch(e => console.error("Error playing video:", e));
+            if (cameraMessage) cameraMessage.innerText = 'Kamera aktif. Silakan berpose, lalu klik Ambil Foto.';
         } catch (error) {
             if (cameraStartActions) cameraStartActions.style.display = 'flex';
             if (cameraMessage) cameraMessage.innerText = 'Kamera tidak bisa dibuka. Unggah gambar secara manual.';
@@ -1529,6 +1185,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert('Klik Kunci Lokasi terlebih dahulu sebelum mengirim absensi.');
                     }
                     return;
+                }
+
+                // Geofencing for WFO (Hadir)
+                if (statusVal === 'hadir') {
+                    const OFFICE_LAT = -6.4829;
+                    const OFFICE_LNG = 106.8285;
+                    const MAX_RADIUS = 100; // in meters
+
+                    function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+                        const R = 6371e3; // Radius of the earth in m
+                        const dLat = (lat2 - lat1) * Math.PI / 180;
+                        const dLon = (lon2 - lon1) * Math.PI / 180;
+                        const a = 
+                            Math.sin(dLat/2) * Math.sin(dLat/2) +
+                            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                            Math.sin(dLon/2) * Math.sin(dLon/2);
+                        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                        return R * c; 
+                    }
+
+                    const userLat = parseFloat(latitudeInput.value);
+                    const userLng = parseFloat(longitudeInput.value);
+                    const distance = getDistanceFromLatLonInM(OFFICE_LAT, OFFICE_LNG, userLat, userLng);
+
+                    if (distance > MAX_RADIUS) {
+                        e.preventDefault();
+                        const msg = `Jarak Anda terlalu jauh dari kantor (${Math.round(distance)} meter). Jarak maksimal adalah ${MAX_RADIUS} meter. Silakan mendekat ke area kantor untuk absen Hadir (WFO).`;
+                        if (window.Swal) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Di Luar Area Kantor',
+                                text: msg,
+                                confirmButtonColor: '#ef4444'
+                            });
+                        } else {
+                            alert(msg);
+                        }
+                        return;
+                    }
                 }
             }
 

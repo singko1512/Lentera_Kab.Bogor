@@ -39,7 +39,9 @@ class ParticipantController extends Controller
             $suratPenerimaan = (object)['file_path' => $participant->surat_balasan];
         }
 
-        return view('pelayanan.dinas.participants.show', compact('dinas', 'participant', 'suratPenerimaan'));
+        $bidangs = \App\Models\Bidang::where('dinas_id', $dinas->id)->orderBy('name')->get();
+
+        return view('pelayanan.dinas.participants.show', compact('dinas', 'participant', 'suratPenerimaan', 'bidangs'));
     }
 
     public function updatePenempatan(Request $request, $id)

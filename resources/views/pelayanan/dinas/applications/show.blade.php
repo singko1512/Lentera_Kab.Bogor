@@ -145,6 +145,26 @@
                     </div>
                     @endif
 
+                    @if($application->permohonanLayanan && $application->permohonanLayanan->file_ktm)
+                    <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[#8B5CF6]">badge</span>
+                            <div>
+                                <p class="text-body-sm font-semibold text-on-surface">KTM / Kartu Pelajar</p>
+                                <p class="text-[11px] text-on-surface-variant">Identitas Siswa/Mahasiswa</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_ktm) }}'; previewTitle = 'KTM / Kartu Pelajar'; previewExt = '{{ strtolower(pathinfo($application->permohonanLayanan->file_ktm, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_ktm) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+
                     @if($application->permohonanLayanan && $application->permohonanLayanan->file_surat_permohonan)
                     <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
                         <div class="flex items-center gap-3">
@@ -159,6 +179,26 @@
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
                             <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_permohonan) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                                <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($application->permohonanLayanan && $application->permohonanLayanan->file_surat_pengantar)
+                    <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[#10B981]">assignment</span>
+                            <div>
+                                <p class="text-body-sm font-semibold text-on-surface">Surat Pengantar</p>
+                                <p class="text-[11px] text-on-surface-variant">Dari Instansi Pendidikan</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_pengantar) }}'; previewTitle = 'Surat Pengantar'; previewExt = '{{ strtolower(pathinfo($application->permohonanLayanan->file_surat_pengantar, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
+                            </button>
+                            <a href="{{ url('/dokumen/' . $application->permohonanLayanan->file_surat_pengantar) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
                                 <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                             </a>
                         </div>

@@ -308,11 +308,11 @@ Route::middleware(['auth'])->group(function () {
         
         // Peserta & Penempatan
         Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
-        Route::get('/participants/{id}/detail', function($id) { return "Detail Peserta $id"; })->name('participants.detail');
+        Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
         Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
-        Route::get('/participants/placement/{id}', function($id) { return "Detail Placement $id"; })->name('placement.show');
+        Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
         Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
-        Route::get('/participants/extend/{id}', function($id) { return "Detail Extend $id"; })->name('extend.show');
+        Route::get('/participants/extend/{id}', [KesbangpolParticipantController::class, 'showExtend'])->name('extend.show');
         
         // History
         Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');
@@ -350,7 +350,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rute Peserta (Mahasiswa Magang)
     Route::prefix('peserta')->name('peserta.')->group(function () {
-        Route::get('/dashboard', [PesertaDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Simalam\AttendanceController::class, 'index'])->name('dashboard');
         Route::post('/check-in', [PesertaDashboardController::class, 'checkIn'])->name('checkin');
         Route::post('/check-out', [PesertaDashboardController::class, 'checkOut'])->name('checkout');
         Route::post('/jurnal', [PesertaDashboardController::class, 'storeJurnal'])->name('jurnal.store');
@@ -472,17 +472,19 @@ use App\Http\Controllers\Simalam\ProjectTimelineController as SimalamProjectTime
 Route::get('/absensi/home', [SimalamAttendanceController::class, 'home'])->name('absensi.home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/absensi', [SimalamAttendanceController::class, 'index'])->name('absensi.index');
+    Route::get('/absensi', [\App\Http\Controllers\Simalam\AttendanceController::class, 'index'])->name('absensi.index');
     Route::post('/absensi/absen', [SimalamAttendanceController::class, 'store'])->name('absensi.store');
     Route::get('/absensi/form', [SimalamAttendanceController::class, 'showForm'])->name('absensi.form');
     Route::get('/rekap', [SimalamAttendanceController::class, 'rekap'])->name('absensi.rekap');
     Route::get('/absensi/lampiran/{absensi}', [SimalamAttendanceController::class, 'lampiran'])->name('absensi.lampiran');
     Route::get('/absensi/kamera/{absensi}', [SimalamAttendanceController::class, 'kamera'])->name('absensi.kamera');
+    Route::post('/absensi/jurnal', [SimalamAttendanceController::class, 'storeJurnal'])->name('absensi.jurnal.store');
     
 // Simalam Admin
     Route::middleware([\App\Http\Middleware\SimalamAdminAccess::class])->group(function () {
         Route::get('/absensi/admin', [SimalamAdminController::class, 'dashboard'])->name('absensi.admin.dashboard');
         Route::post('/absensi/admin/absensi/hapus/{absensi}', [SimalamAdminController::class, 'destroyAbsensi'])->name('absensi.admin.absensi.destroy');
+        Route::post('/absensi/admin/absensi/koreksi', [SimalamAdminController::class, 'koreksiAbsensi'])->name('absensi.admin.absensi.koreksi');
         Route::get('/absensi/admin/rekap/excel', [SimalamAdminController::class, 'exportExcel'])->name('absensi.admin.rekap.excel');
         Route::get('/absensi/admin/rekap/pdf', [SimalamAdminController::class, 'exportPdf'])->name('absensi.admin.rekap.pdf');
 
@@ -511,6 +513,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/rekap/excel', [SimalamAdminController::class, 'exportExcel'])->name('admin.rekap.excel');
     Route::get('/admin/rekap/pdf', [SimalamAdminController::class, 'exportPdf'])->name('admin.rekap.pdf');
     Route::post('/admin/absensi/hapus/{absensi}', [SimalamAdminController::class, 'destroyAbsensi'])->name('admin.absensi.destroy');
+    Route::post('/admin/absensi/koreksi', [SimalamAdminController::class, 'koreksiAbsensi'])->name('admin.absensi.koreksi');
     Route::post('/admin/jadwal/landing_view', [SimalamAdminController::class, 'updateLandingScheduleView'])->name('admin.jadwal.landing_view');
     Route::post('/admin/jadwal/update', [SimalamAdminController::class, 'updateSchedules'])->name('admin.jadwal.update');
     Route::post('/admin/jadwal/randomize', [SimalamAdminController::class, 'randomizeSchedules'])->name('admin.jadwal.random');

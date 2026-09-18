@@ -734,6 +734,7 @@ class ComposerStaticInit786c231a98b68b980202c7a8661160b1
 
     public static $classMap = array (
         'AllowDynamicProperties' => __DIR__ . '/..' . '/symfony/polyfill-php82/Resources/stubs/AllowDynamicProperties.php',
+        'App\\Exports\\AbsensiExport' => __DIR__ . '/../..' . '/app/Exports/AbsensiExport.php',
         'App\\Http\\Controllers\\AbsensiController' => __DIR__ . '/../..' . '/app/Http/Controllers/AbsensiController.php',
         'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\Bidang\\DashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/Bidang/DashboardController.php',
@@ -782,6 +783,7 @@ class ComposerStaticInit786c231a98b68b980202c7a8661160b1
         'App\\Models\\Simalam\\ProjectTimeline' => __DIR__ . '/../..' . '/app/Models/Simalam/ProjectTimeline.php',
         'App\\Models\\Simalam\\WorkSubmission' => __DIR__ . '/../..' . '/app/Models/Simalam/WorkSubmission.php',
         'App\\Models\\StatusMaster' => __DIR__ . '/../..' . '/app/Models/StatusMaster.php',
+        'App\\Models\\SuratRekomendasi' => __DIR__ . '/../..' . '/app/Models/SuratRekomendasi.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Support\\CertificatePayload' => __DIR__ . '/../..' . '/app/Support/CertificatePayload.php',

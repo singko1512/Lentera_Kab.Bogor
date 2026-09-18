@@ -11,56 +11,80 @@
 </div>
 <nav class="flex-1 space-y-1.5 overflow-y-auto">
 <!-- Dashboard -->
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.dashboard') || Route::is('admin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.dashboard') }}">
-<span class="material-symbols-outlined {{ Route::is('kesbangpol.dashboard') || Route::is('admin.dashboard') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">dashboard</span>
+<div class="space-y-1.5 mt-2">
+<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.dashboard', 'admin.dashboard', 'superadmin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ Auth::user()->role === 'superadmin' ? route('superadmin.dashboard') : route('kesbangpol.dashboard') }}">
+<span class="material-symbols-outlined {{ Route::is('kesbangpol.dashboard', 'admin.dashboard', 'superadmin.dashboard') ? 'icon-filled' : '' }}">dashboard</span>
 <span class="text-label-md font-label-md">Dashboard</span>
 </a>
-
-<!-- Fitur Lengkap Admin Kesbangpol -->
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.layanan*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.layanan.index') }}">
-<span class="material-symbols-outlined {{ Route::is('kesbangpol.layanan*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">verified</span>
-<span class="text-label-md font-label-md">Verifikasi Pengajuan</span>
-</a>
-
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.participants.index') }}">
-<span class="material-symbols-outlined {{ Route::is('kesbangpol.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">groups</span>
-<span class="text-label-md font-label-md">Manajemen Peserta</span>
-</a>
-
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.history*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.history.index') }}">
-<span class="material-symbols-outlined {{ Route::is('kesbangpol.history*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">history</span>
-<span class="text-label-md font-label-md">Riwayat Pengajuan</span>
-</a>
-
-<!-- Fitur Rekrutmen Internal (Sebagai Dinas) -->
-<div class="px-4 py-2 mt-4">
-    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Rekrutmen Internal</p>
 </div>
 
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.bidang*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.bidang.index') }}">
-<span class="material-symbols-outlined {{ Route::is('dinas.bidang*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">corporate_fare</span>
-<span class="text-label-md font-label-md">Kelola Bidang Internal</span>
-</a>
+@if(Auth::user()->role !== 'superadmin')
+<!-- Pelayanan Publik Dropdown -->
+<div x-data="{ open: {{ Route::is('kesbangpol.layanan*', 'kesbangpol.participants*', 'kesbangpol.history*') ? 'true' : 'false' }} }" class="mt-4">
+    <button @click="open = !open" type="button" class="flex items-center justify-between w-full px-4 py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider hover:text-primary transition-colors focus:outline-none">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">folder_open</span>
+            <span>Pengajuan Layanan</span>
+        </div>
+        <span class="material-symbols-outlined text-[18px] transition-transform duration-200" :class="{'rotate-180': open}">expand_more</span>
+    </button>
+    
+    <div x-show="open" x-collapse class="space-y-1.5 mt-1.5">
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.layanan*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.layanan.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('kesbangpol.layanan*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">verified</span>
+        <span class="text-label-md font-label-md">Verifikasi Pengajuan</span>
+        </a>
 
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.rekrutmen*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.rekrutmen.index') }}">
-<span class="material-symbols-outlined {{ Route::is('dinas.rekrutmen*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">campaign</span>
-<span class="text-label-md font-label-md">Kelola Lowongan</span>
-</a>
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.participants.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('kesbangpol.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">groups</span>
+        <span class="text-label-md font-label-md">Manajemen Peserta</span>
+        </a>
 
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.applications*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.applications.index') }}">
-<span class="material-symbols-outlined {{ Route::is('dinas.applications*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">person_add</span>
-<span class="text-label-md font-label-md">Pengajuan Masuk</span>
-</a>
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.history*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.history.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('kesbangpol.history*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">history</span>
+        <span class="text-label-md font-label-md">Riwayat Pengajuan</span>
+        </a>
+    </div>
+</div>
 
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.participants.index') }}">
-<span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">group</span>
-<span class="text-label-md font-label-md">Peserta Internal</span>
-</a>
+<!-- Rekrutmen Internal Dropdown -->
+<div x-data="{ open: {{ (Route::is('dinas.bidang*', 'dinas.rekrutmen*', 'dinas.applications*', 'dinas.participants*') || (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat')) ? 'true' : 'false' }} }" class="mt-4">
+    <button @click="open = !open" type="button" class="flex items-center justify-between w-full px-4 py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider hover:text-primary transition-colors focus:outline-none">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px]">corporate_fare</span>
+            <span>Rekrutmen Internal</span>
+        </div>
+        <span class="material-symbols-outlined text-[18px] transition-transform duration-200" :class="{'rotate-180': open}">expand_more</span>
+    </button>
+    
+    <div x-show="open" x-collapse class="space-y-1.5 mt-1.5">
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.bidang*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.bidang.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('dinas.bidang*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">business</span>
+        <span class="text-label-md font-label-md">Kelola Bidang Internal</span>
+        </a>
 
-<a data-turbo="false" class="flex items-center gap-3 px-4 py-3 {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('absensi.admin.dashboard', ['tab' => 'sertifikat']) }}">
-<span class="material-symbols-outlined {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">workspace_premium</span>
-<span class="text-label-md font-label-md">Kelola Sertifikat</span>
-</a>
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.rekrutmen*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.rekrutmen.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('dinas.rekrutmen*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">campaign</span>
+        <span class="text-label-md font-label-md">Kelola Lowongan</span>
+        </a>
+
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.applications*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.applications.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('dinas.applications*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">person_add</span>
+        <span class="text-label-md font-label-md">Pengajuan Masuk</span>
+        </a>
+
+        <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.participants.index') }}">
+        <span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">group</span>
+        <span class="text-label-md font-label-md">Peserta Internal</span>
+        </a>
+
+        <a data-turbo="false" class="flex items-center gap-3 px-4 py-3 {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('absensi.admin.dashboard', ['tab' => 'sertifikat']) }}">
+        <span class="material-symbols-outlined {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">workspace_premium</span>
+        <span class="text-label-md font-label-md">Kelola Sertifikat</span>
+        </a>
+    </div>
+</div>
+@endif
 
 <!-- Kelola Akun Dinas -->
 @if(Auth::user()->role === 'superadmin')

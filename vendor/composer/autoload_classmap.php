@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AllowDynamicProperties' => $vendorDir . '/symfony/polyfill-php82/Resources/stubs/AllowDynamicProperties.php',
+    'App\\Exports\\AbsensiExport' => $baseDir . '/app/Exports/AbsensiExport.php',
     'App\\Http\\Controllers\\AbsensiController' => $baseDir . '/app/Http/Controllers/AbsensiController.php',
     'App\\Http\\Controllers\\AuthController' => $baseDir . '/app/Http/Controllers/AuthController.php',
     'App\\Http\\Controllers\\Bidang\\DashboardController' => $baseDir . '/app/Http/Controllers/Bidang/DashboardController.php',
@@ -55,6 +56,7 @@ return array(
     'App\\Models\\Simalam\\ProjectTimeline' => $baseDir . '/app/Models/Simalam/ProjectTimeline.php',
     'App\\Models\\Simalam\\WorkSubmission' => $baseDir . '/app/Models/Simalam/WorkSubmission.php',
     'App\\Models\\StatusMaster' => $baseDir . '/app/Models/StatusMaster.php',
+    'App\\Models\\SuratRekomendasi' => $baseDir . '/app/Models/SuratRekomendasi.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Support\\CertificatePayload' => $baseDir . '/app/Support/CertificatePayload.php',

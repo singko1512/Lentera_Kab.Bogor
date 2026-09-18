@@ -98,6 +98,7 @@
 </section>
 @endif
 
+@if(Auth::user()->role !== 'superadmin')
 <!-- Statistics Grid (Bento Style) -->
 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 <!-- Card 1 -->
@@ -200,5 +201,7 @@
 </div>
 </section>
 </div>
+
+@endif
 
 @endsection

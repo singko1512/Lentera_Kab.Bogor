@@ -275,7 +275,7 @@
                     @endif
                     @php
                         $loginLabel = 'Username / Email';
-                        $loginPlaceholder = 'contoh: aptika_diskominfo atau aptika_diskominfo@bidang.com';
+                        $loginPlaceholder = 'contoh: user@gmail.com';
                     @endphp
                     <div class="flex flex-col gap-2">
                         <label class="text-[14px] font-medium text-on-surface">{{ $loginLabel }}</label>

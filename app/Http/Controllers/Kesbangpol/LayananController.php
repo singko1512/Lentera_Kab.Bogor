@@ -98,6 +98,24 @@ class LayananController extends Controller
         }
 
         if ($request->status === 'disetujui') {
+            if ($request->filled('dinas_id')) {
+                $layanan->dinas_id = $request->dinas_id;
+            }
+            
+            $surat = \App\Models\SuratRekomendasi::updateOrCreate(
+                ['permohonan_layanan_id' => $layanan->id],
+                [
+                    'nomor_surat' => $request->nomor_surat ?: ('070/' . $layanan->id . '/Bakesbangpol/' . date('Y')),
+                    'tanggal_surat' => now(),
+                    'sifat_surat' => 'Biasa',
+                    'lampiran_surat' => '-',
+                    'pejabat_nama' => 'FERDINANDO SELMI PARDEDE, S.IP, M.AP',
+                    'pejabat_nip' => '196805121990031005',
+                    'pejabat_pangkat' => 'Pembina Tk. I',
+                    'pejabat_jabatan' => 'KEPALA BADAN KESATUAN BANGSA DAN POLITIK KABUPATEN BOGOR'
+                ]
+            );
+
             if ($request->hasFile('file_surat_keluaran')) {
                 $path = $request->file('file_surat_keluaran')->store('permohonan/keluaran', 'public');
                 $layanan->file_surat_keluaran = $path;
@@ -152,9 +170,9 @@ class LayananController extends Controller
 
                             $replacements = [
                                 '${tanggal_surat}' => $tglSurat,
-                                '${nomor_surat}' => '070/' . $layanan->id . '/Bakesbangpol/' . date('Y'),
-                                '${sifat_surat}' => 'Biasa',
-                                '${lampiran_surat}' => '-',
+                                '${nomor_surat}' => $surat->nomor_surat,
+                                '${sifat_surat}' => $surat->sifat_surat,
+                                '${lampiran_surat}' => $surat->lampiran_surat,
                                 '${tujuan_surat}' => 'Kepala ' . $dinasName,
                                 '${tempat_tujuan}' => 'Kabupaten Bogor',
                                 '${asal_surat}' => $layanan->asal_instansi ?? 'Perguruan Tinggi / Sekolah',
@@ -167,9 +185,9 @@ class LayananController extends Controller
                                 '${jumlah_peserta}' => ($layanan->jumlah_anggota ?? 1) . ' Orang',
                                 '${tenggang_waktu}' => $tglMulai . ' s.d ' . $tglSelesai,
                                 '${tempat_pkl}' => $dinasName,
-                                '${nama_pejabat}' => 'Drs. BAMBANG WIDODO TAWEKAL, M.Si',
-                                '${pangkat_pejabat}' => 'Pembina Utama Muda, IV/c',
-                                '${nip_pejabat}' => '19680512 199003 1 005',
+                                '${nama_pejabat}' => $surat->pejabat_nama,
+                                '${pangkat_pejabat}' => $surat->pejabat_pangkat,
+                                '${nip_pejabat}' => $surat->pejabat_nip,
                             ];
 
                             $xml = str_replace(array_keys($replacements), array_values($replacements), $xml);
@@ -256,11 +274,13 @@ class LayananController extends Controller
             $tglMulai = \Carbon\Carbon::parse($layanan->tanggal_mulai ?? now())->translatedFormat('d F Y');
             $tglSelesai = \Carbon\Carbon::parse($layanan->tanggal_selesai ?? now())->translatedFormat('d F Y');
 
+            $surat = $layanan->suratRekomendasi;
+            
             $replacements = [
                 '${tanggal_surat}' => $tglSurat,
-                '${nomor_surat}' => '070/' . $layanan->id . '/Bakesbangpol/' . date('Y'),
-                '${sifat_surat}' => 'Biasa',
-                '${lampiran_surat}' => '-',
+                '${nomor_surat}' => $surat ? $surat->nomor_surat : ('070/' . $layanan->id . '/Bakesbangpol/' . date('Y')),
+                '${sifat_surat}' => $surat ? $surat->sifat_surat : 'Biasa',
+                '${lampiran_surat}' => $surat ? $surat->lampiran_surat : '-',
                 '${tujuan_surat}' => 'Kepala ' . $dinasName,
                 '${tempat_tujuan}' => 'Kabupaten Bogor',
                 '${asal_surat}' => $layanan->asal_instansi ?? 'Perguruan Tinggi / Sekolah',
@@ -273,9 +293,9 @@ class LayananController extends Controller
                 '${jumlah_peserta}' => ($layanan->jumlah_anggota ?? 1) . ' Orang',
                 '${tenggang_waktu}' => $tglMulai . ' s.d ' . $tglSelesai,
                 '${tempat_pkl}' => $dinasName,
-                '${nama_pejabat}' => 'Drs. BAMBANG WIDODO TAWEKAL, M.Si',
-                '${pangkat_pejabat}' => 'Pembina Utama Muda, IV/c',
-                '${nip_pejabat}' => '19680512 199003 1 005',
+                '${nama_pejabat}' => $surat ? $surat->pejabat_nama : 'Drs. BAMBANG WIDODO TAWEKAL, M.Si',
+                '${pangkat_pejabat}' => $surat ? $surat->pejabat_pangkat : 'Pembina Utama Muda, IV/c',
+                '${nip_pejabat}' => $surat ? $surat->pejabat_nip : '19680512 199003 1 005',
             ];
 
             $xml = str_replace(array_keys($replacements), array_values($replacements), $xml);

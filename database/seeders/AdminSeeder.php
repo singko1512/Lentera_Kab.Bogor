@@ -19,7 +19,7 @@ class AdminSeeder extends Seeder
                 ['email' => 'admin@kesbangpol.com'],
                 [
                     'name' => 'Admin Kesbangpol',
-                    'password' => bcrypt('password123'),
+                    'password' => bcrypt('Tegarberiman'),
                     'role' => 'dinas',
                     'dinas_id' => $kes->id
                 ]
@@ -32,7 +32,7 @@ class AdminSeeder extends Seeder
             ['email' => 'superadmin@lentera.com'],
             [
                 'name' => 'Super Admin',
-                'password' => bcrypt('password123'),
+                'password' => bcrypt('Tegarberiman'),
                 'role' => 'admin'
             ]
         );

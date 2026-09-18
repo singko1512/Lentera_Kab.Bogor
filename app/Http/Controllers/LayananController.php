@@ -33,9 +33,10 @@ class LayananController extends Controller
     public function create($slug)
     {
         $jenisLayanan = JenisLayanan::where('slug', $slug)->firstOrFail();
+        $dinasList = \App\Models\Dinas::orderBy('name')->get();
         
         // Render view berdasarkan slug
-        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan'));
+        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList'));
     }
 
     public function submit(Request $request)
@@ -55,7 +56,13 @@ class LayananController extends Controller
             $permohonan->no_hp = $request->no_hp;
             $permohonan->asal_instansi = $request->asal_instansi;
             $permohonan->judul_kegiatan = $request->judul_kegiatan;
-            $permohonan->tempat_kegiatan = $request->tempat_kegiatan ?? $request->tempat_pkl ?? $request->tempat_kkn;
+            $permohonan->dinas_id = $request->dinas_id;
+            if ($request->dinas_id) {
+                $dinas = \App\Models\Dinas::find($request->dinas_id);
+                $permohonan->tempat_kegiatan = $dinas ? $dinas->name : ($request->tempat_kegiatan ?? $request->tempat_pkl ?? $request->tempat_kkn);
+            } else {
+                $permohonan->tempat_kegiatan = $request->tempat_kegiatan ?? $request->tempat_pkl ?? $request->tempat_kkn;
+            }
             $permohonan->tanggal_mulai = $request->tanggal_mulai;
             $permohonan->tanggal_selesai = $request->tanggal_selesai;
             $permohonan->keterangan = $request->keterangan;
@@ -108,7 +115,17 @@ class LayananController extends Controller
         if ($request->filled('no_hp')) $permohonan->no_hp = $request->no_hp;
         if ($request->filled('asal_instansi')) $permohonan->asal_instansi = $request->asal_instansi;
         if ($request->filled('judul_kegiatan')) $permohonan->judul_kegiatan = $request->judul_kegiatan;
-        if ($request->filled('tempat_kegiatan')) $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
+        
+        if ($request->filled('dinas_id')) {
+            $permohonan->dinas_id = $request->dinas_id;
+            $dinas = \App\Models\Dinas::find($request->dinas_id);
+            if ($dinas) {
+                $permohonan->tempat_kegiatan = $dinas->name;
+            }
+        } elseif ($request->filled('tempat_kegiatan')) {
+            $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
+        }
+
         if ($request->filled('tanggal_mulai')) $permohonan->tanggal_mulai = $request->tanggal_mulai;
         if ($request->filled('tanggal_selesai')) $permohonan->tanggal_selesai = $request->tanggal_selesai;
 

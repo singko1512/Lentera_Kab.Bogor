@@ -16,6 +16,7 @@ class PermohonanLayanan extends Model
         'user_id',
         'jenis_layanan_id',
         'status_master_id',
+        'dinas_id',
         'jenis_permohonan',
         'atas_nama',
         'no_hp',
@@ -78,5 +79,15 @@ class PermohonanLayanan extends Model
     public function statusMaster(): BelongsTo
     {
         return $this->belongsTo(StatusMaster::class);
+    }
+
+    public function dinas(): BelongsTo
+    {
+        return $this->belongsTo(Dinas::class);
+    }
+
+    public function suratRekomendasi()
+    {
+        return $this->hasOne(SuratRekomendasi::class);
     }
 }

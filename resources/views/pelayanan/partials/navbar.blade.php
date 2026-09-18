@@ -35,9 +35,9 @@
         width: 0;
         height: 0;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(17, 92, 185, 0.08) 0%, rgba(59, 130, 246, 0.14) 100%);
-        border: 1px solid rgba(17, 92, 185, 0.16);
-        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.08);
+        background: color-mix(in srgb, var(--primary) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+        box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 10%, transparent);
         pointer-events: none;
         opacity: 0;
         z-index: 1;
@@ -59,15 +59,20 @@
         left: 15%;
         width: 70%;
         height: 3px;
-        background: linear-gradient(90deg, #1f477b, #115cb9, #3b82f6);
+        background: var(--primary);
         border-radius: 99px;
-        box-shadow: 0 0 10px rgba(17, 92, 185, 0.7);
+        box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 70%, transparent);
     }
 
     html.dark .nav-sliding-pill {
-        background: linear-gradient(135deg, rgba(167, 200, 255, 0.12) 0%, rgba(59, 130, 246, 0.2) 100%);
-        border-color: rgba(167, 200, 255, 0.28);
-        box-shadow: 0 4px 16px rgba(167, 200, 255, 0.16);
+        background: color-mix(in srgb, var(--primary-light) 15%, transparent);
+        border-color: color-mix(in srgb, var(--primary-light) 25%, transparent);
+        box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-light) 15%, transparent);
+    }
+    
+    html.dark .nav-sliding-pill::after {
+        background: var(--primary-light);
+        box-shadow: 0 0 10px color-mix(in srgb, var(--primary-light) 70%, transparent);
     }
 
     .nav-center-link {
@@ -75,7 +80,7 @@
         z-index: 2;
         padding: 6px 16px;
         border-radius: 14px;
-        color: #2d3748;
+        color: var(--text-light, #43474f);
         font-weight: 700;
         font-size: 1.02rem;
         letter-spacing: -0.01em;
@@ -88,20 +93,20 @@
     }
 
     html.dark .nav-center-link {
-        color: #e2e8f0;
+        color: var(--text, #eaf1ff);
     }
 
     .nav-center-link:hover,
     .nav-center-link.active-nav {
-        color: #115cb9 !important;
+        color: var(--primary) !important;
         transform: translateY(-2px) scale(1.04);
-        text-shadow: 0 2px 10px rgba(17, 92, 185, 0.12);
+        text-shadow: 0 2px 10px color-mix(in srgb, var(--primary) 15%, transparent);
     }
 
     html.dark .nav-center-link:hover,
     html.dark .nav-center-link.active-nav {
-        color: #60a5fa !important;
-        text-shadow: 0 2px 12px rgba(96, 165, 250, 0.25);
+        color: var(--primary-light) !important;
+        text-shadow: 0 2px 12px color-mix(in srgb, var(--primary-light) 25%, transparent);
     }
 
     .nav-blue-glow-btn {
@@ -190,8 +195,7 @@
                 @if($hasAcceptedMagang)
                 <li><span class="nav-divider">|</span></li>
                 <li>
-                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="nav-center-link nav-absensi-link text-primary font-weight-bold" data-nav-target="jadwal-magang-section">
-                        <i class="fa-solid fa-fingerprint text-primary me-1"></i>
+                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="nav-center-link nav-absensi-link" data-nav-target="jadwal-magang-section">
                         <span>Absensi</span>
                     </a>
                 </li>
@@ -289,24 +293,6 @@
                     @endif
                 @endif
 
-                @if(auth()->user()->role === 'bidang')
-                    <!-- Absensi (Simalam Home) -->
-                    <a href="{{ route('absensi.home') }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border) !important;" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary) !important';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border) !important';">
-                        <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
-                            <i class="fa-solid fa-calendar-check text-primary fs-5"></i> Absensi
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                    </a>
-
-                    <!-- Dashboard Simalam -->
-                    <a href="{{ route('absensi.admin.dashboard') }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border) !important;" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary) !important';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border) !important';">
-                        <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
-                            <i class="fa-solid fa-gauge-high text-primary fs-5"></i> Dashboard
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
-                    </a>
-                @endif
-
                 <!-- Dashboard Route -->
                 @php
                     $dashboardRoute = null;
@@ -316,6 +302,8 @@
                         $dashboardRoute = route('admin.dashboard');
                     } elseif (auth()->user()->role === 'dinas') {
                         $dashboardRoute = route('dinas.dashboard');
+                    } elseif (auth()->user()->role === 'bidang') {
+                        $dashboardRoute = route('bidang.dashboard');
                     }
                 @endphp
                 @if($dashboardRoute)
@@ -606,10 +594,6 @@
                 }
 
                 links.forEach(link => {
-                    link.addEventListener('mouseenter', () => {
-                        movePillTo(link);
-                    });
-
                     link.addEventListener('click', (e) => {
                         const targetId = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
                         if (targetId) {
@@ -640,54 +624,47 @@
                     });
                 });
 
-                wrapper.addEventListener('mouseenter', () => {
-                    isHoveringWrapper = true;
-                });
-
-                wrapper.addEventListener('mouseleave', () => {
-                    isHoveringWrapper = false;
-                    if (activeLink) {
-                        movePillTo(activeLink);
-                    } else {
-                        pill.style.opacity = '0';
-                    }
-                });
-
-                window.addEventListener('resize', () => {
-                    if (activeLink && !isHoveringWrapper) {
-                        movePillTo(activeLink);
-                    }
-                });
-
-                // ScrollSpy for Landing Page Sections
-                const sectionItems = [];
-                links.forEach(link => {
+                // ScrollSpy to update active state based on scroll
+                const sections = Array.from(links).map(link => {
                     const targetId = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
-                    if (targetId) {
-                        const sec = document.getElementById(targetId);
-                        if (sec) sectionItems.push({ id: targetId, elem: sec, link: link });
+                    return targetId ? document.getElementById(targetId) : null;
+                }).filter(Boolean);
+
+                const observerOptions = {
+                    root: null,
+                    rootMargin: '-100px 0px -60% 0px',
+                    threshold: 0
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const targetId = entry.target.id;
+                            const currentLink = Array.from(links).find(link => {
+                                const lId = link.getAttribute('data-nav-target') || (link.getAttribute('href') || '').split('#')[1];
+                                return lId === targetId;
+                            });
+
+                            if (currentLink) {
+                                links.forEach(l => l.classList.remove('active-nav'));
+                                currentLink.classList.add('active-nav');
+                                activeLink = currentLink;
+                                movePillTo(currentLink);
+                            }
+                        }
+                    });
+                }, observerOptions);
+
+                sections.forEach(section => observer.observe(section));
+
+                window.addEventListener('scroll', () => {
+                    // Remove active state if user scrolls up past the first section
+                    if (window.scrollY < 200) {
+                        links.forEach(l => l.classList.remove('active-nav'));
+                        activeLink = null;
+                        movePillTo(null);
                     }
                 });
-
-                if (sectionItems.length > 0) {
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const matched = sectionItems.find(s => s.elem === entry.target);
-                                if (matched) {
-                                    links.forEach(l => l.classList.remove('active-nav'));
-                                    matched.link.classList.add('active-nav');
-                                    activeLink = matched.link;
-                                    if (!isHoveringWrapper) {
-                                        movePillTo(activeLink);
-                                    }
-                                }
-                            }
-                        });
-                    }, { threshold: 0.35 });
-
-                    sectionItems.forEach(s => observer.observe(s.elem));
-                }
 
                 checkActiveState();
             });

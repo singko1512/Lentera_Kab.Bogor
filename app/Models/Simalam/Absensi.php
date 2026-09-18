@@ -40,6 +40,9 @@ class Absensi extends Model
         'lokasi_pulang_akurasi',
         'lokasi_pulang_diambil_pada',
         'laporan',
+        'surat_izin',
+        'is_koreksi',
+        'keterangan_koreksi',
     ];
 
     protected $casts = [
@@ -66,6 +69,17 @@ class Absensi extends Model
     public function statusMaster()
     {
         return $this->belongsTo(MasterData::class, 'status_id');
+    }
+
+    public function getJurnalAttribute()
+    {
+        $magangApp = \App\Models\MagangApplication::where('user_id', $this->user_id)->latest()->first();
+        if ($magangApp) {
+            return \App\Models\Jurnal::where('magang_application_id', $magangApp->id)
+                ->where('tanggal', $this->tanggal->format('Y-m-d'))
+                ->first();
+        }
+        return null;
     }
 
     public function statusMasukMaster()

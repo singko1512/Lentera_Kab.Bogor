@@ -256,7 +256,7 @@
         $tglMulai = \Carbon\Carbon::parse($layanan->tanggal_mulai ?? now())->translatedFormat('d F Y');
         $tglSelesai = \Carbon\Carbon::parse($layanan->tanggal_selesai ?? now())->translatedFormat('d F Y');
 
-        $nomorSurat = '400.14.5.4 / ' . $layanan->id . ' - Wasnas';
+        $nomorSurat = $layanan->suratRekomendasi->nomor_surat ?? ('400.14.5.4 / ' . $layanan->id . ' - Wasnas');
 
         $jenisLayananNama = $layanan->jenisLayanan->nama ?? 'Praktik Kerja Lapangan (PKL)';
         $halSurat = 'Rekomendasi ' . $jenisLayananNama;
@@ -581,13 +581,13 @@
                                 <td style="padding-left: 6px; vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
                                     <div style="font-size: 7.5pt; color: #444; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
                                     <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2; color: #222;">
-                                        KEPALA BADAN KESATUAN BANGSA<br>DAN POLITIK KABUPATEN BOGOR
+                                        {!! nl2br(e($layanan->suratRekomendasi->pejabat_jabatan ?? "KEPALA BADAN KESATUAN BANGSA\nDAN POLITIK KABUPATEN BOGOR")) !!}
                                     </div>
                                     <div style="font-size: 9pt; font-weight: bold; margin-top: 10px; color: #222;">
-                                        FERDINANDO SELMI PARDEDE, S.IP, M.AP
+                                        {{ $layanan->suratRekomendasi->pejabat_nama ?? 'FERDINANDO SELMI PARDEDE, S.IP, M.AP' }}
                                     </div>
                                     <div style="font-size: 8.5pt; color: #333; margin-top: 1px;">
-                                        Pembina Tk. I
+                                        {{ $layanan->suratRekomendasi->pejabat_pangkat ?? 'Pembina Tk. I' }}
                                     </div>
                                 </td>
                             </tr>

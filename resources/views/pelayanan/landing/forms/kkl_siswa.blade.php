@@ -345,7 +345,12 @@
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan KKL / PKL / Magang <span class="text-error">*</span></label>
-<input name="tempat_kegiatan" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan lokasi atau dinas tujuan PKL" type="text" required list="instansi-list">
+<select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
+                                        <option value="">-- Pilih Instansi / Dinas --</option>
+                                        @foreach($dinasList as $dinas)
+                                            <option value="{{ $dinas->id }}">{{ $dinas->name }}</option>
+                                        @endforeach
+                                    </select>
 </div>
 </div>
 </div>

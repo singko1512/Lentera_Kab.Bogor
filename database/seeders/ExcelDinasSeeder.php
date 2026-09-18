@@ -11,16 +11,12 @@ use Illuminate\Support\Str;
 
 class ExcelDinasSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Mencegah error "Maximum execution time of 30 seconds exceeded"
         set_time_limit(0); 
 
         // Melakukan hashing password HANYA SEKALI untuk semua akun (sangat mempercepat proses seeder)
-        $defaultPassword = Hash::make('password123');
+        $defaultPassword = Hash::make('Tegarberiman');
 
         $jsonPath = database_path('data/dinas_bidang.json');
         
@@ -38,7 +34,9 @@ class ExcelDinasSeeder extends Seeder
             $dinas = Dinas::firstOrCreate(['name' => $dinasName]);
             
             // Buat Akun Dinas
-            $dinasEmail = strtolower(Str::slug($dinasName, '_')) . '@dinas.com';
+            $shortName = $this->getDinasAcronym($dinasName);
+            $dinasEmail = $shortName . '@dinas.com';
+
             User::firstOrCreate(
                 ['email' => $dinasEmail],
                 [
@@ -54,39 +52,71 @@ class ExcelDinasSeeder extends Seeder
                 if (empty($bidangName)) continue;
                 
                 // Buat atau cari Bidang
-                $bidang = Bidang::firstOrCreate([
+                Bidang::firstOrCreate([
                     'dinas_id' => $dinas->id,
                     'name' => $bidangName
                 ]);
-
-                // Buat Akun Bidang (opsional, jika diperlukan akun per bidang)
-                // Sebaiknya dibuat juga agar bidang bisa login untuk memverifikasi jurnal
-                $cleanD = str_replace(['DINAS ', 'BADAN ', 'KECAMATAN ', 'RUMAH SAKIT UMUM DAERAH ', 'SEKRETARIAT '], '', strtoupper($dinasName));
-                $dCode = implode('_', array_slice(array_filter(explode(' ', Str::slug($cleanD, ' '))), 0, 3));
-                if (str_contains(strtoupper($dinasName), 'KECAMATAN')) $dCode = 'kec_' . $dCode;
-                elseif (str_contains(strtoupper($dinasName), 'RUMAH SAKIT')) $dCode = 'rsud_' . $dCode;
-
-                $cleanB = str_replace(['BIDANG ', 'BAGIAN '], '', strtoupper($bidangName));
-                $bCode = implode('_', array_slice(array_filter(explode(' ', Str::slug($cleanB, ' '))), 0, 3));
-
-                $username = strtolower($bCode . '_' . $dCode);
-                $bidangEmail = strtolower($username . '@bidang.com');
-
-                User::firstOrCreate(
-                    ['username' => $username],
-                    [
-                        'name' => 'Admin ' . $bidangName . ' (' . $dinasName . ')',
-                        'email' => $bidangEmail,
-                        'username' => $username,
-                        'password' => $defaultPassword,
-                        'role' => 'bidang',
-                        'dinas_id' => $dinas->id,
-                        'bidang_id' => $bidang->id,
-                    ]
-                );
             }
         }
 
-        $this->command->info("Data Dinas, Bidang, dan Akun berhasil di-seed!");
+        $this->command->info("Data Dinas, Bidang, dan Akun berhasil di-seed dengan email singkatan (misal: diskominfo@dinas.com)!");
+    }
+
+    private function getDinasAcronym($name) {
+        $nameUpper = strtoupper(trim($name));
+        $custom = [
+            'DINAS KOMUNIKASI DAN INFORMATIKA' => 'diskominfo',
+            'BADAN KESATUAN BANGSA DAN POLITIK' => 'kesbangpol',
+            'BADAN PERENCANAAN PEMBANGUNAN DAERAH, PENELITIAN DAN PENGEMBANGAN' => 'bappedalitbang',
+            'BADAN PENGELOLAAN PENDAPATAN DAERAH' => 'bappenda',
+            'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA' => 'bkpsdm',
+            'BADAN PENGELOLAAN KEUANGAN DAN ASET DAERAH' => 'bpkad',
+            'BADAN PENANGGULANGAN BENCANA DAERAH' => 'bpbd',
+            'DINAS PENDIDIKAN' => 'disdik',
+            'DINAS KESEHATAN' => 'dinkes',
+            'DINAS PEKERJAAN UMUM DAN PENATAAN RUANG' => 'dpupr',
+            'DINAS PERUMAHAN, KAWASAN PERMUKIMAN DAN PERTANAHAN' => 'dpkpp',
+            'DINAS SOSIAL' => 'dinsos',
+            'DINAS TENAGA KERJA' => 'disnaker',
+            'DINAS PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK, PENGENDALIAN PENDUDUK DAN KELUARGA BERENCANA' => 'dp3ap2kb',
+            'DINAS KETAHANAN PANGAN' => 'dkp',
+            'DINAS LINGKUNGAN HIDUP' => 'dlh',
+            'DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL' => 'disdukcapil',
+            'DINAS PEMBERDAYAAN MASYARAKAT DAN DESA' => 'dpmd',
+            'DINAS PERHUBUNGAN' => 'dishub',
+            'DINAS KOPERASI, USAHA KECIL DAN MENENGAH' => 'diskopukm',
+            'DINAS PENANAMAN MODAL DAN PELAYANAN TERPADU SATU PINTU' => 'dpmptsp',
+            'DINAS KEPEMUDAAN DAN OLAHRAGA' => 'dispora',
+            'DINAS KEBUDAYAAN DAN PARIWISATA' => 'disbudpar',
+            'DINAS PERPUSTAKAAN DAN KEARSIPAN' => 'dispusip',
+            'DINAS PERIKANAN DAN PETERNAKAN' => 'diskannak',
+            'DINAS TANAMAN PANGAN, HORTIKULTURA DAN PERKEBUNAN' => 'distanhorbun',
+            'DINAS PERDAGANGAN DAN PERINDUSTRIAN' => 'disdagin',
+            'DINAS PEMADAM KEBAKARAN' => 'damkar',
+            'SATUAN POLISI PAMONG PRAJA' => 'satpolpp',
+            'INSPEKTORAT DAERAH' => 'inspektorat',
+            'SEKRETARIAT DAERAH' => 'setda',
+            'SEKRETARIAT DPRD' => 'setwan',
+        ];
+        
+        if (isset($custom[$nameUpper])) {
+            return $custom[$nameUpper];
+        }
+
+        $clean = str_replace(['DINAS ', 'BADAN ', 'KECAMATAN ', 'RUMAH SAKIT UMUM DAERAH ', 'SEKRETARIAT '], '', $nameUpper);
+        $words = array_filter(explode(' ', Str::slug($clean, ' ')));
+        
+        if (str_starts_with($nameUpper, 'KECAMATAN')) return 'kec_' . implode('', array_slice($words, 0, 2));
+        if (str_starts_with($nameUpper, 'RUMAH SAKIT')) return 'rsud_' . implode('', array_slice($words, 0, 2));
+
+        $acronym = '';
+        foreach (array_slice($words, 0, 4) as $w) {
+            $acronym .= substr($w, 0, 1);
+        }
+        if (str_starts_with($nameUpper, 'DINAS')) $acronym = 'dis' . $acronym;
+        elseif (str_starts_with($nameUpper, 'BADAN')) $acronym = 'b' . $acronym;
+        else $acronym = implode('', array_slice($words, 0, 3));
+
+        return strtolower($acronym);
     }
 }

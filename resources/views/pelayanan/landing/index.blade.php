@@ -1009,6 +1009,7 @@
 </div>
 </div>
 </div>
+</section>
 @if(isset($userMagang) && $userMagang)
 <!-- Jadwal Masuk Anak Magang di Bidang (Untuk User Diterima) -->
 <section id="jadwal-magang-section" class="max-w-container-max mx-auto px-margin-desktop py-12 w-full">
@@ -1137,10 +1138,32 @@
                             </td>
                             <td class="p-4 text-center">
                                 @if($todayAbsensi)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-full text-xs font-bold">
-                                        <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                        Hadir ({{ \Carbon\Carbon::parse($todayAbsensi->waktu_masuk)->format('H:i') }} WIB)
-                                    </span>
+                                    @if($todayAbsensi->status === 'hadir')
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-full text-xs font-bold">
+                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                            Hadir ({{ \Carbon\Carbon::parse($todayAbsensi->waktu_masuk)->format('H:i') }} WIB)
+                                        </span>
+                                    @elseif($todayAbsensi->status === 'izin')
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 rounded-full text-xs font-bold">
+                                            <span class="material-symbols-outlined text-[14px]">info</span>
+                                            Izin
+                                        </span>
+                                    @elseif($todayAbsensi->status === 'sakit')
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 rounded-full text-xs font-bold">
+                                            <span class="material-symbols-outlined text-[14px]">medical_services</span>
+                                            Sakit
+                                        </span>
+                                    @elseif($todayAbsensi->status === 'alpha')
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 rounded-full text-xs font-bold">
+                                            <span class="material-symbols-outlined text-[14px]">cancel</span>
+                                            Alpha
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-800 dark:bg-gray-800/60 dark:text-gray-300 rounded-full text-xs font-bold">
+                                            <span class="material-symbols-outlined text-[14px]">help</span>
+                                            {{ ucfirst($todayAbsensi->status) }}
+                                        </span>
+                                    @endif
                                 @else
                                     <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 rounded-full text-xs font-bold">
                                         <span class="material-symbols-outlined text-[14px]">schedule</span>

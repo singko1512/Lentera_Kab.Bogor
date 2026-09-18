@@ -383,7 +383,7 @@
                     @php
                         $isAdminLoginRole = in_array($loginRole, ['admin', 'superadmin'], true);
                         $loginLabel = 'Username / Email';
-                        $loginPlaceholder = 'contoh: aptika_diskominfo atau aptika_diskominfo@bidang.com';
+                        $loginPlaceholder = 'contoh: user@gmail.com';
                     @endphp
                     <label class="form-label-admin">{{ $loginLabel }}</label>
                     <input

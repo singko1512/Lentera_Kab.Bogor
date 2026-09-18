@@ -143,85 +143,9 @@
                 </div>
             </div>
 
-            <!-- Absensi -->
-            <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30">
-                <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <span class="material-symbols-outlined text-primary text-[20px]">how_to_reg</span>
-                    Riwayat Absensi
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-surface-container-low text-on-surface-variant">
-                            <tr>
-                                <th class="p-3 rounded-l-lg">Tanggal</th>
-                                <th class="p-3">Check In</th>
-                                <th class="p-3">Check Out</th>
-                                <th class="p-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-outline-variant/30">
-                            @forelse($participant->absensis ?? [] as $absen)
-                            <tr class="hover:bg-surface-container-lowest transition-colors">
-                                <td class="p-3 font-medium">{{ \Carbon\Carbon::parse($absen->tanggal)->format('d M Y') }}</td>
-                                <td class="p-3">
-                                    {{ $absen->waktu_masuk ?? '-' }}
-                                    @if($absen->foto_masuk)
-                                        <a href="{{ url('/dokumen/' . $absen->foto_masuk) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
-                                    @endif
-                                    @if($absen->lokasi_masuk)
-                                        <a href="https://maps.google.com/?q={{ $absen->lokasi_masuk }}" target="_blank" class="text-xs text-primary underline ml-1">Map</a>
-                                    @endif
-                                </td>
-                                <td class="p-3">
-                                    {{ $absen->waktu_pulang ?? '-' }}
-                                    @if($absen->foto_pulang)
-                                        <a href="{{ url('/dokumen/' . $absen->foto_pulang) }}" target="_blank" class="text-xs text-primary underline ml-1">Foto</a>
-                                    @endif
-                                    @if($absen->lokasi_pulang)
-                                        <a href="https://maps.google.com/?q={{ $absen->lokasi_pulang }}" target="_blank" class="text-xs text-primary underline ml-1">Map</a>
-                                    @endif
-                                </td>
-                                <td class="p-3">
-                                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold">{{ strtoupper($absen->status) }}</span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-on-surface-variant italic">Belum ada data absensi.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <!-- Jurnal Magang -->
-            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
-                <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2 border-b border-outline-variant/40 pb-3">
-                    <span class="material-symbols-outlined text-primary text-[20px]">book</span>
-                    Jurnal Aktivitas Harian
-                </h3>
-                <div class="space-y-4">
-                    @forelse($participant->jurnals ?? [] as $jurnal)
-                    <div class="p-4 rounded-xl border border-outline-variant/40 bg-surface-container-low">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs font-bold text-primary">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('d F Y') }}</span>
-                            @if($jurnal->status_verifikasi)
-                                <span class="text-[10px] px-2 py-0.5 bg-green-100 text-green-700 font-bold rounded-full">DIVERIFIKASI</span>
-                            @else
-                                <form action="{{ route('dinas.participants.jurnal.verify', [$participant->id, $jurnal->id]) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="text-xs px-2.5 py-1 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors">Verifikasi</button>
-                                </form>
-                            @endif
-                        </div>
-                        <p class="text-sm text-on-surface whitespace-pre-line">{{ $jurnal->kegiatan }}</p>
-                    </div>
-                    @empty
-                    <p class="text-on-surface-variant text-sm italic">Belum ada log aktivitas jurnal magang.</p>
-                    @endforelse
-                </div>
-            </div>
+
+
         </div>
 
         <!-- Right: Actions & Surat Balasan (1 col) -->

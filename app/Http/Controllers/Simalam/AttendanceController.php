@@ -23,6 +23,10 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Models\MagangApplication;
+use App\Models\Jurnal;
+use App\Models\Simalam\Pengaturan;
+
 
 class AttendanceController extends Controller
 {
@@ -133,8 +137,8 @@ class AttendanceController extends Controller
                 $startDate = Carbon::createFromDate((int) $parts[0], (int) $parts[1], 1)->startOfMonth();
                 $endDate = Carbon::createFromDate((int) $parts[0], (int) $parts[1], 1)->endOfMonth();
             } else {
-                $startDate = Carbon::create(2020, 1, 1);
-                $endDate = Carbon::today()->endOfDay();
+                $startDate = Carbon::now()->startOfMonth();
+                $endDate = Carbon::now()->endOfMonth();
             }
 
             $absensiQuery = Absensi::with(['user', 'statusMaster'])
@@ -173,52 +177,35 @@ class AttendanceController extends Controller
         }
 
         $today = Carbon::today(config('app.timezone'))->toDateString();
-        $todayAttendance = Absensi::with('task.project', 'task.module')
-            ->where('user_id', $userId)
+        $todayAttendance = Absensi::where('user_id', $userId)
             ->where('tanggal', $today)
             ->first();
 
-        $myActiveTasks = ProjectTask::with(['project', 'module'])
-            ->where('user_id', $userId)
-            ->where('status', 'sedang_dikerjakan')
-            ->whereNull('catatan_revisi')
-            ->get();
+        // 1. Dapatkan config batas_absen_masuk
+        $batasWaktuConfig = Pengaturan::where('kunci', 'batas_absen_masuk')->value('nilai') ?? '12:00';
+        $nowTime = Carbon::now(config('app.timezone'))->format('H:i');
+        
+        // Mode Form: Jika sekarang >= batas waktu, maka mode Pulang, sebaliknya mode Masuk
+        $is_checkout_mode = $nowTime >= $batasWaktuConfig;
 
-        $myRevisionTasks = ProjectTask::with(['project', 'module'])
-            ->where('user_id', $userId)
-            ->where('status', 'sedang_dikerjakan')
-            ->whereNotNull('catatan_revisi')
-            ->get();
+        // 2. Fetch MagangApplication and Jurnal
+        $magangApp = MagangApplication::where('user_id', $userId)->latest()->first();
+        $todayJurnal = null;
+        if ($magangApp) {
+            $todayJurnal = Jurnal::where('magang_application_id', $magangApp->id)
+                ->where('tanggal', $today)
+                ->first();
+        }
 
-        $myReviewTasks = ProjectTask::with(['project', 'module'])
-            ->where('user_id', $userId)
-            ->where('status', 'review')
-            ->get();
-
-        $myCompletedTasks = ProjectTask::with(['project', 'module'])
-            ->where('user_id', $userId)
-            ->where('status', 'selesai')
-            ->get();
-
-        $myTodayTasks = $myActiveTasks->merge($myRevisionTasks);
-
-        $hasActiveTask = $myActiveTasks->isNotEmpty() || $myRevisionTasks->isNotEmpty() || $myReviewTasks->isNotEmpty();
-
-        $activeStatusId = MasterData::idFor(MasterData::PROJECT_STATUS, 'aktif');
-        $allActiveProjects = Project::with([
-            'statusMaster',
-            'members',
-            'modules.tasks',
-            'tasks.module',
-            'tasks.user',
-        ])
-            ->where('status_id', $activeStatusId)
-            ->orderBy('tanggal_mulai', 'desc')
-            ->get();
-
-        $timelineProjects = $allActiveProjects;
-
-        // Determine active selected project
+        // Empty dummy collections for timeline/project views to prevent blade errors
+        $myActiveTasks = collect();
+        $myRevisionTasks = collect();
+        $myReviewTasks = collect();
+        $myCompletedTasks = collect();
+        $myTodayTasks = collect();
+        $hasActiveTask = false;
+        $allActiveProjects = collect();
+        $timelineProjects = collect();
         $selectedProject = null;
         if ($hasActiveTask) {
             $firstActive = $myTodayTasks->first() ?: $myReviewTasks->first();
@@ -252,55 +239,13 @@ class AttendanceController extends Controller
             }
         }
 
-        if ($hasActiveTask) {
-            $activeTaskIds = $myActiveTasks->pluck('id')
-                ->merge($myRevisionTasks->pluck('id'))
-                ->merge($myReviewTasks->pluck('id'))
-                ->unique();
-            $availableTasks = ProjectTask::with(['project', 'module', 'user'])
-                ->whereIn('id', $activeTaskIds)
-                ->get();
+            $availableTasks = collect();
             $allAvailableTasks = collect();
             $availableModules = collect();
             $allAvailableModules = collect();
-        } else {
-            if ($selectedProject) {
-                // Semua task yang belum diambil pada proyek terpilih
-                $allAvailableTasks = ProjectTask::with(['project', 'module', 'user'])
-                    ->where('project_id', $selectedProject->id)
-                    ->whereNull('user_id')
-                    ->where('status', 'belum_dikerjakan')
-                    ->orderBy('tanggal_selesai')
-                    ->orderBy('judul')
-                    ->get();
-                $availableTasks = $allAvailableTasks;
-
-                // Modul yang belum di-breakdown (belum memiliki task sama sekali)
-                $availableModules = ProjectModule::with(['project', 'tasks'])
-                    ->where('project_id', $selectedProject->id)
-                    ->whereDoesntHave('tasks')
-                    ->orderBy('nama')
-                    ->get();
-                $allAvailableModules = $availableModules;
-            } else {
-                $availableTasks = collect();
-                $allAvailableTasks = collect();
-                $availableModules = collect();
-                $allAvailableModules = collect();
-            }
-        }
 
         $timelineUser = $currentUser;
-        $taskParticipants = ProjectTaskParticipant::with([
-            'task.project',
-            'task.module',
-            'task.participants.user',
-            'submissions.replies.user',
-            'submissions.reviewer',
-        ])
-            ->where('user_id', $userId)
-            ->latest('joined_at')
-            ->get();
+        $taskParticipants = collect();
 
         return view('absensi.absensi.index', compact(
             'users',
@@ -317,7 +262,6 @@ class AttendanceController extends Controller
             'todayAttendance',
             'availableTasks',
             'taskParticipants',
-            // Data task baru untuk user dashboard
             'myActiveTasks',
             'myRevisionTasks',
             'myReviewTasks',
@@ -328,7 +272,10 @@ class AttendanceController extends Controller
             'availableModules',
             'allAvailableModules',
             'allActiveProjects',
-            'selectedProject'
+            'selectedProject',
+            'batasWaktuConfig',
+            'is_checkout_mode',
+            'todayJurnal'
         ));
     }
 
@@ -339,249 +286,167 @@ class AttendanceController extends Controller
     {
         $userId = Auth::id();
         $today = Carbon::today(config('app.timezone'))->toDateString();
-
+        $now = now(config('app.timezone'));
+        
         $absensi = Absensi::where('user_id', $userId)
             ->where('tanggal', $today)
             ->first();
 
-        if ($absensi && $absensi->jam_masuk && $absensi->jam_pulang) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error_swal', 'Absensi masuk dan pulang hari ini sudah lengkap.');
-        }
+        // Mode Checkout bergantung pada apakah peserta sudah absen masuk atau belum
+        $isCheckoutMode = $absensi ? true : false;
 
-        $hasProjects = DB::table('md_project_user')->where('user_id', $userId)->exists();
-        $isCheckout = $absensi && ! $absensi->jam_pulang;
         $status = (string) $request->input('status');
 
-        $request->validate([
-            'status' => [
-                'required',
-                Rule::exists('md_master_data', 'kode')
-                    ->where(fn ($query) => $query->where('jenis', MasterData::ABSENSI_STATUS)->where('is_active', true)),
-            ],
-            'task_id' => [
-                Rule::requiredIf(function () use ($isCheckout, $status, $userId) {
-                    if ($isCheckout || ! in_array($status, ['hadir', 'wfh'], true)) {
-                        return false;
-                    }
+        if (!$isCheckoutMode) {
+            // MODE ABSEN MASUK
+            if ($absensi) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error_swal', 'Anda sudah melakukan absensi masuk hari ini.');
+            }
+            
+            // Validasi Input Masuk
+            $request->validate([
+                'status' => [
+                    'required',
+                    Rule::exists('md_master_data', 'kode')
+                        ->where(fn ($query) => $query->where('jenis', MasterData::ABSENSI_STATUS)->where('is_active', true)),
+                ],
+                'foto_kamera' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+                'lokasi_latitude' => Rule::requiredIf(in_array($status, ['izin', 'sakit'])),
+                'lokasi_longitude' => Rule::requiredIf(in_array($status, ['izin', 'sakit'])),
+                'surat_keterangan' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            ], [
+                'status.required' => 'Pilih status absensi.',
+                'foto_kamera.required' => 'Foto kamera wajib diambil.',
+                'lokasi_latitude.required' => 'Lokasi GPS wajib diizinkan untuk status Izin/Sakit.',
+                'lokasi_longitude.required' => 'Lokasi GPS wajib diizinkan untuk status Izin/Sakit.',
+            ]);
 
-                    $hasProjects = DB::table('md_project_user')->where('user_id', $userId)->exists();
-                    if ($hasProjects) {
-                        return ProjectTask::whereNull('user_id')
-                            ->where('status', 'belum_dikerjakan')
-                            ->whereHas('project', function ($query) use ($userId) {
-                                $query->where('status', 'aktif')
-                                    ->where(function ($sub) use ($userId) {
-                                        $sub->whereHas('members', function ($m) use ($userId) {
-                                            $m->where('users.id', $userId);
-                                        })->orWhereDoesntHave('members');
-                                    });
-                            })
-                            ->exists();
-                    } else {
-                        return ProjectTask::whereNull('user_id')
-                            ->where('status', 'belum_dikerjakan')
-                            ->whereHas('project', function ($query) {
-                                $query->where('status', 'aktif');
-                            })
-                            ->exists();
-                    }
-                }),
-                'nullable',
-                function ($attribute, $value, $fail) {
-                    if (is_string($value) && str_starts_with($value, 'module_')) {
-                        $id = (int) str_replace('module_', '', $value);
-                        $module = ProjectModule::find($id);
-                        if (! $module) {
-                            $fail('Modul yang dipilih tidak valid.');
-                        } elseif ($module->is_chosen) {
-                            $fail('Modul ini sudah dipilih oleh peserta lain.');
-                        }
-                    } elseif (is_string($value) && str_starts_with($value, 'task_')) {
-                        $id = (int) str_replace('task_', '', $value);
-                        if (! ProjectTask::where('id', $id)->exists()) {
-                            $fail('Tugas yang dipilih tidak valid.');
-                        }
-                    } else {
-                        $id = (int) $value;
-                        if (! ProjectTask::where('id', $id)->exists()) {
-                            $fail('Tugas yang dipilih tidak valid.');
-                        }
-                    }
-                },
-            ],
-            'foto' => [
-                Rule::requiredIf($isCheckout && in_array($status, ['hadir', 'wfh'], true)),
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
-            'foto_kamera' => [
-                Rule::requiredIf((! $isCheckout && in_array($status, ['hadir', 'wfh', 'sakit'], true)) || ($isCheckout && $status === 'sakit')),
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
-            'lokasi_latitude' => 'required|numeric|between:-90,90',
-            'lokasi_longitude' => 'required|numeric|between:-180,180',
-            'lokasi_akurasi' => 'nullable|numeric|min:0|max:99999999',
-            'keterangan' => [
-                Rule::requiredIf($status === 'izin' || ($isCheckout && in_array($status, ['hadir', 'wfh'], true))),
-                'nullable',
-                'string',
-            ],
-        ], [
-            'status.required' => 'Pilih status absensi.',
-            'task_id.required' => 'Pilih tugas atau modul yang akan dikerjakan hari ini.',
-            'task_id.required_if' => 'Pilih tugas atau modul yang akan dikerjakan hari ini.',
-            'foto.required' => 'Lampiran wajib diunggah untuk status Hadir/WFH saat absen pulang.',
-            'foto.image' => 'Berkas harus berupa gambar (JPG, PNG, JPEG, WEBP).',
-            'foto.mimes' => 'Berkas harus berupa gambar JPG, JPEG, PNG, atau WEBP.',
-            'foto.max' => 'Ukuran berkas maksimal 5 MB.',
-            'foto_kamera.required' => 'Foto kamera wajib diambil untuk status dan waktu absensi ini.',
-            'foto_kamera.image' => 'Foto kamera harus berupa gambar (JPG, PNG, JPEG, WEBP).',
-            'foto_kamera.mimes' => 'Foto kamera harus berupa gambar JPG, JPEG, PNG, atau WEBP.',
-            'foto_kamera.max' => 'Ukuran foto kamera maksimal 5 MB.',
-            'lokasi_latitude.required' => 'Lokasi GPS wajib dikunci untuk semua status absensi.',
-            'lokasi_longitude.required' => 'Lokasi GPS wajib dikunci untuk semua status absensi.',
-            'keterangan.required' => $isCheckout && in_array($status, ['hadir', 'wfh'], true)
-                ? 'Laporan pekerjaan hari ini wajib diisi saat absen pulang Hadir/WFH.'
-                : 'Alasan izin wajib diisi.',
-        ]);
-
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            $fotoPath = $this->storeAbsensiFile($request->file('foto'), $userId, 'lampiran');
-        }
-
-        $fotoKameraPath = null;
-        if ($request->hasFile('foto_kamera')) {
             $fotoKameraPath = $this->storeAbsensiFile($request->file('foto_kamera'), $userId, 'kamera');
-        }
-
-        $statusId = MasterData::idFor(MasterData::ABSENSI_STATUS, $status);
-        $now = now(config('app.timezone'));
-
-        $taskIdInput = $request->input('task_id');
-        $taskId = null;
-        if ($taskIdInput) {
-            if (str_starts_with($taskIdInput, 'module_')) {
-                $moduleId = (int) str_replace('module_', '', $taskIdInput);
-                $module = ProjectModule::findOrFail($moduleId);
-
-                if ($module->is_chosen) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error_swal', 'Modul ini sudah dipilih oleh peserta lain.');
-                }
-
-                $hasActiveTask = ProjectTask::where('user_id', $userId)
-                    ->whereIn('status', ['sedang_dikerjakan', 'review', 'revision'])
-                    ->exists();
-                if ($hasActiveTask) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error_swal', 'Anda hanya dapat mengambil satu tugas dalam satu waktu. Selesaikan tugas aktif Anda terlebih dahulu.');
-                }
-
-                if (! $module->project->members()->where('users.id', $userId)->exists()) {
-                    $module->project->members()->attach($userId);
-                }
-
-                $task = ProjectTask::create([
-                    'project_id' => $module->project_id,
-                    'module_id' => $module->id,
-                    'user_id' => $userId,
-                    'judul' => 'Pengerjaan Modul: '.$module->nama,
-                    'deskripsi' => 'Pengerjaan seluruh modul '.$module->nama,
-                    'tanggal_mulai' => $module->tanggal_mulai,
-                    'tanggal_selesai' => $module->tanggal_selesai,
-                    'status' => 'sedang_dikerjakan',
-                    'join_window_minutes' => 999999,
-                    'urutan' => ProjectTask::where('project_id', $module->project_id)->max('urutan') + 1,
-                ]);
-
-                ProjectTaskParticipant::create([
-                    'task_id' => $task->id,
-                    'user_id' => $userId,
-                    'status' => 'joined',
-                    'joined_at' => now(),
-                    'contribution_percentage' => 100.00,
-                ]);
-
-                $task->recalculateModuleProgress();
-
-                ActivityLog::create([
-                    'user_id' => $userId,
-                    'project_id' => $module->project_id,
-                    'aktivitas' => User::find($userId)->name.' mengambil modul saat absen masuk: '.$module->nama,
-                ]);
-
-                $taskId = $task->id;
-            } elseif (str_starts_with($taskIdInput, 'task_')) {
-                $taskId = (int) str_replace('task_', '', $taskIdInput);
-            } else {
-                $taskId = (int) $taskIdInput;
+            $suratIzinPath = null;
+            if ($request->hasFile('surat_keterangan')) {
+                $suratIzinPath = $this->storeAbsensiFile($request->file('surat_keterangan'), $userId, 'surat');
             }
-        }
-        $locationPayload = [
-            'lokasi_latitude' => $request->input('lokasi_latitude'),
-            'lokasi_longitude' => $request->input('lokasi_longitude'),
-            'lokasi_akurasi' => $request->input('lokasi_akurasi'),
-            'lokasi_diambil_pada' => $now,
-        ];
 
-        if (! $absensi) {
-            if ($taskId) {
-                try {
-                    $this->joinTaskForUser($taskId, $userId);
-                } catch (\Exception $e) {
-                    return redirect()->back()
-                        ->withInput()
-                        ->with('error_swal', $e->getMessage());
+            // Validasi Geofencing untuk WFO (Hadir)
+            if ($status === 'hadir') {
+                $lat = $request->input('lokasi_latitude');
+                $lng = $request->input('lokasi_longitude');
+                
+                if (!$lat || !$lng) {
+                    return redirect()->back()->withInput()->with('error_swal', 'Koordinat lokasi tidak ditemukan. Pastikan Anda telah mengunci lokasi.');
+                }
+
+                $officeLat = -6.4829;
+                $officeLng = 106.8285;
+                $maxRadius = 100;
+
+                // Haversine formula
+                $earthRadius = 6371000; // Radius in meters
+                $dLat = deg2rad($lat - $officeLat);
+                $dLng = deg2rad($lng - $officeLng);
+                $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($officeLat)) * cos(deg2rad($lat)) * sin($dLng/2) * sin($dLng/2);
+                $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+                $distance = $earthRadius * $c;
+
+                if ($distance > $maxRadius) {
+                    return redirect()->back()->withInput()->with('error_swal', 'Jarak Anda terlalu jauh dari kantor (' . round($distance) . ' meter). Jarak maksimal adalah 100 meter.');
                 }
             }
+
+            $statusId = MasterData::idFor(MasterData::ABSENSI_STATUS, $status);
 
             Absensi::create([
                 'user_id' => $userId,
-                'task_id' => $taskId,
+                'task_id' => null,
                 'tanggal' => $today,
                 'jam_masuk' => $now->format('H:i:s'),
                 'status' => $status,
                 'status_id' => $statusId,
                 'status_masuk_id' => $statusId,
-                'foto' => $fotoPath,
                 'foto_kamera' => $fotoKameraPath,
                 'foto_masuk' => $fotoKameraPath,
-                ...$locationPayload,
+                'lokasi_latitude' => $request->input('lokasi_latitude'),
+                'lokasi_longitude' => $request->input('lokasi_longitude'),
+                'lokasi_akurasi' => $request->input('lokasi_akurasi'),
+                'lokasi_diambil_pada' => $now,
                 'lokasi_masuk_latitude' => $request->input('lokasi_latitude'),
                 'lokasi_masuk_longitude' => $request->input('lokasi_longitude'),
                 'lokasi_masuk_akurasi' => $request->input('lokasi_akurasi'),
                 'lokasi_masuk_diambil_pada' => $now,
-                'laporan' => $request->input('keterangan'),
+                'surat_izin' => $suratIzinPath,
             ]);
 
             return redirect()->route('absensi.index')->with('success_swal', 'Absensi masuk berhasil disimpan.');
+        } else {
+            // MODE ABSEN PULANG
+            if (!$absensi) {
+                return redirect()->back()->with('error_swal', 'Anda belum melakukan absensi masuk hari ini.');
+            }
+
+            if ($absensi->jam_pulang) {
+                return redirect()->back()->with('error_swal', 'Anda sudah melakukan absensi pulang hari ini.');
+            }
+
+            if (in_array($absensi->status, ['izin', 'sakit'])) {
+                return redirect()->back()->with('error_swal', 'Status Anda hari ini adalah Izin/Sakit, tidak memerlukan absen pulang.');
+            }
+
+            $magangApp = MagangApplication::where('user_id', $userId)->latest()->first();
+            if (!$magangApp) {
+                return redirect()->back()->with('error_swal', 'Data magang tidak ditemukan.');
+            }
+            
+            // Cek apakah mode absen hadir/wfh atau sakit/izin
+            $isHadirWfh = in_array($absensi->status, ['hadir', 'wfh']);
+            
+            $rules = [];
+            $messages = [];
+
+            if ($isHadirWfh) {
+                $rules['foto'] = 'required|image|mimes:jpg,jpeg,png,webp|max:5120';
+                $rules['keterangan'] = 'required|string';
+                $messages['foto.required'] = 'Gambar bukti pengerjaan wajib diunggah.';
+                $messages['keterangan.required'] = 'Laporan hasil pekerjaan wajib diisi.';
+            }
+
+            $request->validate($rules, $messages);
+
+            // Buat atau Update Jurnal
+            if ($isHadirWfh) {
+                $todayJurnal = Jurnal::firstOrNew([
+                    'magang_application_id' => $magangApp->id,
+                    'tanggal' => $today,
+                ]);
+                $todayJurnal->kegiatan = 'Melanjutkan pekerjaan magang (Absensi Pulang)';
+                $todayJurnal->hasil_pekerjaan = $request->input('keterangan');
+
+                if ($request->hasFile('foto')) {
+                    $file = $request->file('foto');
+                    $filename = date('Ymd_His') . '_' . $userId . '_' . Str::random(10) . '.' . $file->getClientOriginalExtension();
+                    // Simpan di storage public atau uploads
+                    $file->move(public_path('uploads/jurnal'), $filename);
+                    $todayJurnal->file_lampiran = 'uploads/jurnal/' . $filename;
+                }
+                $todayJurnal->save();
+            }
+
+            $statusId = MasterData::idFor(MasterData::ABSENSI_STATUS, $absensi->status);
+            $fotoPulangPath = isset($todayJurnal) && $todayJurnal->file_lampiran ? $todayJurnal->file_lampiran : null;
+
+            $absensi->update([
+                'jam_pulang' => $now->format('H:i:s'),
+                'status_pulang_id' => $statusId,
+                'foto_pulang' => $fotoPulangPath,
+                'lokasi_pulang_latitude' => $request->input('lokasi_latitude'),
+                'lokasi_pulang_longitude' => $request->input('lokasi_longitude'),
+                'lokasi_pulang_akurasi' => $request->input('lokasi_akurasi'),
+                'lokasi_pulang_diambil_pada' => $now,
+            ]);
+
+            return redirect()->route('absensi.index')->with('success_swal', 'Absensi pulang berhasil disimpan. Terima kasih atas kerja keras Anda hari ini!');
         }
-
-        $absensi->update([
-            'jam_pulang' => $now->format('H:i:s'),
-            'status_pulang_id' => $statusId,
-            'foto_pulang' => $fotoPath ?: $fotoKameraPath,
-            'foto_kamera' => $fotoKameraPath ?: $absensi->foto_kamera,
-            'foto' => $fotoPath ?: $absensi->foto,
-            ...$locationPayload,
-            'lokasi_pulang_latitude' => $request->input('lokasi_latitude'),
-            'lokasi_pulang_longitude' => $request->input('lokasi_longitude'),
-            'lokasi_pulang_akurasi' => $request->input('lokasi_akurasi'),
-            'lokasi_pulang_diambil_pada' => $now,
-            'laporan' => $request->input('keterangan') ?: $absensi->laporan,
-        ]);
-
-        return redirect()->route('absensi.index')->with('success_swal', 'Absensi pulang berhasil disimpan. Terima kasih atas kerja keras Anda hari ini!');
     }
 
     /**
@@ -734,5 +599,53 @@ class AttendanceController extends Controller
         foreach ($task->participants as $participant) {
             $participant->update(['contribution_percentage' => $share]);
         }
+    }
+
+    /**
+     * UPSERT Jurnal Harian Peserta
+     */
+    public function storeJurnal(Request $request)
+    {
+        $userId = Auth::id();
+        $magangApp = MagangApplication::where('user_id', $userId)->latest()->first();
+
+        if (!$magangApp) {
+            return redirect()->back()->with('error_swal', 'Data magang tidak ditemukan.');
+        }
+
+        $today = Carbon::today(config('app.timezone'))->toDateString();
+        $absensi = Absensi::where('user_id', $userId)->where('tanggal', $today)->first();
+
+        if (!$absensi || !in_array($absensi->status, ['hadir', 'wfh'])) {
+            return redirect()->back()->with('error_swal', 'Laporan harian hanya dapat diisi jika Anda melakukan absen masuk WFO/WFH.');
+        }
+
+        $request->validate([
+            'hasil_pekerjaan' => 'required|string',
+            'kendala' => 'nullable|string',
+            'file_lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:5120',
+            'file_pekerjaan' => 'nullable|file|mimes:zip,rar,pdf,docx,xlsx|max:10240',
+        ]);
+
+        $jurnal = Jurnal::firstOrNew([
+            'magang_application_id' => $magangApp->id,
+            'tanggal' => $today,
+        ]);
+
+        $jurnal->kegiatan = $request->input('hasil_pekerjaan'); // Legacy fallback
+        $jurnal->hasil_pekerjaan = $request->input('hasil_pekerjaan');
+        $jurnal->kendala = $request->input('kendala');
+
+        if ($request->hasFile('file_lampiran')) {
+            $jurnal->file_lampiran = $this->storeAbsensiFile($request->file('file_lampiran'), $userId, 'jurnal_lampiran');
+        }
+
+        if ($request->hasFile('file_pekerjaan')) {
+            $jurnal->file_pekerjaan = $this->storeAbsensiFile($request->file('file_pekerjaan'), $userId, 'jurnal_pekerjaan');
+        }
+
+        $jurnal->save();
+
+        return redirect()->back()->with('success_swal', 'Laporan harian berhasil disimpan.');
     }
 }
