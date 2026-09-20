@@ -60,12 +60,21 @@ class AdminDinasController extends Controller
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'deskripsi' => 'nullable|string',
+            'nama_kepala' => 'nullable|string|max:255',
+            'nip_kepala' => 'nullable|string|max:255',
+            'kop_surat' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ], [
             'name.required' => 'Nama Dinas / Perangkat Daerah wajib diisi.',
             'email.required' => 'Email login wajib diisi.',
             'email.unique' => 'Email tersebut sudah digunakan oleh akun lain.',
             'password.required' => 'Password wajib diisi (minimal 6 karakter).',
+            'kop_surat.image' => 'File Kop Surat harus berupa gambar.',
         ]);
+
+        $kopSuratPath = null;
+        if ($request->hasFile('kop_surat')) {
+            $kopSuratPath = $request->file('kop_surat')->store('dinas/kop', 'public');
+        }
 
         // 1. Buat record Dinas
         $dinas = Dinas::create([
@@ -74,6 +83,9 @@ class AdminDinasController extends Controller
             'telepon' => $request->telepon,
             'alamat' => $request->alamat,
             'deskripsi' => $request->deskripsi,
+            'nama_kepala' => $request->nama_kepala,
+            'nip_kepala' => $request->nip_kepala,
+            'kop_surat' => $kopSuratPath,
             'is_kesbangpol' => stripos($request->name, 'KESATUAN BANGSA DAN POLITIK') !== false,
         ]);
 
@@ -106,7 +118,18 @@ class AdminDinasController extends Controller
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'deskripsi' => 'nullable|string',
+            'nama_kepala' => 'nullable|string|max:255',
+            'nip_kepala' => 'nullable|string|max:255',
+            'kop_surat' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
+
+        $kopSuratPath = $dinas->kop_surat;
+        if ($request->hasFile('kop_surat')) {
+            if ($kopSuratPath) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($kopSuratPath);
+            }
+            $kopSuratPath = $request->file('kop_surat')->store('dinas/kop', 'public');
+        }
 
         $dinas->update([
             'name' => mb_strtoupper($request->name),
@@ -114,6 +137,9 @@ class AdminDinasController extends Controller
             'telepon' => $request->telepon,
             'alamat' => $request->alamat,
             'deskripsi' => $request->deskripsi,
+            'nama_kepala' => $request->nama_kepala,
+            'nip_kepala' => $request->nip_kepala,
+            'kop_surat' => $kopSuratPath,
         ]);
 
         if ($user) {

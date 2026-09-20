@@ -309,6 +309,7 @@ Route::middleware(['auth'])->group(function () {
         // Peserta & Penempatan
         Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
         Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
+        Route::post('/participants/{id}/status', [KesbangpolParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
         Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
         Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
         Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
@@ -335,6 +336,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/participants/{id}', [DinasParticipantController::class, 'show'])->name('participants.show');
         Route::post('/participants/{id}/penempatan', [DinasParticipantController::class, 'updatePenempatan'])->name('participants.penempatan.update');
         Route::post('/participants/{id}/surat', [DinasParticipantController::class, 'updateSurat'])->name('participants.surat.update');
+        Route::post('/participants/{id}/surat/generate', [DinasParticipantController::class, 'generateSurat'])->name('participants.surat.generate');
         Route::post('/participants/{id}/jurnal/{jurnal_id}/verify', [DinasParticipantController::class, 'verifyJurnal'])->name('participants.jurnal.verify');
         Route::get('/profile', [DinasDashboardController::class, 'editProfile'])->name('profile.edit');
         Route::post('/profile', [DinasDashboardController::class, 'updateProfile'])->name('profile.update');
@@ -543,6 +545,10 @@ Route::middleware(['auth'])->group(function () {
         }
         return redirect()->back();
     })->name('admin.switch_instansi');
+
+    Route::get('/admin/surat', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'index'])->name('admin.surat.index');
+    Route::get('/admin/surat/{surat}/edit', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'edit'])->name('admin.surat.edit');
+    Route::put('/admin/surat/{surat}', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'update'])->name('admin.surat.update');
 
     Route::post('/admin/dinas/store', function(\Illuminate\Http\Request $request) {
         $request->validate(['nama' => 'required|string|max:255']);

@@ -7,14 +7,15 @@ use Illuminate\Http\Request;
 use App\Models\MagangApplication;
 use App\Models\Bidang;
 use App\Models\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
 {
     public function index()
     {
-        $dinas = Auth::user()->dinas;
-        $dinasId = Auth::user()->dinas_id;
+        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $dinasId = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
 
         $applications = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
@@ -30,8 +31,8 @@ class ApplicationController extends Controller
 
     public function show($id)
     {
-        $dinas = Auth::user()->dinas;
-        $dinasId = Auth::user()->dinas_id;
+        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $dinasId = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
 
         $application = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
@@ -48,8 +49,8 @@ class ApplicationController extends Controller
 
     public function verify(Request $request, $id)
     {
-        $dinas = Auth::user()->dinas;
-        $dinasId = Auth::user()->dinas_id;
+        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $dinasId = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
 
         $application = MagangApplication::where(function($q) use ($dinasId) {
             $q->where('dinas_id', $dinasId)
@@ -75,6 +76,29 @@ class ApplicationController extends Controller
         if ($request->hasFile('file_surat_penerimaan')) {
             $path = $request->file('file_surat_penerimaan')->store('permohonan/penerimaan_dinas', 'public');
             $application->file_surat_penerimaan = $path;
+        } elseif ($request->status === 'diterima') {
+            // Auto generate Surat Penerimaan Dinas
+            try {
+                $bidangObj = Bidang::find($request->bidang_id);
+                $bidangNama = $bidangObj ? $bidangObj->name : 'Bidang Tujuan';
+
+                $pdfFileName = 'Surat_Penerimaan_' . \Illuminate\Support\Str::slug($dinas->name) . '_' . $application->id . '.pdf';
+                $relativePdfPath = 'permohonan/penerimaan_dinas/' . $pdfFileName;
+                $outputPdfPath = storage_path('app/public/' . $relativePdfPath);
+
+                // Ensure directory exists
+                if (!file_exists(dirname($outputPdfPath))) {
+                    mkdir(dirname($outputPdfPath), 0755, true);
+                }
+
+                $pdf = Pdf::loadView('pdf.surat_penerimaan_dinas', compact('application', 'dinas', 'bidangNama'))
+                    ->setPaper('a4', 'portrait');
+                $pdf->save($outputPdfPath);
+
+                $application->file_surat_penerimaan = $relativePdfPath;
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal generate PDF penerimaan dinas: ' . $e->getMessage());
+            }
         }
 
         $application->save();

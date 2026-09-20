@@ -106,7 +106,7 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @if($application->permohonanLayanan && ($application->permohonanLayanan->file_surat_keluaran || ($application->permohonanLayanan->statusMaster && in_array($application->permohonanLayanan->statusMaster->kode, ['disetujui', 'selesai']))))
-                    <div class="flex items-center justify-between p-3 border border-primary/30 bg-primary/5 rounded-xl">
+                    <div class="flex items-center justify-between p-3 border border-outline-variant/50 bg-white rounded-xl hover:bg-primary/5 hover:border-primary/30 transition-colors">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-primary">verified</span>
                             <div>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="flex items-center gap-1">
                             <button type="button" @click="previewUrl = '{{ route('surat.pdf', $application->permohonanLayanan->id) }}'; previewTitle = 'Surat Rekomendasi Kesbangpol'; previewExt = 'pdf'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
-                                <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Lihat
+                                <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
                             <a href="{{ route('surat.pdf', $application->permohonanLayanan->id) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
                                 <span class="material-symbols-outlined text-[16px]">open_in_new</span>
@@ -294,9 +294,9 @@
                         <label class="block text-label-sm font-bold text-on-surface mb-2">Keputusan Dinas <span class="text-red-500">*</span></label>
                         <select name="status" id="dinas_status_select" class="w-full px-3 py-2.5 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium" required onchange="toggleDinasFields(this.value)">
                             <option value="">-- Pilih Keputusan --</option>
-                            <option value="diterima" {{ $application->status == 'diterima' ? 'selected' : '' }}>Setujui & Terima Peserta (Acc)</option>
-                            <option value="perlu_revisi" {{ $application->status == 'perlu_revisi' ? 'selected' : '' }}>Minta Revisi Dokumen</option>
-                            <option value="ditolak" {{ $application->status == 'ditolak' ? 'selected' : '' }}>Tolak Permohonan</option>
+                            <option value="diterima" {{ $application->status == 'diterima' ? 'selected' : '' }}>Setujui Dokumen</option>
+                            <option value="perlu_revisi" {{ $application->status == 'perlu_revisi' ? 'selected' : '' }}>Revisi Dokumen</option>
+                            <option value="ditolak" {{ $application->status == 'ditolak' ? 'selected' : '' }}>Tolak Dokumen</option>
                         </select>
                     </div>
 

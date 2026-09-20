@@ -12,13 +12,13 @@ class RekrutmenController extends Controller
 {
     public function index()
     {
-        $rekrutmen = Rekrutmen::with('bidang')->where('dinas_id', Auth::user()->dinas_id)->get();
+        $rekrutmen = Rekrutmen::with('bidang')->where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->get();
         return view('pelayanan.dinas.rekrutmen.index', compact('rekrutmen'));
     }
 
     public function create()
     {
-        $bidangs = Bidang::where('dinas_id', Auth::user()->dinas_id)->get();
+        $bidangs = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->get();
         return view('pelayanan.dinas.rekrutmen.create', compact('bidangs'));
     }
 
@@ -34,7 +34,7 @@ class RekrutmenController extends Controller
         ]);
 
         $data = $request->all();
-        $data['dinas_id'] = Auth::user()->dinas_id;
+        $data['dinas_id'] = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
 
         Rekrutmen::create($data);
         return redirect()->route('dinas.rekrutmen.index')->with('success', 'Lowongan berhasil dibuat.');
@@ -42,14 +42,14 @@ class RekrutmenController extends Controller
 
     public function edit($id)
     {
-        $rekrutmen = Rekrutmen::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
-        $bidangs = Bidang::where('dinas_id', Auth::user()->dinas_id)->get();
+        $rekrutmen = Rekrutmen::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
+        $bidangs = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->get();
         return view('pelayanan.dinas.rekrutmen.edit', compact('rekrutmen', 'bidangs'));
     }
 
     public function update(Request $request, $id)
     {
-        $rekrutmen = Rekrutmen::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
+        $rekrutmen = Rekrutmen::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
 
         $request->validate([
             'judul' => 'required|string',
@@ -66,7 +66,7 @@ class RekrutmenController extends Controller
 
     public function destroy($id)
     {
-        $rekrutmen = Rekrutmen::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
+        $rekrutmen = Rekrutmen::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
         $rekrutmen->delete();
         return redirect()->route('dinas.rekrutmen.index')->with('success', 'Lowongan berhasil dihapus.');
     }

@@ -38,7 +38,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                     <div>
                         <p class="text-label-sm text-on-surface-variant mb-1">Nama Lengkap</p>
-                        <p class="text-body-md font-medium text-on-surface">{{ $participant->user->nama ?? '-' }}</p>
+                        <p class="text-body-md font-medium text-on-surface">{{ $participant->user->name ?? '-' }}</p>
                     </div>
                     <div>
                         <p class="text-label-sm text-on-surface-variant mb-1">Email</p>
@@ -64,15 +64,15 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                     <div>
                         <p class="text-label-sm text-on-surface-variant mb-1">Instansi Asal</p>
-                        <p class="text-body-md font-medium text-on-surface">{{ $participant->instansi_asal ?? '-' }}</p>
+                        <p class="text-body-md font-medium text-on-surface">{{ $participant->user->asal_instansi ?? ($participant->permohonanLayanan->asal_instansi ?? '-') }}</p>
                     </div>
                     <div>
                         <p class="text-label-sm text-on-surface-variant mb-1">Program Studi / Jurusan</p>
-                        <p class="text-body-md font-medium text-on-surface">{{ $participant->jurusan ?? '-' }}</p>
+                        <p class="text-body-md font-medium text-on-surface">{{ $participant->user->program_studi ?? '-' }}</p>
                     </div>
                     <div class="sm:col-span-2">
                         <p class="text-label-sm text-on-surface-variant mb-1">Alamat Instansi</p>
-                        <p class="text-body-md text-on-surface">{{ $participant->alamat_instansi ?? '-' }}</p>
+                        <p class="text-body-md text-on-surface">{{ $participant->permohonanLayanan->alamat_instansi ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -150,30 +150,7 @@
 
         <!-- Right: Actions & Surat Balasan (1 col) -->
         <div class="space-y-stack-lg">
-            <!-- Penempatan Bidang Action -->
-            <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
-                <h3 class="text-title-md font-title-md text-on-surface mb-4 flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary">corporate_fare</span>
-                    Penempatan Bidang
-                </h3>
-                <form action="{{ route('dinas.participants.penempatan.update', $participant->id) }}" method="POST">
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-label-sm font-medium text-on-surface mb-2">Pilih Bidang Penempatan</label>
-                        <select name="bidang_id" required class="w-full px-3 py-2 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary text-sm">
-                            <option value="">-- Pilih Bidang --</option>
-                            @foreach($bidangs as $b)
-                                <option value="{{ $b->id }}" {{ $participant->bidang_id == $b->id ? 'selected' : '' }}>
-                                    {{ $b->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="w-full py-2.5 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl font-semibold text-sm transition-colors text-center shadow-md shadow-primary/20">
-                        Simpan Penempatan
-                    </button>
-                </form>
-            </div>
+
 
             <!-- Surat Balasan -->
             <div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/30">
@@ -187,10 +164,10 @@
                         <span class="material-symbols-outlined text-[32px] text-primary mb-2">task</span>
                         <p class="text-body-sm text-on-surface font-semibold mb-3">Surat Balasan / Penerimaan Tersedia</p>
                         <div class="flex items-center gap-2">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $suratPenerimaan->file_path) }}'; previewModalOpen = true" class="flex-1 inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $suratPenerimaan->file_path) }}?t={{ time() }}'; previewModalOpen = true" class="flex-1 inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                                 <span class="material-symbols-outlined text-[18px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $suratPenerimaan->file_path) }}" target="_blank" class="inline-flex justify-center items-center p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors" title="Unduh / Tab Baru">
+                            <a href="{{ url('/dokumen/' . $suratPenerimaan->file_path) }}?t={{ time() }}" target="_blank" class="inline-flex justify-center items-center p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors" title="Unduh / Tab Baru">
                                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                             </a>
                         </div>
@@ -205,13 +182,29 @@
                         </div>
                         @error('surat') <p class="text-error text-[11px] mt-1">{{ $message }}</p> @enderror
                     </form>
+
+                    <div class="mt-3 pt-3 border-t border-outline-variant/30">
+                        <form action="{{ route('dinas.participants.surat.generate', $participant->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full justify-center inline-flex items-center gap-1.5 bg-primary/10 text-primary py-2 px-4 rounded-xl text-sm font-semibold hover:bg-primary/20 transition-colors">
+                                <span class="material-symbols-outlined text-[18px]">autorenew</span> Re-Generate Surat Otomatis
+                            </button>
+                        </form>
+                    </div>
                 @else
                     <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/50 text-center mb-4">
                         <span class="material-symbols-outlined text-[32px] text-outline-variant mb-2">drafts</span>
-                        <p class="text-body-sm text-on-surface-variant">Surat penerimaan digital belum diunggah.</p>
+                        <p class="text-body-sm text-on-surface-variant mb-3">Surat penerimaan digital belum ada.</p>
+                        
+                        <form action="{{ route('dinas.participants.surat.generate', $participant->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors mx-auto">
+                                <span class="material-symbols-outlined text-[18px]">autorenew</span> Auto-Generate Surat
+                            </button>
+                        </form>
                     </div>
                     
-                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4">
+                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-outline-variant/30">
                         @csrf
                         <label class="block text-label-sm font-medium text-on-surface mb-2">Unggah Dokumen Surat (PDF)</label>
                         <input type="file" name="surat" accept=".pdf" required class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mb-3">

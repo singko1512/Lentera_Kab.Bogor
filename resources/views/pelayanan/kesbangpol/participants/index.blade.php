@@ -119,7 +119,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant">{{ $p->asal_instansi ?? '-' }}</td>
-                                    <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant max-w-[200px] truncate" title="{{ $p->magangApplications->first()->rekrutmen->dinas->nama ?? '-' }}">{{ $p->magangApplications->first()->rekrutmen->dinas->nama ?? '-' }}</td>
+                                    <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant max-w-[200px] truncate" title="{{ $p->magangApplications->first()?->rekrutmen?->dinas?->nama ?? $p->magangApplications->first()?->permohonanLayanan?->dinas?->name ?? $p->magangApplications->first()?->permohonanLayanan?->tempat_kegiatan ?? '-' }}">{{ $p->magangApplications->first()?->rekrutmen?->dinas?->nama ?? $p->magangApplications->first()?->permohonanLayanan?->dinas?->name ?? $p->magangApplications->first()?->permohonanLayanan?->tempat_kegiatan ?? '-' }}</td>
                                     <td class="py-4 px-6">
                                         @php $status = $p->magangApplications->first()->status ?? 'Belum Mengajukan'; @endphp
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-caption font-medium {{ $status == 'menunggu' ? 'bg-[#FFF3CD] text-[#856404] border-[#FFEEBA]' : 'bg-surface-variant text-on-surface-variant border-outline-variant/30' }} border">
@@ -127,22 +127,35 @@
                                         </span>
                                     </td>
                                     <td class="py-4 px-6">
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-caption font-medium bg-[#D4EDDA] text-[#155724]">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span> Aktif
+                                        @php
+                                            $statusAkun = strtolower($p->status_akun ?? 'aktif');
+                                            if ($statusAkun == 'aktif') {
+                                                $badgeClass = 'bg-[#D4EDDA] text-[#155724]';
+                                                $dotClass = 'bg-[#28A745]';
+                                            } elseif ($statusAkun == 'dibatasi') {
+                                                $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                                $dotClass = 'bg-yellow-500';
+                                            } else {
+                                                $badgeClass = 'bg-red-100 text-red-800';
+                                                $dotClass = 'bg-red-500';
+                                            }
+                                        @endphp
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-caption font-medium {{ $badgeClass }}">
+                                            <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }}"></span> {{ ucfirst($statusAkun) }}
                                         </span>
                                     </td>
                                     <td class="py-4 px-6">
-                                        <div class="flex items-center gap-2 text-primary-container">
+                                        <div class="flex items-center gap-2 text-primary">
                                             <span class="material-symbols-outlined text-[18px]">account_balance</span>
                                             <span class="text-body-md font-body-md font-medium">Kesbangpol</span>
                                         </div>
                                     </td>
                                     <td class="py-4 px-6 text-center">
-                                        <div class="flex justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                                            <a href="{{ route('kesbangpol.participants.detail', $p->id) }}" aria-label="Lihat Detail" class="p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors rounded-lg" title="Lihat Detail">
+                                        <div class="flex justify-center gap-2">
+                                            <a href="{{ route('kesbangpol.participants.detail', $p->id) }}" aria-label="Lihat Detail" class="p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors rounded-lg flex items-center justify-center border border-outline-variant/30" title="Lihat Detail">
                                                 <span class="material-symbols-outlined">visibility</span>
                                             </a>
-                                            <button class="px-4 py-2 bg-primary-container text-white text-label-md font-label-md font-medium rounded-lg hover:bg-primary-container/90 transition-colors shadow-sm whitespace-nowrap">
+                                            <button type="button" onclick="openKelolaAkunModal('{{ $p->id }}', '{{ addslashes($p->name) }}', '{{ strtolower($p->status_akun ?? 'aktif') }}')" class="px-4 py-2 bg-primary text-white text-label-md font-label-md font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap">
                                                 Kelola Akun
                                             </button>
                                         </div>
@@ -164,5 +177,78 @@
 </div>
 </div>
 </div>
+
+<!-- Modal Kelola Akun -->
+<div id="modalKelolaAkun" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+    <div class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300" id="modalKelolaAkunContent">
+        <form id="formKelolaAkun" method="POST" action="">
+            @csrf
+            <div class="p-6 border-b border-outline-variant/30 flex items-center justify-between">
+                <h3 class="text-title-lg font-title-lg text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">manage_accounts</span>
+                    Kelola Akun Peserta
+                </h3>
+                <button type="button" onclick="closeKelolaAkunModal()" class="text-on-surface-variant hover:bg-surface-variant p-2 rounded-full transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <p class="text-body-md text-on-surface-variant">Atur status akun untuk peserta: <strong id="modalPesertaName" class="text-on-surface"></strong></p>
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-label-md font-bold text-on-surface">Status Akun</label>
+                    <select name="status_akun" id="modalStatusAkun" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
+                        <option value="aktif">Aktif (Normal)</option>
+                        <option value="dibatasi">Dibatasi (Hanya bisa melihat data)</option>
+                        <option value="diblokir">Diblokir (Indikasi Spam/Melanggar)</option>
+                    </select>
+                    <p class="text-caption text-on-surface-variant mt-1">
+                        Pilih <b>Diblokir</b> untuk menonaktifkan total akses pengguna ini dan mencegah spam pengajuan.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-outline-variant/30 bg-surface-container-low/50 flex justify-end gap-3 rounded-b-2xl">
+                <button type="button" onclick="closeKelolaAkunModal()" class="px-5 py-2.5 rounded-lg border border-outline text-primary font-label-lg hover:bg-surface-variant transition-colors">Batal</button>
+                <button type="submit" class="px-5 py-2.5 rounded-lg bg-primary text-white font-label-lg hover:bg-primary/90 transition-colors shadow-sm">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openKelolaAkunModal(id, name, currentStatus) {
+        const modal = document.getElementById('modalKelolaAkun');
+        const modalContent = document.getElementById('modalKelolaAkunContent');
+        const form = document.getElementById('formKelolaAkun');
+        
+        // Update URL form
+        form.action = `/kesbangpol/participants/${id}/status`;
+        
+        document.getElementById('modalPesertaName').textContent = name;
+        document.getElementById('modalStatusAkun').value = currentStatus;
+        
+        modal.classList.remove('hidden');
+        // Trigger reflow
+        void modal.offsetWidth;
+        modal.classList.remove('opacity-0');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+    }
+    
+    function closeKelolaAkunModal() {
+        const modal = document.getElementById('modalKelolaAkun');
+        const modalContent = document.getElementById('modalKelolaAkunContent');
+        
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
 
 @endsection

@@ -50,8 +50,8 @@ class LandingController extends Controller
         foreach ($pesertas as $p) {
             $p->jurusan = $p->permohonanLayanan->jenisLayanan->nama ?? 'Umum';
             $p->instansi_asal = $p->permohonanLayanan->asal_instansi ?? 'Instansi/Kampus';
-            $p->dinas = $p->rekrutmen->dinas;
-            $p->bidang = $p->rekrutmen->bidang;
+            $p->dinas = $p->rekrutmen?->dinas;
+            $p->bidang = $p->rekrutmen?->bidang;
         }
 
         // 4. Data Statistik Chart & Cards (Real dari DB)
@@ -133,8 +133,8 @@ class LandingController extends Controller
 
         $bidangParticipants = collect();
         if ($userMagang) {
-            $bidangId = $userMagang->bidang_id ?? ($userMagang->rekrutmen->bidang_id ?? null);
-            $dinasId = $userMagang->dinas_id ?? ($userMagang->rekrutmen->dinas_id ?? null);
+            $bidangId = $userMagang->bidang_id ?? ($userMagang->rekrutmen?->bidang_id ?? null);
+            $dinasId = $userMagang->dinas_id ?? ($userMagang->rekrutmen?->dinas_id ?? null);
 
             $query = MagangApplication::with(['user', 'absensis' => function($q) {
                 $q->where('tanggal', now()->format('Y-m-d'));
@@ -217,8 +217,8 @@ class LandingController extends Controller
         foreach ($pesertas as $p) {
             $p->jurusan = $p->permohonanLayanan->jenisLayanan->nama ?? 'Umum';
             $p->instansi_asal = $p->permohonanLayanan->asal_instansi ?? 'Instansi/Kampus';
-            $p->dinas = $p->rekrutmen->dinas;
-            $p->bidang = $p->rekrutmen->bidang;
+            $p->dinas = $p->rekrutmen?->dinas;
+            $p->bidang = $p->rekrutmen?->bidang;
         }
 
         return view('pelayanan.landing.peserta', compact('pesertas', 'search', 'instansiAsal', 'dinasId', 'semuaInstansi', 'semuaDinas'));

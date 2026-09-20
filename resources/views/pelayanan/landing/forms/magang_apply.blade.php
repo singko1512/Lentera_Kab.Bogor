@@ -258,6 +258,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // Form Date Validation for Tanggal Mulai dan Selesai
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.name === 'tanggal_mulai') {
+            const form = e.target.closest('form');
+            if (form) {
+                const tglSelesai = form.querySelector('input[name="tanggal_selesai"]');
+                if (tglSelesai) {
+                    tglSelesai.min = e.target.value;
+                    if (tglSelesai.value && tglSelesai.value < e.target.value) {
+                        tglSelesai.value = e.target.value;
+                    }
+                }
+            }
+        }
+    });
 });
 </script>
 @endsection

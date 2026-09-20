@@ -150,10 +150,10 @@
                 <div class="flex flex-col gap-4">
                     <div class="bg-surface-container-low p-4 rounded-xl flex flex-col gap-1 border border-outline-variant/40">
                         <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Dinas Tujuan</span>
-                        <span class="text-body-md font-body-md text-on-surface font-semibold">{{ $application->rekrutmen->dinas->nama ?? '-' }}</span>
+                        <span class="text-body-md font-body-md text-on-surface font-semibold">{{ $application->rekrutmen?->dinas?->nama ?? $application->permohonanLayanan?->dinas?->name ?? $application->permohonanLayanan?->tempat_kegiatan ?? '-' }}</span>
                     </div>
                     
-                    @if($application->rekrutmen->bidang)
+                    @if($application->rekrutmen && $application->rekrutmen->bidang)
                     <div class="bg-surface-container-low p-4 rounded-xl flex flex-col gap-1 border border-outline-variant/40">
                         <span class="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Bidang Magang</span>
                         <span class="text-body-md font-body-md text-on-surface font-semibold">{{ $application->rekrutmen->bidang->nama ?? '-' }}</span>

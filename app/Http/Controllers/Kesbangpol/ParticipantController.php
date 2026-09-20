@@ -13,17 +13,34 @@ class ParticipantController extends Controller
                 $q->latest();
             }, 'magangApplications.rekrutmen.dinas'])
             ->where('role', 'peserta')
-            ->whereDoesntHave('magangApplications', function($q) {
-                $q->whereIn('status', ['diterima', 'aktif', 'selesai']);
-            })
             ->paginate(10);
 
-        $aktif = $participants->total();
-        $perluTindakan = 0;
-        $dibatasi = 0;
-        $diblokir = 0;
+        $semuaPeserta = \App\Models\User::where('role', 'peserta')->get();
+        $aktif = $semuaPeserta->where('status_akun', 'aktif')->count();
+        $dibatasi = $semuaPeserta->where('status_akun', 'dibatasi')->count();
+        $diblokir = $semuaPeserta->where('status_akun', 'diblokir')->count();
+        $perluTindakan = 0; // Customize if you have specific criteria for this
 
         return view('pelayanan.kesbangpol.participants.index', compact('aktif', 'perluTindakan', 'dibatasi', 'diblokir', 'participants'));
+    }
+
+    public function updateStatusAccount(Request $request, $id)
+    {
+        $request->validate([
+            'status_akun' => 'required|in:aktif,dibatasi,diblokir'
+        ]);
+
+        $user = \App\Models\User::findOrFail($id);
+        
+        // Ensure user is actually a peserta to prevent altering admins
+        if ($user->role !== 'peserta') {
+            return redirect()->back()->with('error', 'Hanya dapat mengubah status akun peserta.');
+        }
+
+        $user->status_akun = $request->status_akun;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Status akun peserta berhasil diperbarui menjadi ' . ucfirst($request->status_akun) . '.');
     }
 
     public function placement()

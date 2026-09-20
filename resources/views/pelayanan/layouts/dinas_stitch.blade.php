@@ -102,10 +102,15 @@
 </head>
 <body class="bg-background text-on-background font-body-md antialiased h-screen flex overflow-hidden">
 @php
+    $isSuperadmin = auth()->check() && in_array(auth()->user()->role, ['admin', 'superadmin']);
     $isKesbangpol = auth()->check() && (
-        in_array(auth()->user()->role, ['admin', 'superadmin']) || 
-        (auth()->user()->dinas && auth()->user()->dinas->is_kesbangpol)
+        ($isSuperadmin && !session()->has('superadmin_instansi_id')) || 
+        (!$isSuperadmin && auth()->user()->dinas && auth()->user()->dinas->is_kesbangpol)
     );
+    $masqueradeDinas = null;
+    if ($isSuperadmin && session()->has('superadmin_instansi_id')) {
+        $masqueradeDinas = \App\Models\Dinas::find(session('superadmin_instansi_id'));
+    }
 @endphp
 <!-- Sidebar -->
 @if($isKesbangpol)
@@ -128,11 +133,33 @@
         <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin") }}</h2>
     @else
         <span class="material-symbols-outlined text-primary text-[22px]">domain</span>
-        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin Dinas") }}</h2>
+        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $masqueradeDinas->name ?? (auth()->user()->dinas->name ?? "Admin Dinas") }}</h2>
     @endif
 </div>
 </div>
 <div class="flex items-center gap-3">
+@if($isSuperadmin)
+    <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open" type="button" class="flex items-center gap-2 px-3 py-1.5 bg-secondary-container hover:bg-secondary-container/80 text-secondary border border-secondary/20 rounded-lg text-sm font-semibold transition-colors">
+            <span class="material-symbols-outlined text-[18px]">swap_horiz</span>
+            <span class="hidden sm:inline">{{ $masqueradeDinas ? 'Dinas: ' . Str::limit($masqueradeDinas->name, 15) : 'Pilih Dinas' }}</span>
+        </button>
+        <div x-show="open" @click.away="open = false" x-cloak class="absolute right-0 mt-2 w-64 bg-surface rounded-xl shadow-level-2 border border-outline-variant/40 overflow-hidden z-50">
+            <div class="p-3 bg-surface-container-lowest border-b border-outline-variant/40">
+                <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Akses Dinas</p>
+                <form action="{{ route('admin.switch_instansi') }}" method="POST" class="flex flex-col gap-2">
+                    @csrf
+                    <select name="instansi_id" class="w-full rounded-lg border-outline-variant/50 text-sm py-1.5 focus:ring-primary focus:border-primary bg-surface" onchange="this.form.submit()">
+                        <option value="">-- Kembali ke Superadmin --</option>
+                        @foreach(\App\Models\Dinas::orderBy('name', 'asc')->get() as $d)
+                            <option value="{{ $d->id }}" {{ session('superadmin_instansi_id') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+@endif
 <span class="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-bold uppercase tracking-wider">
     {{ strtoupper(auth()->user()->role ?? 'DINAS') }}
 </span>

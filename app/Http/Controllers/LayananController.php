@@ -30,8 +30,46 @@ class LayananController extends Controller
         return view('pelayanan.layanan.show', compact('layanan'));
     }
 
+    private function checkActiveLayanan($slug = null)
+    {
+        if ($slug === 'perpanjangan') {
+            return null; // Perpanjangan selalu boleh diajukan meski kegiatan belum selesai
+        }
+
+        $now = now()->toDateString();
+
+        // Cek apakah ada permohonan layanan yang masih aktif/berjalan
+        $activeLayanan = \App\Models\PermohonanLayanan::where('user_id', Auth::id())
+            ->whereHas('statusMaster', function($q) {
+                $q->whereIn('kode', ['menunggu_verifikasi', 'disetujui']);
+            })
+            ->whereDate('tanggal_selesai', '>=', $now)
+            ->first();
+
+        if ($activeLayanan) {
+            return 'Anda masih memiliki permohonan atau kegiatan yang aktif (belum berakhir). Anda tidak dapat mendaftar layanan baru kecuali "Perpanjangan Izin Rekomendasi".';
+        }
+
+        // Cek juga di magang application
+        $activeMagang = \App\Models\MagangApplication::where('user_id', Auth::id())
+            ->whereIn('status', ['menunggu', 'diterima', 'aktif'])
+            ->whereDate('tanggal_selesai', '>=', $now)
+            ->first();
+
+        if ($activeMagang) {
+            return 'Anda masih berstatus aktif sebagai peserta/pendaftar di sebuah Instansi. Anda tidak dapat mendaftar layanan baru kecuali "Perpanjangan Izin Rekomendasi".';
+        }
+
+        return null;
+    }
+
     public function create($slug)
     {
+        $errorMsg = $this->checkActiveLayanan($slug);
+        if ($errorMsg) {
+            return redirect()->back()->with('error', $errorMsg);
+        }
+
         $jenisLayanan = JenisLayanan::where('slug', $slug)->firstOrFail();
         $dinasList = \App\Models\Dinas::orderBy('name')->get();
         
@@ -41,6 +79,17 @@ class LayananController extends Controller
 
     public function submit(Request $request)
     {
+        $errorMsg = $this->checkActiveLayanan($request->jenis_layanan_slug);
+        if ($errorMsg) {
+            return redirect()->back()->with('error', $errorMsg);
+        }
+
+        $request->validate([
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai'
+        ], [
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.'
+        ]);
+
         try {
             $jenisLayanan = JenisLayanan::where('slug', $request->jenis_layanan_slug)->firstOrFail();
             $statusMenunggu = StatusMaster::where('kode', 'menunggu_verifikasi')->firstOrFail();
@@ -99,6 +148,12 @@ class LayananController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai'
+        ], [
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.'
+        ]);
+
         $permohonan = PermohonanLayanan::where('user_id', Auth::id())->findOrFail($id);
 
         $kodeStatus = optional($permohonan->statusMaster)->kode;

@@ -243,7 +243,9 @@
                                 </div>
                                 @endif
 
-                                @if($rekrutmen->slot_tersedia > 0)
+                                @if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+                                    <button disabled class="w-full py-2 bg-outline-variant text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed text-center inline-block" title="Akun Anda {{ ucwords(auth()->user()->status_akun) }}">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+                                @elseif($rekrutmen->slot_tersedia > 0)
                                     <a href="{{ route('magang.apply', $rekrutmen->id) }}" class="w-full py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors text-center inline-block">Daftar Sekarang</a>
                                 @else
                                     <button disabled class="w-full py-2 bg-outline-variant text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed text-center inline-block">Kuota Penuh</button>

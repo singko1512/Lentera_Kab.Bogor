@@ -344,6 +344,14 @@
                                         @endforeach
                                     </select>
 </div>
+<div class="flex flex-col gap-stack-sm">
+    <label class="font-label-md text-label-md text-on-surface">Tanggal Mulai Perpanjangan <span class="text-error">*</span></label>
+    <input name="tanggal_mulai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required value="{{ date('Y-m-d') }}">
+</div>
+<div class="flex flex-col gap-stack-sm">
+    <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai Perpanjangan <span class="text-error">*</span></label>
+    <input name="tanggal_selesai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required>
+</div>
 </div>
 </div>
 <!-- Section 3: Dokumen Persyaratan -->

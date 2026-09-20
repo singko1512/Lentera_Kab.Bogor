@@ -90,7 +90,7 @@ class MagangApplication extends Model
 
     public function absensis()
     {
-        return $this->hasMany(Absensi::class);
+        return $this->hasMany(\App\Models\Simalam\Absensi::class, 'user_id', 'user_id');
     }
 
     public function jurnals()

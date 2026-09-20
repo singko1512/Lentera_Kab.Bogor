@@ -239,7 +239,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('kesbangpol.dinas.store') }}" method="POST" class="space-y-4">
+            <form action="{{ route('kesbangpol.dinas.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Nama Instansi / Perangkat Daerah <span class="text-error">*</span></label>
@@ -260,6 +260,22 @@
                 <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">No Telepon / Kontak (Opsional)</label>
                     <input type="text" name="telepon" placeholder="021-xxxxxxxx" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Nama Kepala Dinas (Opsional)</label>
+                    <input type="text" name="nama_kepala" placeholder="Contoh: Dr. H. Fulan, M.Si" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">NIP Kepala Dinas (Opsional)</label>
+                    <input type="text" name="nip_kepala" placeholder="Contoh: 19800101 200501 1 001" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Kop Surat (Gambar JPG/PNG) (Opsional)</label>
+                    <input type="file" name="kop_surat" accept="image/*" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                    <span class="text-[11px] text-on-surface-variant mt-1 block">Digunakan untuk kop surat penerimaan magang otomatis.</span>
                 </div>
 
                 <div>
@@ -292,7 +308,7 @@
                 </button>
             </div>
 
-            <form :action="'/kesbangpol/dinas/' + editData.id" method="POST" class="space-y-4">
+            <form :action="'/kesbangpol/dinas/' + editData.id" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <div>
@@ -313,6 +329,21 @@
                 <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">No Telepon / Kontak</label>
                     <input type="text" name="telepon" x-model="editData.telepon" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Nama Kepala Dinas</label>
+                    <input type="text" name="nama_kepala" x-model="editData.nama_kepala" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">NIP Kepala Dinas</label>
+                    <input type="text" name="nip_kepala" x-model="editData.nip_kepala" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                </div>
+
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Upload Kop Surat Baru (Abaikan jika tidak ingin mengubah)</label>
+                    <input type="file" name="kop_surat" accept="image/*" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
                 </div>
 
                 <div>
@@ -345,6 +376,8 @@
                 email: '',
                 telepon: '',
                 alamat: '',
+                nama_kepala: '',
+                nip_kepala: '',
             },
             openCreateModal() {
                 this.showCreateModal = true;
@@ -356,6 +389,8 @@
                     email: userAccount ? userAccount.email : (dinas.email || ''),
                     telepon: dinas.telepon || '',
                     alamat: dinas.alamat || '',
+                    nama_kepala: dinas.nama_kepala || '',
+                    nip_kepala: dinas.nip_kepala || '',
                 };
                 this.showEditModal = true;
             }

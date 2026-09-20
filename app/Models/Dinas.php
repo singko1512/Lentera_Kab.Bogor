@@ -19,6 +19,9 @@ class Dinas extends Model
         'telepon',
         'logo',
         'status_magang',
+        'nama_kepala',
+        'nip_kepala',
+        'kop_surat',
     ];
 
     protected $casts = [

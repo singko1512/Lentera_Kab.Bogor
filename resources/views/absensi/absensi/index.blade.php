@@ -369,7 +369,15 @@
 
             <!-- Form Presensi Kehadiran -->
             <div class="presensi-card h-100">
-                @if ($todayAttendance && $todayAttendance->jam_masuk && $todayAttendance->jam_pulang)
+                @if(in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+                    <div class="text-center py-5 h-100 d-flex flex-column justify-content-center align-items-center">
+                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:64px; height:64px; background:rgba(220, 53, 69, 0.1); color:#dc3545;">
+                            <i class="fa-solid fa-user-lock" style="font-size:2rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-danger">Akun Anda {{ ucwords(auth()->user()->status_akun) }}</h5>
+                        <p class="text-muted small">Anda tidak dapat mengisi absensi maupun mengumpulkan laporan karena akun Anda telah dibatasi atau diblokir.</p>
+                    </div>
+                @elseif ($todayAttendance && $todayAttendance->jam_masuk && $todayAttendance->jam_pulang)
                     <!-- Completed attendance -->
                     <div class="text-center py-4 h-100 d-flex flex-column justify-content-center align-items-center">
                         <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; background:rgba(16,185,129,0.06); color:#00b894;">
@@ -596,6 +604,13 @@
         <!-- Kolom Kanan -->
         <div class="col-lg-4">
             <!-- Ringkasan Kehadiran -->
+            @if(auth()->user()->status_akun == 'diblokir')
+            <div class="stat-widget h-100 d-flex flex-column align-items-center justify-content-center text-center py-5">
+                <i class="fa-solid fa-lock text-danger mb-3" style="font-size:2.5rem;"></i>
+                <h6 class="fw-bold text-danger">Data Terkunci</h6>
+                <p class="text-muted small">Statistik kehadiran tidak dapat ditampilkan karena akun Anda diblokir.</p>
+            </div>
+            @else
             <div class="stat-widget h-100">
                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Kehadiran Bulanan</h6>
                 
@@ -631,6 +646,7 @@
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div> <!-- /row -->
 
@@ -638,10 +654,20 @@
     <div class="history-wrap mt-4">
         <div class="ws-card-header">
             <h6><i class="fa-solid fa-clock-rotate-left me-2" style="color:var(--primary);"></i>Riwayat Kehadiran</h6>
+            @if(auth()->user()->status_akun != 'diblokir')
             <span class="badge bg-light text-dark border">{{ $absensi->count() }} entri</span>
+            @endif
         </div>
         
-        @if ($absensi->isEmpty())
+        @if(auth()->user()->status_akun == 'diblokir')
+            <div class="text-center py-5">
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; background:rgba(220, 53, 69, 0.06);">
+                    <i class="fa-solid fa-ban text-danger" style="font-size:1.5rem;"></i>
+                </div>
+                <h6 class="fw-bold text-danger">Akses Riwayat Diblokir</h6>
+                <p class="text-muted small">Riwayat absen Anda tidak dapat ditampilkan karena akun diblokir.</p>
+            </div>
+        @elseif ($absensi->isEmpty())
             <div class="text-center py-5">
                 <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; background:rgba(17, 92, 185,0.06);">
                     <i class="fa-solid fa-calendar-xmark text-primary" style="font-size:1.3rem;"></i>
@@ -696,8 +722,7 @@
                                             <a href="{{ asset($rec->foto_pulang) }}" target="_blank">
                                                 <img src="{{ asset($rec->foto_pulang) }}" class="attachment-thumb" title="Foto Jam Pulang">
                                             </a>
-                                        @endif
-                                        @if ($rec->foto)
+                                        @elseif ($rec->foto)
                                             <a href="{{ asset($rec->foto) }}" target="_blank">
                                                 <img src="{{ asset($rec->foto) }}" class="attachment-thumb" title="File Lampiran">
                                             </a>
@@ -705,8 +730,7 @@
                                             <a href="{{ asset($rec->jurnal->file_lampiran) }}" target="_blank">
                                                 <img src="{{ asset($rec->jurnal->file_lampiran) }}" class="attachment-thumb" title="File Lampiran">
                                             </a>
-                                        @endif
-                                        @if (!$rec->foto_pulang && !$rec->foto && !($rec->jurnal && $rec->jurnal->file_lampiran))
+                                        @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </div>

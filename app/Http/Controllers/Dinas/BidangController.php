@@ -13,8 +13,8 @@ class BidangController extends Controller
 {
     public function index()
     {
-        $dinas = Auth::user()->dinas;
-        $bidangs = Bidang::where('dinas_id', Auth::user()->dinas_id)
+        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $bidangs = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))
             ->with(['users' => function($query) {
                 $query->where('role', 'bidang');
             }])
@@ -33,7 +33,7 @@ class BidangController extends Controller
 
         $bidang = Bidang::create([
             'name' => $request->name,
-            'dinas_id' => Auth::user()->dinas_id,
+            'dinas_id' => (session('superadmin_instansi_id') ?? Auth::user()->dinas_id),
         ]);
 
         if ($request->filled('email')) {
@@ -42,7 +42,7 @@ class BidangController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password ?? 'password123'),
                 'role' => 'bidang',
-                'dinas_id' => Auth::user()->dinas_id,
+                'dinas_id' => (session('superadmin_instansi_id') ?? Auth::user()->dinas_id),
                 'bidang_id' => $bidang->id,
                 'status_akun' => 'active',
                 'email_verified_at' => now(),
@@ -54,7 +54,7 @@ class BidangController extends Controller
 
     public function update(Request $request, $id)
     {
-        $bidang = Bidang::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
+        $bidang = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
         $user = User::where('bidang_id', $bidang->id)->where('role', 'bidang')->first();
         $userId = $user ? $user->id : null;
 
@@ -84,7 +84,7 @@ class BidangController extends Controller
                     'email' => $request->email,
                     'password' => Hash::make($request->password ?? 'password123'),
                     'role' => 'bidang',
-                    'dinas_id' => Auth::user()->dinas_id,
+                    'dinas_id' => (session('superadmin_instansi_id') ?? Auth::user()->dinas_id),
                     'bidang_id' => $bidang->id,
                     'status_akun' => 'active',
                     'email_verified_at' => now(),
@@ -101,7 +101,7 @@ class BidangController extends Controller
 
     public function resetPassword($id)
     {
-        $bidang = Bidang::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
+        $bidang = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
         $user = User::where('bidang_id', $bidang->id)->where('role', 'bidang')->first();
 
         if (!$user) {
@@ -117,7 +117,7 @@ class BidangController extends Controller
 
     public function destroy($id)
     {
-        $bidang = Bidang::where('dinas_id', Auth::user()->dinas_id)->findOrFail($id);
+        $bidang = Bidang::where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))->findOrFail($id);
         User::where('bidang_id', $bidang->id)->where('role', 'bidang')->delete();
         $bidang->delete();
 

@@ -361,6 +361,12 @@
 
             <!-- Dropdown Button Tambah Layanan -->
             <div class="relative inline-block text-left shrink-0">
+                @if(in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+                <button disabled type="button" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-outline-variant text-on-surface-variant font-label-md text-label-md font-semibold rounded-xl cursor-not-allowed shadow-md" title="Akun Anda {{ ucwords(auth()->user()->status_akun) }}">
+                    <span class="material-symbols-outlined text-[20px]">block</span>
+                    <span>Akun {{ ucwords(auth()->user()->status_akun) }}</span>
+                </button>
+                @else
                 <button onclick="toggleLayananDropdown(event)" type="button" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-label-md text-label-md font-semibold rounded-xl hover:bg-secondary transition-all shadow-md hover:shadow-lg cursor-pointer">
                     <span class="material-symbols-outlined text-[20px]">add</span>
                     <span>Tambah Layanan Baru</span>
@@ -401,11 +407,22 @@
                         <span>Perpanjangan Izin Rekomendasi</span>
                     </a>
                 </div>
+                @endif
             </div>
         </div>
 
         <!-- Table Content -->
-        @if(isset($userApplications) && $userApplications->count() > 0)
+        @if(auth()->user()->status_akun == 'diblokir')
+        <div class="text-center py-10 px-4 bg-red-50/50 rounded-xl border border-dashed border-red-200 flex flex-col items-center justify-center gap-3">
+            <div class="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-[32px]">block</span>
+            </div>
+            <h3 class="font-title-lg text-title-lg text-red-800 font-semibold">Akses Data Diblokir</h3>
+            <p class="font-body-md text-body-md text-red-700/80 max-w-md">
+                Riwayat permohonan Anda tidak dapat ditampilkan karena akun Anda telah diblokir.
+            </p>
+        </div>
+        @elseif(isset($userApplications) && $userApplications->count() > 0)
         <div class="overflow-x-auto rounded-xl border border-outline-variant/30">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-surface-container-low text-on-surface font-label-md text-label-md">
@@ -669,7 +686,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">Penelitian (Perguruan Tinggi)</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Pelayanan pengajuan surat izin rekomendasi untuk kegiatan penelitian dari perguruan tinggi.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('penelitian_pt')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="Penelitian (Instansi / Lembaga Lainnya)" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -677,7 +698,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">Penelitian (Instansi / Lembaga Lainnya)</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Pelayanan pengajuan surat izin rekomendasi kegiatan penelitian bagi instansi atau lembaga lainnya.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('penelitian_instansi')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="KKL / PKL / Magang (Mahasiswa)" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -685,7 +710,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">KKL / PKL / Magang (Mahasiswa)</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Informasi persyaratan dan pengajuan surat izin rekomendasi untuk kegiatan KKL, PKL, dan magang mahasiswa.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('kkl_mahasiswa')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="KKN Mahasiswa" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -693,7 +722,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">KKN Mahasiswa</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Pelayanan pengajuan surat izin rekomendasi untuk pelaksanaan program Kuliah Kerja Nyata.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('kkn_mahasiswa')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="KKL / PKL / Magang (Siswa Sekolah)" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -701,7 +734,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">KKL / PKL / Magang (Siswa Sekolah)</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Informasi persyaratan dan pengajuan surat izin rekomendasi untuk kegiatan KKL, PKL, atau magang bagi siswa sekolah.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('kkl_siswa')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="Pelaksanaan Kegiatan" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -709,7 +746,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">Pelaksanaan Kegiatan</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Pelayanan surat izin rekomendasi untuk pelaksanaan kegiatan yang membutuhkan persetujuan sesuai ketentuan.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('pelaksanaan_kegiatan')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 <div data-service="Perpanjangan Izin Rekomendasi" class="service-card cursor-pointer bg-surface-container-lowest p-6 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-outline-variant/30 reveal-element hover-card-trigger flex flex-col gap-4 flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]" style="scroll-snap-align: start;">
 <div class="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center text-primary mb-2">
@@ -717,7 +758,11 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">Perpanjangan Izin Rekomendasi</h3>
 <p class="font-body-md text-body-md text-on-surface-variant flex-grow">Pengajuan perpanjangan masa berlaku surat izin rekomendasi yang telah diterbitkan sebelumnya.</p>
+@if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
+<button disabled class="mt-4 w-full py-3 bg-outline-variant/50 text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed font-medium">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+@else
 <button onclick="openModal('perpanjangan')" class="mt-4 w-full py-3 bg-surface-container-low text-primary font-label-md text-label-md rounded-lg hover:bg-surface-container transition-colors font-medium">Lihat Persyaratan</button>
+@endif
 </div>
 </div>
 </section>
@@ -959,6 +1004,7 @@
 @endforeach
 </div>
 </section>
+@guest
 <!-- Peserta Magang Diterima -->
 <section class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
 <div class="flex flex-col gap-8">
@@ -1010,6 +1056,7 @@
 </div>
 </div>
 </section>
+@endguest
 @if(isset($userMagang) && $userMagang)
 <!-- Jadwal Masuk Anak Magang di Bidang (Untuk User Diterima) -->
 <section id="jadwal-magang-section" class="max-w-container-max mx-auto px-margin-desktop py-12 w-full">
@@ -1138,22 +1185,22 @@
                             </td>
                             <td class="p-4 text-center">
                                 @if($todayAbsensi)
-                                    @if($todayAbsensi->status === 'hadir')
+                                    @if(in_array(strtolower($todayAbsensi->status), ['hadir', 'wfo', 'wfh']))
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 rounded-full text-xs font-bold">
                                             <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                            Hadir ({{ \Carbon\Carbon::parse($todayAbsensi->waktu_masuk)->format('H:i') }} WIB)
+                                            Hadir
                                         </span>
-                                    @elseif($todayAbsensi->status === 'izin')
+                                    @elseif(strtolower($todayAbsensi->status) === 'izin')
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 rounded-full text-xs font-bold">
                                             <span class="material-symbols-outlined text-[14px]">info</span>
                                             Izin
                                         </span>
-                                    @elseif($todayAbsensi->status === 'sakit')
+                                    @elseif(strtolower($todayAbsensi->status) === 'sakit')
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-100 text-orange-800 dark:bg-orange-950/60 dark:text-orange-300 rounded-full text-xs font-bold">
                                             <span class="material-symbols-outlined text-[14px]">medical_services</span>
                                             Sakit
                                         </span>
-                                    @elseif($todayAbsensi->status === 'alpha')
+                                    @elseif(strtolower($todayAbsensi->status) === 'alpha')
                                         <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300 rounded-full text-xs font-bold">
                                             <span class="material-symbols-outlined text-[14px]">cancel</span>
                                             Alpha
@@ -1901,6 +1948,22 @@
                     circle.remove();
                 }, 600);
             });
+        });
+
+        // Form Date Validation for Tanggal Mulai dan Selesai
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.name === 'tanggal_mulai') {
+                const form = e.target.closest('form');
+                if (form) {
+                    const tglSelesai = form.querySelector('input[name="tanggal_selesai"]');
+                    if (tglSelesai) {
+                        tglSelesai.min = e.target.value;
+                        if (tglSelesai.value && tglSelesai.value < e.target.value) {
+                            tglSelesai.value = e.target.value;
+                        }
+                    }
+                }
+            }
         });
     });
 </script>

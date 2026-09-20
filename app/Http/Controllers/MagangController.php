@@ -98,6 +98,15 @@ class MagangController extends Controller
 
     public function applyForm($rekrutmenId)
     {
+        $activeMagang = MagangApplication::where('user_id', Auth::id())
+            ->whereIn('status', ['diterima', 'aktif'])
+            ->whereDate('tanggal_selesai', '>=', now()->toDateString())
+            ->first();
+
+        if ($activeMagang) {
+            return redirect()->back()->with('error', 'Anda sudah diterima di instansi ('.$activeMagang->rekrutmen?->dinas?->name.') dan kegiatan Anda belum berakhir. Anda tidak dapat melamar ke tempat lain.');
+        }
+
         $rekrutmen = Rekrutmen::with('dinas')->findOrFail($rekrutmenId);
         
         // Cek apakah user punya permohonan magang yang sudah disetujui
@@ -118,6 +127,15 @@ class MagangController extends Controller
 
     public function applySubmit(Request $request, $rekrutmenId)
     {
+        $activeMagang = MagangApplication::where('user_id', Auth::id())
+            ->whereIn('status', ['diterima', 'aktif'])
+            ->whereDate('tanggal_selesai', '>=', now()->toDateString())
+            ->first();
+
+        if ($activeMagang) {
+            return redirect()->back()->with('error', 'Pendaftaran ditolak: Anda masih memiliki kegiatan magang/penelitian aktif.');
+        }
+
         $request->validate([
             'pesan_lamaran' => 'nullable|string',
             'permohonan_layanan_id' => 'required|exists:permohonan_layanans,id',
