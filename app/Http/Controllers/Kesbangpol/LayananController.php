@@ -68,7 +68,7 @@ class LayananController extends Controller
     public function show($id)
     {
         $layanan = PermohonanLayanan::with(['jenisLayanan', 'statusMaster'])->findOrFail($id);
-        $allDinas = \App\Models\Dinas::where('is_kesbangpol', false)->orderBy('name')->get();
+        $allDinas = \App\Models\Dinas::orderBy('name')->get();
         return view('pelayanan.kesbangpol.layanan.show', compact('layanan', 'allDinas'));
     }
 
