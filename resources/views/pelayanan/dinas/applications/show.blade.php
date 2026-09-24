@@ -111,7 +111,7 @@
                             <span class="material-symbols-outlined text-primary">verified</span>
                             <div>
                                 <p class="text-body-sm font-semibold text-on-surface">Surat Rekomendasi Kesbangpol</p>
-                                <p class="text-[11px] text-on-surface-variant">Surat Resmi Kesbangpol (PDF + QR Code)</p>
+                                <p class="text-[11px] text-on-surface-variant">Surat Resmi Kesbangpol (PDF)</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1">

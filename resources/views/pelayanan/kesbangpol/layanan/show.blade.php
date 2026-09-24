@@ -13,9 +13,9 @@
                             <span class="material-symbols-outlined text-[16px]">edit</span>
                             Edit Data
                         </button>
-                        <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Surat Rekomendasi PDF dengan QR Code">
+                        <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Draf Surat Rekomendasi PDF">
                             <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                            Surat PDF (QR Code)
+                            Draf Surat (PDF)
                         </a>
                         <a href="{{ route('kesbangpol.layanan.generate_docx', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Surat Rekomendasi (.docx)">
                             <span class="material-symbols-outlined text-[16px]">description</span>
@@ -88,9 +88,7 @@
                                                     $labels = [
                                                         'file_ktp' => 'KTP / Identitas',
                                                         'file_ktm' => 'KTM / Kartu Pelajar',
-                                                        'file_surat_permohonan' => 'Surat Permohonan',
                                                         'file_surat_pengantar' => 'Surat Pengantar',
-                                                        'file_surat_lokasi' => 'Surat dari Lokasi',
                                                         'file_proposal' => 'Proposal',
                                                         'file_surat_kesbangpol_jabar' => 'Surat Kesbangpol Jabar',
                                                         'file_surat_kemendagri' => 'Surat Kemendagri',
@@ -190,16 +188,14 @@
                     <div class="flex flex-col gap-3">
                         @php
                             $dokumens = [
-                                'file_ktp' => ['icon' => 'badge', 'label' => 'KTP / Identitas'],
-                                'file_ktm' => ['icon' => 'badge', 'label' => 'KTM / Kartu Pelajar'],
-                                'file_surat_permohonan' => ['icon' => 'description', 'label' => 'Surat Permohonan ke Kesbangpol'],
-                                'file_surat_pengantar' => ['icon' => 'description', 'label' => 'Surat Pengantar Asli'],
-                                'file_surat_lokasi' => ['icon' => 'location_on', 'label' => 'Surat dari Lokasi'],
-                                'file_proposal' => ['icon' => 'menu_book', 'label' => 'Proposal'],
-                                'file_surat_kesbangpol_jabar' => ['icon' => 'verified', 'label' => 'Surat Kesbangpol Jabar'],
-                                'file_surat_kemendagri' => ['icon' => 'verified', 'label' => 'Surat Kemendagri'],
-                                'file_surat_rekomendasi_lama' => ['icon' => 'history', 'label' => 'Surat Rekomendasi Lama'],
-                                'file_pendukung' => ['icon' => 'folder', 'label' => 'Dokumen Pendukung Lainnya'],
+                                'file_ktp' => ['icon' => 'badge', 'label' => 'KTP / Identitas', 'always_show' => true],
+                                'file_ktm' => ['icon' => 'badge', 'label' => 'KTM / Kartu Pelajar', 'always_show' => true],
+                                'file_surat_pengantar' => ['icon' => 'description', 'label' => 'Surat Pengantar Asli', 'always_show' => true],
+                                'file_proposal' => ['icon' => 'menu_book', 'label' => 'Proposal', 'always_show' => true],
+                                'file_pendukung' => ['icon' => 'folder', 'label' => 'Dokumen Pendukung Lainnya', 'always_show' => true],
+                                'file_surat_kesbangpol_jabar' => ['icon' => 'verified', 'label' => 'Surat Kesbangpol Jabar', 'always_show' => false],
+                                'file_surat_kemendagri' => ['icon' => 'verified', 'label' => 'Surat Kemendagri', 'always_show' => false],
+                                'file_surat_rekomendasi_lama' => ['icon' => 'history', 'label' => 'Surat Rekomendasi Lama', 'always_show' => false],
                             ];
                         @endphp
                         @foreach($dokumens as $field => $info)
@@ -237,6 +233,18 @@
                                     </a>
                                 </div>
                             </div>
+                            @elseif(!empty($info['always_show']))
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-dashed border-gray-200 bg-gray-50/60 transition-colors">
+                                <div class="flex items-center text-gray-400 gap-2">
+                                    <span class="material-symbols-outlined text-gray-400 mr-1">{{ $info['icon'] }}</span>
+                                    <span class="font-medium text-gray-500">{{ $info['label'] }}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-[11px] font-medium text-gray-400 bg-gray-100 px-2.5 py-0.5 rounded border border-gray-200">
+                                        Belum Diunggah
+                                    </span>
+                                </div>
+                            </div>
                             @endif
                         @endforeach
                     </div>
@@ -246,7 +254,7 @@
         
         <!-- Kolom Aksi Verifikasi -->
         <div class="w-full lg:w-1/3 flex flex-col gap-6">
-            <!-- Box Quick Action: Surat Rekomendasi Kesbangpol (PDF Resmi + QR Code) -->
+            <!-- Box Quick Action: Surat Rekomendasi Kesbangpol (Draf PDF) -->
             <div class="bg-blue-50/80 rounded-xl shadow-sm border border-blue-200 p-5">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
@@ -254,11 +262,11 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-bold text-gray-900">Surat Rekomendasi Kesbangpol</h3>
-                        <p class="text-[11px] text-gray-600">Dokumen resmi PDF ber-QR Code</p>
+                        <p class="text-[11px] text-gray-600">Dokumen draf PDF resmi</p>
                     </div>
                 </div>
                 <p class="text-xs text-gray-600 mb-3.5 leading-relaxed">
-                    Lihat atau unduh Surat Rekomendasi Kesbangpol resmi berformat PDF lengkap dengan tanda tangan elektronik dan QR Code verifikasi.
+                    Lihat atau unduh draf Surat Rekomendasi Kesbangpol resmi berformat PDF untuk ditempel E-Sign dan QR Code manual oleh admin.
                 </p>
                 <div class="flex flex-col gap-2">
                     <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
@@ -313,7 +321,7 @@
                                     <input type="file" name="file_surat_keluaran" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer" accept=".pdf">
                                     <div class="mt-2 text-xs text-blue-800 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200/80 flex items-start gap-2">
                                         <span class="material-symbols-outlined text-blue-600 text-[16px] mt-0.5 shrink-0">info</span>
-                                        <span>Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf) ber-QR Code</strong> saat menyetujui.</span>
+                                        <span>Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf)</strong> saat menyetujui.</span>
                                     </div>
                                 </div>
                             </div>
@@ -339,7 +347,7 @@
                         @if($layanan->file_surat_keluaran || ($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['disetujui', 'selesai'])))
                         <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors mt-4">
                             <span class="material-symbols-outlined mr-2 text-[18px]">picture_as_pdf</span>
-                            Download Surat Rekomendasi (PDF + QR Code)
+                            Download Surat Rekomendasi (PDF)
                         </a>
                         @endif
                     @endif

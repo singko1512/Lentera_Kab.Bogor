@@ -105,7 +105,6 @@
                             $dokumenList = [
                                 ['nama' => 'KTP', 'file' => $application->permohonanLayanan->file_ktp, 'icon' => 'badge'],
                                 ['nama' => 'KTM', 'file' => $application->permohonanLayanan->file_ktm, 'icon' => 'branding_watermark'],
-                                ['nama' => 'Surat Permohonan', 'file' => $application->permohonanLayanan->file_surat_permohonan, 'icon' => 'description'],
                                 ['nama' => 'Surat Pengantar', 'file' => $application->permohonanLayanan->file_surat_pengantar, 'icon' => 'article'],
                                 ['nama' => 'Proposal', 'file' => $application->permohonanLayanan->file_proposal, 'icon' => 'book'],
                             ];
