@@ -1,7 +1,7 @@
 @extends('pelayanan.layouts.kesbangpol_stitch')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" x-data="{ previewModalOpen: false, previewUrl: '', previewTitle: '', previewExt: '' }">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6" x-data="{ previewModalOpen: false, previewUrl: '', previewTitle: '', previewExt: '', editPemohonModalOpen: false }">
     <div class="flex flex-col lg:flex-row gap-6">
         <!-- Kolom Data Pemohon -->
         <div class="w-full lg:w-2/3">
@@ -9,6 +9,10 @@
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-2">
                     <h2 class="text-lg font-bold text-gray-800 m-0">Data Pemohon</h2>
                     <div class="flex items-center gap-2">
+                        <button type="button" @click="editPemohonModalOpen = true" class="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Edit Data Pemohon">
+                            <span class="material-symbols-outlined text-[16px]">edit</span>
+                            Edit Data
+                        </button>
                         <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold rounded-full transition-colors shadow-sm" title="Generate & Download Surat Rekomendasi PDF dengan QR Code">
                             <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
                             Surat PDF (QR Code)
@@ -403,6 +407,44 @@
                 </template>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal Edit Data Pemohon -->
+<div x-show="editPemohonModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-transition.opacity style="display: none;">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all" @click.outside="editPemohonModalOpen = false">
+        <form action="{{ route('kesbangpol.layanan.update_pemohon', $layanan->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                <h3 class="text-lg font-bold text-gray-800 m-0">Edit Data Pemohon</h3>
+                <button type="button" @click="editPemohonModalOpen = false" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Pemohon</label>
+                    <input type="text" name="name" value="{{ old('name', $layanan->user->name ?? '') }}" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">NIM / NIS</label>
+                    <input type="text" name="nim" value="{{ old('nim', $layanan->user->nim ?? '') }}" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Asal Institusi</label>
+                    <input type="text" name="institusi" value="{{ old('institusi', $layanan->user->asal_instansi ?? '') }}" required class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Alamat Lengkap</label>
+                    <textarea name="alamat" required rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">{{ old('alamat', $layanan->user->alamat ?? '') }}</textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                <button type="button" @click="editPemohonModalOpen = false" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
+                <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">Simpan Perubahan</button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -89,6 +89,15 @@ class User extends Authenticatable
         return (string) ($this->attributes['name'] ?? '');
     }
 
+    public function getIdentifierLabelAttribute(): string
+    {
+        $instansi = strtolower($this->asal_instansi ?? '');
+        if (str_contains($instansi, 'sekolah') || str_contains($instansi, 'smk') || str_contains($instansi, 'sma') || str_contains($instansi, 'smp') || str_contains($instansi, 'mts') || str_contains($instansi, 'man') || str_contains($instansi, 'mas')) {
+            return 'NIS';
+        }
+        return 'NIM / NPM';
+    }
+
     // SIMALAM Relations
     public function absensi()
     {

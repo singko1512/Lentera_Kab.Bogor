@@ -13,13 +13,13 @@ class ExcelDinasSeeder extends Seeder
 {
     public function run(): void
     {
-        set_time_limit(0); 
+        set_time_limit(0);
 
         // Melakukan hashing password HANYA SEKALI untuk semua akun (sangat mempercepat proses seeder)
         $defaultPassword = Hash::make('Tegarberiman');
 
         $jsonPath = database_path('data/dinas_bidang.json');
-        
+
         if (!file_exists($jsonPath)) {
             $this->command->error("File dinas_bidang.json tidak ditemukan!");
             return;
@@ -29,10 +29,13 @@ class ExcelDinasSeeder extends Seeder
 
         foreach ($data as $item) {
             $dinasName = $item['nama'];
-            
+
             // Buat atau cari Dinas
             $dinas = Dinas::firstOrCreate(['name' => $dinasName]);
-            
+            if ($dinasName === 'BADAN KESATUAN BANGSA DAN POLITIK') {
+                $dinas->update(['is_kesbangpol' => true]);
+            }
+
             // Buat Akun Dinas
             $shortName = $this->getDinasAcronym($dinasName);
             $dinasEmail = $shortName . '@dinas.com';
@@ -49,8 +52,9 @@ class ExcelDinasSeeder extends Seeder
 
             // Loop untuk Bidang
             foreach ($item['bidangs'] as $bidangName) {
-                if (empty($bidangName)) continue;
-                
+                if (empty($bidangName))
+                    continue;
+
                 // Buat atau cari Bidang
                 Bidang::firstOrCreate([
                     'dinas_id' => $dinas->id,
@@ -62,7 +66,8 @@ class ExcelDinasSeeder extends Seeder
         $this->command->info("Data Dinas, Bidang, dan Akun berhasil di-seed dengan email singkatan (misal: diskominfo@dinas.com)!");
     }
 
-    private function getDinasAcronym($name) {
+    private function getDinasAcronym($name)
+    {
         $nameUpper = strtoupper(trim($name));
         $custom = [
             'DINAS KOMUNIKASI DAN INFORMATIKA' => 'diskominfo',
@@ -98,24 +103,29 @@ class ExcelDinasSeeder extends Seeder
             'SEKRETARIAT DAERAH' => 'setda',
             'SEKRETARIAT DPRD' => 'setwan',
         ];
-        
+
         if (isset($custom[$nameUpper])) {
             return $custom[$nameUpper];
         }
 
         $clean = str_replace(['DINAS ', 'BADAN ', 'KECAMATAN ', 'RUMAH SAKIT UMUM DAERAH ', 'SEKRETARIAT '], '', $nameUpper);
         $words = array_filter(explode(' ', Str::slug($clean, ' ')));
-        
-        if (str_starts_with($nameUpper, 'KECAMATAN')) return 'kec_' . implode('', array_slice($words, 0, 2));
-        if (str_starts_with($nameUpper, 'RUMAH SAKIT')) return 'rsud_' . implode('', array_slice($words, 0, 2));
+
+        if (str_starts_with($nameUpper, 'KECAMATAN'))
+            return 'kec_' . implode('', array_slice($words, 0, 2));
+        if (str_starts_with($nameUpper, 'RUMAH SAKIT'))
+            return 'rsud_' . implode('', array_slice($words, 0, 2));
 
         $acronym = '';
         foreach (array_slice($words, 0, 4) as $w) {
             $acronym .= substr($w, 0, 1);
         }
-        if (str_starts_with($nameUpper, 'DINAS')) $acronym = 'dis' . $acronym;
-        elseif (str_starts_with($nameUpper, 'BADAN')) $acronym = 'b' . $acronym;
-        else $acronym = implode('', array_slice($words, 0, 3));
+        if (str_starts_with($nameUpper, 'DINAS'))
+            $acronym = 'dis' . $acronym;
+        elseif (str_starts_with($nameUpper, 'BADAN'))
+            $acronym = 'b' . $acronym;
+        else
+            $acronym = implode('', array_slice($words, 0, 3));
 
         return strtolower($acronym);
     }

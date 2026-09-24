@@ -249,7 +249,7 @@
 
                 <!-- NIM / NIS -->
                 <div class="flex flex-col gap-2 md:col-span-2">
-                    <label class="text-[14px] font-semibold text-on-surface">Nomor Induk Mahasiswa (NIM) / Nomor Induk Siswa (NIS)</label>
+                    <label class="text-[14px] font-semibold text-on-surface">{{ $user->identifier_label ?? 'NIM / NIS' }}</label>
                     <input name="nim" type="text" value="{{ old('nim', $user->nim) }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                     @error('nim')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                 </div>

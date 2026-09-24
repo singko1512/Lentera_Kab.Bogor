@@ -253,6 +253,29 @@ class LayananController extends Controller
             ->with('success', 'Status permohonan berhasil diperbarui dan Surat Rekomendasi telah diterbitkan!');
     }
 
+    public function updatePemohon(Request $request, $id)
+    {
+        $layanan = PermohonanLayanan::with('user')->findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'nim' => 'required|string|max:255',
+            'institusi' => 'required|string|max:255',
+            'alamat' => 'required|string',
+        ]);
+
+        if ($layanan->user) {
+            $layanan->user->update([
+                'name' => $request->name,
+                'nim' => $request->nim,
+                'asal_instansi' => $request->institusi,
+                'alamat' => $request->alamat,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Data pemohon berhasil diperbarui.');
+    }
+
     /**
      * Generate & Download Surat Rekomendasi Kesbangpol (.docx).
      */

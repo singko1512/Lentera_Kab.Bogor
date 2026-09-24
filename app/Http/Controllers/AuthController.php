@@ -18,7 +18,21 @@ class AuthController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'nik' => 'required|string|max:50',
+            'nik' => [
+                'nullable',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) use ($request) {
+                    $tglLahir = $request->input('tanggal_lahir');
+                    if (!$tglLahir) return;
+                    try {
+                        $age = \Carbon\Carbon::parse($tglLahir)->age;
+                        if ($age >= 17 && empty($value)) {
+                            $fail('NIK wajib diisi untuk pemohon berusia 17 tahun atau lebih.');
+                        }
+                    } catch (\Exception $e) {}
+                }
+            ],
             'no_hp' => 'required|string|max:20',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date',

@@ -303,6 +303,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/layanan', [KesbangpolLayananController::class, 'index'])->name('layanan.index');
         Route::get('/layanan/{id}', [KesbangpolLayananController::class, 'show'])->name('layanan.show');
         Route::post('/layanan/{id}/verify', [KesbangpolLayananController::class, 'verify'])->name('layanan.verify');
+        Route::put('/layanan/{id}/update-pemohon', [KesbangpolLayananController::class, 'updatePemohon'])->name('layanan.update_pemohon');
         Route::get('/layanan/{id}/generate-docx', [KesbangpolLayananController::class, 'generateDocx'])->name('layanan.generate_docx');
         Route::get('/layanan/{id}/generate-pdf', [KesbangpolLayananController::class, 'downloadPdf'])->name('layanan.generate_pdf');
         

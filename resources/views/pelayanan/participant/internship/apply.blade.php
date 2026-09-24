@@ -54,7 +54,7 @@
                             @error('jurusan') <div class="text-danger mt-1 small">{{ $message }}</div> @enderror
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label-premium">NIM / NIS <span class="text-danger">*</span></label>
+                            <label class="form-label-premium">{{ auth()->user()->identifier_label ?? 'NIM / NIS' }} <span class="text-danger">*</span></label>
                             <input type="text" name="nim_nis" class="form-control form-control-premium" value="{{ old('nim_nis', $layananMagang->nik) }}" readonly>
                             @error('nim_nis') <div class="text-danger mt-1 small">{{ $message }}</div> @enderror
                         </div>

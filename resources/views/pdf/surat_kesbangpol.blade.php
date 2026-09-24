@@ -317,13 +317,13 @@
             <tr>
                 <td class="footer-qr">
                     @if(!empty($qrBase64))
-                        <img src="data:image/svg+xml;base64,{{ $qrBase64 }}" alt="QR Code Verifikasi">
+                        <!-- <img src="data:image/svg+xml;base64,{{ $qrBase64 }}" alt="QR Code Verifikasi"> -->
                     @elseif(!empty($qrUrl))
                         @php
                             $svgString = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->errorCorrection('M')->generate($qrUrl);
                             $localBase64 = base64_encode($svgString);
                         @endphp
-                        <img src="data:image/svg+xml;base64,{{ $localBase64 }}" alt="QR Code Verifikasi">
+                        <!-- <img src="data:image/svg+xml;base64,{{ $localBase64 }}" alt="QR Code Verifikasi"> -->
                     @endif
                 </td>
                 <td class="footer-text">
@@ -356,6 +356,7 @@
         </table>
         <div class="garis-kop-tebal"></div>
         <div class="garis-kop-tipis"></div>
+
 
         <!-- TANGGAL SURAT -->
         <div class="tgl-surat">
@@ -465,36 +466,7 @@
             </tr>
         </table>
 
-        <!-- KATA SAMBUNG KE HALAMAN 2 -->
-        <div style="text-align: right; font-size: 9.5pt; margin-top: 15px;">
-            Dengan ...
-        </div>
-    </div>
-
-    <!-- ==================== HALAMAN 2 ==================== -->
-    <div class="page-break">
-        <!-- KOP SURAT RESMI HALAMAN 2 -->
-        <table class="kop-table">
-            <tr>
-                <td class="kop-logo">
-                    @if($logoBase64)
-                        <img src="{{ $logoBase64 }}" alt="Logo Kab. Bogor">
-                    @endif
-                </td>
-                <td class="kop-text">
-                    <h2>PEMERINTAH KABUPATEN BOGOR</h2>
-                    <h1>BADAN KESATUAN BANGSA DAN POLITIK</h1>
-                    <p>Jl. KSR Dadi Kusmayadi Komplek Pemda Kel. Tengah Cibinong – Bogor 16914</p>
-                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id
-                    </p>
-                </td>
-            </tr>
-        </table>
-        <div class="garis-kop-tebal"></div>
-        <div class="garis-kop-tipis"></div>
-
-        <!-- NOMOR HALAMAN 2 -->
-        <div class="page-number">- 2 -</div>
+        <!-- KETENTUAN (LANJUTAN) -->
 
         <!-- KETENTUAN -->
         <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 6px;">
@@ -567,23 +539,12 @@
                     <div class="tte-box">
                         <table class="tte-badge-table">
                             <tr>
-                                <td style="width: 50px; vertical-align: top; text-align: center; padding-top: 4px;">
-                                    <div style="border-left: 1px solid #aaa; height: 55px; margin: 0 auto; width: 1px;"></div>
-                                    <div style="font-size: 6pt; color: #777; line-height: 1.1; margin-top: 4px;">
-                                        e-sign<br>Kabupaten<br>Bogor
-                                    </div>
-                                </td>
-                                <td style="width: 44px; vertical-align: top; text-align: center; padding-left: 6px; padding-top: 10px;">
-                                    @if($logoBase64)
-                                        <img src="{{ $logoBase64 }}" style="width: 36px; height: auto;" alt="Logo Bogor">
-                                    @endif
-                                </td>
-                                <td style="padding-left: 6px; vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
+                                <td style="vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
                                     <div style="font-size: 7.5pt; color: #444; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
                                     <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2; color: #222;">
                                         {!! nl2br(e($layanan->suratRekomendasi->pejabat_jabatan ?? "KEPALA BADAN KESATUAN BANGSA\nDAN POLITIK KABUPATEN BOGOR")) !!}
                                     </div>
-                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 10px; color: #222;">
+                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 30px; color: #222;">
                                         {{ $layanan->suratRekomendasi->pejabat_nama ?? 'FERDINANDO SELMI PARDEDE, S.IP, M.AP' }}
                                     </div>
                                     <div style="font-size: 8.5pt; color: #333; margin-top: 1px;">

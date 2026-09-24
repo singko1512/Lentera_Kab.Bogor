@@ -225,7 +225,7 @@
             <tr>
                 <td class="footer-qr">
                     @if($qrBase64)
-                        <img src="{{ $qrBase64 }}" alt="QR Code">
+                        <!-- <img src="{{ $qrBase64 }}" alt="QR Code"> -->
                     @endif
                 </td>
                 <td class="footer-text">
@@ -322,23 +322,12 @@
                     <div class="tte-box">
                         <table class="tte-badge-table">
                             <tr>
-                                <td style="width: 50px; vertical-align: top; text-align: center; padding-top: 4px;">
-                                    <div style="border-left: 1px solid #aaa; height: 55px; margin: 0 auto; width: 1px;"></div>
-                                    <div style="font-size: 6pt; color: #777; line-height: 1.1; margin-top: 4px;">
-                                        e-sign<br>Kabupaten<br>Bogor
-                                    </div>
-                                </td>
-                                <td style="width: 44px; vertical-align: top; text-align: center; padding-left: 6px; padding-top: 10px;">
-                                    @if($logoBase64)
-                                        <img src="{{ $logoBase64 }}" style="width: 36px; height: auto;" alt="Logo Bogor">
-                                    @endif
-                                </td>
-                                <td style="padding-left: 6px; vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
+                                <td style="vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
                                     <div style="font-size: 7.5pt; color: #444; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
                                     <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2; color: #222;">
                                         {!! nl2br(e("KEPALA " . strtoupper($dinas->name) . "\nKABUPATEN BOGOR")) !!}
                                     </div>
-                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 10px; color: #222;">
+                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 2px; color: #222;">
                                         {{ !empty($dinas->nama_kepala) ? $dinas->nama_kepala : '........................................' }}
                                     </div>
                                     <div style="font-size: 8.5pt; color: #333; margin-top: 1px;">

@@ -250,7 +250,21 @@ class LandingController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
-            'nik' => 'nullable|string|max:255',
+            'nik' => [
+                'nullable',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($request) {
+                    $tglLahir = $request->input('tanggal_lahir');
+                    if (!$tglLahir) return;
+                    try {
+                        $age = \Carbon\Carbon::parse($tglLahir)->age;
+                        if ($age >= 17 && empty($value)) {
+                            $fail('NIK wajib diisi untuk pemohon berusia 17 tahun atau lebih.');
+                        }
+                    } catch (\Exception $e) {}
+                }
+            ],
             'no_hp' => 'nullable|string|max:255',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',

@@ -10,30 +10,16 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Setup Kesbangpol Admin
-        $kes = Dinas::where('name', 'BADAN KESATUAN BANGSA DAN POLITIK')->first();
-        if ($kes) {
-            $kes->update(['is_kesbangpol' => true]);
-            
-            $kUser = User::firstOrCreate(
-                ['email' => 'admin@kesbangpol.com'],
-                [
-                    'name' => 'Admin Kesbangpol',
-                    'password' => bcrypt('Tegarberiman'),
-                    'role' => 'dinas',
-                    'dinas_id' => $kes->id
-                ]
-            );
-            $this->command->info("Kesbangpol ID: " . $kUser->id);
-        }
+        // Kesbangpol account is handled entirely by ExcelDinasSeeder
 
         // 2. Setup Super Admin
         $admin = User::firstOrCreate(
-            ['email' => 'superadmin@lentera.com'],
+            ['username' => 'superadmin'],
             [
+                'email' => 'superadmin@lentera.com',
                 'name' => 'Super Admin',
                 'password' => bcrypt('Tegarberiman'),
-                'role' => 'admin'
+                'role' => 'superadmin'
             ]
         );
         $this->command->info("Super Admin ID: " . $admin->id);
