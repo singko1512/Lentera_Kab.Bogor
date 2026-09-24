@@ -10,14 +10,14 @@
             size: A4 portrait;
             margin-top: 1.2cm;
             margin-bottom: 2.2cm;
-            margin-left: 2cm;
+            margin-left: 2.2cm;
             margin-right: 2cm;
         }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 9.5pt;
-            line-height: 1.35;
+            font-size: 10pt;
+            line-height: 1.4;
             color: #000;
             margin: 0;
             padding: 0;
@@ -26,10 +26,10 @@
         /* Fixed Footer on all pages */
         .fixed-footer {
             position: fixed;
-            bottom: -1.7cm;
+            bottom: -1.8cm;
             left: 0;
             right: 0;
-            height: 1.4cm;
+            height: 1.5cm;
         }
 
         .footer-table {
@@ -42,22 +42,18 @@
             padding: 0;
         }
 
-        .footer-qr {
-            width: 48px;
-        }
-
-        .footer-qr img {
-            width: 46px;
-            height: 46px;
-            display: block;
+        /* Dikosongkan sesuai permintaan: untuk ditempel QR code manual oleh Kesbangpol */
+        .footer-qr-placeholder {
+            width: 52px;
+            height: 52px;
         }
 
         .footer-text {
-            padding-left: 10px;
+            padding-left: 12px;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 7pt;
+            font-size: 7.5pt;
             color: #222;
-            line-height: 1.3;
+            line-height: 1.35;
         }
 
         /* Kop Surat */
@@ -85,7 +81,7 @@
         }
 
         .kop-text h2 {
-            font-size: 13pt;
+            font-size: 13.5pt;
             font-weight: bold;
             margin: 0;
             text-transform: uppercase;
@@ -93,44 +89,43 @@
         }
 
         .kop-text h1 {
-            font-size: 14pt;
+            font-size: 15.5pt;
             font-weight: bold;
-            margin: 2px 0;
+            margin: 2px 0 3px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .kop-text p {
-            font-size: 8pt;
+            font-size: 8.5pt;
             margin: 1px 0;
-            color: #111;
+            line-height: 1.3;
         }
 
-        /* Garis Ganda Kop */
-        .garis-kop-tebal {
+        .kop-divider {
             border-top: 2.5px solid #000;
-            margin-top: 3px;
+            border-bottom: 1px solid #000;
+            height: 2px;
+            margin-top: 4px;
+            margin-bottom: 14px;
         }
 
-        .garis-kop-tipis {
-            border-top: 1px solid #000;
-            margin-top: 1.5px;
-            margin-bottom: 8px;
+        .page-break {
+            page-break-before: always;
         }
 
-        /* Tanggal */
+        /* Layout Elements */
         .tgl-surat {
             text-align: right;
-            font-size: 9.5pt;
-            margin-bottom: 4px;
+            font-size: 10pt;
+            margin-bottom: 12px;
         }
 
-        /* Metadata Surat */
         .meta-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 9.5pt;
+            margin-bottom: 14px;
+            font-size: 10pt;
         }
 
         .meta-table td {
@@ -138,34 +133,36 @@
             padding: 1px 0;
         }
 
-        /* Tujuan Surat */
-        .tujuan-surat {
-            margin-bottom: 12px;
-            font-size: 9.5pt;
-            line-height: 1.35;
+        .meta-label {
+            width: 75px;
         }
 
-        /* List & Paragraf */
-        .section-title {
-            font-weight: normal;
-            margin-bottom: 2px;
+        .meta-colon {
+            width: 15px;
+            text-align: center;
+        }
+
+        .tujuan-block {
+            margin-bottom: 14px;
+            font-size: 10pt;
+            line-height: 1.4;
         }
 
         .list-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9.5pt;
-            line-height: 1.35;
             margin-bottom: 8px;
+            font-size: 10pt;
         }
 
         .list-table td {
             vertical-align: top;
-            padding: 1px 0;
+            padding: 2px 0;
+            line-height: 1.4;
         }
 
         .list-no {
-            width: 20px;
+            width: 22px;
             text-align: left;
         }
 
@@ -173,22 +170,22 @@
             text-align: justify;
         }
 
-        /* Data Pemohon */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9.5pt;
-            line-height: 1.35;
+            margin-top: 4px;
             margin-bottom: 10px;
+            font-size: 10pt;
         }
 
         .data-table td {
             vertical-align: top;
-            padding: 1.5px 0;
+            padding: 2px 0;
+            line-height: 1.4;
         }
 
         .data-label {
-            width: 140px;
+            width: 155px;
         }
 
         .data-colon {
@@ -196,19 +193,6 @@
             text-align: center;
         }
 
-        /* Halaman 2 */
-        .page-break {
-            page-break-before: always;
-        }
-
-        .page-number {
-            text-align: center;
-            font-weight: bold;
-            font-size: 9.5pt;
-            margin: 4px 0 10px 0;
-        }
-
-        /* TTE & Tembusan Container */
         .signature-table {
             width: 100%;
             border-collapse: collapse;
@@ -220,22 +204,14 @@
         }
 
         .tembusan-box {
-            font-size: 9pt;
-            line-height: 1.35;
+            font-size: 9.5pt;
+            line-height: 1.4;
         }
 
-        .tte-box {
-            font-size: 8.5pt;
-            line-height: 1.25;
-        }
-
-        .tte-badge-table {
-            border-collapse: collapse;
-        }
-
-        .tte-badge-table td {
-            vertical-align: middle;
-            padding: 0;
+        /* Ruang kosong untuk ditempel E-Sign manual oleh Kesbangpol */
+        .manual-esign-placeholder {
+            width: 100%;
+            height: 125px;
         }
     </style>
 </head>
@@ -244,6 +220,9 @@
     @php
         // Logo Kabupaten Bogor
         $logoPath = public_path('assets/certificate/lambang_kabupaten_bogor.png');
+        if (!file_exists($logoPath)) {
+            $logoPath = public_path('assets/images/logo_lentera.png');
+        }
         $logoBase64 = '';
         if (file_exists($logoPath)) {
             $logoData = file_get_contents($logoPath);
@@ -259,7 +238,16 @@
         $nomorSurat = $layanan->suratRekomendasi->nomor_surat ?? ('400.14.5.4 / ' . $layanan->id . ' - Wasnas');
 
         $jenisLayananNama = $layanan->jenisLayanan->nama ?? 'Praktik Kerja Lapangan (PKL)';
+        
+        // Sesuaikan nama perihal agar baku
         $halSurat = 'Rekomendasi ' . $jenisLayananNama;
+        if (str_contains(strtolower($jenisLayananNama), 'kkl') || str_contains(strtolower($jenisLayananNama), 'pkl')) {
+            $halSurat = 'Rekomendasi Praktik Kerja Lapangan (PKL)';
+        } elseif (str_contains(strtolower($jenisLayananNama), 'kkn')) {
+            $halSurat = 'Rekomendasi Kuliah Kerja Nyata (KKN)';
+        } elseif (str_contains(strtolower($jenisLayananNama), 'penelitian')) {
+            $halSurat = 'Rekomendasi Surat Izin Penelitian';
+        }
 
         $singkatanLayanan = 'PKL/Magang';
         if (str_contains(strtolower($jenisLayananNama), 'penelitian')) {
@@ -267,7 +255,7 @@
         } elseif (str_contains(strtolower($jenisLayananNama), 'kkn')) {
             $singkatanLayanan = 'KKN';
         } elseif (str_contains(strtolower($jenisLayananNama), 'kkl')) {
-            $singkatanLayanan = 'KKL';
+            $singkatanLayanan = 'KKL/PKL';
         }
 
         $dinasNameRaw = $layanan->tempat_kegiatan ?? 'Dinas Komunikasi dan Informatika';
@@ -283,7 +271,6 @@
 
         // Parsing Daftar Nama Pemohon (Mendukung satu atau banyak nama yang diinput pemohon)
         $rawNama = $layanan->atas_nama ?: ($layanan->user->name ?? 'PEMOHON');
-        // Pisahkan jika menggunakan format "1. Nama 2. Nama" atau baris baru atau koma
         if (preg_match_all('/(?:\d+[\.\)]\s*)?([^\r\n,]+)/', $rawNama, $matches)) {
             $namaList = array_values(array_filter(array_map('trim', $matches[1])));
         } else {
@@ -301,7 +288,7 @@
         $alamatPemohon = $layanan->user->alamat ?? ($layanan->alamat ?? 'Jl. Pakuan P.O. Box 452');
         $penanggungJawab = $layanan->user->pembimbing_magang ?: ($layanan->atas_nama ?: ($layanan->user->name ?? '-'));
 
-        $pimpinanAsalInstansi = 'Pimpinan ' . $asalInstansi;
+        $pimpinanAsalInstansi = 'Dekan / Pimpinan ' . $asalInstansi;
         if (str_contains(strtolower($asalInstansi), 'universitas') || str_contains(strtolower($asalInstansi), 'fakultas')) {
             $pimpinanAsalInstansi = 'Dekan / Rektor ' . $asalInstansi;
         } elseif (str_contains(strtolower($asalInstansi), 'sekolah') || str_contains(strtolower($asalInstansi), 'smk')) {
@@ -311,124 +298,115 @@
         $perihalSurat = $layanan->judul_kegiatan ?: ($jenisLayananNama);
     @endphp
 
-    <!-- FIXED FOOTER (QR CODE & BSrE NOTICE ON ALL PAGES) -->
+    <!-- FIXED FOOTER PADA SEMUA HALAMAN (AREA QR CODE DIKOSONGKAN SESUAI INSTRUKSI) -->
     <div class="fixed-footer">
         <table class="footer-table">
             <tr>
-                <td class="footer-qr">
-                    @if(!empty($qrBase64))
-                        <!-- <img src="data:image/svg+xml;base64,{{ $qrBase64 }}" alt="QR Code Verifikasi"> -->
-                    @elseif(!empty($qrUrl))
-                        @php
-                            $svgString = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(90)->errorCorrection('M')->generate($qrUrl);
-                            $localBase64 = base64_encode($svgString);
-                        @endphp
-                        <!-- <img src="data:image/svg+xml;base64,{{ $localBase64 }}" alt="QR Code Verifikasi"> -->
-                    @endif
+                <td style="width: 55px;">
+                    <!-- Area kosong reserved untuk QR Code BSrE manual -->
+                    <div class="footer-qr-placeholder"></div>
                 </td>
                 <td class="footer-text">
-                    Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang
-                    diterbitkan oleh<br>
+                    Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh<br>
                     <strong>Balai Sertifikasi Elektronik (BSrE) Badan Siber dan Sandi Negara</strong>
                 </td>
             </tr>
         </table>
     </div>
 
-    <!-- ==================== HALAMAN 1 ==================== -->
-    <div class="page-1">
-        <!-- KOP SURAT RESMI -->
+    <!-- ========================================== -->
+    <!-- HALAMAN 1                                  -->
+    <!-- ========================================== -->
+    <div class="page-container">
+        <!-- KOP SURAT HALAMAN 1 -->
         <table class="kop-table">
             <tr>
                 <td class="kop-logo">
-                    @if($logoBase64)
-                        <img src="{{ $logoBase64 }}" alt="Logo Kab. Bogor">
+                    @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="Logo Kab Bogor">
                     @endif
                 </td>
                 <td class="kop-text">
                     <h2>PEMERINTAH KABUPATEN BOGOR</h2>
                     <h1>BADAN KESATUAN BANGSA DAN POLITIK</h1>
                     <p>Jl. KSR Dadi Kusmayadi Komplek Pemda Kel. Tengah Cibinong – Bogor 16914</p>
-                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id
-                    </p>
+                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id</p>
                 </td>
             </tr>
         </table>
-        <div class="garis-kop-tebal"></div>
-        <div class="garis-kop-tipis"></div>
-
+        <div class="kop-divider"></div>
 
         <!-- TANGGAL SURAT -->
         <div class="tgl-surat">
             Cibinong, {{ $tglSurat }}
         </div>
 
-        <!-- METADATA SURAT -->
+        <!-- NOMOR, SIFAT, LAMPIRAN, HAL -->
         <table class="meta-table">
             <tr>
-                <td style="width: 80px;">Nomor</td>
-                <td style="width: 15px;">:</td>
-                <td>{{ $nomorSurat }}</td>
+                <td class="meta-label">Nomor</td>
+                <td class="meta-colon">:</td>
+                <td style="width: 320px;">{{ $nomorSurat }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td>Sifat</td>
-                <td>:</td>
+                <td class="meta-label">Sifat</td>
+                <td class="meta-colon">:</td>
                 <td>Penting</td>
+                <td></td>
             </tr>
             <tr>
-                <td>Lampiran</td>
-                <td>:</td>
+                <td class="meta-label">Lampiran</td>
+                <td class="meta-colon">:</td>
                 <td>-</td>
+                <td></td>
             </tr>
             <tr>
-                <td>Hal</td>
-                <td>:</td>
+                <td class="meta-label">Hal</td>
+                <td class="meta-colon">:</td>
                 <td><strong>{{ $halSurat }}</strong></td>
+                <td></td>
             </tr>
         </table>
 
         <!-- TUJUAN SURAT -->
-        <div class="tujuan-surat">
+        <div class="tujuan-block">
             Yth. Kepala {{ $dinasNameFormatted }}<br>
-            di<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cibinong
+            <span style="margin-left: 20px;">di</span><br>
+            <span style="margin-left: 20px;">Cibinong</span>
         </div>
 
-        <!-- DASAR -->
-        <div class="section-title">Dasar :</div>
+        <!-- DASAR HUKUM -->
+        <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 4px;">
+            Dasar :
+        </div>
         <table class="list-table">
             <tr>
                 <td class="list-no">1.</td>
-                <td class="list-content">Peraturan Menteri Dalam Negeri Republik Indonesia Nomor 3 Tahun 2018 tentang
-                    Penerbitan Surat Keterangan Penelitian;</td>
+                <td class="list-content">Peraturan Menteri Dalam Negeri Republik Indonesia Nomor 3 Tahun 2018 tentang Penerbitan Surat Keterangan Penelitian;</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">2.</td>
-                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 56 Tahun 2020 tentang
-                    Kedudukan, Susunan Organisasi, Tugas dan Fungsi, serta Tata Kerja Badan Kesatuan Bangsa dan Politik
-                    sebagaimana telah diubah dengan Peraturan Bupati Bogor Nomor 27 Tahun 2022 tentang Kedudukan,
-                    Susunan Organisasi, Tugas dan Fungsi serta Tata Kerja Badan Kesatuan Bangsa dan Politik;</td>
+                <td class="list-no">2.</td>
+                <td class="list-content">Peraturan Bupati Bogor Nomor 56 Tahun 2020 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi, serta Tata Kerja Badan Kesatuan Bangsa dan Politik sebagaimana telah diubah dengan Peraturan Bupati Bogor Nomor 27 Tahun 2022 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi serta Tata Kerja Badan Kesatuan Bangsa dan Politik;</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">3.</td>
-                <td class="list-content" style="padding-top: 3px;">Peraturan Bupati Bogor Nomor 65 Tahun 2023 tentang
-                    Sistem Kerja Aparatur Sipil Negara Untuk Penyederhanaan Birokrasi Di Lingkungan Pemerintah Daerah.
-                </td>
+                <td class="list-no">3.</td>
+                <td class="list-content">Peraturan Bupati Bogor Nomor 65 Tahun 2023 tentang Sistem Kerja Aparatur Sipil Negara Untuk Penyederhanaan Birokrasi Di Lingkungan Pemerintah Daerah.</td>
             </tr>
         </table>
 
         <!-- MEMPERHATIKAN -->
-        <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 6px; text-align: justify;">
+        <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 6px; text-align: justify;">
             Memperhatikan :<br>
-            Surat dari {{ $asalInstansi }}, Nomor : {{ $nomorAsal }}, tanggal {{ $tglAsal }}, Perihal
-            {{ $perihalSurat }}.
+            Surat dari {{ $asalInstansi }}, Nomor : {{ $nomorAsal }}, tanggal {{ $tglAsal }}, Perihal {{ $perihalSurat }}.
         </div>
 
-        <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 8px; text-indent: 25px; text-align: justify;">
+        <!-- PENGANTAR -->
+        <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 6px; text-align: justify;">
             Berdasarkan hal tersebut diatas, dengan ini kami memberikan {{ $halSurat }} kepada :
         </div>
 
-        <!-- DATA PEMOHON -->
+        <!-- TABEL DATA PEMOHON -->
         <table class="data-table">
             <tr>
                 <td class="data-label">Nama</td>
@@ -440,80 +418,109 @@
                 </td>
             </tr>
             <tr>
-                <td class="data-label" style="padding-top: 3px;">Alamat</td>
-                <td class="data-colon" style="padding-top: 3px;">:</td>
-                <td style="padding-top: 3px;">{{ $alamatPemohon }}</td>
+                <td class="data-label">Alamat</td>
+                <td class="data-colon">:</td>
+                <td>{{ $alamatPemohon }}</td>
             </tr>
             <tr>
-                <td class="data-label" style="padding-top: 3px;">Penanggung Jawab</td>
-                <td class="data-colon" style="padding-top: 3px;">:</td>
-                <td style="padding-top: 3px;">{{ $penanggungJawab }}</td>
+                <td class="data-label">Penanggung Jawab</td>
+                <td class="data-colon">:</td>
+                <td>{{ $penanggungJawab }}</td>
             </tr>
             <tr>
-                <td class="data-label" style="padding-top: 3px;">Jumlah Peserta</td>
-                <td class="data-colon" style="padding-top: 3px;">:</td>
-                <td style="padding-top: 3px;">{{ $jumlahPesertaFormatted }}</td>
+                <td class="data-label">Jumlah Peserta</td>
+                <td class="data-colon">:</td>
+                <td>{{ $jumlahPesertaFormatted }}</td>
             </tr>
             <tr>
-                <td class="data-label" style="padding-top: 3px;">Tenggang Waktu</td>
-                <td class="data-colon" style="padding-top: 3px;">:</td>
-                <td style="padding-top: 3px;">{{ $tglMulai }} s.d {{ $tglSelesai }}</td>
+                <td class="data-label">Tenggang Waktu</td>
+                <td class="data-colon">:</td>
+                <td>{{ $tglMulai }} s.d {{ $tglSelesai }}</td>
             </tr>
             <tr>
-                <td class="data-label" style="padding-top: 3px;">Tempat</td>
-                <td class="data-colon" style="padding-top: 3px;">:</td>
-                <td style="padding-top: 3px;">{{ $tempatKegiatan }}</td>
+                <td class="data-label">Tempat</td>
+                <td class="data-colon">:</td>
+                <td>{{ $tempatKegiatan }}</td>
             </tr>
         </table>
 
-        <!-- KETENTUAN (LANJUTAN) -->
+        <!-- KATA SAMBUNG DI KANAN BAWAH HALAMAN 1 -->
+        <div style="text-align: right; margin-top: 14px; font-size: 10pt;">
+            Dengan …
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- HALAMAN 2                                  -->
+    <!-- ========================================== -->
+    <div class="page-break"></div>
+
+    <div class="page-container">
+        <!-- KOP SURAT HALAMAN 2 -->
+        <table class="kop-table">
+            <tr>
+                <td class="kop-logo">
+                    @if(!empty($logoBase64))
+                        <img src="{{ $logoBase64 }}" alt="Logo Kab Bogor">
+                    @endif
+                </td>
+                <td class="kop-text">
+                    <h2>PEMERINTAH KABUPATEN BOGOR</h2>
+                    <h1>BADAN KESATUAN BANGSA DAN POLITIK</h1>
+                    <p>Jl. KSR Dadi Kusmayadi Komplek Pemda Kel. Tengah Cibinong – Bogor 16914</p>
+                    <p>Telp/Fax. (021) 8758836, Email : kesbangpolbogor09@gmail.com, Web : bakesbangpol.bogorkab.go.id</p>
+                </td>
+            </tr>
+        </table>
+        <div class="kop-divider"></div>
+
+        <!-- PENOMORAN HALAMAN -->
+        <div style="text-align: center; margin-top: 4px; margin-bottom: 12px; font-weight: bold; font-size: 10pt;">
+            - 2 -
+        </div>
 
         <!-- KETENTUAN -->
-        <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 6px;">
+        <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 6px;">
             Dengan ketentuan sebagai berikut :
         </div>
-        <table class="list-table" style="margin-bottom: 12px;">
+        <table class="list-table" style="margin-bottom: 10px;">
             <tr>
                 <td class="list-no">1.</td>
                 <td class="list-content">Mentaati ketentuan peraturan perundang-undangan;</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">2.</td>
-                <td class="list-content" style="padding-top: 3px;">Ikut menjaga situasi, stabilitas kerukunan,
-                    ketentraman dan ketertiban di lokasi {{ $singkatanLayanan }};</td>
+                <td class="list-no">2.</td>
+                <td class="list-content">Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">3.</td>
-                <td class="list-content" style="padding-top: 3px;">Berkoordinasi dan mengikuti petunjuk dan arahan dari
-                    Pimpinan Instansi tempat pelaksanaan {{ $singkatanLayanan }};</td>
+                <td class="list-no">3.</td>
+                <td class="list-content">Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">4.</td>
-                <td class="list-content" style="padding-top: 3px;">Mematuhi aturan dan jam kerja yang berlaku di lokasi
-                    {{ $singkatanLayanan }};</td>
+                <td class="list-no">4.</td>
+                <td class="list-content">Mematuhi aturan dan jam kerja yang berlaku di lokasi {{ $singkatanLayanan }};</td>
             </tr>
             <tr>
-                <td class="list-no" style="padding-top: 3px;">5.</td>
-                <td class="list-content" style="padding-top: 3px;">Tidak diperkenankan melaksanakan kegiatan di luar
-                    ketentuan yang ditetapkan di atas.</td>
+                <td class="list-no">5.</td>
+                <td class="list-content">Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas.</td>
             </tr>
         </table>
 
         <!-- PENUTUP -->
-        <div style="font-size: 9.5pt; line-height: 1.35; margin-bottom: 25px; text-indent: 25px; text-align: justify;">
+        <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 25px; text-align: justify;">
             Demikian disampaikan, atas perhatian dan kerja samanya diucapkan terima kasih.
         </div>
 
-        <!-- TTE & TEMBUSAN -->
+        <!-- AREA TEMBUSAN (KIRI) & AREA TTE KOSONG (KANAN) -->
         <table class="signature-table">
             <tr>
-                <td style="width: 48%;">
+                <td style="width: 52%; vertical-align: top;">
                     <!-- TEMBUSAN -->
                     <div class="tembusan-box">
                         <strong>Tembusan :</strong>
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 3px;">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 3px; font-size: 9.5pt;">
                             <tr>
-                                <td style="width: 16px; vertical-align: top;">1.</td>
+                                <td style="width: 18px; vertical-align: top;">1.</td>
                                 <td style="vertical-align: top;">Yth. Bupati Bogor;</td>
                             </tr>
                             <tr>
@@ -522,37 +529,20 @@
                             </tr>
                             <tr>
                                 <td style="vertical-align: top; padding-top: 2px;">3.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. Sekretaris Daerah Kabupaten
-                                    Bogor;</td>
+                                <td style="vertical-align: top; padding-top: 2px;">Yth. Sekretaris Daerah Kabupaten Bogor;</td>
                             </tr>
                             <tr>
                                 <td style="vertical-align: top; padding-top: 2px;">4.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. {{ $pimpinanAsalInstansi }}.
-                                </td>
+                                <td style="vertical-align: top; padding-top: 2px;">Yth. {{ $pimpinanAsalInstansi }}.</td>
                             </tr>
                         </table>
                     </div>
                 </td>
-                <td style="width: 4%;"></td>
-                <td style="width: 48%;">
-                    <!-- BLOK TTE KEPALA BAKESBANGPOL -->
-                    <div class="tte-box">
-                        <table class="tte-badge-table">
-                            <tr>
-                                <td style="vertical-align: top; text-align: left; font-family: Helvetica, Arial, sans-serif;">
-                                    <div style="font-size: 7.5pt; color: #444; margin-bottom: 2px;">Ditandatangani secara elektronik oleh:</div>
-                                    <div style="font-size: 8.5pt; font-weight: bold; line-height: 1.2; color: #222;">
-                                        {!! nl2br(e($layanan->suratRekomendasi->pejabat_jabatan ?? "KEPALA BADAN KESATUAN BANGSA\nDAN POLITIK KABUPATEN BOGOR")) !!}
-                                    </div>
-                                    <div style="font-size: 9pt; font-weight: bold; margin-top: 30px; color: #222;">
-                                        {{ $layanan->suratRekomendasi->pejabat_nama ?? 'FERDINANDO SELMI PARDEDE, S.IP, M.AP' }}
-                                    </div>
-                                    <div style="font-size: 8.5pt; color: #333; margin-top: 1px;">
-                                        {{ $layanan->suratRekomendasi->pejabat_pangkat ?? 'Pembina Tk. I' }}
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+                <td style="width: 6%;"></td>
+                <td style="width: 42%; vertical-align: top;">
+                    <!-- AREA TTE DIKOSONGKAN SESUAI PERMINTAAN KESBANGPOL (UNTUK DITEMPEL MANUAL) -->
+                    <div class="manual-esign-placeholder">
+                        <!-- Area kosong untuk manual e-sign / stempel Kesbangpol -->
                     </div>
                 </td>
             </tr>
