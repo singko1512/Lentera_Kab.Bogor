@@ -356,7 +356,7 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn w-100 rounded-3 text-muted" style="font-size: 0.9rem; background: var(--surface-variant); border: none;" onclick="markAllNotificationsAsRead()">Tandai Semua Telah Dibaca</button>
+                    <button type="button" class="btn w-100 rounded-3 py-2" style="font-size: 0.9rem; font-weight: 600; color: var(--text); background: var(--border); border: none; transition: all 0.2s;" onmouseover="this.style.color='var(--primary)';" onmouseout="this.style.color='var(--text)';" onclick="markAllNotificationsAsRead()">Tandai Semua Telah Dibaca</button>
                 </div>
             </div>
         </div>
@@ -393,16 +393,19 @@
                     
                     let html = '<div class="d-flex flex-column gap-3">';
                     data.notifications.forEach(n => {
-                        const bgClass = n.dibaca ? 'bg-transparent' : 'bg-primary bg-opacity-10';
-                        const dot = n.dibaca ? '' : '<span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>';
+                        const isUnread = !n.dibaca;
+                        const bgStyle = isUnread 
+                            ? 'background: rgba(17, 92, 185, 0.07); border: 1px solid rgba(17, 92, 185, 0.28) !important;' 
+                            : 'background: var(--surface-variant, var(--bg)); border: 1px solid var(--border) !important;';
+                        const dot = isUnread ? '<span class="position-absolute top-0 start-100 translate-middle p-1.5 bg-danger border border-light rounded-circle" style="transform: translate(-50%, -50%);"></span>' : '';
                         html += `
-                            <div class="p-3 rounded-3 position-relative transition-all border ${bgClass}" style="border-color: var(--border) !important; cursor: pointer;" onclick="if(this.dataset.link){ window.location.href=this.dataset.link; } markNotificationAsRead(${n.id});" data-link="${n.link || ''}">
+                            <div class="p-3 rounded-3 position-relative transition-all" style="${bgStyle} cursor: pointer;" onclick="if(this.dataset.link){ window.location.href=this.dataset.link; } markNotificationAsRead(${n.id});" data-link="${n.link || ''}">
                                 ${dot}
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h5 class="mb-0" style="font-size: 1.05rem; font-weight: 600; color: var(--primary);">${n.judul}</h5>
-                                    <small style="font-size: 0.8rem; color: rgba(255,255,255,0.6);">${new Date(n.created_at).toLocaleDateString('id-ID')}</small>
+                                <div class="d-flex justify-content-between align-items-start mb-1.5">
+                                    <h5 class="mb-0" style="font-size: 1.02rem; font-weight: 700; color: var(--primary);">${n.judul}</h5>
+                                    <small style="font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-left: 1rem; white-space: nowrap;">${new Date(n.created_at).toLocaleDateString('id-ID')}</small>
                                 </div>
-                                <p class="mb-0" style="font-size: 0.9rem; line-height: 1.5; color: rgba(255,255,255,0.85);">${n.pesan}</p>
+                                <p class="mb-0" style="font-size: 0.9rem; line-height: 1.5; color: var(--text); font-weight: 500;">${n.pesan}</p>
                             </div>
                         `;
                     });
