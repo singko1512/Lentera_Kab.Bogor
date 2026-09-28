@@ -100,6 +100,7 @@
             background-color: initial;
         }
     </style>
+    @yield('styles')
 </head>
 <body class="bg-background text-on-background font-body-md antialiased h-screen flex overflow-hidden">
 @php
@@ -174,5 +175,6 @@
     </div>
 </div>
 </main>
+    @yield('scripts')
 </body>
 </html>

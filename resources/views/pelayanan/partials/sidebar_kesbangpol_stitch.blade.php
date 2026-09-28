@@ -80,9 +80,9 @@
         </a>
 
         @if(!in_array(Auth::user()->role, ['superadmin', 'admin']))
-        <a data-turbo="false" class="flex items-center gap-3 px-4 py-3 {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('absensi.admin.dashboard', ['tab' => 'sertifikat']) }}">
-        <span class="material-symbols-outlined {{ (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">workspace_premium</span>
-        <span class="text-label-md font-label-md">Kelola Sertifikat</span>
+        <a data-turbo="false" class="flex items-center gap-3 px-4 py-3 {{ Route::is('absensi.admin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('absensi.admin.dashboard') }}">
+        <span class="material-symbols-outlined {{ Route::is('absensi.admin.dashboard') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">assignment_ind</span>
+        <span class="text-label-md font-label-md">Manajemen Magang & Sertifikat</span>
         </a>
         @endif
     </div>
