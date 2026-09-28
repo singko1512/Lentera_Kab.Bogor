@@ -22,6 +22,7 @@ return array(
     'App\\Http\\Controllers\\Kesbangpol\\HistoryController' => $baseDir . '/app/Http/Controllers/Kesbangpol/HistoryController.php',
     'App\\Http\\Controllers\\Kesbangpol\\LayananController' => $baseDir . '/app/Http/Controllers/Kesbangpol/LayananController.php',
     'App\\Http\\Controllers\\Kesbangpol\\ParticipantController' => $baseDir . '/app/Http/Controllers/Kesbangpol/ParticipantController.php',
+    'App\\Http\\Controllers\\Kesbangpol\\SuratController' => $baseDir . '/app/Http/Controllers/Kesbangpol/SuratController.php',
     'App\\Http\\Controllers\\LandingController' => $baseDir . '/app/Http/Controllers/LandingController.php',
     'App\\Http\\Controllers\\LayananController' => $baseDir . '/app/Http/Controllers/LayananController.php',
     'App\\Http\\Controllers\\MagangController' => $baseDir . '/app/Http/Controllers/MagangController.php',
