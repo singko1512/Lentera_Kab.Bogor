@@ -9,9 +9,13 @@ class ParticipantController extends Controller
 {
     public function index()
     {
-        $participants = \App\Models\User::with(['magangApplications' => function($q) {
-                $q->latest();
-            }, 'magangApplications.rekrutmen.dinas'])
+        $participants = \App\Models\User::with([
+                'magangApplications' => function($q) {
+                    $q->latest();
+                }, 
+                'magangApplications.rekrutmen.dinas',
+                'magangApplications.permohonanLayanan.dinas'
+            ])
             ->where('role', 'peserta')
             ->paginate(10);
 
@@ -30,11 +34,27 @@ class ParticipantController extends Controller
             'status_akun' => 'required|in:aktif,dibatasi,diblokir'
         ]);
 
-        $user = \App\Models\User::findOrFail($id);
+        $user = \App\Models\User::with([
+            'magangApplications' => function($q) {
+                $q->latest();
+            },
+            'magangApplications.rekrutmen.dinas',
+            'magangApplications.permohonanLayanan.dinas'
+        ])->findOrFail($id);
         
         // Ensure user is actually a peserta to prevent altering admins
         if ($user->role !== 'peserta') {
             return redirect()->back()->with('error', 'Hanya dapat mengubah status akun peserta.');
+        }
+
+        // Cek jika peserta sudah diterima di dinas tujuan
+        $latestApp = $user->magangApplications->first();
+        $namaDinasTujuan = $latestApp?->rekrutmen?->dinas?->nama 
+            ?? $latestApp?->permohonanLayanan?->dinas?->name 
+            ?? $latestApp?->permohonanLayanan?->tempat_kegiatan;
+
+        if ($latestApp && in_array(strtolower($latestApp->status), ['diterima', 'aktif', 'selesai']) && !empty($namaDinasTujuan)) {
+            return redirect()->back()->with('error', 'Peserta telah diterima di ' . $namaDinasTujuan . '. Hak pengelolaan akun telah dialihkan sepenuhnya ke dinas yang bersangkutan.');
         }
 
         $user->status_akun = $request->status_akun;

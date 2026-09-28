@@ -99,6 +99,21 @@
             color: initial;
             background-color: initial;
         }
+
+        /* Slim scrollbar for sidebar */
+        aside nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        aside nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        aside nav::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        aside nav::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
     @yield('styles')
 </head>
@@ -132,10 +147,20 @@
 <div class="flex items-center gap-2">
     @if($isKesbangpol)
         <span class="material-symbols-outlined text-primary text-[22px]">admin_panel_settings</span>
-        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin") }}</h2>
+        @php
+            $rawHeaderName = auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin");
+            $cleanHeaderName = trim(preg_replace('/^Admin\s+/i', '', $rawHeaderName));
+            $shortHeaderName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanHeaderName ?: 'Bakesbangpol');
+        @endphp
+        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $shortHeaderName }}</h2>
     @else
         <span class="material-symbols-outlined text-primary text-[22px]">domain</span>
-        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $masqueradeDinas->name ?? (auth()->user()->dinas->name ?? "Admin Dinas") }}</h2>
+        @php
+            $dinasTargetName = $masqueradeDinas->name ?? (auth()->user()->dinas->name ?? "Admin Dinas");
+            $cleanDinasName = trim(preg_replace('/^Admin\s+/i', '', $dinasTargetName));
+            $shortDinasName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanDinasName);
+        @endphp
+        <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $shortDinasName }}</h2>
     @endif
 </div>
 </div>

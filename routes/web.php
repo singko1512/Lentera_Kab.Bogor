@@ -335,6 +335,7 @@ Route::middleware(['auth'])->group(function () {
         // Routes for Sidebar Dinas
         Route::get('/participants', [DinasParticipantController::class, 'index'])->name('participants.index');
         Route::get('/participants/{id}', [DinasParticipantController::class, 'show'])->name('participants.show');
+        Route::post('/participants/{id}/status', [DinasParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
         Route::post('/participants/{id}/penempatan', [DinasParticipantController::class, 'updatePenempatan'])->name('participants.penempatan.update');
         Route::post('/participants/{id}/surat', [DinasParticipantController::class, 'updateSurat'])->name('participants.surat.update');
         Route::post('/participants/{id}/surat/generate', [DinasParticipantController::class, 'generateSurat'])->name('participants.surat.generate');

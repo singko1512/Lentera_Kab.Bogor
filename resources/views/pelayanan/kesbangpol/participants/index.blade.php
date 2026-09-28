@@ -5,7 +5,7 @@
 <!-- Page Header -->
 <div class="mb-8">
 <h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-on-surface mb-2">Manajemen Peserta</h1>
-<p class="text-body-md font-body-md text-on-surface-variant max-w-3xl">Kelola akun peserta selama berada dalam proses administrasi Kesbangpol.</p>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-3xl">Kelola akun peserta selama berada dalam proses administrasi Bakesbangpol.</p>
 </div>
 <!-- Summary Cards Row -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -106,10 +106,22 @@
 </thead>
 <tbody class="divide-y divide-[#E2E8F0]">
                                 @forelse($participants as $p)
+                                @php
+                                    $app = $p->magangApplications->first();
+                                    $status = $app->status ?? 'Belum Mengajukan';
+                                    $rawDinas = $app?->rekrutmen?->dinas?->nama 
+                                        ?? $app?->permohonanLayanan?->dinas?->name 
+                                        ?? $app?->permohonanLayanan?->dinas?->nama 
+                                        ?? $app?->dinas?->name 
+                                        ?? $app?->permohonanLayanan?->tempat_kegiatan 
+                                        ?? null;
+                                    $dinasSingkat = $rawDinas ? \App\Models\Dinas::formatSingkatan($rawDinas) : '-';
+                                    $isDiterimaDinas = in_array(strtolower($status), ['diterima', 'aktif', 'selesai']) && !empty($rawDinas);
+                                @endphp
                                 <tr class="hover:bg-surface-bright/50 transition-colors group">
                                     <td class="py-4 px-6">
                                         <div class="flex items-center gap-3">
-                                            <div class="h-10 w-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary font-bold shrink-0">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 text-primary border border-blue-200 flex items-center justify-center font-bold shrink-0 shadow-xs">
                                                 {{ strtoupper(substr($p->name, 0, 2)) }}
                                             </div>
                                             <div>
@@ -119,24 +131,46 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant">{{ $p->asal_instansi ?? '-' }}</td>
-                                    <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant max-w-[200px] truncate" title="{{ $p->magangApplications->first()?->rekrutmen?->dinas?->nama ?? $p->magangApplications->first()?->permohonanLayanan?->dinas?->name ?? $p->magangApplications->first()?->permohonanLayanan?->tempat_kegiatan ?? '-' }}">{{ $p->magangApplications->first()?->rekrutmen?->dinas?->nama ?? $p->magangApplications->first()?->permohonanLayanan?->dinas?->name ?? $p->magangApplications->first()?->permohonanLayanan?->tempat_kegiatan ?? '-' }}</td>
-                                    <td class="py-4 px-6">
-                                        @php $status = $p->magangApplications->first()->status ?? 'Belum Mengajukan'; @endphp
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-caption font-caption font-medium {{ $status == 'menunggu' ? 'bg-[#FFF3CD] text-[#856404] border-[#FFEEBA]' : 'bg-surface-variant text-on-surface-variant border-outline-variant/30' }} border">
-                                            {{ ucfirst($status) }}
+                                    <td class="py-4 px-6 text-body-md font-body-md text-on-surface-variant whitespace-nowrap" title="{{ $rawDinas ?? '-' }}">
+                                        {{ $dinasSingkat }}
+                                    </td>
+                                    <td class="py-4 px-6 whitespace-nowrap">
+                                        @php
+                                            $st = strtolower($status);
+                                            if (in_array($st, ['diterima', 'disetujui', 'aktif', 'selesai'])) {
+                                                $statusBadgeClass = 'bg-[#D4EDDA] text-[#155724] border-[#C3E6CB]';
+                                                $dotStatusClass = 'bg-[#28A745]';
+                                                $statusLabel = 'Diterima';
+                                            } elseif ($st == 'menunggu' || str_contains($st, 'menunggu')) {
+                                                $statusBadgeClass = 'bg-[#FFF3CD] text-[#856404] border-[#FFEEBA]';
+                                                $dotStatusClass = 'bg-[#E0A800]';
+                                                $statusLabel = 'Menunggu';
+                                            } elseif ($st == 'ditolak') {
+                                                $statusBadgeClass = 'bg-[#F8D7DA] text-[#721C24] border-[#F5C6CB]';
+                                                $dotStatusClass = 'bg-[#DC3545]';
+                                                $statusLabel = 'Ditolak';
+                                            } else {
+                                                $statusBadgeClass = 'bg-slate-100 text-slate-700 border-slate-300';
+                                                $dotStatusClass = 'bg-slate-400';
+                                                $statusLabel = 'Belum Mengajukan';
+                                            }
+                                        @endphp
+                                        <span class="w-36 inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full text-caption font-semibold {{ $statusBadgeClass }} border shadow-2xs">
+                                            <span class="w-1.5 h-1.5 rounded-full {{ $dotStatusClass }} shrink-0"></span>
+                                            <span class="truncate">{{ $statusLabel }}</span>
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6">
+                                    <td class="py-4 px-6 whitespace-nowrap">
                                         @php
                                             $statusAkun = strtolower($p->status_akun ?? 'aktif');
                                             if ($statusAkun == 'aktif') {
-                                                $badgeClass = 'bg-[#D4EDDA] text-[#155724]';
+                                                $badgeClass = 'bg-[#D4EDDA] text-[#155724] border border-[#C3E6CB]';
                                                 $dotClass = 'bg-[#28A745]';
                                             } elseif ($statusAkun == 'dibatasi') {
-                                                $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                                $badgeClass = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
                                                 $dotClass = 'bg-yellow-500';
                                             } else {
-                                                $badgeClass = 'bg-red-100 text-red-800';
+                                                $badgeClass = 'bg-red-100 text-red-800 border border-red-200';
                                                 $dotClass = 'bg-red-500';
                                             }
                                         @endphp
@@ -144,20 +178,157 @@
                                             <span class="w-1.5 h-1.5 rounded-full {{ $dotClass }}"></span> {{ ucfirst($statusAkun) }}
                                         </span>
                                     </td>
-                                    <td class="py-4 px-6">
-                                        <div class="flex items-center gap-2 text-primary">
-                                            <span class="material-symbols-outlined text-[18px]">account_balance</span>
-                                            <span class="text-body-md font-body-md font-medium">Kesbangpol</span>
+                                    <td class="py-4 px-6 whitespace-nowrap">
+                                        @php
+                                            $isBakesbangpol = str_contains(strtoupper($rawDinas ?? ''), 'KESATUAN BANGSA') || strtolower($dinasSingkat) === 'bakesbangpol';
+                                        @endphp
+                                        
+                                        <div x-data="{ 
+                                            open: false,
+                                            x: 0, 
+                                            y: 0,
+                                            show(e) {
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                this.x = rect.left + (rect.width / 2);
+                                                this.y = rect.top;
+                                                this.open = true;
+                                            },
+                                            hide() {
+                                                this.open = false;
+                                            }
+                                        }" 
+                                        @mouseleave="hide()"
+                                        @scroll.window="hide()"
+                                        class="inline-block">
+
+                                            @if($isDiterimaDinas)
+                                                @if($isBakesbangpol)
+                                                    {{-- Kasus: Diterima di internal Bakesbangpol --}}
+                                                    <div @mouseenter="show($event)" class="flex items-center gap-2.5 cursor-pointer">
+                                                        <div class="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200/80 flex items-center justify-center shrink-0 shadow-2xs hover:scale-105 transition-transform">
+                                                            <span class="material-symbols-outlined text-[18px]">account_balance</span>
+                                                        </div>
+                                                        <div class="flex flex-col">
+                                                            <div class="flex items-center gap-1.5">
+                                                                <span class="text-body-md font-body-md font-semibold text-on-surface">Bakesbangpol</span>
+                                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200/60 uppercase">Internal</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Tooltip Card (Fixed Viewport via Teleport to Body, Always Upwards, Zero Scrollbar Impact) -->
+                                                    <template x-teleport="body">
+                                                        <div x-show="open"
+                                                             x-cloak
+                                                             x-transition:enter="transition ease-out duration-150"
+                                                             x-transition:enter-start="opacity-0 -translate-y-1"
+                                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                                             x-transition:leave="transition ease-in duration-100"
+                                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                                             x-transition:leave-end="opacity-0 -translate-y-1"
+                                                             :style="`position: fixed; left: ${x}px; top: ${y - 10}px; transform: translate(-50%, -100%);`"
+                                                             class="z-[99999] pointer-events-none w-72 p-3.5 bg-slate-900/95 text-white rounded-xl shadow-2xl text-left border border-slate-700/80 backdrop-blur-sm whitespace-normal">
+                                                            <div class="flex items-center gap-1.5 text-indigo-300 font-bold text-xs mb-1 whitespace-normal">
+                                                                <span class="material-symbols-outlined text-[16px] shrink-0">account_balance</span>
+                                                                <span>Tahap Internal Bakesbangpol</span>
+                                                            </div>
+                                                            <p class="text-[11px] text-slate-300 leading-relaxed whitespace-normal break-words">
+                                                                Peserta telah resmi diterima magang di Bakesbangpol. Operasional bimbingan, penempatan bidang, dan absensi dikelola melalui menu <strong>Rekrutmen Internal</strong>.
+                                                            </p>
+                                                            <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-900/95"></div>
+                                                        </div>
+                                                    </template>
+                                                @else
+                                                    {{-- Kasus: Diterima di dinas lain --}}
+                                                    <div @mouseenter="show($event)" class="flex items-center gap-2.5 cursor-pointer">
+                                                        <div class="h-8 w-8 rounded-lg bg-blue-50 text-primary border border-blue-200/80 flex items-center justify-center shrink-0 shadow-2xs hover:scale-105 transition-transform">
+                                                            <span class="material-symbols-outlined text-[18px]">corporate_fare</span>
+                                                        </div>
+                                                        <div class="flex flex-col">
+                                                            <div class="flex items-center gap-1.5">
+                                                                <span class="text-body-md font-body-md font-semibold text-on-surface">{{ $dinasSingkat }}</span>
+                                                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-primary border border-blue-200/60 uppercase">Dinas Tujuan</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Tooltip Card (Fixed Viewport via Teleport to Body, Always Upwards, Zero Scrollbar Impact) -->
+                                                    <template x-teleport="body">
+                                                        <div x-show="open"
+                                                             x-cloak
+                                                             x-transition:enter="transition ease-out duration-150"
+                                                             x-transition:enter-start="opacity-0 -translate-y-1"
+                                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                                             x-transition:leave="transition ease-in duration-100"
+                                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                                             x-transition:leave-end="opacity-0 -translate-y-1"
+                                                             :style="`position: fixed; left: ${x}px; top: ${y - 10}px; transform: translate(-50%, -100%);`"
+                                                             class="z-[99999] pointer-events-none w-72 p-3.5 bg-slate-900/95 text-white rounded-xl shadow-2xl text-left border border-slate-700/80 backdrop-blur-sm whitespace-normal">
+                                                            <div class="flex items-center gap-1.5 text-blue-300 font-bold text-xs mb-1 whitespace-normal">
+                                                                <span class="material-symbols-outlined text-[16px] shrink-0">corporate_fare</span>
+                                                                <span>Dikelola: {{ $dinasSingkat }}</span>
+                                                            </div>
+                                                            <p class="text-[10px] text-slate-400 font-medium mb-1 truncate whitespace-nowrap">{{ $rawDinas }}</p>
+                                                            <p class="text-[11px] text-slate-300 leading-relaxed whitespace-normal break-words">
+                                                                Peserta telah diterima di dinas yang dituju. Hak pengelolaan akun, bimbingan, penempatan bidang, dan verifikasi absensi dialihkan sepenuhnya ke dinas ini.
+                                                            </p>
+                                                            <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-900/95"></div>
+                                                        </div>
+                                                    </template>
+                                                @endif
+                                            @else
+                                                {{-- Kasus: Masih dalam tahap Pelayanan Bakesbangpol --}}
+                                                <div @mouseenter="show($event)" class="flex items-center gap-2.5 cursor-pointer">
+                                                    <div class="h-8 w-8 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 flex items-center justify-center shrink-0 shadow-2xs hover:scale-105 transition-transform">
+                                                        <span class="material-symbols-outlined text-[18px]">support_agent</span>
+                                                    </div>
+                                                    <div class="flex flex-col">
+                                                        <div class="flex items-center gap-1.5">
+                                                            <span class="text-body-md font-body-md font-semibold text-on-surface">Bakesbangpol</span>
+                                                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200/60 uppercase">Pelayanan</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- Tooltip Card (Fixed Viewport via Teleport to Body, Always Upwards, Zero Scrollbar Impact) -->
+                                                <template x-teleport="body">
+                                                    <div x-show="open"
+                                                         x-cloak
+                                                         x-transition:enter="transition ease-out duration-150"
+                                                         x-transition:enter-start="opacity-0 -translate-y-1"
+                                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                                         x-transition:leave="transition ease-in duration-100"
+                                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                                         x-transition:leave-end="opacity-0 -translate-y-1"
+                                                         :style="`position: fixed; left: ${x}px; top: ${y - 10}px; transform: translate(-50%, -100%);`"
+                                                         class="z-[99999] pointer-events-none w-72 p-3.5 bg-slate-900/95 text-white rounded-xl shadow-2xl text-left border border-slate-700/80 backdrop-blur-sm whitespace-normal">
+                                                        <div class="flex items-center gap-1.5 text-amber-400 font-bold text-xs mb-1 whitespace-normal">
+                                                            <span class="material-symbols-outlined text-[16px] shrink-0">support_agent</span>
+                                                            <span>Tahap Pelayanan Publik Bakesbangpol</span>
+                                                        </div>
+                                                        <p class="text-[11px] text-slate-300 leading-relaxed whitespace-normal break-words">
+                                                            Peserta masih dalam tahap administrasi pelayanan rekomendasi magang & verifikasi berkas oleh Bakesbangpol sebelum diteruskan ke dinas tujuan.
+                                                        </p>
+                                                        <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-slate-900/95"></div>
+                                                    </div>
+                                                </template>
+                                            @endif
                                         </div>
                                     </td>
-                                    <td class="py-4 px-6 text-center">
-                                        <div class="flex justify-center gap-2">
-                                            <a href="{{ route('kesbangpol.participants.detail', $p->id) }}" aria-label="Lihat Detail" class="p-2 text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors rounded-lg flex items-center justify-center border border-outline-variant/30" title="Lihat Detail">
-                                                <span class="material-symbols-outlined">visibility</span>
+                                    <td class="py-4 px-6 text-center whitespace-nowrap">
+                                        <div class="inline-flex items-center justify-center gap-2">
+                                            <a href="{{ route('kesbangpol.participants.detail', $p->id) }}" aria-label="Lihat Detail" class="w-9 h-9 text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors rounded-lg flex items-center justify-center border border-outline-variant/30 shrink-0" title="Lihat Detail">
+                                                <span class="material-symbols-outlined text-[20px]">visibility</span>
                                             </a>
-                                            <button type="button" onclick="openKelolaAkunModal('{{ $p->id }}', '{{ addslashes($p->name) }}', '{{ strtolower($p->status_akun ?? 'aktif') }}')" class="px-4 py-2 bg-primary text-white text-label-md font-label-md font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap">
-                                                Kelola Akun
-                                            </button>
+                                            <div class="w-32 shrink-0">
+                                                @if($isDiterimaDinas)
+                                                    <span class="w-full h-9 inline-flex items-center justify-center gap-1.5 px-2.5 bg-slate-100 text-slate-500 rounded-lg text-caption font-medium border border-slate-200 cursor-not-allowed select-none whitespace-nowrap" title="Peserta telah diterima di {{ $dinasSingkat }}. Hak pengelolaan akun dialihkan ke dinas yang dituju.">
+                                                        <span class="material-symbols-outlined text-[16px] text-slate-400">lock</span>
+                                                        <span>Dikelola Dinas</span>
+                                                    </span>
+                                                @else
+                                                    <button type="button" data-id="{{ $p->id }}" data-name="{{ $p->name }}" data-status="{{ strtolower($p->status_akun ?? 'aktif') }}" onclick="openKelolaAkunModal(this)" class="w-full h-9 px-3 bg-primary text-white text-label-md font-label-md font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm whitespace-nowrap flex items-center justify-center">
+                                                        Kelola Akun
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -179,7 +350,7 @@
 </div>
 
 <!-- Modal Kelola Akun -->
-<div id="modalKelolaAkun" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+<div id="modalKelolaAkun" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm items-center justify-center p-4 opacity-0 transition-opacity duration-300">
     <div class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-md transform scale-95 transition-transform duration-300" id="modalKelolaAkunContent">
         <form id="formKelolaAkun" method="POST" action="">
             @csrf
@@ -218,7 +389,11 @@
 </div>
 
 <script>
-    function openKelolaAkunModal(id, name, currentStatus) {
+    window.openKelolaAkunModal = function(btn) {
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+        const currentStatus = btn.dataset.status;
+        
         const modal = document.getElementById('modalKelolaAkun');
         const modalContent = document.getElementById('modalKelolaAkunContent');
         const form = document.getElementById('formKelolaAkun');
@@ -230,6 +405,7 @@
         document.getElementById('modalStatusAkun').value = currentStatus;
         
         modal.classList.remove('hidden');
+        modal.classList.add('flex');
         // Trigger reflow
         void modal.offsetWidth;
         modal.classList.remove('opacity-0');
@@ -237,7 +413,7 @@
         modalContent.classList.add('scale-100');
     }
     
-    function closeKelolaAkunModal() {
+    window.closeKelolaAkunModal = function() {
         const modal = document.getElementById('modalKelolaAkun');
         const modalContent = document.getElementById('modalKelolaAkunContent');
         
@@ -247,6 +423,7 @@
         
         setTimeout(() => {
             modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }, 300);
     }
 </script>

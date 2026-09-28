@@ -3,26 +3,32 @@
 @section('content')
 <div class="max-w-container-max mx-auto space-y-stack-lg pb-12" x-data="{ previewModalOpen: false, previewUrl: '' }">
     <!-- Page Header -->
-    <div class="mb-stack-lg flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-        <div>
-            <div class="flex items-center gap-2 mb-2">
-                <a href="{{ route('dinas.participants.index') }}" class="text-on-surface-variant hover:text-primary transition-colors">
-                    <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                </a>
-                <h2 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">Detail Peserta Magang</h2>
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-outline-variant/30">
+        <div class="flex items-start sm:items-center gap-3">
+            <a href="{{ route('dinas.participants.index') }}" class="p-2.5 rounded-xl border border-outline-variant/40 bg-white text-on-surface-variant hover:bg-surface-container hover:text-primary transition-all shadow-xs flex items-center justify-center shrink-0" title="Kembali ke Daftar Peserta">
+                <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            </a>
+            <div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <h1 class="text-headline-lg font-headline-lg font-bold text-on-surface tracking-tight">Detail Peserta Magang</h1>
+                    @if($participant->status == 'aktif')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-semibold bg-[#D4EDDA] text-[#155724] border border-[#C3E6CB]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#28A745]"></span>
+                            Aktif Magang
+                        </span>
+                    @elseif($participant->status == 'diterima')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            Diterima
+                        </span>
+                    @elseif($participant->status == 'selesai')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-caption font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                            Selesai
+                        </span>
+                    @endif
+                </div>
+                <p class="text-body-md font-body-md text-on-surface-variant mt-0.5">Informasi lengkap peserta magang aktif di instansi Anda.</p>
             </div>
-            <p class="text-body-md font-body-md text-on-surface-variant ml-8">Informasi lengkap peserta magang aktif di instansi Anda.</p>
-        </div>
-        <div class="flex items-center gap-3">
-            @if($participant->status == 'aktif')
-                <span class="px-4 py-2 rounded-full text-sm font-semibold bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20">
-                    Aktif Magang
-                </span>
-            @elseif($participant->status == 'diterima')
-                <span class="px-4 py-2 rounded-full text-sm font-semibold bg-primary/10 text-primary border border-primary/20">
-                    Diterima
-                </span>
-            @endif
         </div>
     </div>
 
@@ -173,20 +179,23 @@
                         </div>
                     </div>
                     
-                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-outline-variant/30">
+                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-5 pt-5 border-t border-outline-variant/30 space-y-3">
                         @csrf
-                        <label class="block text-label-sm font-medium text-on-surface mb-2">Ganti Dokumen Surat (PDF)</label>
-                        <div class="flex items-center gap-2">
-                            <input type="file" name="surat" accept=".pdf" required class="flex-1 text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                            <button type="submit" class="py-2 px-4 bg-surface-container-high hover:bg-outline-variant/30 text-on-surface rounded-xl text-sm font-medium transition-colors">Update</button>
+                        <div>
+                            <label class="block text-label-sm font-semibold text-on-surface mb-2">Ganti Dokumen Surat (PDF)</label>
+                            <input type="file" name="surat" accept=".pdf" required class="block w-full text-caption text-on-surface-variant file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-caption file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 bg-surface-container-low border border-outline-variant/50 rounded-xl p-1.5 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer">
                         </div>
-                        @error('surat') <p class="text-error text-[11px] mt-1">{{ $message }}</p> @enderror
+                        <button type="submit" class="w-full py-2.5 px-4 bg-primary text-white hover:bg-primary/90 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2 shadow-xs">
+                            <span class="material-symbols-outlined text-[18px]">upload</span>
+                            <span>Update Dokumen Surat</span>
+                        </button>
+                        @error('surat') <p class="text-error text-caption mt-1">{{ $message }}</p> @enderror
                     </form>
 
                     <div class="mt-3 pt-3 border-t border-outline-variant/30">
                         <form action="{{ route('dinas.participants.surat.generate', $participant->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full justify-center inline-flex items-center gap-1.5 bg-primary/10 text-primary py-2 px-4 rounded-xl text-sm font-semibold hover:bg-primary/20 transition-colors">
+                            <button type="submit" class="w-full justify-center inline-flex items-center gap-1.5 bg-primary/10 text-primary py-2.5 px-4 rounded-xl text-sm font-semibold hover:bg-primary/20 transition-colors">
                                 <span class="material-symbols-outlined text-[18px]">autorenew</span> Re-Generate Surat Otomatis
                             </button>
                         </form>
@@ -198,20 +207,23 @@
                         
                         <form action="{{ route('dinas.participants.surat.generate', $participant->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors mx-auto">
+                            <button type="submit" class="w-full inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-primary-dark transition-colors shadow-xs">
                                 <span class="material-symbols-outlined text-[18px]">autorenew</span> Auto-Generate Surat
                             </button>
                         </form>
                     </div>
                     
-                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-outline-variant/30">
+                    <form action="{{ route('dinas.participants.surat.update', $participant->id) }}" method="POST" enctype="multipart/form-data" class="mt-4 pt-4 border-t border-outline-variant/30 space-y-3">
                         @csrf
-                        <label class="block text-label-sm font-medium text-on-surface mb-2">Unggah Dokumen Surat (PDF)</label>
-                        <input type="file" name="surat" accept=".pdf" required class="block w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 mb-3">
-                        <button type="submit" class="w-full py-2.5 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl font-semibold text-sm transition-colors text-center shadow-md shadow-primary/20">
-                            Unggah Surat
+                        <div>
+                            <label class="block text-label-sm font-semibold text-on-surface mb-2">Unggah Dokumen Surat (PDF)</label>
+                            <input type="file" name="surat" accept=".pdf" required class="block w-full text-caption text-on-surface-variant file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-caption file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 bg-surface-container-low border border-outline-variant/50 rounded-xl p-1.5 cursor-pointer">
+                        </div>
+                        <button type="submit" class="w-full py-2.5 px-4 bg-primary text-white hover:bg-primary-dark rounded-xl font-medium text-sm transition-colors text-center shadow-xs flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">upload</span>
+                            <span>Unggah Surat</span>
                         </button>
-                        @error('surat') <p class="text-error text-[11px] mt-1">{{ $message }}</p> @enderror
+                        @error('surat') <p class="text-error text-caption mt-1">{{ $message }}</p> @enderror
                     </form>
                 @endif
             </div>

@@ -40,6 +40,9 @@ class LayananController extends Controller
         $slotTersedia = 0;
         $pesertaAktif = 0;
         
+        $totalPengajuanInternal = 0;
+        $pengajuanInternalTerbarus = collect();
+        
         if ($dinas) {
             $rekrutmens = Rekrutmen::where('dinas_id', $dinas->id)->get();
             $totalKuota = $rekrutmens->sum('kuota');
@@ -48,11 +51,29 @@ class LayananController extends Controller
             $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinas) {
                 $q->where('dinas_id', $dinas->id);
             })->where('status', 'diterima')->count();
+
+            $totalPengajuanInternal = MagangApplication::where(function($q) use ($dinas) {
+                $q->where('dinas_id', $dinas->id)
+                  ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                      $sq->where('dinas_id', $dinas->id);
+                  });
+            })->count();
+
+            $pengajuanInternalTerbarus = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang'])
+                ->where(function($q) use ($dinas) {
+                    $q->where('dinas_id', $dinas->id)
+                      ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                          $sq->where('dinas_id', $dinas->id);
+                      });
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
         }
 
         return view('pelayanan.kesbangpol.dashboard', compact(
             'totalPermohonan', 'sedangDiproses', 'selesai', 'ditolak', 'pengajuanTerbarus',
-            'dinas', 'totalKuota', 'slotTersedia', 'pesertaAktif'
+            'dinas', 'totalKuota', 'slotTersedia', 'pesertaAktif', 'totalPengajuanInternal', 'pengajuanInternalTerbarus'
         ));
     }
 

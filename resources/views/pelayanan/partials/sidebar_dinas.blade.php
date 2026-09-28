@@ -34,8 +34,8 @@
 </a>
 
 <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.participants.index') }}">
-<span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">group</span>
-<span class="text-label-md font-label-md">Peserta Magang</span>
+<span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">groups</span>
+<span class="text-label-md font-label-md">Manajemen Peserta</span>
 </a>
 
 <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.rekrutmen*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.rekrutmen.index') }}">

@@ -12,19 +12,34 @@ use Illuminate\Support\Facades\Auth;
 
 class ApplicationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
         $dinasId = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
 
-        $applications = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
+        $query = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
                 $q->where('dinas_id', $dinasId)
                   ->orWhereHas('rekrutmen', function($sq) use ($dinasId) {
                       $sq->where('dinas_id', $dinasId);
                   });
-            })
-            ->orderBy('created_at', 'desc')->paginate(15);
+            });
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($uq) use ($search) {
+                $uq->where('nama', 'like', "%{$search}%")
+                   ->orWhere('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%")
+                   ->orWhere('asal_instansi', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $applications = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
 
         return view('pelayanan.dinas.applications.index', compact('applications', 'dinas'));
     }

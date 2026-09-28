@@ -43,7 +43,7 @@ class ExcelDinasSeeder extends Seeder
             User::firstOrCreate(
                 ['email' => $dinasEmail],
                 [
-                    'name' => 'Admin ' . $dinasName,
+                    'name' => 'Admin ' . Dinas::formatSingkatan($dinasName),
                     'password' => $defaultPassword,
                     'role' => 'dinas',
                     'dinas_id' => $dinas->id,
@@ -71,7 +71,7 @@ class ExcelDinasSeeder extends Seeder
         $nameUpper = strtoupper(trim($name));
         $custom = [
             'DINAS KOMUNIKASI DAN INFORMATIKA' => 'diskominfo',
-            'BADAN KESATUAN BANGSA DAN POLITIK' => 'kesbangpol',
+            'BADAN KESATUAN BANGSA DAN POLITIK' => 'bakesbangpol',
             'BADAN PERENCANAAN PEMBANGUNAN DAERAH, PENELITIAN DAN PENGEMBANGAN' => 'bappedalitbang',
             'BADAN PENGELOLAAN PENDAPATAN DAERAH' => 'bappenda',
             'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA' => 'bkpsdm',

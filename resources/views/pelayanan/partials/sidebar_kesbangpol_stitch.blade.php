@@ -10,18 +10,9 @@
 </div>
 </div>
 <nav class="flex-1 space-y-1.5 overflow-y-auto">
-<!-- Dashboard -->
-@if(!in_array(Auth::user()->role, ['superadmin', 'admin']))
-<div class="space-y-1.5 mt-2">
-<a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.dashboard', 'admin.dashboard', 'superadmin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ Auth::user()->role === 'superadmin' ? route('superadmin.dashboard') : route('kesbangpol.dashboard') }}">
-<span class="material-symbols-outlined {{ Route::is('kesbangpol.dashboard', 'admin.dashboard', 'superadmin.dashboard') ? 'icon-filled' : '' }}">dashboard</span>
-<span class="text-label-md font-label-md">Dashboard</span>
-</a>
-</div>
-@endif
 
 <!-- Pelayanan Publik Dropdown -->
-<div x-data="{ open: {{ Route::is('kesbangpol.layanan*', 'kesbangpol.participants*', 'kesbangpol.history*') ? 'true' : 'false' }} }" class="mt-4">
+<div x-data="{ open: {{ (Route::is('kesbangpol.layanan*', 'kesbangpol.participants*', 'kesbangpol.history*') || (Route::is('kesbangpol.dashboard') && request('tab', 'pelayanan') === 'pelayanan')) ? 'true' : 'false' }} }" class="mt-4">
     <button @click="open = !open" type="button" class="flex items-center justify-between w-full px-4 py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider hover:text-primary transition-colors focus:outline-none">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">folder_open</span>
@@ -31,6 +22,11 @@
     </button>
     
     <div x-show="open" x-collapse class="space-y-1.5 mt-1.5">
+        <a class="flex items-center gap-3 px-4 py-3 {{ (Route::is('kesbangpol.dashboard') && request('tab', 'pelayanan') === 'pelayanan') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.dashboard', ['tab' => 'pelayanan']) }}">
+        <span class="material-symbols-outlined {{ (Route::is('kesbangpol.dashboard') && request('tab', 'pelayanan') === 'pelayanan') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">analytics</span>
+        <span class="text-label-md font-label-md">Dashboard Pelayanan</span>
+        </a>
+
         <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('kesbangpol.layanan*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.layanan.index') }}">
         <span class="material-symbols-outlined {{ Route::is('kesbangpol.layanan*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">verified</span>
         <span class="text-label-md font-label-md">Verifikasi Pengajuan</span>
@@ -49,7 +45,7 @@
 </div>
 
 <!-- Rekrutmen Internal Dropdown -->
-<div x-data="{ open: {{ (Route::is('dinas.bidang*', 'dinas.rekrutmen*', 'dinas.applications*', 'dinas.participants*') || (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat')) ? 'true' : 'false' }} }" class="mt-4">
+<div x-data="{ open: {{ (Route::is('dinas.bidang*', 'dinas.rekrutmen*', 'dinas.applications*', 'dinas.participants*') || (Route::is('absensi.admin.dashboard') && request('tab') === 'sertifikat') || (Route::is('kesbangpol.dashboard') && request('tab') === 'internal')) ? 'true' : 'false' }} }" class="mt-4">
     <button @click="open = !open" type="button" class="flex items-center justify-between w-full px-4 py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider hover:text-primary transition-colors focus:outline-none">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-[18px]">corporate_fare</span>
@@ -59,6 +55,11 @@
     </button>
     
     <div x-show="open" x-collapse class="space-y-1.5 mt-1.5">
+        <a class="flex items-center gap-3 px-4 py-3 {{ (Route::is('kesbangpol.dashboard') && request('tab') === 'internal') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('kesbangpol.dashboard', ['tab' => 'internal']) }}">
+        <span class="material-symbols-outlined {{ (Route::is('kesbangpol.dashboard') && request('tab') === 'internal') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">monitoring</span>
+        <span class="text-label-md font-label-md">Dashboard Rekrutmen</span>
+        </a>
+
         <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.bidang*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.bidang.index') }}">
         <span class="material-symbols-outlined {{ Route::is('dinas.bidang*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">business</span>
         <span class="text-label-md font-label-md">Kelola Bidang Internal</span>
@@ -75,8 +76,8 @@
         </a>
 
         <a class="flex items-center gap-3 px-4 py-3 {{ Route::is('dinas.participants*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-200" href="{{ route('dinas.participants.index') }}">
-        <span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">group</span>
-        <span class="text-label-md font-label-md">Peserta Internal</span>
+        <span class="material-symbols-outlined {{ Route::is('dinas.participants*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">groups</span>
+        <span class="text-label-md font-label-md">Manajemen Peserta</span>
         </a>
 
         @if(!in_array(Auth::user()->role, ['superadmin', 'admin']))

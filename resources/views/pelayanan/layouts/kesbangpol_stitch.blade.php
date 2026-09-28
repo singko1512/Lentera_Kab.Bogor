@@ -3,10 +3,11 @@
 <html lang="id"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Admin Dashboard - Kesbangpol Kab. Bogor</title>
+<title>Admin Dashboard - Bakesbangpol Kab. Bogor</title>
 <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=2"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/+esm"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -98,6 +99,21 @@
             color: initial;
             background-color: initial;
         }
+
+        /* Slim scrollbar for sidebar */
+        aside nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        aside nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        aside nav::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        aside nav::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="bg-background text-on-background font-body-md antialiased h-screen flex overflow-hidden">
@@ -114,7 +130,12 @@
 </button>
 <div class="flex items-center gap-2">
     <span class="material-symbols-outlined text-primary text-[22px]">admin_panel_settings</span>
-    <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin") }}</h2>
+    @php
+        $rawHeaderName = auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin");
+        $cleanHeaderName = trim(preg_replace('/^Admin\s+/i', '', $rawHeaderName));
+        $shortHeaderName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanHeaderName ?: 'Bakesbangpol');
+    @endphp
+    <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $shortHeaderName }}</h2>
 </div>
 </div>
 <div class="flex items-center gap-3">
