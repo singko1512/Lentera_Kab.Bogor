@@ -1,11 +1,8 @@
-@extends('pelayanan.layouts.dinas_stitch')
+@extends('absensi.layouts.admin')
 
 @section('title', 'LENTERA - Dashboard Admin')
 
 @section('styles')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     /* Kanban Board Styles */
     .kanban-board {
@@ -818,7 +815,6 @@
     {{-- Header --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div class="d-flex align-items-center gap-3">
-            <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" style="height: 48px; width: auto; object-fit: contain; margin-right: 0.25rem;">
             <div>
                 <h1 class="fw-bold mb-0" style="font-size:1.35rem; letter-spacing:-0.3px; color:var(--dark);">
                     {{ $isSuperAdmin ? 'Dashboard Super Admin LENTERA' : 'Dashboard Admin LENTERA' }}
@@ -2137,7 +2133,6 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tabs = document.querySelectorAll('#adminTab .tab-btn');
