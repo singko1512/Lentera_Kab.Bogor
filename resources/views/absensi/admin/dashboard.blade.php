@@ -1,9 +1,44 @@
-@extends('absensi.layouts.admin')
+@extends('pelayanan.layouts.dinas_stitch')
 
 @section('title', 'LENTERA - Dashboard Admin')
 
 @section('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
+    :root {
+        --primary: #115cb9;
+        --primary-light: #3b82f6;
+        --primary-dark: #1f477b;
+        --green: #10b981;
+        --red: #ef4444;
+        --dark: #1e293b;
+        --text: #334155;
+        --text-muted: #64748b;
+        --text-light: #94a3b8;
+        --bg: #f0f4f8;
+        --white: #ffffff;
+        --border: #e2e8f0;
+        --table-head: #f1f5f9;
+        --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    }
+
+    /* Prevent Bootstrap pollution on Tailwind sidebar & header */
+    aside a, header a {
+        color: inherit !important;
+        text-decoration: none !important;
+    }
+    aside h1, header h1, aside h2, header h2, aside h3, header h3, aside p, header p {
+        margin-bottom: 0 !important;
+    }
+    aside button, header button {
+        font-family: inherit;
+    }
+    aside select option, header select option {
+        color: initial;
+    }
+
     /* Kanban Board Styles */
     .kanban-board {
         display: grid;
@@ -2133,6 +2168,7 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tabs = document.querySelectorAll('#adminTab .tab-btn');
