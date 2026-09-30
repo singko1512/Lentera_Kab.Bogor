@@ -25,19 +25,179 @@
     }
 
     /* Prevent Bootstrap pollution on Tailwind sidebar & header */
+    aside, header {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
     aside a, header a {
         color: inherit !important;
         text-decoration: none !important;
+        background-color: transparent !important;
+    }
+    aside button, header button {
+        font-family: inherit !important;
     }
     aside h1, header h1, aside h2, header h2, aside h3, header h3, aside p, header p {
         margin-bottom: 0 !important;
-    }
-    aside button, header button {
-        font-family: inherit;
+        font-family: inherit !important;
     }
     aside select option, header select option {
         color: initial;
     }
+
+    .admin-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .admin-tabs {
+        position: relative;
+        display: inline-flex;
+        gap: 0.25rem;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        flex-wrap: wrap;
+    }
+
+    .tab-indicator {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        height: calc(100% - 8px);
+        width: 0;
+        background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+        border-radius: 11px;
+        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.35);
+        transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    top 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    width 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    height 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    opacity 0.2s ease;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+    }
+
+    .admin-tabs .tab-btn {
+        position: relative;
+        z-index: 2;
+        border: none;
+        background: transparent !important;
+        border-radius: 11px;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+        transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    .admin-tabs .tab-btn.active {
+        color: #fff !important;
+    }
+
+    .btn-export-excel {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.64rem 1.2rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-export-pdf {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.64rem 1.2rem;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+    }
+
+    .search-input {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.65rem 1rem 0.65rem 2.5rem;
+        font-size: 0.88rem;
+        width: 100%;
+        background: var(--white);
+        transition: all 0.2s;
+    }
+
+    .status-select {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.65rem 2rem 0.65rem 0.85rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--dark);
+        background: var(--white);
+        min-width: 150px;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+    }
+
+    .data-table thead th {
+        background: var(--table-head);
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 0.78rem 1rem;
+        border: none;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .data-table tbody td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.88rem;
+        vertical-align: middle;
+    }
+
+    .badge-status {
+        display: inline-block;
+        padding: 0.35em 0.75em;
+        font-size: 0.72rem;
+        font-weight: 700;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .badge-hadir { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .badge-wfh { background: rgba(17, 92, 185, 0.12); color: var(--primary); }
+    .badge-sakit { background: rgba(239, 68, 68, 0.12); color: var(--red); }
+    .badge-izin { background: rgba(245, 158, 11, 0.15); color: #d97706; }
 
     /* Kanban Board Styles */
     .kanban-board {
