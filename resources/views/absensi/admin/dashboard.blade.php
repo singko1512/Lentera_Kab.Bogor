@@ -86,7 +86,7 @@
         position: relative;
         z-index: 2;
         border: none;
-        background: transparent !important;
+        background: transparent;
         border-radius: 11px;
         padding: 0.6rem 1.25rem;
         font-size: 0.85rem;
@@ -96,11 +96,13 @@
         align-items: center;
         gap: 0.45rem;
         cursor: pointer;
-        transition: color 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        transition: all 0.25s ease !important;
     }
 
     .admin-tabs .tab-btn.active {
-        color: #fff !important;
+        background: linear-gradient(135deg, #115cb9 0%, #3b82f6 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.3) !important;
     }
 
     .btn-export-excel {
@@ -158,30 +160,216 @@
         background-position: right 0.75rem center;
     }
 
-    .data-table {
-        width: 100%;
-        min-width: 980px;
-        border-collapse: collapse;
+    .filter-label {
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        margin-bottom: 0.35rem !important;
     }
 
-    .data-table thead th {
-        background: var(--table-head);
-        color: var(--text-muted);
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-        padding: 0.78rem 1rem;
-        border: none;
+    .filter-select, select.filter-select {
+        height: 42px !important;
+        padding: 0.5rem 2.25rem 0.5rem 0.85rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        outline: none !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 1rem 1rem !important;
+        transition: all 0.2s ease-in-out !important;
+        cursor: pointer !important;
+    }
+
+    .filter-select:hover, select.filter-select:hover {
+        border-color: #94a3b8 !important;
+    }
+
+    .filter-select:focus, select.filter-select:focus {
+        border-color: #115cb9 !important;
+        box-shadow: 0 0 0 3px rgba(17, 92, 185, 0.15) !important;
+    }
+
+    /* Form Label & Search Wrapper */
+    .form-label-admin {
+        font-size: 0.82rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+        margin-bottom: 0.4rem !important;
+        display: block;
+    }
+
+    .search-wrap {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        width: 100%;
+    }
+
+    .search-wrap i, .search-wrap .fa-solid, .search-wrap .fa-magnifying-glass {
+        position: absolute !important;
+        left: 0.9rem !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        color: #94a3b8 !important;
+        font-size: 0.9rem !important;
+        pointer-events: none !important;
+        z-index: 5 !important;
+    }
+
+    .search-wrap .search-input {
+        padding-left: 2.5rem !important;
+        height: 42px !important;
+        border-radius: 10px !important;
+        border: 1px solid #cbd5e1 !important;
+        width: 100% !important;
+        font-size: 0.875rem !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .search-wrap .search-input:focus {
+        border-color: #115cb9 !important;
+        box-shadow: 0 0 0 3px rgba(17, 92, 185, 0.15) !important;
+        outline: none !important;
+    }
+
+    /* Modern Primary Action Button (.btn-add) */
+    .btn-add, button.btn-add {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        padding: 0.55rem 1.25rem !important;
+        height: 42px !important;
+        background: linear-gradient(135deg, #115cb9 0%, #3b82f6 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        box-shadow: 0 3px 10px rgba(17, 92, 185, 0.25) !important;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+    }
+
+    .btn-add:hover, button.btn-add:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 18px rgba(17, 92, 185, 0.35) !important;
+        color: #ffffff !important;
+    }
+
+    .btn-add:active, button.btn-add:active {
+        transform: translateY(0) scale(0.97) !important;
+    }
+
+    /* Styled Empty States (.empty-state) */
+    .empty-state {
+        text-align: center !important;
+        padding: 3.5rem 1.5rem !important;
+        background: #ffffff !important;
+        border-radius: 14px !important;
+        margin: 1.5rem 0 !important;
+        border: 1px dashed #cbd5e1 !important;
+    }
+
+    .empty-state h6 {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .empty-state p {
+        font-size: 0.85rem !important;
+        color: #64748b !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Template Upload Form Styling in Sertifikat tab */
+    #panel-sertifikat input[type="file"].form-control-sm {
+        height: 42px !important;
+        padding: 0.45rem 0.75rem !important;
+        border-radius: 10px !important;
+        border: 1px solid #cbd5e1 !important;
+        font-size: 0.82rem !important;
+        background: #ffffff !important;
+    }
+
+    .table-responsive {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        overflow-x: auto !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .data-table, table.data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border: none !important;
+        margin-bottom: 0 !important;
+    }
+
+    .data-table thead th, table.data-table thead th {
+        background: #f8fafc !important;
+        color: #475569 !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        padding: 0.85rem 1.1rem !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px solid #e2e8f0 !important;
         text-align: left;
         white-space: nowrap;
     }
 
-    .data-table tbody td {
-        padding: 0.85rem 1rem;
-        border-bottom: 1px solid var(--border);
-        font-size: 0.88rem;
-        vertical-align: middle;
+    .data-table tbody td, table.data-table tbody td {
+        padding: 0.9rem 1.1rem !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 0.875rem !important;
+        vertical-align: middle !important;
+        background-color: #ffffff !important;
+        box-shadow: none !important;
+    }
+
+    .data-table tbody tr:hover td, table.data-table tbody tr:hover td {
+        background-color: #f8fafc !important;
+    }
+
+    .data-table tbody tr:last-child td, table.data-table tbody tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .search-input, .status-select, select.form-select, input.form-control, input.form-control-admin {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+        font-size: 0.875rem !important;
+        background-color: #ffffff !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+
+    .search-input:focus, .status-select:focus, select.form-select:focus, input.form-control:focus, input.form-control-admin:focus {
+        border-color: #115cb9 !important;
+        box-shadow: 0 0 0 3px rgba(17, 92, 185, 0.12) !important;
+        outline: none !important;
     }
 
     .badge-status {
@@ -276,6 +464,21 @@
         box-shadow: 0 2px 8px rgba(17, 92, 185, 0.2);
     }
 
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .tab-panel {
+        animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     /* Stats Dashboard Admin Styles */
     .admin-stats-grid {
         display: grid;
@@ -292,6 +495,16 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: fadeInUp 0.4s ease-out forwards;
+    }
+    .admin-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px -6px rgba(17, 92, 185, 0.12), 0 4px 12px rgba(0,0,0,0.03);
+        border-color: rgba(17, 92, 185, 0.25);
+    }
+    .admin-stat-card:hover .admin-stat-icon {
+        transform: scale(1.12) rotate(4deg);
     }
     .admin-stat-icon {
         width: 48px;
@@ -302,6 +515,7 @@
         justify-content: center;
         font-size: 1.25rem;
         flex-shrink: 0;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .admin-stat-info {
         flex-grow: 1;
@@ -1030,12 +1244,6 @@
                 </div>
             </div>
         </div>
-        <form action="{{ route('logout') }}" method="POST" class="m-0">
-            @csrf
-            <button type="submit" class="btn-logout">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout Admin
-            </button>
-        </form>
     </div>
 
     <!-- Overhauled Statistics Grid -->

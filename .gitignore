@@ -1,8 +1,4 @@
 /node_modules
-/public/build
-/public/hot
-/public/storage
-/public/fonts-manifest.dev.json
 /storage/*.key
 .env
 .env.*

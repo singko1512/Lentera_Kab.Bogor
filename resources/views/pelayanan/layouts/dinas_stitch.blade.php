@@ -129,7 +129,7 @@
     $isSuperadmin = auth()->check() && in_array(auth()->user()->role, ['admin', 'superadmin']);
     $isKesbangpol = auth()->check() && (
         ($isSuperadmin && !session()->has('superadmin_instansi_id')) || 
-        (!$isSuperadmin && auth()->user()->dinas && auth()->user()->dinas->is_kesbangpol)
+        (!$isSuperadmin && auth()->user()?->dinas && auth()->user()->dinas->is_kesbangpol)
     );
     $masqueradeDinas = null;
     if ($isSuperadmin && session()->has('superadmin_instansi_id')) {
@@ -155,7 +155,7 @@
     @if($isKesbangpol)
         <span class="material-symbols-outlined text-primary text-[22px]">admin_panel_settings</span>
         @php
-            $rawHeaderName = auth()->user()->name ?? (auth()->user()->dinas->name ?? "Admin");
+            $rawHeaderName = auth()->user()?->name ?? (auth()->user()?->dinas?->name ?? "Admin");
             $cleanHeaderName = trim(preg_replace('/^Admin\s+/i', '', $rawHeaderName));
             $shortHeaderName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanHeaderName ?: 'Bakesbangpol');
         @endphp
@@ -163,7 +163,7 @@
     @else
         <span class="material-symbols-outlined text-primary text-[22px]">domain</span>
         @php
-            $dinasTargetName = $masqueradeDinas->name ?? (auth()->user()->dinas->name ?? "Admin Dinas");
+            $dinasTargetName = $masqueradeDinas?->name ?? (auth()->user()?->dinas?->name ?? "Admin Dinas");
             $cleanDinasName = trim(preg_replace('/^Admin\s+/i', '', $dinasTargetName));
             $shortDinasName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanDinasName);
         @endphp

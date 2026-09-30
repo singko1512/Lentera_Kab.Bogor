@@ -2,7 +2,7 @@
 <div class="flex flex-col h-full py-6 px-4">
 <div class="mb-8 px-4 flex items-center gap-4 group cursor-pointer">
 <div class="p-2 bg-primary/5 rounded-xl group-hover:scale-105 transition-transform duration-300">
-    <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" class="w-10 h-10 object-contain shrink-0 drop-shadow-sm">
+    <img src="{{ asset('assets/images/logo_lentera.png') }}" alt="Logo LENTERA" class="w-10 h-10 object-contain shrink-0 drop-shadow-sm">
 </div>
 <div>
 <h1 class="text-headline-md font-headline-md font-bold text-on-surface leading-tight tracking-tight">LENTERA</h1>

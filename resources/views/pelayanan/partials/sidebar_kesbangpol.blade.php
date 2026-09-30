@@ -1,6 +1,6 @@
 <aside class="sidebar-kesbangpol bg-white border-end d-flex flex-column vh-100" style="width: 280px; position: fixed; top: 0; left: 0; z-index: 1040; transition: transform 0.3s ease;">
     <div class="sidebar-header d-flex align-items-center gap-3 p-4 border-bottom">
-        <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" style="width: 44px; height: 44px; object-fit: contain; flex-shrink: 0;">
+        <img src="{{ asset('assets/images/logo_lentera.png') }}" alt="Logo LENTERA" style="width: 44px; height: 44px; object-fit: contain; flex-shrink: 0;">
         <div>
             <h5 class="mb-0 fw-bold" style="font-family: var(--font);">LENTERA</h5>
             <small class="text-muted">Kabupaten Bogor</small>
