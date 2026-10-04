@@ -12,29 +12,48 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
-        $dinasId = (session('superadmin_instansi_id') ?? Auth::user()->dinas_id);
+        $user = Auth::user();
+        $dinasId = session('superadmin_instansi_id') ?? $user->dinas_id;
+        
+        if (!$dinasId && in_array($user->role, ['superadmin', 'admin'])) {
+            $dinasId = \App\Models\Dinas::first()?->id;
+        }
 
-        if (!$dinasId) {
+        $dinas = \App\Models\Dinas::find($dinasId);
+
+        if (!$dinas) {
             return redirect('/')->with('error', 'Akun Anda tidak tertaut dengan instansi manapun.');
         }
 
-        $rekrutmens = Rekrutmen::where('dinas_id', $dinasId)->get();
+        $rekrutmens = Rekrutmen::where('dinas_id', $dinas->id)->get();
         $totalKuota = $rekrutmens->sum('kuota');
         $slotTersedia = $rekrutmens->sum('slot_tersedia');
 
-        $totalPengajuanLayanan = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinasId) {
-            $q->where('dinas_id', $dinasId);
+        $totalPengajuanLayanan = MagangApplication::where(function($q) use ($dinas) {
+            $q->where('dinas_id', $dinas->id)
+              ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                  $sq->where('dinas_id', $dinas->id);
+              });
         })->count();
 
-        $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinasId) {
-            $q->where('dinas_id', $dinasId);
-        })->where('status', 'diterima')->count();
+        $pesertaAktif = MagangApplication::where(function($q) use ($dinas) {
+            $q->where('dinas_id', $dinas->id)
+              ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                  $sq->where('dinas_id', $dinas->id);
+              });
+        })->whereIn('status', ['diterima', 'aktif'])->count();
 
-        $pesertaDiterima = MagangApplication::with(['user', 'rekrutmen.bidang'])
-            ->whereHas('rekrutmen', function ($q) use ($dinasId) {
-                $q->where('dinas_id', $dinasId);
-            })->where('status', 'diterima')->get();
+        $pesertaDiterima = MagangApplication::with(['user', 'rekrutmen.bidang', 'bidang'])
+            ->where(function($q) use ($dinas) {
+                $q->where('dinas_id', $dinas->id)
+                  ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                      $sq->where('dinas_id', $dinas->id);
+                  });
+            })
+            ->whereIn('status', ['diterima', 'aktif'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
         return view('pelayanan.dinas.dashboard', compact(
             'dinas', 'totalKuota', 'slotTersedia', 'totalPengajuanLayanan', 'pesertaAktif', 'pesertaDiterima'

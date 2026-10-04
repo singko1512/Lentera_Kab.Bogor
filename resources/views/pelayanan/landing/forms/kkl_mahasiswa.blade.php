@@ -346,11 +346,19 @@
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan KKL / PKL <span class="text-error">*</span></label>
 <select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
-                                        <option value="">-- Pilih Instansi / Dinas --</option>
-                                        @foreach($dinasList as $dinas)
-                                            <option value="{{ $dinas->id }}">{{ $dinas->name }}</option>
-                                        @endforeach
-                                    </select>
+    <option value="">-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --</option>
+    @forelse($dinasList as $dinas)
+        <option value="{{ $dinas->id }}">
+            {{ $dinas->name }} (Sisa Kuota: {{ $dinas->sisa_kuota }})
+        </option>
+    @empty
+        <option value="" disabled>Saat ini belum ada instansi yang membuka kuota penerimaan</option>
+    @endforelse
+</select>
+<p class="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5 text-secondary">
+    <span class="material-symbols-outlined text-[15px]">info</span>
+    <span>Hanya menampilkan instansi yang aktif membuka kuota. Kuota instansi yang Anda pilih akan langsung terpotong otomatis saat permohonan dikirim.</span>
+</p>
 </div>
 </div>
 </div>

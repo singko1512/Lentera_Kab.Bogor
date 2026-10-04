@@ -44,6 +44,44 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <!-- Main Content: Applicant Details -->
         <div class="xl:col-span-2 space-y-6">
+            @if($application->permohonanLayanan && $application->permohonanLayanan->statusMaster)
+                @php
+                    $kbKode = $application->permohonanLayanan->statusMaster->kode;
+                    $kbNama = $application->permohonanLayanan->statusMaster->nama;
+                    if (in_array($kbKode, ['disetujui', 'selesai'])) {
+                        $bannerBg = 'bg-emerald-50 border-emerald-200 text-emerald-900';
+                        $bannerIcon = 'verified';
+                        $bannerIconColor = 'text-emerald-600';
+                        $bannerDesc = 'Surat Rekomendasi Resmi Kesbangpol telah disetujui dan diterbitkan. Instansi Anda dapat segera memproses penerimaan dan penempatan bidang.';
+                    } elseif ($kbKode == 'ditolak') {
+                        $bannerBg = 'bg-red-50 border-red-200 text-red-900';
+                        $bannerIcon = 'cancel';
+                        $bannerIconColor = 'text-red-600';
+                        $bannerDesc = 'Permohonan Rekomendasi telah DITOLAK oleh Kesbangpol. ' . ($application->permohonanLayanan->keterangan ? 'Alasan: ' . $application->permohonanLayanan->keterangan : '');
+                    } elseif ($kbKode == 'perlu_revisi') {
+                        $bannerBg = 'bg-orange-50 border-orange-200 text-orange-900';
+                        $bannerIcon = 'history_edu';
+                        $bannerIconColor = 'text-orange-600';
+                        $bannerDesc = 'Permohonan ini sedang dalam proses perbaikan/revisi berkas oleh pemohon sesuai catatan Kesbangpol: ' . ($application->permohonanLayanan->keterangan ?? '-');
+                    } else {
+                        $bannerBg = 'bg-amber-50 border-amber-200 text-amber-900';
+                        $bannerIcon = 'pending_actions';
+                        $bannerIconColor = 'text-amber-600';
+                        $bannerDesc = 'Pengajuan ini telah masuk ke sistem dan memotong kuota instansi Anda, namun status Surat Rekomendasi masih menunggu verifikasi berkas di Bakesbangpol Kab. Bogor.';
+                    }
+                @endphp
+                <div class="p-4 rounded-2xl border {{ $bannerBg }} flex items-start gap-3.5 shadow-xs">
+                    <span class="material-symbols-outlined {{ $bannerIconColor }} text-2xl mt-0.5">{{ $bannerIcon }}</span>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs uppercase tracking-wider font-bold opacity-75">Status Kesbangpol</span>
+                            <span class="font-bold text-sm bg-white/70 px-2 py-0.5 rounded border border-current/20">{{ $kbNama }}</span>
+                        </div>
+                        <p class="text-xs leading-relaxed opacity-90">{{ $bannerDesc }}</p>
+                    </div>
+                </div>
+            @endif
+
             <!-- Data Diri Card -->
             <div class="bg-white rounded-2xl shadow-soft p-6 border border-outline-variant/30 relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -z-10"></div>

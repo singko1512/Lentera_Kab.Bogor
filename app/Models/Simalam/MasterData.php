@@ -82,8 +82,12 @@ class MasterData extends Model
         return self::options($jenis)->pluck('kode')->all();
     }
 
-    public static function idFor(string $jenis, string $kode): ?int
+    public static function idFor(string $jenis, ?string $kode): ?int
     {
+        if ($kode === null || $kode === '') {
+            return null;
+        }
+
         $key = $jenis.':'.$kode;
 
         if (! array_key_exists($key, self::$idCache)) {

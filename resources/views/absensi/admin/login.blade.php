@@ -390,7 +390,7 @@
                         type="text"
                         name="login"
                         class="form-control form-control-admin w-100"
-                        value="{{ old('login', old('username')) }}"
+                        value="{{ old('login', old('username', old('email'))) }}"
                         autocomplete="username"
                         inputmode="text"
                         placeholder="{{ $loginPlaceholder }}"

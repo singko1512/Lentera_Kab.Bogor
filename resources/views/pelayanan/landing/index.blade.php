@@ -661,6 +661,8 @@
     @endif
 </section>
 @endauth
+
+@guest
 <!-- Jenis Pelayanan Surat Izin Rekomendasi Section -->
 <section id="services-section" class="max-w-container-max mx-auto px-margin-desktop pt-16 pb-4 relative z-10 w-full overflow-hidden">
 <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
@@ -767,7 +769,6 @@
 </div>
 </section>
 
-@guest
 <!-- Timeline Section -->
 <section id="timeline-section" class="max-w-container-max mx-auto px-margin-desktop pt-8 pb-8 w-full">
 <div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
@@ -957,7 +958,6 @@
         </div>
     </div>
 </section>
-@endguest
 
 <!-- Instansi Tujuan Magang -->
 <section id="instansi-section" class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
@@ -1004,7 +1004,7 @@
 @endforeach
 </div>
 </section>
-@guest
+
 <!-- Peserta Magang Diterima -->
 <section class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
 <div class="flex flex-col gap-8">

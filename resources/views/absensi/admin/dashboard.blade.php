@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.dinas_stitch')
 
-@section('title', 'LENTERA - Dashboard Admin')
+@section('title', 'LENTERA - Manajemen Magang & Sertifikat')
 
 @section('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,10 +28,28 @@
     aside, header {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
+    aside .material-symbols-outlined, header .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined' !important;
+        font-size: 22px !important;
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        max-width: 22px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
     aside a, header a {
-        color: inherit !important;
         text-decoration: none !important;
-        background-color: transparent !important;
+    }
+    aside a:not(.bg-primary), header a:not(.bg-primary) {
+        color: inherit !important;
+    }
+    aside a.bg-primary {
+        background-color: #115cb9 !important;
+        color: #ffffff !important;
     }
     aside button, header button {
         font-family: inherit !important;
@@ -44,22 +62,26 @@
         color: initial;
     }
 
+    .admin-wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
     .admin-card {
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
     }
 
     .admin-tabs {
         position: relative;
         display: inline-flex;
-        gap: 0.25rem;
-        background: var(--white);
-        border: 1px solid var(--border);
+        gap: 0.35rem;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
         border-radius: 14px;
         padding: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
         flex-wrap: wrap;
     }
 
@@ -69,13 +91,14 @@
         left: 4px;
         height: calc(100% - 8px);
         width: 0;
-        background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
-        border-radius: 11px;
-        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.35);
-        transition: left 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    top 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    width 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
-                    height 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(226, 232, 240, 0.7);
+        transition: left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    top 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    width 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                    height 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
                     opacity 0.2s ease;
         pointer-events: none;
         z-index: 1;
@@ -87,77 +110,112 @@
         z-index: 2;
         border: none;
         background: transparent;
-        border-radius: 11px;
-        padding: 0.6rem 1.25rem;
+        border-radius: 10px;
+        padding: 0.55rem 1.15rem;
         font-size: 0.85rem;
         font-weight: 600;
-        color: var(--text-muted);
+        color: #64748b;
         display: inline-flex;
         align-items: center;
         gap: 0.45rem;
         cursor: pointer;
-        transition: all 0.25s ease !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .admin-tabs .tab-btn:hover {
+        color: #1e293b;
     }
 
     .admin-tabs .tab-btn.active {
-        background: linear-gradient(135deg, #115cb9 0%, #3b82f6 100%) !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 14px rgba(17, 92, 185, 0.3) !important;
+        background: #ffffff !important;
+        color: #115cb9 !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
     }
 
     .btn-export-excel {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.64rem 1.2rem;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: #fff;
-        border: none;
+        gap: 0.5rem;
+        padding: 0.55rem 1.15rem;
+        background: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
         border-radius: 12px;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         font-weight: 600;
         text-decoration: none;
-        box-shadow: 0 3px 10px rgba(16, 185, 129, 0.25);
+        transition: all 0.2s ease;
+    }
+    .btn-export-excel:hover {
+        background: #10b981;
+        color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+        transform: translateY(-1px);
     }
 
     .btn-export-pdf {
         display: inline-flex;
         align-items: center;
-        gap: 0.45rem;
-        padding: 0.64rem 1.2rem;
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: #fff;
-        border: none;
+        gap: 0.5rem;
+        padding: 0.55rem 1.15rem;
+        background: #fff1f2;
+        color: #be123c;
+        border: 1px solid #fecdd3;
         border-radius: 12px;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         font-weight: 600;
         text-decoration: none;
-        box-shadow: 0 3px 10px rgba(239, 68, 68, 0.25);
+        transition: all 0.2s ease;
+    }
+    .btn-export-pdf:hover {
+        background: #ef4444;
+        color: #ffffff;
+        border-color: #ef4444;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        transform: translateY(-1px);
     }
 
     .search-input {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 0.65rem 1rem 0.65rem 2.5rem;
-        font-size: 0.88rem;
-        width: 100%;
-        background: var(--white);
-        transition: all 0.2s;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 0.6rem 1rem 0.6rem 2.5rem !important;
+        font-size: 0.875rem !important;
+        width: 100% !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .search-input:focus {
+        border-color: #115cb9 !important;
+        box-shadow: 0 0 0 3px rgba(17, 92, 185, 0.12) !important;
+        outline: none !important;
     }
 
     .status-select {
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 0.65rem 2rem 0.65rem 0.85rem;
-        font-size: 0.88rem;
-        font-weight: 500;
-        color: var(--dark);
-        background: var(--white);
-        min-width: 150px;
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
+        height: 42px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 0.5rem 2.25rem 0.5rem 0.85rem !important;
+        font-size: 0.875rem !important;
+        font-weight: 500 !important;
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        min-width: 150px !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 1rem 1rem !important;
+        cursor: pointer !important;
+        transition: border-color 0.2s, box-shadow 0.2s !important;
+    }
+    .status-select:focus {
+        border-color: #115cb9 !important;
+        box-shadow: 0 0 0 3px rgba(17, 92, 185, 0.12) !important;
+        outline: none !important;
     }
 
     .filter-label {
@@ -248,44 +306,63 @@
         gap: 0.5rem !important;
         padding: 0.55rem 1.25rem !important;
         height: 42px !important;
-        background: linear-gradient(135deg, #115cb9 0%, #3b82f6 100%) !important;
+        background: #115cb9 !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 10px !important;
         font-size: 0.85rem !important;
         font-weight: 600 !important;
         cursor: pointer !important;
-        box-shadow: 0 3px 10px rgba(17, 92, 185, 0.25) !important;
-        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        box-shadow: 0 2px 8px rgba(17, 92, 185, 0.2) !important;
+        transition: all 0.2s ease !important;
         text-decoration: none !important;
         white-space: nowrap !important;
     }
 
     .btn-add:hover, button.btn-add:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 18px rgba(17, 92, 185, 0.35) !important;
+        background: #0d4a94 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(17, 92, 185, 0.25) !important;
         color: #ffffff !important;
     }
 
     .btn-add:active, button.btn-add:active {
-        transform: translateY(0) scale(0.97) !important;
+        transform: translateY(0) scale(0.98) !important;
     }
 
     /* Styled Empty States (.empty-state) */
     .empty-state {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
         text-align: center !important;
-        padding: 3.5rem 1.5rem !important;
-        background: #ffffff !important;
+        padding: 3rem 1.5rem !important;
+        background: #f8fafc !important;
         border-radius: 14px !important;
         margin: 1.5rem 0 !important;
         border: 1px dashed #cbd5e1 !important;
     }
 
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        color: #94a3b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e2e8f0;
+    }
+
     .empty-state h6 {
-        font-size: 1rem !important;
+        font-size: 0.95rem !important;
         font-weight: 700 !important;
         color: #1e293b !important;
-        margin-bottom: 0.4rem !important;
+        margin-bottom: 0.35rem !important;
     }
 
     .empty-state p {
@@ -483,54 +560,54 @@
     .admin-stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1rem;
+        gap: 1.25rem;
         margin-bottom: 1.5rem;
     }
     .admin-stat-card {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 1.25rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.015);
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
         display: flex;
         align-items: center;
         gap: 1rem;
-        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         animation: fadeInUp 0.4s ease-out forwards;
     }
     .admin-stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 28px -6px rgba(17, 92, 185, 0.12), 0 4px 12px rgba(0,0,0,0.03);
-        border-color: rgba(17, 92, 185, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 4px 10px -2px rgba(0, 0, 0, 0.03);
+        border-color: rgba(17, 92, 185, 0.2);
     }
     .admin-stat-card:hover .admin-stat-icon {
-        transform: scale(1.12) rotate(4deg);
+        transform: scale(1.05);
     }
     .admin-stat-icon {
         width: 48px;
         height: 48px;
-        border-radius: 14px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.25rem;
         flex-shrink: 0;
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: transform 0.3s ease;
     }
     .admin-stat-info {
         flex-grow: 1;
     }
     .admin-stat-val {
         font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--dark);
+        font-weight: 700;
+        color: #0f172a;
         line-height: 1.1;
     }
     .admin-stat-lbl {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        margin-top: 0.15rem;
+        font-size: 0.8rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-top: 0.2rem;
     }
 
     /* Planning vs Actual bars */
@@ -1221,36 +1298,21 @@
 @section('content')
 <div class="admin-wrap">
 
-    {{-- Header --}}
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <div>
-                <h1 class="fw-bold mb-0" style="font-size:1.35rem; letter-spacing:-0.3px; color:var(--dark);">
-                    {{ $isSuperAdmin ? 'Dashboard Super Admin LENTERA' : 'Dashboard Admin LENTERA' }}
-                </h1>
-                <p class="mb-0 text-muted" style="font-size:0.85rem;">
-                    {{ $isSuperAdmin ? 'Akses penuh Layanan Integrasi Izin Riset dan Magang' : 'Kelola peserta magang, absensi, laporan, dan sertifikat' }}
-                </p>
-                <div class="mt-2 d-flex flex-wrap gap-2">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5" style="font-size:0.75rem;">
-                        <i class="fa-solid fa-layer-group me-1"></i>
-                        {{ $adminBidangScope ? $adminBidangScope->nama : 'Semua Bidang' }}
-                    </span>
-                    @if (!$isSuperAdmin && !$adminBidangScope)
-                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-1.5" style="font-size:0.75rem;">
-                            Admin belum punya bidang khusus
-                        </span>
-                    @endif
-                </div>
-            </div>
-        </div>
+    {{-- Page Header --}}
+    <div class="mb-4">
+        <h2 class="text-headline-lg font-headline-lg font-bold text-on-surface tracking-tight" style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">
+            {{ $isSuperAdmin ? 'Manajemen Magang & Sertifikat - Super Admin' : 'Manajemen Magang & Sertifikat' }}
+        </h2>
+        <p class="text-body-md font-body-md text-on-surface-variant mb-0" style="font-size: 0.875rem; color: #64748b;">
+            {{ $isSuperAdmin ? 'Akses penuh rekap absensi, kelola peserta magang, dan penerbitan sertifikat.' : 'Kelola peserta magang, rekap absensi harian, dan penerbitan sertifikat instansi.' }}
+        </p>
     </div>
 
     <!-- Overhauled Statistics Grid -->
     <div class="admin-stats-grid mt-3">
         <!-- Stats Card 1: Peserta Aktif -->
         <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(17, 92, 185,0.1);color:#115cb9;">
+            <div class="admin-stat-icon" style="background:#eff6ff; color:#115cb9;">
                 <i class="fa-solid fa-users"></i>
             </div>
             <div class="admin-stat-info">
@@ -1261,7 +1323,7 @@
 
         <!-- Stats Card 2: Kehadiran Hari Ini -->
         <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(16, 185, 129,0.1);color:#10b981;">
+            <div class="admin-stat-icon" style="background:#ecfdf5; color:#059669;">
                 <i class="fa-solid fa-user-check"></i>
             </div>
             <div class="admin-stat-info">
@@ -1272,11 +1334,11 @@
 
         <!-- Stats Card 3: Tidak Hadir / Belum Absen -->
         <div class="admin-stat-card">
-            <div class="admin-stat-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b;">
+            <div class="admin-stat-icon" style="background:#fffbeb; color:#d97706;">
                 <i class="fa-solid fa-user-clock"></i>
             </div>
             <div class="admin-stat-info">
-                <div class="admin-stat-val text-warning">{{ $belumAbsenCount ?? 0 }}</div>
+                <div class="admin-stat-val" style="color: #b45309;">{{ $belumAbsenCount ?? 0 }}</div>
                 <div class="admin-stat-lbl">Belum Absen (Sakit: {{ $sakitCount ?? 0 }}, Izin: {{ $izinCount ?? 0 }})</div>
             </div>
         </div>
@@ -1385,6 +1447,7 @@
             <div class="mt-3">
                 @if ($absensiRecords->isEmpty())
                     <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fa-solid fa-inbox"></i></div>
                         <h6>Belum ada data pada periode ini</h6>
                         <p>Ubah bulan/tahun atau filter untuk melihat data lainnya.</p>
                     </div>
@@ -1490,32 +1553,45 @@
 
     {{-- TAB: Kelola Magang --}}
     <div class="tab-panel {{ $activeAdminTab === 'pegawai' ? '' : 'd-none' }}" id="panel-pegawai">
-        <div class="admin-card overflow-hidden">
-            <div class="p-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
-                <h6 class="fw-bold mb-0" style="color:var(--dark);">
-                    <i class="fa-solid fa-users me-1" style="color:var(--primary);"></i> Daftar Peserta Magang
-                </h6>
+        <div class="admin-card overflow-hidden mb-4">
+            <div class="p-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <h6 class="fw-bold mb-1" style="color:var(--dark);">
+                        <i class="fa-solid fa-users me-1" style="color:var(--primary);"></i> Kelola Peserta Magang Berdasarkan Bidang
+                    </h6>
+                    <p class="text-muted mb-0" style="font-size:0.8rem;">
+                        Daftar peserta magang yang diterima dan aktif dikelompokkan berdasarkan bidang penempatan instansi.
+                    </p>
+                </div>
             </div>
 
-            <div class="px-4 pb-4">
+            <div class="p-4 pb-3">
                 <form action="{{ route($dashboardRouteName) }}" method="GET" class="row g-3 align-items-end">
                     <input type="hidden" name="tab" value="pegawai">
-                    @if ($activeBidangId)
-                        <input type="hidden" name="bidang_id" value="{{ $activeBidangId }}">
-                    @endif
-                    <div class="col-md-9">
+                    <div class="col-md-6">
                         <label class="form-label-admin">Cari Peserta Magang</label>
                         <div class="search-wrap">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" name="magang_search" class="search-input" placeholder="Cari nama, email, instansi, atau bidang..." value="{{ $magangSearch }}">
+                            <input type="text" name="magang_search" class="search-input" placeholder="Cari nama, email, atau instansi..." value="{{ $magangSearch }}">
                         </div>
                     </div>
-                    <div class="col-md-3 d-flex gap-2">
+                    <div class="col-md-4">
+                        <label class="form-label-admin">Filter Bidang Penempatan</label>
+                        <select name="bidang_id" class="filter-select w-100" onchange="this.form.submit()">
+                            <option value="">Semua Bidang ({{ $bidangs->count() }} Bidang)</option>
+                            @foreach ($bidangs as $b)
+                                <option value="{{ $b->id }}" {{ (string) request('bidang_id', $activeBidangId) === (string) $b->id ? 'selected' : '' }}>
+                                    {{ $b->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
                         <button type="submit" class="btn-add flex-grow-1 justify-content-center">
                             <i class="fa-solid fa-filter"></i> Cari
                         </button>
-                        @if ($magangSearch !== '')
-                            <a href="{{ route($dashboardRouteName, ['tab' => 'pegawai'] + ($activeBidangId ? ['bidang_id' => $activeBidangId] : [])) }}" class="btn-logout" title="Reset filter">
+                        @if ($magangSearch !== '' || request('bidang_id'))
+                            <a href="{{ route($dashboardRouteName, ['tab' => 'pegawai']) }}" class="btn-logout" title="Reset filter">
                                 <i class="fa-solid fa-rotate-left"></i>
                             </a>
                         @endif
@@ -1523,75 +1599,166 @@
                 </form>
             </div>
 
-            @if ($magangUsers->isEmpty())
-                <div class="empty-state">
-                    <h6>Belum ada peserta magang terdaftar</h6>
-                    <p>Peserta magang yang mendaftar dan diterima akan tampil di sini untuk pencatatan absensi.</p>
+            @php
+                $targetFilterBidangId = request('bidang_id', $activeBidangId);
+                $isFilteredByBidang = !empty($targetFilterBidangId);
+                $selectedBidang = $isFilteredByBidang ? $bidangs->firstWhere('id', $targetFilterBidangId) : null;
+                $totalPeserta = $magangUsers->count();
+                $displayApps = $isFilteredByBidang ? $magangUsers : $magangUsers->take(5);
+            @endphp
+
+            @if ($bidangs->isEmpty())
+                <div class="empty-state mx-4 mb-4">
+                    <div class="empty-state-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <h6>Belum ada bidang terdaftar di instansi ini</h6>
+                    <p>Silakan tambahkan bidang melalui menu Kelola Bidang untuk mulai menempatkan peserta magang.</p>
                 </div>
             @else
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th style="width:5%;">No</th>
-                                <th>Nama Peserta</th>
-                                <th>Email</th>
-                                <th>Instansi Asal</th>
-                                <th>Status Akun</th>
-                                <th>Bidang Magang</th>
-                                <th>Periode Magang</th>
-                                <th>Tanggal Diterima</th>
-                                <th style="width:12%;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($magangUsers as $index => $app)
-                                @php $u = $app->user; @endphp
-                                @if($u)
-                                    <tr>
-                                        <td class="text-muted fw-semibold">{{ $index + 1 }}</td>
-                                        <td class="fw-semibold" style="color:var(--dark);">
-                                            {{ $u->name ?? $u->nama ?? '—' }}
-                                        </td>
-                                        <td>{{ $u->email ?? '—' }}</td>
-                                        <td>{{ $u->asal_instansi ?? '—' }}</td>
-                                        <td>
-                                            <span class="monitor-pill" style="{{ ($u->status_akun ?? 'aktif') === 'aktif' ? '' : 'background:rgba(239,68,68,0.12);color:#dc2626;' }}">
-                                                {{ strtoupper($u->status_akun ?? 'aktif') }}
-                                            </span>
-                                        </td>
-                                        <td>{{ $app->bidang->name ?? $u->bidang_magang ?? '—' }}</td>
-                                        <td>
-                                            @if ($app->tanggal_mulai || $app->tanggal_selesai || $u->tanggal_mulai_magang)
-                                                <div class="fw-semibold" style="font-size:0.82rem;">
-                                                    {{ $app->tanggal_mulai ? $app->tanggal_mulai->translatedFormat('d F Y') : ($u->tanggal_mulai_magang ? \Carbon\Carbon::parse($u->tanggal_mulai_magang)->translatedFormat('d F Y') : '-') }}
-                                                </div>
-                                                <div class="text-muted" style="font-size:0.78rem;">
-                                                    s/d {{ $app->tanggal_selesai ? $app->tanggal_selesai->translatedFormat('d F Y') : ($u->tanggal_selesai_magang ? \Carbon\Carbon::parse($u->tanggal_selesai_magang)->translatedFormat('d F Y') : '-') }}
-                                                </div>
-                                                @if ($u->tanggal_selesai_magang && \Carbon\Carbon::parse($u->tanggal_selesai_magang)->lte(now(config('app.timezone'))))
-                                                    <a href="{{ Route::has('sertifikat.show') ? route('sertifikat.show', \Illuminate\Support\Str::slug($u->name ?? $u->nama)) : route('absensi.admin.sertifikat.view', $u->id) }}" target="_blank" class="attachment-link mt-1">
-                                                        <i class="fa-solid fa-certificate"></i> Sertifikat
-                                                    </a>
-                                                @endif
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $app->created_at ? $app->created_at->translatedFormat('d F Y') : '—' }}</td>
-                                        <td>
-                                            <button type="button" class="btn-action me-1" onclick="editUser({{ $u->id }}, {{ json_encode($u->name ?? $u->nama) }}, {{ json_encode($u->email) }}, null, {{ json_encode($app->bidang_id ?? $u->bidang_id) }}, {{ json_encode(optional($app->tanggal_mulai)->format('Y-m-d')) }}, {{ json_encode(optional($app->tanggal_selesai)->format('Y-m-d')) }}, {{ json_encode($u->status_akun ?? 'aktif') }}, 'A')" title="Edit">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </button>
-                                            <a href="#" class="btn-action danger" onclick="confirmDel(event, '{{ route('absensi.admin.user.destroy', $u->id) }}')" title="Hapus">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
+                <div class="p-4 pt-0">
+                    <div class="card border rounded-3 mb-3 overflow-hidden shadow-2xs" style="border-color: rgba(226, 232, 240, 0.8) !important;">
+                        <div class="p-3 bg-light border-bottom d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 bg-blue-100 text-primary border border-blue-200 d-inline-flex align-items-center justify-content-center" style="width:32px; height:32px; border-radius:8px;">
+                                    <i class="fa-solid {{ $isFilteredByBidang ? 'fa-building-user' : 'fa-users' }} text-sm"></i>
+                                </div>
+                                <div>
+                                    <span class="fw-bold d-block" style="color:var(--dark); font-size:0.95rem;">
+                                        {{ $isFilteredByBidang ? ($selectedBidang->name ?? 'Bidang Penempatan') : 'Semua Peserta Magang' }}
+                                    </span>
+                                    <small class="text-muted" style="font-size:0.78rem;">
+                                        {{ $isFilteredByBidang ? 'Menampilkan seluruh peserta magang yang ditempatkan di bidang ini.' : 'Menampilkan maksimal 5 peserta magang terbaru dari seluruh bidang.' }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge {{ $totalPeserta > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary' }} rounded-pill px-3 py-1" style="font-size:0.78rem;">
+                                    {{ $totalPeserta }} Peserta {{ $isFilteredByBidang ? 'di Bidang Ini' : 'Total' }}
+                                </span>
+                                @if ($isFilteredByBidang)
+                                    <a href="{{ route($dashboardRouteName, ['tab' => 'pegawai'] + ($magangSearch ? ['magang_search' => $magangSearch] : [])) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" style="font-size:0.75rem;" title="Kembali ke semua bidang">
+                                        <i class="fa-solid fa-xmark me-1"></i> Reset Bidang
+                                    </a>
                                 @endif
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </div>
+                        </div>
+
+                        @if ($totalPeserta === 0)
+                            <div class="p-5 text-center text-muted" style="font-size:0.86rem;">
+                                <div class="mb-2"><i class="fa-solid fa-users-slash text-2xl opacity-40"></i></div>
+                                <div class="fw-semibold text-secondary">
+                                    {{ $isFilteredByBidang ? 'Belum ada peserta magang terdaftar di bidang ' . ($selectedBidang->name ?? '') . '.' : 'Belum ada peserta magang terdaftar di instansi ini.' }}
+                                </div>
+                                <p class="text-muted mt-1 mb-0" style="font-size:0.8rem;">
+                                    {{ $isFilteredByBidang ? 'Gunakan filter untuk memilih bidang lain atau reset filter.' : 'Peserta yang diterima akan muncul di tabel ini.' }}
+                                </p>
+                            </div>
+                        @else
+                            <div class="table-responsive border-0">
+                                <table class="data-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:5%;">No</th>
+                                            <th>Nama Peserta</th>
+                                            <th>Email</th>
+                                            @if (!$isFilteredByBidang)
+                                                <th>Bidang Penempatan</th>
+                                            @endif
+                                            <th>Instansi Asal</th>
+                                            <th>Status Akun</th>
+                                            <th>Periode Magang</th>
+                                            <th>Tanggal Diterima</th>
+                                            <th style="width:12%;" class="text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($displayApps as $index => $app)
+                                            @php
+                                                $u = $app->user;
+                                                $appBidangId = $app->bidang_id ?? $app->rekrutmen?->bidang_id ?? $u?->bidang_id;
+                                                $appBidangName = $app->bidang?->name ?? $app->rekrutmen?->bidang?->name ?? $u?->bidang?->name;
+                                            @endphp
+                                            @if($u)
+                                                <tr>
+                                                    <td class="text-muted fw-semibold">{{ $index + 1 }}</td>
+                                                    <td class="fw-semibold" style="color:var(--dark);">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <div class="h-8 w-8 rounded-circle bg-blue-100 text-primary border border-blue-200 d-inline-flex align-items-center justify-content-center fw-bold" style="font-size:0.75rem; width:30px; height:30px;">
+                                                                {{ strtoupper(substr($u->name ?? $u->nama ?? '?', 0, 2)) }}
+                                                            </div>
+                                                            <div>{{ $u->name ?? $u->nama ?? '—' }}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td>{{ $u->email ?? '—' }}</td>
+                                                    @if (!$isFilteredByBidang)
+                                                        <td>
+                                                            @if ($appBidangName)
+                                                                <a href="{{ route($dashboardRouteName, ['tab' => 'pegawai', 'bidang_id' => $appBidangId] + ($magangSearch ? ['magang_search' => $magangSearch] : [])) }}" class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-1 text-decoration-none" title="Filter berdasarkan bidang ini">
+                                                                    <i class="fa-solid fa-layer-group me-1"></i>{{ $appBidangName }}
+                                                                </a>
+                                                            @else
+                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2.5 py-1">
+                                                                    Belum Ditentukan
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                    @endif
+                                                    <td>{{ $u->asal_instansi ?? ($app->permohonanLayanan->asal_instansi ?? '—') }}</td>
+                                                    <td>
+                                                        <span class="monitor-pill" style="{{ ($u->status_akun ?? 'aktif') === 'aktif' ? '' : 'background:rgba(239,68,68,0.12);color:#dc2626;' }}">
+                                                            {{ strtoupper($u->status_akun ?? 'aktif') }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        @if ($app->tanggal_mulai || $app->tanggal_selesai || $u->tanggal_mulai_magang)
+                                                            <div class="fw-semibold" style="font-size:0.82rem;">
+                                                                {{ $app->tanggal_mulai ? $app->tanggal_mulai->translatedFormat('d F Y') : ($u->tanggal_mulai_magang ? \Carbon\Carbon::parse($u->tanggal_mulai_magang)->translatedFormat('d F Y') : '-') }}
+                                                            </div>
+                                                            <div class="text-muted" style="font-size:0.78rem;">
+                                                                s/d {{ $app->tanggal_selesai ? $app->tanggal_selesai->translatedFormat('d F Y') : ($u->tanggal_selesai_magang ? \Carbon\Carbon::parse($u->tanggal_selesai_magang)->translatedFormat('d F Y') : '-') }}
+                                                            </div>
+                                                            @if ($u->tanggal_selesai_magang && \Carbon\Carbon::parse($u->tanggal_selesai_magang)->lte(now(config('app.timezone'))))
+                                                                <a href="{{ Route::has('sertifikat.show') ? route('sertifikat.show', \Illuminate\Support\Str::slug($u->name ?? $u->nama)) : route('absensi.admin.sertifikat.view', $u->id) }}" target="_blank" class="attachment-link mt-1">
+                                                                    <i class="fa-solid fa-certificate"></i> Sertifikat
+                                                                </a>
+                                                            @endif
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $app->created_at ? $app->created_at->translatedFormat('d F Y') : '—' }}</td>
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn-action me-1" onclick="editUser({{ $u->id }}, {{ json_encode($u->name ?? $u->nama) }}, {{ json_encode($u->email) }}, null, {{ json_encode($appBidangId ?? $u->bidang_id) }}, {{ json_encode(optional($app->tanggal_mulai)->format('Y-m-d')) }}, {{ json_encode(optional($app->tanggal_selesai)->format('Y-m-d')) }}, {{ json_encode($u->status_akun ?? 'aktif') }}, 'A')" title="Edit">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </button>
+                                                        <a href="#" class="btn-action danger" onclick="confirmDel(event, '{{ route('absensi.admin.user.destroy', $u->id) }}')" title="Hapus">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if (!$isFilteredByBidang && $totalPeserta > 5)
+                                <div class="p-3 bg-light border-top d-flex flex-wrap justify-content-between align-items-center gap-2" style="font-size:0.82rem;">
+                                    <span class="text-muted">
+                                        <i class="fa-solid fa-circle-info text-primary me-1"></i> Menampilkan <strong>5</strong> dari total <strong>{{ $totalPeserta }}</strong> peserta.
+                                    </span>
+                                    <span class="text-muted">
+                                        Pilih bidang pada dropdown <strong>Filter Bidang Penempatan</strong> di atas untuk melihat seluruh data peserta per bidang.
+                                    </span>
+                                </div>
+                            @elseif ($isFilteredByBidang && $totalPeserta > 0)
+                                <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center" style="font-size:0.82rem;">
+                                    <span class="text-muted">
+                                        <i class="fa-solid fa-check text-success me-1"></i> Menampilkan seluruh <strong>{{ $totalPeserta }}</strong> peserta di bidang <strong>{{ $selectedBidang->name ?? '' }}</strong>.
+                                    </span>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
             @endif
         </div>
@@ -1640,6 +1807,7 @@
 
             @if ($sertifikatUsers->isEmpty())
                 <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fa-solid fa-award"></i></div>
                     <h6>Belum ada peserta magang</h6>
                     <p>Tambahkan peserta magang terlebih dahulu dari tab Kelola Magang.</p>
                 </div>
@@ -1753,6 +1921,7 @@
 
             @if ($bidangs->isEmpty())
                 <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fa-solid fa-layer-group"></i></div>
                     <h6>Belum ada bidang magang terdaftar</h6>
                     <p>Tambahkan bidang magang baru untuk dapat memilihnya saat mendaftarkan anak magang.</p>
                 </div>
@@ -1868,6 +2037,7 @@
 
             @if ($pembimbingMagangs->isEmpty())
                 <div class="empty-state">
+                    <div class="empty-state-icon"><i class="fa-solid fa-user-tie"></i></div>
                     <h6>Belum ada pembimbing magang terdaftar</h6>
                     <p>Tambahkan pembimbing agar peserta dapat memilihnya saat daftar akun.</p>
                 </div>

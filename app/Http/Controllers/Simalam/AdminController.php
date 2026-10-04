@@ -92,14 +92,23 @@ class AdminController extends Controller
                 ->with('error_swal', 'Role Anda tidak memiliki akses ke menu tersebut.');
         }
 
+        $dinas = $currentAdmin->dinas;
+        $dinasId = session('superadmin_instansi_id') ?? ($isSuperAdmin ? $request->get('dinas_id') : $currentAdmin->dinas_id);
+        if ($dinasId) {
+            $dinas = \App\Models\Dinas::find($dinasId) ?: $dinas;
+        }
+
         $adminBidangScope = $this->resolveAdminBidangScope($request, $currentAdmin, $isSuperAdmin);
         $activeBidangId = $adminBidangScope?->id ?: $request->get('bidang_id');
-        $adminBidangOptions = Bidang::orderBy('name', 'asc')->get();
 
-        $dinas = $currentAdmin->dinas;
-        $dinasId = $isSuperAdmin ? $request->get('dinas_id') : $currentAdmin->dinas_id;
+        $bidangsQuery = Bidang::query();
+        if ($dinasId) {
+            $bidangsQuery->where('dinas_id', $dinasId);
+        }
+        $bidangs = $bidangsQuery->orderBy('name', 'asc')->get();
+        $adminBidangOptions = $bidangs;
 
-        $magangUsersQuery = MagangApplication::with(['user', 'bidang', 'rekrutmen', 'dinas'])
+        $magangUsersQuery = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'dinas', 'permohonanLayanan'])
             ->whereIn('status', ['diterima', 'aktif', 'selesai']);
 
         if ($dinasId) {
@@ -107,12 +116,18 @@ class AdminController extends Controller
                 $q->where('dinas_id', $dinasId)
                   ->orWhereHas('rekrutmen', function($sq) use ($dinasId) {
                       $sq->where('dinas_id', $dinasId);
+                  })
+                  ->orWhereHas('permohonanLayanan', function($sq) use ($dinasId) {
+                      $sq->where('dinas_id', $dinasId);
                   });
             });
         } elseif (!$isSuperAdmin && $dinas) {
             $magangUsersQuery->where(function($q) use ($dinas) {
                 $q->where('dinas_id', $dinas->id)
                   ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                      $sq->where('dinas_id', $dinas->id);
+                  })
+                  ->orWhereHas('permohonanLayanan', function($sq) use ($dinas) {
                       $sq->where('dinas_id', $dinas->id);
                   });
             });
@@ -132,10 +147,14 @@ class AdminController extends Controller
 
         $magangSearch = trim((string) $request->input('magang_search', $request->input('magangSearch', '')));
         if ($magangSearch !== '') {
-            $magangUsersQuery->whereHas('user', function ($uq) use ($magangSearch) {
-                $uq->where('name', 'like', '%'.$magangSearch.'%')
-                    ->orWhere('email', 'like', '%'.$magangSearch.'%')
-                    ->orWhere('asal_instansi', 'like', '%'.$magangSearch.'%');
+            $magangUsersQuery->where(function ($query) use ($magangSearch) {
+                $query->whereHas('user', function ($uq) use ($magangSearch) {
+                    $uq->where('name', 'like', '%'.$magangSearch.'%')
+                        ->orWhere('email', 'like', '%'.$magangSearch.'%')
+                        ->orWhere('asal_instansi', 'like', '%'.$magangSearch.'%');
+                })->orWhereHas('bidang', function ($bq) use ($magangSearch) {
+                    $bq->where('name', 'like', '%'.$magangSearch.'%');
+                });
             });
         }
 
@@ -166,8 +185,8 @@ class AdminController extends Controller
         $noteCategories = MasterData::options(MasterData::NOTE_KATEGORI);
         $month = (int) $request->input('month', Carbon::now()->month);
         $year = (int) $request->input('year', Carbon::now()->year);
-        $search = $request->input('search', '');
-        $status = $request->input('status', '');
+        $search = trim((string) $request->input('search', ''));
+        $status = trim((string) $request->input('status', ''));
 
         $startDate = Carbon::createFromDate($year, $month, 1)->startOfMonth();
         $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth();
@@ -227,13 +246,19 @@ class AdminController extends Controller
 
         if ($status !== '' && $status !== 'all') {
             $statusId = MasterData::idFor(MasterData::ABSENSI_STATUS, $status);
-            $absensiQuery->where('status_id', $statusId);
+            if ($statusId) {
+                $absensiQuery->where(function ($query) use ($statusId, $status) {
+                    $query->where('status_id', $statusId)
+                        ->orWhere('status', $status);
+                });
+            } else {
+                $absensiQuery->where('status', $status);
+            }
         }
 
         $absensiRecords = $absensiQuery->get();
         // Project dependencies removed
 
-        $bidangs = Bidang::orderBy('name', 'asc')->get();
         $manageableBidangs = $adminBidangScope && ! $isSuperAdmin
             ? $bidangs->where('id', $adminBidangScope->id)->values()
             : $bidangs;
@@ -544,7 +569,7 @@ class AdminController extends Controller
                 Rule::exists('md_pembimbing_magang', 'id')
                     ->where(fn ($query) => $query->where('bidang_id', $request->input('bidang_id'))),
             ],
-            'bidang_id' => 'required|exists:md_bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
             'tanggal_mulai_magang' => 'nullable|date',
             'tanggal_selesai_magang' => 'nullable|date|after_or_equal:tanggal_mulai_magang',
             'status_akun' => 'required|in:aktif,nonaktif',
@@ -608,7 +633,7 @@ class AdminController extends Controller
                 Rule::exists('md_pembimbing_magang', 'id')
                     ->where(fn ($query) => $query->where('bidang_id', $request->input('bidang_id'))),
             ],
-            'bidang_id' => 'required|exists:md_bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
             'tanggal_mulai_magang' => 'nullable|date',
             'tanggal_selesai_magang' => 'nullable|date|after_or_equal:tanggal_mulai_magang',
             'status_akun' => 'required|in:aktif,nonaktif',
@@ -764,7 +789,7 @@ class AdminController extends Controller
                 ->download(CertificatePayload::fileName($user));
         }
 
-        $pdf = Pdf::loadView('sertifikat.show', [
+        $pdf = Pdf::loadView('absensi.sertifikat.show', [
             'user' => $user,
             'certificate' => CertificatePayload::forUser($user),
             'pdfMode' => true,
@@ -790,7 +815,7 @@ class AdminController extends Controller
                 ->stream(CertificatePayload::fileName($user));
         }
 
-        $pdf = Pdf::loadView('sertifikat.show', [
+        $pdf = Pdf::loadView('absensi.sertifikat.show', [
             'user' => $user,
             'certificate' => CertificatePayload::forUser($user),
             'assets' => CertificatePayload::assets(),
@@ -1207,15 +1232,17 @@ class AdminController extends Controller
 
     public function storeBidang(Request $request)
     {
+        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
+
         $request->validate([
-            'nama' => 'required|string|max:100|unique:md_bidang,nama',
+            'nama' => 'required|string|max:100',
         ], [
             'nama.required' => 'Nama bidang wajib diisi.',
-            'nama.unique' => 'Nama bidang sudah ada.',
         ]);
 
         Bidang::create([
-            'nama' => trim($request->input('nama')),
+            'name' => trim($request->input('nama')),
+            'dinas_id' => $dinasId,
         ]);
 
         return redirect()->route('absensi.admin.dashboard', ['tab' => 'bidang'])->with('success_swal', 'Bidang baru berhasil ditambahkan!');
@@ -1226,17 +1253,16 @@ class AdminController extends Controller
         $bidang = Bidang::findOrFail($id);
 
         $request->validate([
-            'nama' => 'required|string|max:100|unique:md_bidang,nama,'.$id,
+            'nama' => 'required|string|max:100',
         ], [
             'nama.required' => 'Nama bidang wajib diisi.',
-            'nama.unique' => 'Nama bidang sudah ada.',
         ]);
 
         $oldName = $bidang->nama;
         $newName = trim($request->input('nama'));
 
         $bidang->update([
-            'nama' => $newName,
+            'name' => $newName,
         ]);
 
         User::where('bidang_magang', $oldName)->update([
@@ -1265,7 +1291,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:100|unique:md_pembimbing_magang,nama',
-            'bidang_id' => 'required|exists:md_bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
         ], [
             'nama.required' => 'Nama pembimbing wajib diisi.',
             'nama.unique' => 'Nama pembimbing sudah ada.',
@@ -1287,7 +1313,7 @@ class AdminController extends Controller
 
         $request->validate([
             'nama' => 'required|string|max:100|unique:md_pembimbing_magang,nama,'.$id,
-            'bidang_id' => 'required|exists:md_bidang,id',
+            'bidang_id' => 'required|exists:bidang,id',
         ], [
             'nama.required' => 'Nama pembimbing wajib diisi.',
             'nama.unique' => 'Nama pembimbing sudah ada.',

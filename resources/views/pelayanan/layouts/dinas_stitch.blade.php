@@ -4,7 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Admin Dashboard - Kesbangpol Kab. Bogor</title>
-<link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=2"/>
+<link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5"/>
+<link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5"/>
 <script>
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.classList.add('dark');
@@ -16,9 +17,11 @@
 <script type="module" src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/+esm"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -78,7 +81,26 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            font-weight: normal;
+            font-style: normal;
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            min-width: 22px;
+            max-width: 22px;
+            height: 22px;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+            word-break: keep-all !important;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
         }
         .icon-filled {
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -120,6 +142,12 @@
         }
         aside nav::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
+        }
+
+        /* Prevent sidebar layout shift and text overflow */
+        aside a {
+            overflow: hidden;
+            word-break: break-word;
         }
     </style>
     @yield('styles')

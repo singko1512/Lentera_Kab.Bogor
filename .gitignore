@@ -16,3 +16,7 @@ yarn-error.log
 /.idea
 /.vscode
 *.zip
+/public/hot
+/public/storage
+/public/fonts-manifest.dev.json
+/public/build

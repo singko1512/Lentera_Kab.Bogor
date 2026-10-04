@@ -277,76 +277,143 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h2 class="text-lg font-bold text-gray-800 m-0">Aksi Verifikasi</h2>
+                    @php
+                        $currentKode = $layanan->statusMaster->kode ?? 'menunggu_verifikasi';
+                    @endphp
+                    @if($currentKode === 'disetujui' || $currentKode === 'selesai')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
+                            <span class="material-symbols-outlined text-[15px]">check_circle</span>
+                            Disetujui
+                        </span>
+                    @elseif($currentKode === 'perlu_revisi')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
+                            <span class="material-symbols-outlined text-[15px]">warning</span>
+                            Perlu Revisi
+                        </span>
+                    @elseif($currentKode === 'ditolak')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
+                            <span class="material-symbols-outlined text-[15px]">cancel</span>
+                            Ditolak
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">
+                            <span class="material-symbols-outlined text-[15px]">pending</span>
+                            Menunggu Verifikasi
+                        </span>
+                    @endif
                 </div>
                 <div class="p-6">
-                    @if($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['menunggu_verifikasi', 'perlu_revisi']))
-                        <form action="{{ route('kesbangpol.layanan.verify', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
-                            @csrf
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Keputusan</label>
-                                <select name="status" id="status" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" required onchange="toggleRevisiField()">
-                                    <option value="">-- Pilih --</option>
-                                    <option value="disetujui">Setujui Layanan</option>
-                                    <option value="perlu_revisi">Revisi Layanan</option>
-                                    <option value="ditolak">Tolak Layanan</option>
-                                </select>
-                            </div>
-                            
-                            <div id="keterangan_field" class="hidden">
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan / Catatan Revisi / Alasan Tolak</label>
-                                <textarea name="keterangan" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" rows="3"></textarea>
-                            </div>
-
-                            <div id="surat_field" class="hidden flex flex-col gap-3">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Dinas Tujuan Layanan <span class="text-red-500">*</span></label>
-                                    <select name="dinas_id" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm">
-                                        <option value="">-- Pilih Dinas Tujuan --</option>
-                                        @foreach($allDinas ?? [] as $d)
-                                            <option value="{{ $d->id }}" {{ (str_contains(strtolower($layanan->tempat_kegiatan), strtolower($d->name)) || str_contains(strtolower($d->name), strtolower($layanan->tempat_kegiatan))) ? 'selected' : '' }}>
-                                                {{ $d->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <p class="mt-1 text-xs text-gray-500">Data akan otomatis diteruskan ke Dinas yang dipilih untuk verifikasi penempatan bidang.</p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2">Upload Surat Rekomendasi Kesbangpol (Opsional)</label>
-                                    <input type="file" name="file_surat_keluaran" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer" accept=".pdf">
-                                    <div class="mt-2 text-xs text-blue-800 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200/80 flex items-start gap-2">
-                                        <span class="material-symbols-outlined text-blue-600 text-[16px] mt-0.5 shrink-0">info</span>
-                                        <span>Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf)</strong> saat menyetujui.</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors mt-2">
-                                Simpan
-                            </button>
-                        </form>
-                    @else
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded-r-lg">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <span class="material-symbols-outlined text-blue-400">info</span>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700">
-                                        Layanan ini sudah diproses dan berstatus <strong class="font-bold">{{ $layanan->statusMaster->nama ?? 'Unknown' }}</strong>.
-                                    </p>
+                    @if(in_array($currentKode, ['disetujui', 'selesai']))
+                        <div class="bg-emerald-50/80 border-l-4 border-emerald-500 p-3.5 mb-4 rounded-r-lg">
+                            <div class="flex items-start gap-2.5">
+                                <span class="material-symbols-outlined text-emerald-600 text-[20px] shrink-0 mt-0.5">check_circle</span>
+                                <div class="text-xs text-emerald-800">
+                                    <strong class="font-bold">Layanan ini telah disetujui.</strong>
+                                    <p class="mt-0.5 text-emerald-700">Anda dapat mengubah status verifikasi atau mengunggah file baru di bawah ini jika ingin mengganti Surat Rekomendasi.</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        @if($layanan->file_surat_keluaran || ($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['disetujui', 'selesai'])))
-                        <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors mt-4">
-                            <span class="material-symbols-outlined mr-2 text-[18px]">picture_as_pdf</span>
-                            Download Surat Rekomendasi (PDF)
-                        </a>
-                        @endif
+                    @elseif($currentKode === 'ditolak')
+                        <div class="bg-red-50/80 border-l-4 border-red-500 p-3.5 mb-4 rounded-r-lg">
+                            <div class="flex items-start gap-2.5">
+                                <span class="material-symbols-outlined text-red-600 text-[20px] shrink-0 mt-0.5">cancel</span>
+                                <div class="text-xs text-red-800">
+                                    <strong class="font-bold">Layanan ini telah ditolak.</strong>
+                                    @if($layanan->keterangan)
+                                        <p class="mt-0.5 text-red-700">Alasan: {{ $layanan->keterangan }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($currentKode === 'perlu_revisi')
+                        <div class="bg-amber-50/80 border-l-4 border-amber-500 p-3.5 mb-4 rounded-r-lg">
+                            <div class="flex items-start gap-2.5">
+                                <span class="material-symbols-outlined text-amber-600 text-[20px] shrink-0 mt-0.5">warning</span>
+                                <div class="text-xs text-amber-800">
+                                    <strong class="font-bold">Status: Perlu Revisi Pemohon.</strong>
+                                    @if($layanan->keterangan)
+                                        <p class="mt-0.5 text-amber-700">Catatan: {{ $layanan->keterangan }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     @endif
+
+                    <form action="{{ route('kesbangpol.layanan.verify', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+                        @csrf
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Keputusan</label>
+                            <select name="status" id="status" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" required onchange="toggleRevisiField()">
+                                <option value="">-- Pilih --</option>
+                                <option value="disetujui" {{ in_array($currentKode, ['disetujui', 'selesai']) ? 'selected' : '' }}>Setujui Layanan</option>
+                                <option value="perlu_revisi" {{ $currentKode === 'perlu_revisi' ? 'selected' : '' }}>Revisi Layanan</option>
+                                <option value="ditolak" {{ $currentKode === 'ditolak' ? 'selected' : '' }}>Tolak Layanan</option>
+                            </select>
+                        </div>
+                        
+                        <div id="keterangan_field" class="{{ in_array($currentKode, ['perlu_revisi', 'ditolak']) ? '' : 'hidden' }}">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan / Catatan Revisi / Alasan Tolak</label>
+                            <textarea name="keterangan" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" rows="3">{{ $layanan->keterangan }}</textarea>
+                        </div>
+
+                        <div id="surat_field" class="{{ in_array($currentKode, ['disetujui', 'selesai', 'menunggu_verifikasi']) ? '' : 'hidden' }} flex flex-col gap-3">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Dinas Tujuan Layanan <span class="text-red-500">*</span></label>
+                                <select name="dinas_id" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm">
+                                    <option value="">-- Pilih Dinas Tujuan --</option>
+                                    @foreach($allDinas ?? [] as $d)
+                                        <option value="{{ $d->id }}" {{ ($layanan->dinas_id == $d->id || (empty($layanan->dinas_id) && (str_contains(strtolower($layanan->tempat_kegiatan), strtolower($d->name)) || str_contains(strtolower($d->name), strtolower($layanan->tempat_kegiatan))))) ? 'selected' : '' }}>
+                                            {{ $d->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500">Data akan otomatis diteruskan ke Dinas yang dipilih untuk verifikasi penempatan bidang.</p>
+                            </div>
+
+                            <!-- Pratinjau Surat Yang Sudah Terpasang -->
+                            @if($layanan->file_surat_keluaran)
+                            <div class="p-3.5 bg-blue-50/80 rounded-xl border border-blue-200">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-2.5 overflow-hidden">
+                                        <span class="material-symbols-outlined text-red-600 text-[26px] shrink-0">picture_as_pdf</span>
+                                        <div class="truncate">
+                                            <p class="text-xs font-bold text-gray-800 truncate">Surat Rekomendasi Terpasang</p>
+                                            <p class="text-[11px] text-gray-500 truncate">{{ basename($layanan->file_surat_keluaran) }}</p>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg text-xs font-bold shadow-sm transition-all">
+                                        <span class="material-symbols-outlined text-[15px]">visibility</span>
+                                        <span>Lihat Dokumen</span>
+                                    </a>
+                                </div>
+                            </div>
+                            @endif
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1.5">
+                                    {{ $layanan->file_surat_keluaran ? 'Ganti Surat Rekomendasi Kesbangpol (Opsional)' : 'Upload Surat Rekomendasi Kesbangpol (Opsional)' }}
+                                </label>
+                                <input type="file" name="file_surat_keluaran" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer" accept=".pdf">
+                                <div class="mt-2 text-xs text-blue-800 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200/80 flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-blue-600 text-[16px] mt-0.5 shrink-0">info</span>
+                                    <span>
+                                        @if($layanan->file_surat_keluaran)
+                                            Pilih file PDF baru jika ingin <strong>mengganti</strong> surat rekomendasi di atas. Jika tidak ingin mengubah file surat, biarkan input ini kosong.
+                                        @else
+                                            Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf)</strong> saat menyetujui.
+                                        @endif
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all mt-2">
+                            <span class="material-symbols-outlined text-[18px]">save</span>
+                            <span>{{ in_array($currentKode, ['disetujui', 'selesai']) ? 'Perbarui Verifikasi & Ganti Surat' : 'Simpan' }}</span>
+                        </button>
+                    </form>
                     
                     <a href="{{ route('kesbangpol.layanan.index') }}" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors mt-3">
                         Kembali
@@ -417,24 +484,30 @@
 
 <script>
 function toggleRevisiField() {
-    var status = document.getElementById('status').value;
+    var statusEl = document.getElementById('status');
+    if (!statusEl) return;
+    var status = statusEl.value;
     var ket = document.getElementById('keterangan_field');
     var surat = document.getElementById('surat_field');
     var textarea = document.querySelector('textarea[name="keterangan"]');
     
     if (status === 'perlu_revisi' || status === 'ditolak') {
-        ket.classList.remove('hidden');
+        if (ket) ket.classList.remove('hidden');
         if (textarea) textarea.required = true;
     } else {
-        ket.classList.add('hidden');
+        if (ket) ket.classList.add('hidden');
         if (textarea) textarea.required = false;
     }
 
     if (status === 'disetujui') {
-        surat.classList.remove('hidden');
+        if (surat) surat.classList.remove('hidden');
     } else {
-        surat.classList.add('hidden');
+        if (surat) surat.classList.add('hidden');
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleRevisiField();
+});
 </script>
 @endsection

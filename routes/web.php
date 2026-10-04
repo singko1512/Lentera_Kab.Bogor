@@ -211,7 +211,10 @@ Route::post('/login', function (\Illuminate\Http\Request $request) {
         if (in_array($user->role, ['peserta', 'user'], true)) {
             if ($user->status_akun === 'inactive' || $user->status_akun === 'nonaktif' || is_null($user->email_verified_at)) {
                 Auth::logout();
-                return back()->with('error', 'Akun Anda belum aktif. Silakan periksa inbox/spam email (' . $user->email . ') Anda untuk mengeklik tautan aktivasi akun.')->with('resend_user_id', $user->id);
+                return back()
+                    ->withInput($request->only('login', 'email', 'username'))
+                    ->with('error', 'Akun Anda belum aktif. Silakan periksa inbox/spam email (' . $user->email . ') Anda untuk mengeklik tautan aktivasi akun.')
+                    ->with('resend_user_id', $user->id);
             }
         }
 
@@ -230,7 +233,9 @@ Route::post('/login', function (\Illuminate\Http\Request $request) {
         return redirect('/');
     }
 
-    return back()->with('error', 'Username / Email atau password tidak valid');
+    return back()
+        ->withInput($request->only('login', 'email', 'username'))
+        ->with('error', 'Username / Email atau password tidak valid');
 })->name('login');
 
 Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $request) {

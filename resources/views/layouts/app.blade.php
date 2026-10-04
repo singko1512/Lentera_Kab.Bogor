@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'LENTERA Kab Bogor')</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=2">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
 
     <!-- Font dari project asli -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -496,7 +496,7 @@ class AttendanceController extends Controller
             return response($uploadedTemplate);
         }
 
-        return view('sertifikat.show', [
+        return view('absensi.sertifikat.show', [
             'user' => $user,
             'certificate' => CertificatePayload::forUser($user),
             'assets' => CertificatePayload::assets(),

@@ -119,6 +119,28 @@
                                     <span class="w-1.5 h-1.5 rounded-full {{ $dotStatusClass }} shrink-0"></span>
                                     <span>{{ $statusLabel }}</span>
                                 </span>
+                                @if($app->permohonanLayanan && $app->permohonanLayanan->statusMaster)
+                                    @php
+                                        $kbKode = $app->permohonanLayanan->statusMaster->kode;
+                                        if (in_array($kbKode, ['disetujui', 'selesai'])) {
+                                            $kbClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                                            $kbLabel = 'Kesbangpol: Disetujui';
+                                        } elseif ($kbKode == 'ditolak') {
+                                            $kbClass = 'bg-red-50 text-red-700 border-red-200';
+                                            $kbLabel = 'Kesbangpol: Ditolak';
+                                        } elseif ($kbKode == 'perlu_revisi') {
+                                            $kbClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                                            $kbLabel = 'Kesbangpol: Perlu Revisi';
+                                        } else {
+                                            $kbClass = 'bg-amber-50 text-amber-700 border-amber-200';
+                                            $kbLabel = 'Kesbangpol: Pending';
+                                        }
+                                    @endphp
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold {{ $kbClass }} border">
+                                        <span class="material-symbols-outlined text-[13px]">verified</span>
+                                        {{ $kbLabel }}
+                                    </span>
+                                @endif
                                 @if($app->bidang)
                                     <span class="text-caption font-caption text-on-surface-variant font-medium flex items-center gap-1.5" title="{{ $app->bidang->name }}">
                                         <span class="material-symbols-outlined text-[15px] text-slate-400 shrink-0">domain</span>

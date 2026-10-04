@@ -279,7 +279,7 @@
                     @endphp
                     <div class="flex flex-col gap-2">
                         <label class="text-[14px] font-medium text-on-surface">{{ $loginLabel }}</label>
-                        <input name="login" type="text" value="{{ old('login', old('username')) }}" placeholder="{{ $loginPlaceholder }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
+                        <input name="login" type="text" value="{{ old('login', old('username', old('email'))) }}" placeholder="{{ $loginPlaceholder }}" required class="bg-surface-container-lowest border border-outline-variant rounded-lg px-4 py-3 text-[16px] text-on-surface focus:border-secondary focus:outline-none input-focus-glow transition-all">
                         @error('login')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                     </div>
                     

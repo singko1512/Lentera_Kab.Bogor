@@ -71,7 +71,25 @@ class LayananController extends Controller
         }
 
         $jenisLayanan = JenisLayanan::where('slug', $slug)->firstOrFail();
-        $dinasList = \App\Models\Dinas::orderBy('name')->get();
+        
+        // Hanya tampilkan instansi yang sedang membuka rekrutmen aktif dan masih memiliki sisa kuota (sisa_kuota > 0)
+        $dinasList = \App\Models\Dinas::where(function ($q) {
+                $q->whereNull('status_magang')
+                  ->orWhere('status_magang', 'otomatis')
+                  ->orWhere('status_magang', 'tersedia');
+            })
+            ->whereHas('rekrutmens', function ($q) {
+                $q->where('is_active', true);
+            })
+            ->with(['rekrutmens' => function ($q) {
+                $q->where('is_active', true);
+            }])
+            ->orderBy('name')
+            ->get()
+            ->filter(function ($dinas) {
+                return $dinas->sisa_kuota > 0;
+            })
+            ->values();
         
         // Render view berdasarkan slug
         return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList'));
@@ -94,6 +112,25 @@ class LayananController extends Controller
             $jenisLayanan = JenisLayanan::where('slug', $request->jenis_layanan_slug)->firstOrFail();
             $statusMenunggu = StatusMaster::where('kode', 'menunggu_verifikasi')->firstOrFail();
 
+            // Validasi ketersediaan kuota instansi tujuan jika dinas_id dipilih
+            $targetDinas = null;
+            $activeRekrutmen = null;
+            if ($request->filled('dinas_id')) {
+                $targetDinas = \App\Models\Dinas::find($request->dinas_id);
+                if ($targetDinas) {
+                    $activeRekrutmen = \App\Models\Rekrutmen::where('dinas_id', $targetDinas->id)
+                        ->where('is_active', true)
+                        ->first();
+
+                    if (!$activeRekrutmen || $activeRekrutmen->slot_tersedia <= 0 || in_array($targetDinas->status_magang, ['tidak_tersedia', 'penuh'])) {
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => 'Instansi ' . $targetDinas->name . ' saat ini belum membuka penerimaan atau kuotanya sudah penuh. Silakan pilih instansi yang tersedia.'
+                        ], 422);
+                    }
+                }
+            }
+
             $permohonan = new PermohonanLayanan();
             $permohonan->user_id = Auth::id();
             $permohonan->jenis_layanan_id = $jenisLayanan->id;
@@ -106,9 +143,8 @@ class LayananController extends Controller
             $permohonan->asal_instansi = $request->asal_instansi;
             $permohonan->judul_kegiatan = $request->judul_kegiatan;
             $permohonan->dinas_id = $request->dinas_id;
-            if ($request->dinas_id) {
-                $dinas = \App\Models\Dinas::find($request->dinas_id);
-                $permohonan->tempat_kegiatan = $dinas ? $dinas->name : ($request->tempat_kegiatan ?? $request->tempat_pkl ?? $request->tempat_kkn);
+            if ($targetDinas) {
+                $permohonan->tempat_kegiatan = $targetDinas->name;
             } else {
                 $permohonan->tempat_kegiatan = $request->tempat_kegiatan ?? $request->tempat_pkl ?? $request->tempat_kkn;
             }
@@ -132,6 +168,41 @@ class LayananController extends Controller
             }
 
             $permohonan->save();
+
+            // OTOMATIS MEMOTONG KUOTA INSTANSI TUJUAN & MENGIRIMKAN NOTIFIKASI KE INSTANSI TUJUAN SEJAK AWAL
+            if ($targetDinas && $activeRekrutmen) {
+                // Tautkan langsung ke MagangApplication dengan status 'menunggu' sehingga kuota langsung terpotong oleh sistem
+                $magangApp = \App\Models\MagangApplication::updateOrCreate(
+                    [
+                        'user_id' => Auth::id(),
+                        'permohonan_layanan_id' => $permohonan->id,
+                    ],
+                    [
+                        'dinas_id' => $targetDinas->id,
+                        'rekrutmen_id' => $activeRekrutmen->id,
+                        'status' => 'menunggu',
+                        'pesan_lamaran' => $permohonan->judul_kegiatan,
+                        'tanggal_mulai' => $permohonan->tanggal_mulai,
+                        'tanggal_selesai' => $permohonan->tanggal_selesai,
+                    ]
+                );
+
+                // Kirim notifikasi masuk langsung ke akun instansi tujuan sejak awal
+                $dinasUsers = \App\Models\User::where('dinas_id', $targetDinas->id)->get();
+                $namaPemohon = $permohonan->atas_nama ?: (Auth::user()->name ?? 'Pemohon');
+                $asalInstansi = $permohonan->asal_instansi ?: (Auth::user()->asal_instansi ?? '-');
+                $layananNama = $jenisLayanan->nama ?? 'Surat Rekomendasi';
+
+                foreach ($dinasUsers as $dUser) {
+                    \App\Models\Notification::create([
+                        'user_id' => $dUser->id,
+                        'judul' => 'Pengajuan Baru Masuk (' . $layananNama . ')',
+                        'pesan' => 'Permohonan baru atas nama ' . $namaPemohon . ' (' . $asalInstansi . ') telah diajukan ke instansi Anda melalui verifikasi Kesbangpol.',
+                        'link' => route('dinas.applications.show', $magangApp->id),
+                        'dibaca' => false,
+                    ]);
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -171,11 +242,53 @@ class LayananController extends Controller
         if ($request->filled('asal_instansi')) $permohonan->asal_instansi = $request->asal_instansi;
         if ($request->filled('judul_kegiatan')) $permohonan->judul_kegiatan = $request->judul_kegiatan;
         
-        if ($request->filled('dinas_id')) {
-            $permohonan->dinas_id = $request->dinas_id;
-            $dinas = \App\Models\Dinas::find($request->dinas_id);
-            if ($dinas) {
-                $permohonan->tempat_kegiatan = $dinas->name;
+        if ($request->filled('dinas_id') && $request->dinas_id != $permohonan->dinas_id) {
+            $newDinas = \App\Models\Dinas::find($request->dinas_id);
+            if ($newDinas) {
+                $activeRek = \App\Models\Rekrutmen::firstOrCreate(
+                    ['dinas_id' => $newDinas->id, 'is_active' => true],
+                    [
+                        'judul' => 'Penerimaan Magang / PKL ' . $newDinas->name,
+                        'kuota' => config('lentera.default_quota', 10),
+                    ]
+                );
+
+                if ($activeRek->slot_tersedia <= 0) {
+                    if ($request->wantsJson()) {
+                        return response()->json(['status' => 'error', 'message' => 'Kuota penerimaan di ' . $newDinas->name . ' saat ini sudah penuh.'], 422);
+                    }
+                    return redirect()->back()->with('error', 'Kuota penerimaan di ' . $newDinas->name . ' saat ini sudah penuh.');
+                }
+
+                $permohonan->dinas_id = $newDinas->id;
+                $permohonan->tempat_kegiatan = $newDinas->name;
+
+                // Update juga pada MagangApplication agar kuota lama terlepas dan kuota baru terpotong
+                $magangApp = \App\Models\MagangApplication::updateOrCreate(
+                    [
+                        'user_id' => Auth::id(),
+                        'permohonan_layanan_id' => $permohonan->id,
+                    ],
+                    [
+                        'dinas_id' => $newDinas->id,
+                        'rekrutmen_id' => $activeRek->id,
+                        'status' => 'menunggu',
+                        'tanggal_mulai' => $permohonan->tanggal_mulai,
+                        'tanggal_selesai' => $permohonan->tanggal_selesai,
+                    ]
+                );
+
+                // Beritahu instansi tujuan baru
+                $dinasUsers = \App\Models\User::where('dinas_id', $newDinas->id)->get();
+                foreach ($dinasUsers as $dUser) {
+                    \App\Models\Notification::create([
+                        'user_id' => $dUser->id,
+                        'judul' => 'Pengajuan Baru Dialihkan ke Instansi Anda',
+                        'pesan' => 'Permohonan atas nama ' . ($permohonan->atas_nama ?: Auth::user()->name) . ' telah dialihkan ke instansi Anda.',
+                        'link' => route('dinas.applications.show', $magangApp->id),
+                        'dibaca' => false,
+                    ]);
+                }
             }
         } elseif ($request->filled('tempat_kegiatan')) {
             $permohonan->tempat_kegiatan = $request->tempat_kegiatan;
@@ -183,6 +296,12 @@ class LayananController extends Controller
 
         if ($request->filled('tanggal_mulai')) $permohonan->tanggal_mulai = $request->tanggal_mulai;
         if ($request->filled('tanggal_selesai')) $permohonan->tanggal_selesai = $request->tanggal_selesai;
+
+        // Sinkronisasi tanggal pada MagangApplication jika ada
+        \App\Models\MagangApplication::where('permohonan_layanan_id', $permohonan->id)->update([
+            'tanggal_mulai' => $permohonan->tanggal_mulai,
+            'tanggal_selesai' => $permohonan->tanggal_selesai,
+        ]);
 
         $fileFields = [
             'file_ktp', 'file_ktm', 'file_surat_permohonan', 'file_surat_pengantar',
@@ -274,6 +393,9 @@ class LayananController extends Controller
                 Storage::disk('public')->delete($permohonan->{$field});
             }
         }
+
+        // Hapus juga MagangApplication terkait agar kuota instansi tujuan kembali
+        \App\Models\MagangApplication::where('permohonan_layanan_id', $permohonan->id)->delete();
 
         $permohonan->delete();
 

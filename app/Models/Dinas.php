@@ -43,6 +43,27 @@ class Dinas extends Model
         return $this->hasMany(Rekrutmen::class);
     }
 
+    public function getSisaKuotaAttribute(): int
+    {
+        if ($this->status_magang === 'tidak_tersedia' || $this->status_magang === 'penuh') {
+            return 0;
+        }
+
+        $activeRekrutmens = $this->rekrutmens->where('is_active', true);
+        if ($activeRekrutmens->count() === 0) {
+            return 0;
+        }
+
+        return (int) $activeRekrutmens->sum(function ($r) {
+            return $r->slot_tersedia;
+        });
+    }
+
+    public function getSlotTersediaAttribute(): int
+    {
+        return $this->sisa_kuota;
+    }
+
     public function getComputedStatusAttribute()
     {
         $setting = $this->status_magang ?? 'otomatis';
@@ -55,15 +76,11 @@ class Dinas extends Model
             return 'tidak_tersedia';
         }
 
-        $slotTersedia = $activeRekrutmens->sum(function ($r) {
-            return $r->slot_tersedia;
-        });
-
-        if ($slotTersedia > 0) {
-            return 'tersedia';
+        if ($this->sisa_kuota <= 0) {
+            return 'penuh';
         }
 
-        return 'penuh';
+        return 'tersedia';
     }
 
     public function getStatusBadgeAttribute()

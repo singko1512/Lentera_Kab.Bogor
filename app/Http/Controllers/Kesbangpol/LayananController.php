@@ -35,22 +35,30 @@ class LayananController extends Controller
         // Data Internal Kesbangpol (Sebagai Dinas)
         $user = Auth::user();
         $dinas = $user->dinas;
+        if (!$dinas) {
+            $dinasId = session('superadmin_instansi_id') ?? \App\Models\Dinas::where('is_kesbangpol', 1)->value('id') ?? \App\Models\Dinas::first()?->id;
+            $dinas = \App\Models\Dinas::find($dinasId);
+        }
         
         $totalKuota = 0;
         $slotTersedia = 0;
         $pesertaAktif = 0;
-        
         $totalPengajuanInternal = 0;
+        $totalPengajuanLayanan = 0;
         $pengajuanInternalTerbarus = collect();
+        $pesertaDiterima = collect();
         
         if ($dinas) {
             $rekrutmens = Rekrutmen::where('dinas_id', $dinas->id)->get();
             $totalKuota = $rekrutmens->sum('kuota');
             $slotTersedia = $rekrutmens->sum('slot_tersedia');
 
-            $pesertaAktif = MagangApplication::whereHas('rekrutmen', function ($q) use ($dinas) {
-                $q->where('dinas_id', $dinas->id);
-            })->where('status', 'diterima')->count();
+            $pesertaAktif = MagangApplication::where(function($q) use ($dinas) {
+                $q->where('dinas_id', $dinas->id)
+                  ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                      $sq->where('dinas_id', $dinas->id);
+                  });
+            })->whereIn('status', ['diterima', 'aktif'])->count();
 
             $totalPengajuanInternal = MagangApplication::where(function($q) use ($dinas) {
                 $q->where('dinas_id', $dinas->id)
@@ -58,6 +66,8 @@ class LayananController extends Controller
                       $sq->where('dinas_id', $dinas->id);
                   });
             })->count();
+
+            $totalPengajuanLayanan = $totalPengajuanInternal;
 
             $pengajuanInternalTerbarus = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang'])
                 ->where(function($q) use ($dinas) {
@@ -69,11 +79,23 @@ class LayananController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
+
+            $pesertaDiterima = MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang'])
+                ->where(function($q) use ($dinas) {
+                    $q->where('dinas_id', $dinas->id)
+                      ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
+                          $sq->where('dinas_id', $dinas->id);
+                      });
+                })
+                ->whereIn('status', ['diterima', 'aktif'])
+                ->orderBy('created_at', 'desc')
+                ->take(5)
+                ->get();
         }
 
         return view('pelayanan.kesbangpol.dashboard', compact(
             'totalPermohonan', 'sedangDiproses', 'selesai', 'ditolak', 'pengajuanTerbarus',
-            'dinas', 'totalKuota', 'slotTersedia', 'pesertaAktif', 'totalPengajuanInternal', 'pengajuanInternalTerbarus'
+            'dinas', 'totalKuota', 'slotTersedia', 'pesertaAktif', 'totalPengajuanInternal', 'totalPengajuanLayanan', 'pengajuanInternalTerbarus', 'pesertaDiterima'
         ));
     }
 
@@ -140,7 +162,7 @@ class LayananController extends Controller
             if ($request->hasFile('file_surat_keluaran')) {
                 $path = $request->file('file_surat_keluaran')->store('permohonan/keluaran', 'public');
                 $layanan->file_surat_keluaran = $path;
-            } else {
+            } elseif (empty($layanan->file_surat_keluaran)) {
                 // 1. Generate PDF Resmi otomatis dengan Kop Surat, TTE, dan QR Code
                 try {
                     $pdfFileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';
@@ -224,6 +246,9 @@ class LayananController extends Controller
 
         $layanan->save();
 
+        $pemohonName = $layanan->atas_nama ?: ($layanan->user->name ?? 'Pemohon');
+        $namaLayanan = $layanan->jenisLayanan->nama ?? 'Surat Rekomendasi';
+
         if ($request->status === 'disetujui' || $request->status === 'selesai') {
             \App\Models\Notification::create([
                 'user_id' => $layanan->user_id,
@@ -232,20 +257,43 @@ class LayananController extends Controller
                 'link' => route('landing.profile'),
             ]);
 
-            // AUTO-FORWARD KE DINAS JIKA DINAS ID ADA
+            // AUTO-FORWARD / SYNC KE DINAS JIKA DINAS ID ADA
             if ($layanan->dinas_id && (!$layanan->jenisLayanan || $layanan->jenisLayanan->slug !== 'perpanjangan')) {
-                \App\Models\MagangApplication::updateOrCreate(
+                $targetDinas = \App\Models\Dinas::find($layanan->dinas_id);
+                $activeRekrutmen = $targetDinas ? \App\Models\Rekrutmen::firstOrCreate(
+                    ['dinas_id' => $targetDinas->id, 'is_active' => true],
+                    [
+                        'judul' => 'Penerimaan Magang / PKL ' . $targetDinas->name,
+                        'kuota' => config('lentera.default_quota', 10),
+                    ]
+                ) : null;
+
+                $magangApp = \App\Models\MagangApplication::updateOrCreate(
                     [
                         'user_id' => $layanan->user_id,
                         'permohonan_layanan_id' => $layanan->id,
                     ],
                     [
                         'dinas_id' => $layanan->dinas_id,
+                        'rekrutmen_id' => $activeRekrutmen ? $activeRekrutmen->id : null,
                         'status' => 'menunggu',
+                        'pesan_lamaran' => $layanan->judul_kegiatan,
                         'tanggal_mulai' => $layanan->tanggal_mulai,
                         'tanggal_selesai' => $layanan->tanggal_selesai,
                     ]
                 );
+
+                // Beritahu instansi tujuan bahwa rekomendasi telah disetujui Kesbangpol
+                $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+                foreach ($dinasUsers as $dUser) {
+                    \App\Models\Notification::create([
+                        'user_id' => $dUser->id,
+                        'judul' => 'Surat Rekomendasi Kesbangpol Disetujui',
+                        'pesan' => 'Surat Rekomendasi untuk pemohon ' . $pemohonName . ' (' . $namaLayanan . ') telah DISETUJUI oleh Kesbangpol dan siap diproses lebih lanjut oleh instansi Anda.',
+                        'link' => route('dinas.applications.show', $magangApp->id),
+                        'dibaca' => false,
+                    ]);
+                }
             }
 
             // Update untuk perpanjangan
@@ -262,16 +310,39 @@ class LayananController extends Controller
                 }
             }
         } elseif ($request->status === 'ditolak' || $request->status === 'perlu_revisi') {
+            $isTolak = $request->status === 'ditolak';
             \App\Models\Notification::create([
                 'user_id' => $layanan->user_id,
-                'judul' => $request->status === 'ditolak' ? 'Permohonan Kesbangpol Ditolak' : 'Permohonan Kesbangpol Perlu Revisi',
-                'pesan' => 'Permohonan Rekomendasi Kesbangpol Anda (#' . $layanan->id . ') ' . ($request->status === 'ditolak' ? 'ditolak.' : 'memerlukan revisi: ') . ($request->keterangan ?? ''),
+                'judul' => $isTolak ? 'Permohonan Kesbangpol Ditolak' : 'Permohonan Kesbangpol Perlu Revisi',
+                'pesan' => 'Permohonan Rekomendasi Kesbangpol Anda (#' . $layanan->id . ') ' . ($isTolak ? 'ditolak: ' : 'memerlukan revisi: ') . ($request->keterangan ?? '-'),
                 'link' => route('landing.profile'),
             ]);
+
+            // Beritahu juga instansi tujuan mengenai status terkini di Kesbangpol
+            if ($layanan->dinas_id) {
+                $magangApp = \App\Models\MagangApplication::where('permohonan_layanan_id', $layanan->id)->first();
+                $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+                foreach ($dinasUsers as $dUser) {
+                    \App\Models\Notification::create([
+                        'user_id' => $dUser->id,
+                        'judul' => $isTolak ? 'Permohonan Rekomendasi Ditolak Kesbangpol' : 'Permohonan Rekomendasi Perlu Revisi di Kesbangpol',
+                        'pesan' => 'Permohonan Rekomendasi atas nama ' . $pemohonName . ' (' . $namaLayanan . ') ' . ($isTolak ? 'telah DITOLAK oleh Kesbangpol. Alasan: ' : 'memerlukan REVISI dokumen di Kesbangpol. Catatan: ') . ($request->keterangan ?? '-'),
+                        'link' => $magangApp ? route('dinas.applications.show', $magangApp->id) : route('dinas.applications.index'),
+                        'dibaca' => false,
+                    ]);
+                }
+            }
+        }
+
+        $successMsg = 'Status permohonan berhasil diperbarui!';
+        if ($request->hasFile('file_surat_keluaran')) {
+            $successMsg = 'Surat Rekomendasi Kesbangpol berhasil diunggah/diperbarui!';
+        } elseif ($request->status === 'disetujui') {
+            $successMsg = 'Layanan berhasil disetujui dan Surat Rekomendasi siap digunakan.';
         }
 
         return redirect()->route('kesbangpol.layanan.show', $id)
-            ->with('success', 'Status permohonan berhasil diperbarui dan Surat Rekomendasi telah diterbitkan!');
+            ->with('success', $successMsg);
     }
 
     public function updatePemohon(Request $request, $id)

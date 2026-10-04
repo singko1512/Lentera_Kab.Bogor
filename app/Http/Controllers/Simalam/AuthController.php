@@ -110,7 +110,7 @@ class AuthController extends Controller
 
         if (! $user) {
             return redirect()->back()
-                ->withInput($request->only('login'))
+                ->withInput($request->only('login', 'username', 'email'))
                 ->with('error_swal', 'Akun atau password tidak valid.');
         }
 
@@ -120,7 +120,7 @@ class AuthController extends Controller
 
         if (! $passwordValid) {
             return redirect()->back()
-                ->withInput($request->only('login'))
+                ->withInput($request->only('login', 'username', 'email'))
                 ->with('error_swal', 'Akun atau password tidak valid.');
         }
 
@@ -135,7 +135,7 @@ class AuthController extends Controller
 
             return redirect()
                 ->route('login.form', ['role' => $expectedRole])
-                ->withInput($request->only('login'))
+                ->withInput($request->only('login', 'username', 'email'))
                 ->with('error_swal', 'Gunakan akun '.($expectedRole === 'superadmin' ? 'Super Admin' : 'Admin').' untuk masuk ke halaman ini.');
         }
 
