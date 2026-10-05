@@ -19,11 +19,15 @@ class MagangApplication extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'jadwal_wfh_wfo',
+        'berlaku_sampai',
+        'expired_at',
     ];
 
     protected $casts = [
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
+        'berlaku_sampai' => 'date',
+        'expired_at' => 'datetime',
         'jadwal_wfh_wfo' => 'array',
     ];
 

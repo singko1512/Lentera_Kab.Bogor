@@ -57,12 +57,145 @@
                 <p class="font-medium">{{ session('success') }}</p>
             </div>
         @endif
-        @if(session('error'))
-            <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm">
-                <span class="material-symbols-outlined">error</span>
-                <p class="font-medium">{{ session('error') }}</p>
+        @if(session('info'))
+            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm">
+                <span class="material-symbols-outlined text-blue-600">info</span>
+                <p class="font-medium">{{ session('info') }}</p>
             </div>
         @endif
+
+        <!-- Daftar Permohonan & Status Section -->
+        <div class="glass-card p-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 mb-6 border-b border-gray-100">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-600">assignment</span>
+                        Status Permohonan Layanan & Magang
+                    </h2>
+                    <p class="text-xs text-gray-500 mt-1">Pantau proses verifikasi rekomendasi Kesbangpol dan keputusan dinas tujuan Anda.</p>
+                </div>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-xl transition-colors">
+                    <span class="material-symbols-outlined text-[16px]">add_circle</span> Tambah Layanan Baru
+                </a>
+            </div>
+
+            @if(isset($userApplications) && $userApplications->count() > 0)
+            <div class="overflow-x-auto rounded-xl border border-gray-100">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-gray-50/80 text-gray-700 font-bold uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3.5 pl-5">No / Tgl</th>
+                            <th class="p-3.5">Jenis Layanan</th>
+                            <th class="p-3.5">Dinas Tujuan & Topik</th>
+                            <th class="p-3.5 text-center">Status Kesbangpol</th>
+                            <th class="p-3.5 text-center">Status Dinas</th>
+                            <th class="p-3.5 pr-5 text-center">Aksi / Dokumen</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($userApplications as $app)
+                        @php
+                            $statusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
+                            $statusNama = optional($app->statusMaster)->nama ?? 'Dalam Proses';
+                        @endphp
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="p-3.5 pl-5">
+                                <span class="font-bold text-gray-900">#{{ $app->id }}</span>
+                                <div class="text-[11px] text-gray-400">{{ $app->created_at ? $app->created_at->format('d M Y') : '-' }}</div>
+                            </td>
+                            <td class="p-3.5 font-semibold text-indigo-700">
+                                {{ $app->jenisLayanan->nama ?? $app->jenis_permohonan ?? 'Permohonan Rekomendasi' }}
+                            </td>
+                            <td class="p-3.5">
+                                <div class="font-bold text-gray-800 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[15px] text-gray-400">domain</span>
+                                    {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                                </div>
+                                <div class="text-[11px] text-gray-500 truncate max-w-xs">{{ $app->judul_kegiatan ?? '-' }}</div>
+                            </td>
+                            <td class="p-3.5 text-center">
+                                @if($statusKode == 'disetujui' || $statusKode == 'selesai')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 border border-green-200 rounded-full font-bold uppercase text-[10px]">
+                                        <span class="material-symbols-outlined text-[13px]">check_circle</span>
+                                        {{ $statusNama }}
+                                    </span>
+                                @elseif($statusKode == 'perlu_revisi')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-bold uppercase text-[10px]">
+                                        <span class="material-symbols-outlined text-[13px]">edit_note</span>
+                                        {{ $statusNama }}
+                                    </span>
+                                @elseif($statusKode == 'ditolak')
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-bold uppercase text-[10px]">
+                                        <span class="material-symbols-outlined text-[13px]">cancel</span>
+                                        {{ $statusNama }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-bold uppercase text-[10px]">
+                                        <span class="material-symbols-outlined text-[13px]">pending</span>
+                                        {{ $statusNama }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="p-3.5 text-center">
+                                @if($app->magangApplication)
+                                    @php
+                                        $dStatus = strtolower($app->magangApplication->status ?? 'menunggu');
+                                        $bNama = $app->magangApplication->bidang->name ?? ($app->magangApplication->rekrutmen->bidang->name ?? null);
+                                    @endphp
+                                    @if(in_array($dStatus, ['diterima', 'aktif']))
+                                        <div class="inline-flex flex-col items-center">
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full font-bold uppercase text-[10px]">
+                                                <span class="material-symbols-outlined text-[13px]">how_to_reg</span>
+                                                Diterima
+                                            </span>
+                                            @if($bNama)
+                                                <span class="text-[10px] text-gray-500 font-medium mt-0.5">{{ $bNama }}</span>
+                                            @endif
+                                        </div>
+                                    @elseif($dStatus == 'ditolak')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-bold uppercase text-[10px]">
+                                            <span class="material-symbols-outlined text-[13px]">close</span>
+                                            Ditolak
+                                        </span>
+                                    @elseif($dStatus == 'expired')
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 border border-gray-200 rounded-full font-bold uppercase text-[10px]">
+                                            <span class="material-symbols-outlined text-[13px]">event_busy</span>
+                                            Expired
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full font-bold uppercase text-[10px]">
+                                            <span class="material-symbols-outlined text-[13px]">hourglass_empty</span>
+                                            Menunggu Dinas
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 italic">-</span>
+                                @endif
+                            </td>
+                            <td class="p-3.5 pr-5 text-center">
+                                @if($app->file_surat_final)
+                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-[11px] shadow-sm transition-colors">
+                                        <span class="material-symbols-outlined text-[14px]">download</span> Unduh Surat Final
+                                    </a>
+                                @else
+                                    <span class="text-[11px] text-gray-400 italic">Surat belum terbit</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @else
+            <div class="text-center py-8 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                <span class="material-symbols-outlined text-4xl text-gray-300 mb-1">note_stack</span>
+                <p class="text-sm font-medium text-gray-500">Belum ada permohonan yang diajukan.</p>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline mt-2">
+                    Ajukan permohonan rekomendasi pertama Anda &rarr;
+                </a>
+            </div>
+            @endif
+        </div>
 
         @if($magang)
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

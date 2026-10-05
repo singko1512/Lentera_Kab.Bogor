@@ -11,13 +11,6 @@ use Illuminate\Support\Str;
 
 class AdminDinasController extends Controller
 {
-    public function __construct()
-    {
-        if (auth()->check() && auth()->user()->role !== 'superadmin') {
-            abort(403, 'Hanya superadmin yang berhak mengakses halaman ini.');
-        }
-    }
-
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -155,10 +148,11 @@ class AdminDinasController extends Controller
             $user->update($userData);
         } else {
             // Buat jika akun user belum ada sebelumnya
+            $plainPass = $request->password ?: Str::password(12);
             User::create([
                 'name' => 'Admin ' . $dinas->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password ?? 'password123'),
+                'password' => Hash::make($plainPass),
                 'role' => 'dinas',
                 'dinas_id' => $dinas->id,
                 'status_akun' => 'active',
@@ -176,11 +170,12 @@ class AdminDinasController extends Controller
         $user = User::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
 
         if ($user) {
+            $newPassword = Str::password(12);
             $user->update([
-                'password' => Hash::make('password123')
+                'password' => Hash::make($newPassword)
             ]);
             return redirect()->route('kesbangpol.dinas.index')
-                ->with('success', 'Password akun "' . $dinas->name . '" berhasil di-reset menjadi "password123".');
+                ->with('success', 'Password akun "' . $dinas->name . '" berhasil di-reset menjadi: ' . $newPassword . ' (Harap simpan password ini).');
         }
 
         return redirect()->route('kesbangpol.dinas.index')

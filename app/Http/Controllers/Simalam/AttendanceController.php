@@ -464,11 +464,13 @@ class AttendanceController extends Controller
 
     public function lampiran(Absensi $absensi)
     {
+        $this->authorizeAbsensiAccess($absensi);
         return $this->serveAbsensiFile($absensi->foto);
     }
 
     public function kamera(Request $request, Absensi $absensi)
     {
+        $this->authorizeAbsensiAccess($absensi);
         $tipe = $request->query('tipe');
         if ($tipe === 'pulang') {
             $photo = $absensi->foto_pulang ?: $absensi->foto_kamera ?: $absensi->foto_masuk;
@@ -479,6 +481,39 @@ class AttendanceController extends Controller
         }
 
         return $this->serveAbsensiFile($photo);
+    }
+
+    private function authorizeAbsensiAccess(Absensi $absensi): void
+    {
+        $user = Auth::user();
+        if (!$user) {
+            abort(401);
+        }
+
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($absensi->user_id === $user->id) {
+            return;
+        }
+
+        if ($user->isDinas()) {
+            $dinasId = \App\Support\CurrentDinas::id();
+            $targetUser = $absensi->user;
+            if ($targetUser && ($targetUser->dinas_id == $dinasId || $targetUser->magangApplications()->where('dinas_id', $dinasId)->exists())) {
+                return;
+            }
+        }
+
+        if ($user->isBidang()) {
+            $targetUser = $absensi->user;
+            if ($targetUser && $targetUser->bidang_id == $user->bidang_id) {
+                return;
+            }
+        }
+
+        abort(403, 'Akses ditolak. Anda tidak berhak mengakses dokumentasi absensi ini.');
     }
 
     public function sertifikat(string $slug)

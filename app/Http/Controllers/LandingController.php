@@ -28,11 +28,11 @@ class LandingController extends Controller
             $r->jenis_layanan = $r->bidang ? $r->bidang->nama : 'Umum';
         }
 
-        // 2. Ambil Instansi (Dinas) Populer / Membuka kuota
+        // 2. Ambil Seluruh Instansi (Dinas ±38) untuk landing page publik
         $featuredInstansis = Dinas::with(['rekrutmens' => function($q) {
                 $q->where('is_active', true);
             }])
-            ->take(6)
+            ->orderBy('name', 'asc')
             ->get();
         
         foreach ($featuredInstansis as $dinas) {
@@ -118,7 +118,7 @@ class LandingController extends Controller
         }
 
         $userApplications = auth()->check() 
-            ? PermohonanLayanan::with(['jenisLayanan', 'statusMaster'])
+            ? PermohonanLayanan::with(['jenisLayanan', 'statusMaster', 'dinas', 'magangApplication.rekrutmen.bidang', 'magangApplication.bidang'])
                 ->where('user_id', auth()->id())
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -224,17 +224,89 @@ class LandingController extends Controller
         return view('pelayanan.landing.peserta', compact('pesertas', 'search', 'instansiAsal', 'dinasId', 'semuaInstansi', 'semuaDinas'));
     }
 
+    public function instansiList(Request $request)
+    {
+        $query = Dinas::with(['rekrutmens' => function ($q) {
+            $q->where('is_active', true);
+        }]);
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('filter') && $request->filter != 'semua') {
+            if ($request->filter == 'tersedia') {
+                $query->where(function ($q) {
+                    $q->where('status_magang', 'tersedia')
+                      ->orWhere(function ($subQ) {
+                          $subQ->where(function ($s) {
+                              $s->where('status_magang', 'otomatis')->orWhereNull('status_magang');
+                          })->whereHas('rekrutmens', function ($q2) {
+                              $q2->where('is_active', true)
+                                 ->whereRaw('kuota > (SELECT COUNT(*) FROM magang_applications WHERE magang_applications.rekrutmen_id = rekrutmens.id AND magang_applications.status IN (?, ?, ?))', ['menunggu', 'diterima', 'aktif']);
+                          });
+                      });
+                });
+            } elseif ($request->filter == 'penuh') {
+                $query->where(function ($q) {
+                    $q->where('status_magang', 'penuh')
+                      ->orWhere(function ($subQ) {
+                          $subQ->where(function ($s) {
+                              $s->where('status_magang', 'otomatis')->orWhereNull('status_magang');
+                          })->whereHas('rekrutmens', function ($q2) {
+                              $q2->where('is_active', true);
+                          })->whereDoesntHave('rekrutmens', function ($q3) {
+                              $q3->where('is_active', true)
+                                 ->whereRaw('kuota > (SELECT COUNT(*) FROM magang_applications WHERE magang_applications.rekrutmen_id = rekrutmens.id AND magang_applications.status IN (?, ?, ?))', ['menunggu', 'diterima', 'aktif']);
+                          });
+                      });
+                });
+            } elseif ($request->filter == 'tidak_tersedia') {
+                $query->where(function ($q) {
+                    $q->where('status_magang', 'tidak_tersedia')
+                      ->orWhere(function ($subQ) {
+                          $subQ->where(function ($s) {
+                              $s->where('status_magang', 'otomatis')->orWhereNull('status_magang');
+                          })->whereDoesntHave('rekrutmens', function ($q2) {
+                              $q2->where('is_active', true);
+                          });
+                      });
+                });
+            }
+        }
+
+        if ($request->filled('sort')) {
+            if ($request->sort == 'nama_asc') {
+                $query->orderBy('name', 'asc');
+            } elseif ($request->sort == 'nama_desc') {
+                $query->orderBy('name', 'desc');
+            } elseif ($request->sort == 'kuota_terbanyak') {
+                $query->withSum(['rekrutmens' => function($q) {
+                    $q->where('is_active', true);
+                }], 'kuota')->orderBy('rekrutmens_sum_kuota', 'desc');
+            }
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
+        $instansis = $query->paginate(40)->withQueryString();
+
+        return view('pelayanan.landing.instansi', compact('instansis'));
+    }
+
     public function instansiDetail($id)
     {
-        $instansi = Dinas::with(['bidang', 'rekrutmens' => function($q) {
-            $q->where('is_active', true);
+        $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
+            $q->where('is_active', true)->with(['magangApplications' => function ($mq) {
+                $mq->whereIn('status', ['diterima', 'aktif'])->with('user', 'permohonanLayanan');
+            }]);
         }])->findOrFail($id);
 
         $totalKuota = $instansi->rekrutmens->sum('kuota');
-        $totalDiterima = MagangApplication::whereHas('rekrutmen', function($q) use ($id) {
-            $q->where('dinas_id', $id);
-        })->where('status', 'diterima')->count();
         $slotTersedia = $instansi->rekrutmens->sum('slot_tersedia');
+        $totalDiterima = MagangApplication::whereHas('rekrutmen', function ($q) use ($id) {
+            $q->where('dinas_id', $id);
+        })->whereIn('status', ['diterima', 'aktif'])->count();
 
         return view('pelayanan.landing.instansi_detail', compact('instansi', 'totalKuota', 'totalDiterima', 'slotTersedia'));
     }
@@ -275,14 +347,99 @@ class LandingController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        $data = $request->except(['password', 'password_confirmation']);
-        
+        $data = $request->only([
+            'nik',
+            'no_hp',
+            'tempat_lahir',
+            'tanggal_lahir',
+            'asal_instansi',
+            'program_studi',
+            'nim',
+            'alamat',
+        ]);
+
+        $data['name'] = $request->input('nama');
+        $data['email'] = $request->input('email');
+
         if ($request->filled('password')) {
-            $data['password'] = \Hash::make($request->password);
+            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
         }
 
         $user->update($data);
 
         return back()->with('success_swal', 'Profil berhasil diperbarui!');
+    }
+
+    /**
+     * Verifikasi Publik Surat Rekomendasi via Token QR Code
+     * Menampilkan data terbatas dengan masking privasi pemohon.
+     */
+    public function verifikasiSurat($token)
+    {
+        $surat = \App\Models\SuratRekomendasi::with(['permohonanLayanan.dinas', 'permohonanLayanan.user', 'permohonanLayanan.statusMaster'])
+            ->where('verification_token', $token)
+            ->first();
+
+        if (!$surat || !$surat->permohonanLayanan) {
+            return view('pelayanan.landing.verifikasi_surat', [
+                'isValid' => false,
+                'statusLabel' => 'TIDAK DITEMUKAN / TIDAK VALID',
+                'nomorSurat' => '-',
+                'namaPemohon' => '-',
+                'instansiTujuan' => '-',
+                'tanggalTerbit' => '-',
+                'catatan' => 'Dokumen Surat Rekomendasi dengan tanda verifikasi digital ini tidak terdaftar dalam sistem resmi LENTERA Kabupaten Bogor.',
+            ]);
+        }
+
+        $permohonan = $surat->permohonanLayanan;
+        $namaAsli = $permohonan->atas_nama ?: ($permohonan->user->name ?? '-');
+
+        // Masking nama pemohon demi privasi (misal: B*** S******)
+        $maskedName = collect(explode(' ', trim($namaAsli)))->map(function ($part) {
+            $len = mb_strlen($part);
+            if ($len <= 2) {
+                return $part;
+            }
+            return mb_substr($part, 0, 1) . str_repeat('*', min(6, $len - 1));
+        })->implode(' ');
+
+        $instansiTujuan = $permohonan->dinas?->name ?: ($permohonan->tempat_kegiatan ?: 'Pemerintah Kabupaten Bogor');
+        $tanggalTerbit = $surat->tanggal_surat 
+            ? \Carbon\Carbon::parse($surat->tanggal_surat)->translatedFormat('d F Y')
+            : \Carbon\Carbon::parse($surat->created_at)->translatedFormat('d F Y');
+
+        $statusKode = strtolower($permohonan->statusMaster->kode ?? '');
+        $isDisetujui = in_array($statusKode, ['disetujui', 'selesai'], true);
+
+        // Cek kedaluwarsa
+        $isExpired = false;
+        if ($permohonan->tanggal_selesai) {
+            $isExpired = \Carbon\Carbon::parse($permohonan->tanggal_selesai)->endOfDay()->isPast();
+        }
+
+        if (!$isDisetujui) {
+            $isValid = false;
+            $statusLabel = 'TIDAK AKTIF / DIBATALKAN';
+            $catatan = 'Status surat rekomendasi ini belum disetujui atau telah dibatalkan.';
+        } elseif ($isExpired) {
+            $isValid = false;
+            $statusLabel = 'KEDALUWARSA';
+            $catatan = 'Masa berlaku kegiatan/rekomendasi pada surat ini telah berakhir (' . \Carbon\Carbon::parse($permohonan->tanggal_selesai)->translatedFormat('d F Y') . ').';
+        } else {
+            $isValid = true;
+            $statusLabel = 'VALID';
+            $catatan = 'Surat Rekomendasi ini sah dan terverifikasi secara elektronik oleh Bakesbangpol Kabupaten Bogor.';
+        }
+
+        return view('pelayanan.landing.verifikasi_surat', [
+            'isValid' => $isValid,
+            'statusLabel' => $statusLabel,
+            'nomorSurat' => $surat->nomor_surat ?: ('000.1.5/' . $permohonan->id . '/Bakesbangpol/' . date('Y')),
+            'namaPemohon' => $maskedName,
+            'instansiTujuan' => $instansiTujuan,
+            'tanggalTerbit' => $tanggalTerbit,
+            'catatan' => $catatan,
+        ]);
     }
 }

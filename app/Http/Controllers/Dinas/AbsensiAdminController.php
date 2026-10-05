@@ -13,7 +13,8 @@ class AbsensiAdminController extends Controller
 {
     public function index(Request $request)
     {
-        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $dinasId = \App\Support\CurrentDinas::id();
+        $dinas = \App\Support\CurrentDinas::model();
         if (!$dinas) {
             abort(403, 'Akses ditolak.');
         }
@@ -55,9 +56,9 @@ class AbsensiAdminController extends Controller
         
         $magangUsersQuery = MagangApplication::with(['user', 'bidang', 'rekrutmen'])
             ->where(function($q) use ($dinas) {
-                $q->where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))
-                  ->orWhereHas('rekrutmen', function($sq) use ($dinas) {
-                      $sq->where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+                $q->where('dinas_id', $dinasId)
+                  ->orWhereHas('rekrutmen', function($sq) use ($dinasId) {
+                      $sq->where('dinas_id', $dinasId);
                   });
             })
             ->whereIn('status', ['diterima', 'aktif', 'selesai']);
@@ -142,8 +143,8 @@ class AbsensiAdminController extends Controller
         if ($activeBidangId) {
             $sertifikatUsersQuery->where('bidang_id', $activeBidangId);
         } else {
-            $sertifikatUsersQuery->where(function($q) use ($dinas, $userGroupIds) {
-                $q->where('dinas_id', (session('superadmin_instansi_id') ?? Auth::user()->dinas_id))
+            $sertifikatUsersQuery->where(function($q) use ($dinasId, $userGroupIds) {
+                $q->where('dinas_id', $dinasId)
                   ->orWhereIn('id', $userGroupIds);
             });
         }

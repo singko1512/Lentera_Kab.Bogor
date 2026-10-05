@@ -98,70 +98,11 @@ class MagangController extends Controller
 
     public function applyForm($rekrutmenId)
     {
-        $activeMagang = MagangApplication::where('user_id', Auth::id())
-            ->whereIn('status', ['diterima', 'aktif'])
-            ->whereDate('tanggal_selesai', '>=', now()->toDateString())
-            ->first();
-
-        if ($activeMagang) {
-            return redirect()->back()->with('error', 'Anda sudah diterima di instansi ('.$activeMagang->rekrutmen?->dinas?->name.') dan kegiatan Anda belum berakhir. Anda tidak dapat melamar ke tempat lain.');
-        }
-
-        $rekrutmen = Rekrutmen::with('dinas')->findOrFail($rekrutmenId);
-        
-        // Cek apakah user punya permohonan magang yang sudah disetujui
-        $permohonanLayanan = PermohonanLayanan::where('user_id', Auth::id())
-            ->whereHas('statusMaster', function($q) {
-                $q->where('kode', 'disetujui');
-            })
-            // ->where('is_magang', true) // Kalau ada is_magang filter, tambahkan di sini
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        if (!$permohonanLayanan) {
-            return redirect()->back()->with('error', 'Anda harus memiliki Surat Rekomendasi dari Kesbangpol yang sudah disetujui sebelum mendaftar magang.');
-        }
-
-        return view('pelayanan.landing.forms.magang_apply', compact('rekrutmen', 'permohonanLayanan'));
+        return redirect()->route('peserta.dashboard')->with('info', 'Pendaftaran magang otomatis diproses melalui pengajuan layanan rekomendasi Kesbangpol. Dinas tujuan Anda sudah terbooking dan penempatan bidang ditentukan langsung oleh akun Dinas tujuan.');
     }
 
     public function applySubmit(Request $request, $rekrutmenId)
     {
-        $activeMagang = MagangApplication::where('user_id', Auth::id())
-            ->whereIn('status', ['diterima', 'aktif'])
-            ->whereDate('tanggal_selesai', '>=', now()->toDateString())
-            ->first();
-
-        if ($activeMagang) {
-            return redirect()->back()->with('error', 'Pendaftaran ditolak: Anda masih memiliki kegiatan magang/penelitian aktif.');
-        }
-
-        $request->validate([
-            'pesan_lamaran' => 'nullable|string',
-            'permohonan_layanan_id' => 'required|exists:permohonan_layanans,id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        $rekrutmen = Rekrutmen::findOrFail($rekrutmenId);
-
-        // Hapus pengajuan pendahulu/manual yang masih status 'menunggu' untuk permohonan ini agar tidak ganda
-        MagangApplication::where('user_id', Auth::id())
-            ->where('permohonan_layanan_id', $request->permohonan_layanan_id)
-            ->where('status', 'menunggu')
-            ->delete();
-
-        MagangApplication::create([
-            'user_id' => Auth::id(),
-            'rekrutmen_id' => $rekrutmenId,
-            'dinas_id' => $rekrutmen->dinas_id,
-            'permohonan_layanan_id' => $request->permohonan_layanan_id,
-            'status' => 'menunggu',
-            'pesan_lamaran' => $request->pesan_lamaran,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-        ]);
-
-        return redirect()->route('landing.instansi')->with('success', 'Pendaftaran magang berhasil dikirim. Menunggu verifikasi Dinas.');
+        return redirect()->route('peserta.dashboard')->with('info', 'Pendaftaran magang otomatis diproses melalui pengajuan layanan rekomendasi Kesbangpol. Dinas tujuan Anda sudah terbooking dan penempatan bidang ditentukan langsung oleh akun Dinas tujuan.');
     }
 }

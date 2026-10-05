@@ -429,10 +429,10 @@
                     <tr>
                         <th class="p-4 pl-6">No / Tgl Pengajuan</th>
                         <th class="p-4">Jenis Layanan</th>
-                        <th class="p-4">Instansi / Topik</th>
-                        <th class="p-4 text-center">Status</th>
-                        <th class="p-4">Keterangan Kesbangpol</th>
-                        <th class="p-4 text-center">Tanggal Pembaruan</th>
+                        <th class="p-4">Dinas Tujuan & Topik</th>
+                        <th class="p-4 text-center">Status Kesbangpol</th>
+                        <th class="p-4 text-center">Status Dinas</th>
+                        <th class="p-4">Keterangan</th>
                         <th class="p-4 pr-6 text-center">Aksi / Dokumen</th>
                     </tr>
                 </thead>
@@ -447,8 +447,11 @@
                             {{ $app->jenisLayanan->nama ?? $app->jenis_permohonan ?? 'Permohonan Rekomendasi' }}
                         </td>
                         <td class="p-4">
-                            <div class="font-medium text-gray-800">{{ $app->asal_instansi ?? '-' }}</div>
-                            <div class="text-xs text-on-surface-variant truncate max-w-xs">{{ $app->judul_kegiatan ?? '-' }}</div>
+                            <div class="font-medium text-gray-900 flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[16px] text-primary">domain</span>
+                                {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                            </div>
+                            <div class="text-xs text-on-surface-variant truncate max-w-xs mt-0.5">{{ $app->judul_kegiatan ?? '-' }}</div>
                         </td>
                         <td class="p-4 text-center">
                             @php
@@ -477,25 +480,67 @@
                                 </span>
                             @endif
                         </td>
+                        <td class="p-4 text-center">
+                            @if($app->magangApplication)
+                                @php
+                                    $dinasStatus = strtolower($app->magangApplication->status ?? 'menunggu');
+                                    $bidangPenempatan = $app->magangApplication->bidang->name ?? ($app->magangApplication->rekrutmen->bidang->name ?? null);
+                                @endphp
+                                @if(in_array($dinasStatus, ['diterima', 'aktif']))
+                                    <div class="inline-flex flex-col items-center">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold uppercase">
+                                            <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
+                                            <span>Diterima</span>
+                                        </span>
+                                        @if($bidangPenempatan)
+                                            <span class="text-[11px] text-gray-600 font-medium mt-1">{{ $bidangPenempatan }}</span>
+                                        @endif
+                                    </div>
+                                @elseif($dinasStatus == 'ditolak')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-bold uppercase">
+                                        <span class="material-symbols-outlined text-[14px]">close</span>
+                                        <span>Ditolak Dinas</span>
+                                    </span>
+                                @elseif($dinasStatus == 'expired')
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs font-bold uppercase">
+                                        <span class="material-symbols-outlined text-[14px]">event_busy</span>
+                                        <span>Kedaluwarsa</span>
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-bold uppercase" title="Kuota terbooking, menunggu persetujuan dinas">
+                                        <span class="material-symbols-outlined text-[14px]">hourglass_empty</span>
+                                        <span>Menunggu Dinas</span>
+                                    </span>
+                                @endif
+                            @else
+                                <span class="text-xs text-on-surface-variant italic">-</span>
+                            @endif
+                        </td>
                         <td class="p-4">
                             @if($app->keterangan)
                                 <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium">
                                     {{ $app->keterangan }}
                                 </div>
+                            @elseif($app->magangApplication && $app->magangApplication->catatan_admin)
+                                <div class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-200 max-w-xs leading-relaxed font-medium">
+                                    {{ $app->magangApplication->catatan_admin }}
+                                </div>
                             @else
                                 <span class="text-xs text-on-surface-variant italic">-</span>
                             @endif
                         </td>
-                        <td class="p-4 text-center whitespace-nowrap">
-                            <div class="text-xs text-gray-700 font-medium">{{ $app->updated_at ? $app->updated_at->format('d M Y, H:i') : '-' }}</div>
-                        </td>
                         <td class="p-4 pr-6 text-center">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                @if($app->file_surat_keluaran)
-                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi (PDF)">
+                                @if($app->file_surat_final)
+                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
                                         <span class="material-symbols-outlined text-[15px]">picture_as_pdf</span>
                                         <span>Unduh Surat</span>
                                     </a>
+                                @elseif(in_array($statusKode, ['disetujui', 'selesai', 'diterima', 'aktif']))
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-amber-50 text-amber-800 border border-amber-200" title="Surat sedang diproses/ menunggu penandatanganan">
+                                        <span class="material-symbols-outlined text-[14px]">hourglass_top</span>
+                                        <span>Surat diproses</span>
+                                    </span>
                                 @endif
 
                                 @if(in_array($statusKode, ['perlu_revisi', 'menunggu_verifikasi']))

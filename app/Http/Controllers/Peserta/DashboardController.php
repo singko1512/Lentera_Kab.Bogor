@@ -37,7 +37,12 @@ class DashboardController extends Controller
         }, 'timelines', 'tasks'])
         ->get();
 
-        return view('pelayanan.peserta.dashboard', compact('magang', 'absensiHariIni', 'jurnals', 'projects'));
+        $userApplications = \App\Models\PermohonanLayanan::with(['jenisLayanan', 'statusMaster', 'dinas', 'magangApplication.bidang', 'magangApplication.rekrutmen.bidang'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('pelayanan.peserta.dashboard', compact('magang', 'absensiHariIni', 'jurnals', 'projects', 'userApplications'));
     }
 
     public function checkIn(Request $request)

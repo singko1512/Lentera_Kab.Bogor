@@ -38,9 +38,17 @@ class Rekrutmen extends Model
 
     public function getSlotTersediaAttribute()
     {
-        $terisi = $this->magangApplications()
-            ->whereIn('status', ['menunggu', 'diterima', 'aktif'])
-            ->count();
+        $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
+
+        if ($this->relationLoaded('magangApplications')) {
+            $terisi = $this->magangApplications
+                ->whereIn('status', $statusMemakai)
+                ->count();
+        } else {
+            $terisi = $this->magangApplications()
+                ->whereIn('status', $statusMemakai)
+                ->count();
+        }
 
         return max(0, $this->kuota - $terisi);
     }

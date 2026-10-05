@@ -221,10 +221,10 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $layanan->$field) }}'; previewTitle = '{{ $info['label'] }}'; previewExt = '{{ strtolower(pathinfo($layanan->$field, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
+                                    <button type="button" @click="previewUrl = '{{ route('berkas.preview', [$layanan->id, $field]) }}'; previewTitle = '{{ $info['label'] }}'; previewExt = '{{ strtolower(pathinfo($layanan->$field, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
-                                    <a href="{{ url('/dokumen/' . $layanan->$field) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
+                                    <a href="{{ route('berkas.preview', [$layanan->id, $field]) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
                                         <span class="material-symbols-outlined text-[20px]">open_in_new</span>
                                     </a>
                                 </div>
@@ -248,34 +248,152 @@
             </div>
         </div>
         
-        <!-- Kolom Aksi Verifikasi -->
+        <!-- Kolom Aksi Verifikasi & Dokumen Final -->
         <div class="w-full lg:w-1/3 flex flex-col gap-6">
-            <!-- Box Quick Action: Surat Rekomendasi Kesbangpol (Draf PDF) -->
+            <!-- Box 1: Draf Surat Rekomendasi Kesbangpol (DOCX & PDF Template) -->
             <div class="bg-blue-50/80 rounded-xl shadow-sm border border-blue-200 p-5">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-sm">
-                        <span class="material-symbols-outlined text-[20px]">verified</span>
+                        <span class="material-symbols-outlined text-[20px]">description</span>
                     </div>
                     <div>
-                        <h3 class="text-sm font-bold text-gray-900">Surat Rekomendasi Kesbangpol</h3>
-                        <p class="text-[11px] text-gray-600">Dokumen draf PDF resmi</p>
+                        <h3 class="text-sm font-bold text-gray-900">Draf Surat Rekomendasi</h3>
+                        <p class="text-[11px] text-gray-600">Draf otomatis Kesbangpol</p>
                     </div>
                 </div>
                 <p class="text-xs text-gray-600 mb-3.5 leading-relaxed">
-                    Lihat atau unduh draf Surat Rekomendasi Kesbangpol resmi berformat PDF untuk ditempel E-Sign dan QR Code manual oleh admin.
+                    Unduh draf rekomendasi untuk diedit nomor & pejabat, lalu ditandatangani / TTE sebelum diunggah ke Surat Final.
                 </p>
                 <div class="flex flex-col gap-2">
-                    <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
-                        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                        Lihat / Download Surat (.pdf)
-                    </a>
-                    <a href="{{ route('kesbangpol.layanan.generate_docx', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-blue-300 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 transition-colors">
+                    <a href="{{ route('kesbangpol.layanan.generate_docx', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-blue-300 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 transition-colors shadow-xs">
                         <span class="material-symbols-outlined text-[16px]">description</span>
                         Unduh Draf Word (.docx)
+                    </a>
+                    <a href="{{ route('kesbangpol.layanan.generate_pdf', $layanan->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border border-blue-300 text-xs font-semibold text-blue-700 bg-white hover:bg-blue-50 transition-colors shadow-xs">
+                        <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                        Unduh Draf PDF (.pdf)
                     </a>
                 </div>
             </div>
 
+            <!-- Box 2: Surat Rekomendasi Final (TTE / Bertandatangan) -->
+            <div class="bg-white rounded-xl shadow-sm border {{ $layanan->file_surat_final ? 'border-emerald-300' : 'border-amber-300' }} overflow-hidden">
+                <div class="{{ $layanan->file_surat_final ? 'bg-emerald-50' : 'bg-amber-50' }} px-6 py-4 border-b {{ $layanan->file_surat_final ? 'border-emerald-200' : 'border-amber-200' }} flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined {{ $layanan->file_surat_final ? 'text-emerald-700' : 'text-amber-700' }} text-[22px]">verified_user</span>
+                        <h3 class="text-sm font-bold text-gray-900 m-0">Surat Rekomendasi Final (TTE)</h3>
+                    </div>
+                    @if($layanan->file_surat_final)
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                            Terbit
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            Belum Diunggah
+                        </span>
+                    @endif
+                </div>
+
+                <div class="p-6">
+                    @if($layanan->file_surat_final)
+                        <div class="p-3.5 bg-emerald-50/70 rounded-xl border border-emerald-200 mb-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <span class="material-symbols-outlined text-red-600 text-[28px] shrink-0">picture_as_pdf</span>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-gray-800 truncate">Surat Rekomendasi Final Terpasang</p>
+                                        <p class="text-[11px] text-gray-500 truncate">{{ basename($layanan->file_surat_final) }}</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-all">
+                                    <span class="material-symbols-outlined text-[15px]">visibility</span>
+                                    <span>Lihat File</span>
+                                </a>
+                            </div>
+
+                            <!-- Riwayat Singkat Pengunggahan -->
+                            <div class="mt-3 pt-3 border-t border-emerald-200/80 text-[11px] text-gray-600 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">Diunggah Oleh:</span>
+                                    <span class="font-semibold text-gray-800">{{ $layanan->pengunggahSuratFinal->name ?? 'Petugas Kesbangpol' }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">Waktu Unggah:</span>
+                                    <span class="font-semibold text-gray-800">{{ $layanan->surat_final_diunggah_pada ? $layanan->surat_final_diunggah_pada->format('d M Y, H:i') . ' WIB' : '-' }}</span>
+                                </div>
+                                @if(!empty($layanan->suratRekomendasi->nomor_surat))
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">Nomor Surat:</span>
+                                    <span class="font-semibold text-gray-800">{{ $layanan->suratRekomendasi->nomor_surat }}</span>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Form Ganti Surat Final (Selalu Tampil, Bisa Mengganti File Berkali-kali) -->
+                        <div x-data="{ openGanti: false }">
+                            <button type="button" @click="openGanti = !openGanti" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 bg-gray-50 text-xs font-bold text-gray-700 transition-colors">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-[16px] text-primary">upload_file</span>
+                                    Ganti Surat Final
+                                </span>
+                                <span class="material-symbols-outlined text-[18px] transition-transform" :class="openGanti ? 'rotate-180' : ''">expand_more</span>
+                            </button>
+
+                            <div x-show="openGanti" x-cloak class="mt-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <form action="{{ route('kesbangpol.layanan.upload_surat_final', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
+                                    @csrf
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">Nomor Surat Baru (Opsional)</label>
+                                        <input type="text" name="nomor_surat" value="{{ $layanan->suratRekomendasi->nomor_surat ?? '' }}" placeholder="Contoh: 000.1.5/123/Bakesbangpol/{{ date('Y') }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-xs shadow-sm py-1.5 px-3">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-gray-700 mb-1">File PDF Surat Final Baru <span class="text-red-500">*</span></label>
+                                        <input type="file" name="file_surat_final" accept=".pdf" required class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                                        <p class="text-[10px] text-gray-500 mt-1">Maks. {{ config('lentera.max_upload_size', 2048) / 1024 }} MB (PDF saja).</p>
+                                    </div>
+                                    <button type="submit" class="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors mt-1">
+                                        <span class="material-symbols-outlined text-[16px]">sync</span>
+                                        <span>Ganti Surat Final Sekarang</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @else
+                        <div class="mb-4 text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200 leading-relaxed">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-amber-600 text-[18px] shrink-0 mt-0.5">info</span>
+                                <div>
+                                    <strong>Surat Rekomendasi Final Belum Diunggah.</strong>
+                                    <p class="mt-0.5 text-gray-600">Unduh draft di atas, edit nomor surat & lakukan TTE/tanda tangan basah, lalu unggah dokumen final di bawah ini agar dapat diunduh pemohon.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Upload Surat Final (Aksi Terpisah) -->
+                        <form action="{{ route('kesbangpol.layanan.upload_surat_final', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-3">
+                            @csrf
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Nomor Surat Resmi (Opsional)</label>
+                                <input type="text" name="nomor_surat" value="{{ $layanan->suratRekomendasi->nomor_surat ?? '' }}" placeholder="Contoh: 000.1.5/{{ $layanan->id }}/Bakesbangpol/{{ date('Y') }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary text-xs shadow-sm py-1.5 px-3">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">Upload Surat Final (PDF Bertandatangan) <span class="text-red-500">*</span></label>
+                                <input type="file" name="file_surat_final" accept=".pdf" required class="block w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer">
+                                <p class="text-[10px] text-gray-500 mt-1">Maks. {{ config('lentera.max_upload_size', 2048) / 1024 }} MB (PDF saja).</p>
+                            </div>
+                            <button type="submit" class="w-full flex items-center justify-center gap-1.5 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors mt-1">
+                                <span class="material-symbols-outlined text-[17px]">upload_file</span>
+                                <span>Upload Surat Final yang Sudah Ditandatangani</span>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Box 3: Aksi Verifikasi Layanan -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h2 class="text-lg font-bold text-gray-800 m-0">Aksi Verifikasi</h2>
@@ -311,7 +429,7 @@
                                 <span class="material-symbols-outlined text-emerald-600 text-[20px] shrink-0 mt-0.5">check_circle</span>
                                 <div class="text-xs text-emerald-800">
                                     <strong class="font-bold">Layanan ini telah disetujui.</strong>
-                                    <p class="mt-0.5 text-emerald-700">Anda dapat mengubah status verifikasi atau mengunggah file baru di bawah ini jika ingin mengganti Surat Rekomendasi.</p>
+                                    <p class="mt-0.5 text-emerald-700">Status verifikasi dapat diperbarui kapan saja jika dibutuhkan.</p>
                                 </div>
                             </div>
                         </div>
@@ -341,7 +459,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('kesbangpol.layanan.verify', $layanan->id) }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+                    <form action="{{ route('kesbangpol.layanan.verify', $layanan->id) }}" method="POST" class="flex flex-col gap-4">
                         @csrf
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Keputusan</label>
@@ -360,6 +478,12 @@
 
                         <div id="surat_field" class="{{ in_array($currentKode, ['disetujui', 'selesai', 'menunggu_verifikasi']) ? '' : 'hidden' }} flex flex-col gap-3">
                             <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nomor Surat Rekomendasi (Opsional)</label>
+                                <input type="text" name="nomor_surat" value="{{ $layanan->suratRekomendasi->nomor_surat ?? '' }}" placeholder="Contoh: 000.1.5/{{ $layanan->id }}/Bakesbangpol/{{ date('Y') }}" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm">
+                                <p class="mt-1 text-xs text-gray-500">Biarkan kosong untuk menggunakan format default, atau isi manual sesuai penomoran buku kendali Kesbangpol.</p>
+                            </div>
+
+                            <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Dinas Tujuan Layanan <span class="text-red-500">*</span></label>
                                 <select name="dinas_id" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm">
                                     <option value="">-- Pilih Dinas Tujuan --</option>
@@ -371,47 +495,11 @@
                                 </select>
                                 <p class="mt-1 text-xs text-gray-500">Data akan otomatis diteruskan ke Dinas yang dipilih untuk verifikasi penempatan bidang.</p>
                             </div>
-
-                            <!-- Pratinjau Surat Yang Sudah Terpasang -->
-                            @if($layanan->file_surat_keluaran)
-                            <div class="p-3.5 bg-blue-50/80 rounded-xl border border-blue-200">
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-2.5 overflow-hidden">
-                                        <span class="material-symbols-outlined text-red-600 text-[26px] shrink-0">picture_as_pdf</span>
-                                        <div class="truncate">
-                                            <p class="text-xs font-bold text-gray-800 truncate">Surat Rekomendasi Terpasang</p>
-                                            <p class="text-[11px] text-gray-500 truncate">{{ basename($layanan->file_surat_keluaran) }}</p>
-                                        </div>
-                                    </div>
-                                    <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 rounded-lg text-xs font-bold shadow-sm transition-all">
-                                        <span class="material-symbols-outlined text-[15px]">visibility</span>
-                                        <span>Lihat Dokumen</span>
-                                    </a>
-                                </div>
-                            </div>
-                            @endif
-
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1.5">
-                                    {{ $layanan->file_surat_keluaran ? 'Ganti Surat Rekomendasi Kesbangpol (Opsional)' : 'Upload Surat Rekomendasi Kesbangpol (Opsional)' }}
-                                </label>
-                                <input type="file" name="file_surat_keluaran" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-primary hover:file:bg-primary hover:file:text-white transition-colors cursor-pointer" accept=".pdf">
-                                <div class="mt-2 text-xs text-blue-800 bg-blue-50/80 p-2.5 rounded-lg border border-blue-200/80 flex items-start gap-2">
-                                    <span class="material-symbols-outlined text-blue-600 text-[16px] mt-0.5 shrink-0">info</span>
-                                    <span>
-                                        @if($layanan->file_surat_keluaran)
-                                            Pilih file PDF baru jika ingin <strong>mengganti</strong> surat rekomendasi di atas. Jika tidak ingin mengubah file surat, biarkan input ini kosong.
-                                        @else
-                                            Jika tidak diunggah manual, sistem akan <strong>otomatis menerbitkan Surat Rekomendasi resmi (.pdf)</strong> saat menyetujui.
-                                        @endif
-                                    </span>
-                                </div>
-                            </div>
                         </div>
 
                         <button type="submit" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all mt-2">
                             <span class="material-symbols-outlined text-[18px]">save</span>
-                            <span>{{ in_array($currentKode, ['disetujui', 'selesai']) ? 'Perbarui Verifikasi & Ganti Surat' : 'Simpan' }}</span>
+                            <span>{{ in_array($currentKode, ['disetujui', 'selesai']) ? 'Perbarui Verifikasi' : 'Simpan Verifikasi' }}</span>
                         </button>
                     </form>
                     

@@ -93,7 +93,7 @@ class AdminController extends Controller
         }
 
         $dinas = $currentAdmin->dinas;
-        $dinasId = session('superadmin_instansi_id') ?? ($isSuperAdmin ? $request->get('dinas_id') : $currentAdmin->dinas_id);
+        $dinasId = \App\Support\CurrentDinas::id() ?? ($isSuperAdmin ? $request->get('dinas_id') : $currentAdmin->dinas_id);
         if ($dinasId) {
             $dinas = \App\Models\Dinas::find($dinasId) ?: $dinas;
         }
@@ -1232,7 +1232,7 @@ class AdminController extends Controller
 
     public function storeBidang(Request $request)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
+        $dinasId = \App\Support\CurrentDinas::id();
 
         $request->validate([
             'nama' => 'required|string|max:100',

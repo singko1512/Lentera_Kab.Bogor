@@ -156,9 +156,14 @@ class User extends Authenticatable
         return $this->hasMany(MagangApplication::class);
     }
 
+    public function permohonanLayanans()
+    {
+        return $this->hasMany(PermohonanLayanan::class);
+    }
+
     public function isAdmin(): bool
     {
-        return in_array($this->role, ['admin', 'superadmin', 'kesbangpol'], true);
+        return in_array($this->role, ['admin', 'superadmin'], true);
     }
 
     public function isDinas(): bool
@@ -178,6 +183,6 @@ class User extends Authenticatable
 
     public function isKesbangpol(): bool
     {
-        return $this->isAdmin() || ($this->isDinas() && $this->dinas && $this->dinas->is_kesbangpol);
+        return $this->isAdmin() || $this->role === 'kesbangpol' || ($this->isDinas() && $this->dinas && $this->dinas->is_kesbangpol);
     }
 }

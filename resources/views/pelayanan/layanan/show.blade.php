@@ -28,13 +28,13 @@
                 <h6 class="text-muted fw-bold mb-2">Dokumen Terlampir</h6>
                 <div class="d-flex flex-column gap-2">
                     @if($layanan->file_ktp)
-                        <a href="{{ url('/dokumen/' . $layanan->file_ktp) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP</a>
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_ktp']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP</a>
                     @endif
                     @if($layanan->file_surat_pengantar)
-                        <a href="{{ url('/dokumen/' . $layanan->file_surat_pengantar) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar</a>
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_surat_pengantar']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar</a>
                     @endif
                     @if($layanan->file_proposal)
-                        <a href="{{ url('/dokumen/' . $layanan->file_proposal) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Proposal / Rencana Kegiatan</a>
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_proposal']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Proposal / Rencana Kegiatan</a>
                     @endif
                 </div>
             </div>
@@ -50,6 +50,16 @@
         <div class="d-flex gap-2 mt-4 pt-4 border-top">
             <a href="{{ route('layanan.index') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</a>
             
+            @if($layanan->file_surat_final)
+                <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="btn btn-success">
+                    <i class="fa-solid fa-file-pdf me-1"></i> Unduh Surat Rekomendasi Final
+                </a>
+            @elseif($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['disetujui', 'selesai', 'diterima', 'aktif']))
+                <span class="badge bg-warning text-dark align-self-center p-2">
+                    <i class="fa-solid fa-hourglass-half me-1"></i> Surat sedang diproses/ menunggu penandatanganan
+                </span>
+            @endif
+
             @if($layanan->statusMaster && $layanan->statusMaster->kode === 'perlu_revisi')
                 <button type="button" class="btn btn-warning text-dark" data-bs-toggle="modal" data-bs-target="#revisiModal">
                     <i class="fa-solid fa-pen-to-square me-1"></i> Revisi Permohonan

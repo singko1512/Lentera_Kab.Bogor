@@ -12,6 +12,7 @@ class Dinas extends Model
 
     protected $fillable = [
         'name',
+        'nama',
         'is_kesbangpol',
         'deskripsi',
         'alamat',
@@ -19,10 +20,21 @@ class Dinas extends Model
         'telepon',
         'logo',
         'status_magang',
+        'masa_berlaku_hari',
         'nama_kepala',
         'nip_kepala',
         'kop_surat',
     ];
+
+    public function getNamaAttribute(): ?string
+    {
+        return $this->attributes['name'] ?? null;
+    }
+
+    public function setNamaAttribute($value): void
+    {
+        $this->attributes['name'] = $value;
+    }
 
     protected $casts = [
         'is_kesbangpol' => 'boolean',

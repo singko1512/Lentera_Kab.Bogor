@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Dinas;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Support\CurrentDinas;
 
 class ParticipantController extends Controller
 {
     public function index()
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
-        $dinas = \App\Models\Dinas::find($dinasId);
+        $dinasId = CurrentDinas::id();
+        $dinas = CurrentDinas::model();
 
         $participants = \App\Models\MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan.dinas'])
             ->where(function($q) use ($dinasId) {
@@ -32,8 +33,8 @@ class ParticipantController extends Controller
 
     public function show($id)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
-        $dinas = \App\Models\Dinas::find($dinasId);
+        $dinasId = CurrentDinas::id();
+        $dinas = CurrentDinas::model();
 
         $participant = \App\Models\MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan.dinas', 'absensis', 'jurnals' => function($q) {
             $q->orderBy('tanggal', 'desc');
@@ -66,12 +67,21 @@ class ParticipantController extends Controller
             'status_akun' => 'required|in:aktif,dibatasi,diblokir'
         ]);
 
-        $user = \App\Models\User::findOrFail($id);
-        
-        // Ensure user is actually a peserta to prevent altering admins
-        if ($user->role !== 'peserta') {
-            return redirect()->back()->with('error', 'Hanya dapat mengubah status akun peserta.');
-        }
+        $dinasId = CurrentDinas::id();
+
+        // Scope query to ensure the target user is a peserta belonging to this dinas
+        $user = \App\Models\User::where('id', $id)
+            ->where('role', 'peserta')
+            ->where(function($q) use ($dinasId) {
+                $q->where('dinas_id', $dinasId)
+                  ->orWhereHas('magangApplications', function($maq) use ($dinasId) {
+                      $maq->where('dinas_id', $dinasId);
+                  })
+                  ->orWhereHas('permohonanLayanans', function($plq) use ($dinasId) {
+                      $plq->where('dinas_id', $dinasId);
+                  });
+            })
+            ->firstOrFail();
 
         $user->status_akun = $request->status_akun;
         $user->save();
@@ -81,7 +91,7 @@ class ParticipantController extends Controller
 
     public function updatePenempatan(Request $request, $id)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
+        $dinasId = CurrentDinas::id();
         $participant = \App\Models\MagangApplication::where(function($q) use ($dinasId) {
             $q->where('dinas_id', $dinasId)
               ->orWhereHas('rekrutmen', function($sq) use ($dinasId) {
@@ -105,7 +115,7 @@ class ParticipantController extends Controller
 
     public function updateSurat(Request $request, $id)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
+        $dinasId = CurrentDinas::id();
         $participant = \App\Models\MagangApplication::where(function($q) use ($dinasId) {
             $q->where('dinas_id', $dinasId)
               ->orWhereHas('rekrutmen', function($sq) use ($dinasId) {
@@ -131,8 +141,8 @@ class ParticipantController extends Controller
 
     public function generateSurat($id)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
-        $dinas = \App\Models\Dinas::find($dinasId);
+        $dinasId = CurrentDinas::id();
+        $dinas = CurrentDinas::model();
         $application = \App\Models\MagangApplication::with(['user', 'bidang', 'rekrutmen.bidang', 'permohonanLayanan'])
             ->where(function($q) use ($dinasId) {
                 $q->where('dinas_id', $dinasId)
@@ -171,7 +181,7 @@ class ParticipantController extends Controller
 
     public function verifyJurnal(Request $request, $id, $jurnal_id)
     {
-        $dinasId = session('superadmin_instansi_id') ?? Auth::user()->dinas_id;
+        $dinasId = CurrentDinas::id();
         
         $participant = \App\Models\MagangApplication::where(function($q) use ($dinasId) {
                 $q->where('dinas_id', $dinasId)

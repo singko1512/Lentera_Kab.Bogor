@@ -12,14 +12,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-        $dinasId = session('superadmin_instansi_id') ?? $user->dinas_id;
+        $dinasId = \App\Support\CurrentDinas::id();
         
         if (!$dinasId && in_array($user->role, ['superadmin', 'admin'])) {
             $dinasId = \App\Models\Dinas::first()?->id;
         }
 
-        $dinas = \App\Models\Dinas::find($dinasId);
+        $dinas = $dinasId ? \App\Models\Dinas::find($dinasId) : null;
 
         if (!$dinas) {
             return redirect('/')->with('error', 'Akun Anda tidak tertaut dengan instansi manapun.');
@@ -66,7 +65,7 @@ class DashboardController extends Controller
             'status_magang' => 'required|in:otomatis,tersedia,penuh,tidak_tersedia',
         ]);
 
-        $dinas = \App\Models\Dinas::find((session('superadmin_instansi_id') ?? Auth::user()->dinas_id));
+        $dinas = \App\Support\CurrentDinas::model();
         if ($dinas) {
             $dinas->update([
                 'status_magang' => $request->status_magang,

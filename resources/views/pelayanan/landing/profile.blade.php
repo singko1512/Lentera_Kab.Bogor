@@ -149,10 +149,14 @@
                 <p class="text-sm font-semibold text-on-surface mt-1">{{ $latestLayanan->jenisLayanan->nama ?? 'Layanan Rekomendasi' }}</p>
                 <p class="text-xs text-on-surface-variant">Lokasi/Tujuan: <strong>{{ $latestLayanan->tempat_kegiatan }}</strong></p>
 
-                @if($latestLayanan->file_surat_keluaran || ($latestLayanan->statusMaster && in_array($latestLayanan->statusMaster->kode, ['disetujui', 'selesai'])))
+                @if($latestLayanan->file_surat_final)
                 <a href="{{ route('surat.pdf', $latestLayanan->id) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
                     <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Unduh Surat Rekomendasi (PDF)
                 </a>
+                @elseif($latestLayanan->statusMaster && in_array($latestLayanan->statusMaster->kode, ['disetujui', 'selesai', 'diterima', 'aktif']))
+                <div class="mt-2 inline-flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold rounded-lg">
+                    <span class="material-symbols-outlined text-[16px]">hourglass_top</span> Surat sedang diproses/ menunggu penandatanganan
+                </div>
                 @endif
             </div>
             @endif
@@ -169,7 +173,7 @@
                 <p class="text-xs text-on-surface-variant">Penempatan Bidang: <strong class="text-secondary">{{ $latestApp->bidang->name ?? 'Belum ditentukan' }}</strong></p>
 
                 @if($latestApp->file_surat_penerimaan)
-                <a href="{{ url('/dokumen/' . $latestApp->file_surat_penerimaan) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                <a href="{{ $latestApp->permohonan_layanan_id ? route('berkas.preview', [$latestApp->permohonan_layanan_id, 'file_surat_penerimaan']) : '#' }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
                     <span class="material-symbols-outlined text-[16px]">download</span> Unduh Surat Penerimaan Dinas
                 </a>
                 @endif

@@ -90,7 +90,10 @@
                     Berkas Persyaratan
                 </h3>
                 <div class="space-y-3">
-                    @if($participant->ktp_file)
+                    @php
+                        $layananId = $participant->permohonan_layanan_id;
+                    @endphp
+                    @if($participant->ktp_file || ($participant->permohonanLayanan && $participant->permohonanLayanan->file_ktp))
                     <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-primary">badge</span>
@@ -99,17 +102,17 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->ktp_file) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ $layananId ? route('berkas.preview', [$layananId, 'file_ktp']) : '#' }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $participant->ktp_file) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                            <a href="{{ $layananId ? route('berkas.preview', [$layananId, 'file_ktp']) : '#' }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
                                 <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                             </a>
                         </div>
                     </div>
                     @endif
 
-                    @if($participant->surat_pengantar)
+                    @if($participant->surat_pengantar || ($participant->permohonanLayanan && $participant->permohonanLayanan->file_surat_pengantar))
                     <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-primary">description</span>
@@ -118,17 +121,17 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->surat_pengantar) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ $layananId ? route('berkas.preview', [$layananId, 'file_surat_pengantar']) : '#' }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $participant->surat_pengantar) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                            <a href="{{ $layananId ? route('berkas.preview', [$layananId, 'file_surat_pengantar']) : '#' }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
                                 <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                             </a>
                         </div>
                     </div>
                     @endif
 
-                    @if($participant->proposal)
+                    @if($participant->proposal || ($participant->permohonanLayanan && $participant->permohonanLayanan->file_proposal))
                     <div class="flex items-center justify-between p-3 border border-outline-variant/50 rounded-xl hover:bg-surface-container-low transition-colors">
                         <div class="flex items-center gap-3">
                             <span class="material-symbols-outlined text-[#F59E0B]">picture_as_pdf</span>
@@ -137,10 +140,10 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $participant->proposal) }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                            <button type="button" @click="previewUrl = '{{ $layananId ? route('berkas.preview', [$layananId, 'file_proposal']) : '#' }}'; previewModalOpen = true" class="text-primary hover:text-primary-dark font-medium text-sm flex items-center gap-1 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
                                 <span class="material-symbols-outlined text-[16px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $participant->proposal) }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
+                            <a href="{{ $layananId ? route('berkas.preview', [$layananId, 'file_proposal']) : '#' }}" target="_blank" class="text-primary hover:text-primary-dark p-1.5 rounded-lg hover:bg-primary/10 transition-colors" title="Buka di Tab Baru">
                                 <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                             </a>
                         </div>
@@ -170,10 +173,10 @@
                         <span class="material-symbols-outlined text-[32px] text-primary mb-2">task</span>
                         <p class="text-body-sm text-on-surface font-semibold mb-3">Surat Balasan / Penerimaan Tersedia</p>
                         <div class="flex items-center gap-2">
-                            <button type="button" @click="previewUrl = '{{ url('/dokumen/' . $suratPenerimaan->file_path) }}?t={{ time() }}'; previewModalOpen = true" class="flex-1 inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
+                            <button type="button" @click="previewUrl = '{{ $layananId ? route('berkas.preview', [$layananId, 'file_surat_penerimaan']) : '#' }}'; previewModalOpen = true" class="flex-1 inline-flex justify-center items-center gap-1.5 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors">
                                 <span class="material-symbols-outlined text-[18px]">visibility</span> Lihat
                             </button>
-                            <a href="{{ url('/dokumen/' . $suratPenerimaan->file_path) }}?t={{ time() }}" target="_blank" class="inline-flex justify-center items-center p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors" title="Unduh / Tab Baru">
+                            <a href="{{ $layananId ? route('berkas.preview', [$layananId, 'file_surat_penerimaan']) : '#' }}" target="_blank" class="inline-flex justify-center items-center p-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors" title="Unduh / Tab Baru">
                                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                             </a>
                         </div>

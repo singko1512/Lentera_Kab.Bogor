@@ -16,11 +16,14 @@ class SuratRekomendasi extends Model
         'pejabat_nip',
         'pejabat_pangkat',
         'pejabat_jabatan',
-        'tembusan'
+        'tembusan',
+        'verification_token',
+        'berlaku_sampai',
     ];
 
     protected $casts = [
         'tanggal_surat' => 'date',
+        'berlaku_sampai' => 'date',
         'tembusan' => 'array',
     ];
 

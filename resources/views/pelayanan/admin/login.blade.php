@@ -122,7 +122,7 @@
                         <span class="material-symbols-outlined text-[20px] shrink-0 mt-0.5">check_circle</span>
                         <span>{{ session('success') }}</span>
                     </div>
-                    @if(session('activation_url') || session('reset_url') || str_contains(session('success'), 'email') || str_contains(session('success'), 'Email'))
+                    @if(str_contains(session('success'), 'email') || str_contains(session('success'), 'Email'))
                         <div class="mt-2 pt-1">
                             <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 bg-[#ea4335] hover:bg-[#d93025] text-white font-bold text-xs rounded-xl transition-all shadow-sm">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -141,10 +141,10 @@
                         <span class="material-symbols-outlined text-[20px] shrink-0 mt-0.5">warning</span>
                         <span>{{ session('error') }}</span>
                     </div>
-                    @if(session('resend_user_id'))
+                    @if(session('resend_email'))
                         <form action="{{ route('account.activate.resend') }}" method="POST" class="mt-2">
                             @csrf
-                            <input type="hidden" name="user_id" value="{{ session('resend_user_id') }}">
+                            <input type="hidden" name="email" value="{{ session('resend_email') }}">
                             <button type="submit" class="text-xs bg-error text-white px-3.5 py-1.5 rounded-lg font-bold hover:bg-error/90 transition-colors inline-flex items-center gap-1 shadow-sm">
                                 <span class="material-symbols-outlined text-[14px]">send</span>
                                 Kirim Ulang Link Aktivasi Email

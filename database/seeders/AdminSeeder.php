@@ -11,7 +11,13 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $defaultPassword = Hash::make('password123');
+        $seedPassword = env('SEED_ADMIN_PASSWORD');
+        if (app()->environment('production') && empty($seedPassword)) {
+            throw new \RuntimeException('SEED_ADMIN_PASSWORD environment variable must be configured in production!');
+        }
+
+        $passwordPlain = $seedPassword ?: 'AdminLenteraBogor#2026!';
+        $defaultPassword = Hash::make($passwordPlain);
 
         // 1. Setup Super Admin
         $superadmin = User::updateOrCreate(
@@ -24,7 +30,7 @@ class AdminSeeder extends Seeder
                 'status_akun' => 'aktif',
             ]
         );
-        $this->command->info("Super Admin ID: " . $superadmin->id . " | Login: 'superadmin' / 'password123'");
+        $this->command->info("Super Admin ID: " . $superadmin->id . " | Username: 'superadmin'");
 
         // 2. Setup Akun Kesbangpol
         $dinasKesbangpol = Dinas::firstOrCreate(
@@ -50,7 +56,7 @@ class AdminSeeder extends Seeder
             'dinas_id' => $dinasKesbangpol->id,
             'status_akun' => 'aktif',
         ]);
-        $this->command->info("Kesbangpol ID: " . $kesbangpol->id . " | Login: 'kesbangpol' / 'password123'");
+        $this->command->info("Kesbangpol ID: " . $kesbangpol->id . " | Username: 'kesbangpol'");
 
         // 3. Setup Akun Dinas (Diskominfo)
         $dinasDiskominfo = Dinas::firstOrCreate(
@@ -88,7 +94,7 @@ class AdminSeeder extends Seeder
             'dinas_id' => $dinasDiskominfo->id,
             'status_akun' => 'aktif',
         ]);
-        $this->command->info("Dinas ID: " . $dinasGeneric->id . " | Login: 'dinas' atau 'diskominfo' / 'password123'");
+        $this->command->info("Dinas ID: " . $dinasGeneric->id . " | Username: 'dinas' atau 'diskominfo'");
     }
 }
 

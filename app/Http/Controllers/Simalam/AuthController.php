@@ -94,31 +94,12 @@ class AuthController extends Controller
         $expectedRole = $credentials['expected_role'] ?? null;
 
         $cleanLogin = strtolower($loginInput);
-        $usernameBeforeAt = Str::before($cleanLogin, '@');
 
         $user = User::where('email', $cleanLogin)
             ->orWhere('username', $cleanLogin)
-            ->orWhere('username', $usernameBeforeAt)
-            ->orWhere('email', $usernameBeforeAt . '@bidang.com')
-            ->orWhere('email', str_replace('_', '.', $usernameBeforeAt) . '@bidang.com')
-            ->orWhere('name', $loginInput)
             ->first();
 
-        if (! $user && in_array($cleanLogin, ['aptika_diskominfo', 'aptika_diskominfo@bidang.com'], true)) {
-            $user = User::where('bidang_id', 49)->first();
-        }
-
-        if (! $user) {
-            return redirect()->back()
-                ->withInput($request->only('login', 'username', 'email'))
-                ->with('error_swal', 'Akun atau password tidak valid.');
-        }
-
-        $passwordValid = \Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)
-            || $credentials['password'] === 'password123'
-            || $credentials['password'] === 'admin123';
-
-        if (! $passwordValid) {
+        if (! $user || !\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
             return redirect()->back()
                 ->withInput($request->only('login', 'username', 'email'))
                 ->with('error_swal', 'Akun atau password tidak valid.');

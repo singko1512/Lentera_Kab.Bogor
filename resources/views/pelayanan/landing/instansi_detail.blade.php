@@ -118,7 +118,7 @@
 <section class="bg-surface-container-lowest rounded-xl p-6 md:p-8 shadow-ambient border-t-4 border-primary-container flex flex-col md:flex-row gap-stack-lg items-start md:items-center justify-between">
     <div class="flex flex-col md:flex-row gap-stack-lg items-start md:items-center w-full">
         <div class="w-24 h-24 bg-surface-container-low rounded-lg flex items-center justify-center shrink-0 border border-outline-variant">
-            <img class="w-16 h-16 object-contain" alt="Official logo" src="{{ $instansi->logo ? url('/dokumen/'.$instansi->logo) : asset('assets/certificate/lambang_kabupaten_bogor.png') }}"/>
+            <img class="w-16 h-16 object-contain" alt="Official logo" src="{{ $instansi->logo ? asset('storage/'.$instansi->logo) : asset('assets/certificate/lambang_kabupaten_bogor.png') }}"/>
         </div>
         <div class="flex flex-col gap-2 w-full">
             <div class="flex items-center justify-between gap-3 flex-wrap">
@@ -243,10 +243,13 @@
                                 </div>
                                 @endif
 
-                                @if(auth()->check() && in_array(auth()->user()->status_akun, ['diblokir', 'dibatasi']))
-                                    <button disabled class="w-full py-2 bg-outline-variant text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed text-center inline-block" title="Akun Anda {{ ucwords(auth()->user()->status_akun) }}">Akun {{ ucwords(auth()->user()->status_akun) }}</button>
+                                @if(auth()->check())
+                                    <div class="w-full py-2.5 px-3 bg-surface-container text-on-surface-variant font-label-md text-xs rounded-lg text-center border border-outline-variant/30 flex items-center justify-center gap-1.5">
+                                        <span class="material-symbols-outlined text-[16px] text-primary">info</span>
+                                        <span>Informasi Kuota Publik</span>
+                                    </div>
                                 @elseif($rekrutmen->slot_tersedia > 0)
-                                    <a href="{{ route('magang.apply', $rekrutmen->id) }}" class="w-full py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors text-center inline-block">Daftar Sekarang</a>
+                                    <a href="{{ route('layanan.create', ['slug' => 'kkl_mahasiswa', 'dinas_id' => $instansi->id]) }}" class="w-full py-2 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary transition-colors text-center inline-block">Ajukan Permohonan Magang</a>
                                 @else
                                     <button disabled class="w-full py-2 bg-outline-variant text-on-surface-variant font-label-md text-label-md rounded-lg cursor-not-allowed text-center inline-block">Kuota Penuh</button>
                                 @endif

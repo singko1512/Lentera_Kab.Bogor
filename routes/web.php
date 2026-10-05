@@ -1,152 +1,59 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LayananController;
+use App\Http\Controllers\Kesbangpol\LayananController as KesbangpolLayananController;
+use App\Http\Controllers\MagangController;
+use App\Http\Controllers\Dinas\DashboardController as DinasDashboardController;
+use App\Http\Controllers\Dinas\RekrutmenController;
+use App\Http\Controllers\Dinas\ApplicationController;
+use App\Http\Controllers\Kesbangpol\ParticipantController as KesbangpolParticipantController;
+use App\Http\Controllers\Kesbangpol\HistoryController as KesbangpolHistoryController;
+use App\Http\Controllers\Kesbangpol\AdminDinasController;
+use App\Http\Controllers\Dinas\ParticipantController as DinasParticipantController;
+use App\Http\Controllers\Dinas\BidangController as DinasBidangController;
+use App\Http\Controllers\Peserta\DashboardController as PesertaDashboardController;
+use App\Http\Controllers\Bidang\DashboardController as BidangDashboardController;
+use App\Http\Controllers\Simalam\AdminController as SimalamAdminController;
+use App\Http\Controllers\Simalam\AttendanceController as SimalamAttendanceController;
+use App\Http\Controllers\Simalam\ProjectTimelineController as SimalamProjectTimelineController;
 
+/*
+|--------------------------------------------------------------------------
+| Public & Landing Routes
+|--------------------------------------------------------------------------
+*/
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/pelayanan', [LandingController::class, 'index']);
 Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->name('landing.peserta');
-Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [LandingController::class, 'profile'])->name('landing.profile');
-    Route::post('/profile', [LandingController::class, 'updateProfile'])->name('landing.profile.update');
-});
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
+Route::get('/instansi', [LandingController::class, 'instansiList'])->name('landing.instansi');
 Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
-Route::get('/surat-rekomendasi/pdf/{id}', [\App\Http\Controllers\Kesbangpol\LayananController::class, 'downloadPdf'])->name('surat.pdf');
+Route::get('/verifikasi-surat/{token}', [LandingController::class, 'verifikasiSurat'])->name('surat.verifikasi');
 Route::get('/sertifikat/{slug}', function($slug) { return redirect()->route('absensi.admin.dashboard'); })->name('sertifikat.show');
+Route::get('/absensi/home', [SimalamAttendanceController::class, 'home'])->name('absensi.home');
 
-// Route langsung untuk melayani preview file dokumen lampiran (KTP, KTM, Proposal, Surat) tanpa bergantung symlink server
-Route::get('/dokumen/{path}', function ($path) {
-    $cleanPath = ltrim(preg_replace('#^storage/#', '', $path), '/');
-    $fullPath = storage_path('app/public/' . $cleanPath);
-
-    if (!file_exists($fullPath)) {
-        // Fallback alternatif 1: storage/app/
-        $altPath = storage_path('app/' . $cleanPath);
-        if (file_exists($altPath)) {
-            $fullPath = $altPath;
-        } else {
-            // Fallback alternatif 2: public/
-            $pubPath = public_path($cleanPath);
-            if (file_exists($pubPath)) {
-                $fullPath = $pubPath;
-            } else {
-                // Fallback alternatif 3: public/storage/
-                $pubStorage = public_path('storage/' . $cleanPath);
-                if (file_exists($pubStorage)) {
-                    $fullPath = $pubStorage;
-                } else {
-                    // Fallback 4: Cek file sample dummy jika nama file mengandung proposal/ktp/surat/dummy
-                    $dummySample = storage_path('app/public/dummy/proposal.pdf');
-                    if (file_exists($dummySample)) {
-                        $fullPath = $dummySample;
-                    } else {
-                        return response(
-                            '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Dokumen Tidak Ditemukan</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;color:#334155;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}.card{background:white;padding:2.5rem;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.05);border:1px solid #e2e8f0;text-align:center;max-width:440px;}.icon{font-size:3.5rem;margin-bottom:1rem;}h3{margin:0 0 0.5rem 0;font-size:1.2rem;color:#0f172a;}p{margin:0 0 1.5rem 0;font-size:0.875rem;color:#64748b;line-height:1.5;}</style></head><body><div class="card"><div class="icon">📁</div><h3>File Lampiran Tidak Ditemukan</h3><p>File dokumen (\'' . htmlspecialchars(basename($path)) . '\') belum diunggah atau tidak ditemukan pada direktori penyimpanan server.</p></div></body></html>',
-                            404,
-                            ['Content-Type' => 'text/html']
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-    $mimeTypes = [
-        'pdf'  => 'application/pdf',
-        'png'  => 'image/png',
-        'jpg'  => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'webp' => 'image/webp',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-        'txt'  => 'text/plain',
-        'doc'  => 'application/msword',
-        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ];
-
-    $mimeType = $mimeTypes[$extension] ?? \Illuminate\Support\Facades\File::mimeType($fullPath) ?? 'application/octet-stream';
-    $disposition = request()->has('download') ? 'attachment' : 'inline';
-
-    return response()->file($fullPath, [
-        'Content-Type' => $mimeType,
-        'Content-Disposition' => $disposition . '; filename="' . basename($fullPath) . '"',
-        'Cache-Control' => 'public, max-age=86400',
-    ]);
-})->where('path', '.*')->name('dokumen.preview');
-
-// Fallback storage route to serve attachment files seamlessly on production deployments
-Route::get('/storage/{path}', function ($path) {
-    $cleanPath = ltrim(preg_replace('#^storage/#', '', $path), '/');
-    $fullPath = storage_path('app/public/' . $cleanPath);
-
-    if (!file_exists($fullPath)) {
-        $altPath = storage_path('app/' . $cleanPath);
-        if (file_exists($altPath)) {
-            $fullPath = $altPath;
-        } else {
-            $dummySample = storage_path('app/public/dummy/proposal.pdf');
-            if (file_exists($dummySample)) {
-                $fullPath = $dummySample;
-            } else {
-                abort(404, 'File lampiran tidak ditemukan.');
-            }
-        }
-    }
-
-    $extension = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-    $mimeTypes = [
-        'pdf'  => 'application/pdf',
-        'png'  => 'image/png',
-        'jpg'  => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'webp' => 'image/webp',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-    ];
-
-    $mimeType = $mimeTypes[$extension] ?? \Illuminate\Support\Facades\File::mimeType($fullPath) ?? 'application/octet-stream';
-    $disposition = request()->has('download') ? 'attachment' : 'inline';
-
-    return response()->file($fullPath, [
-        'Content-Type' => $mimeType,
-        'Content-Disposition' => $disposition . '; filename="' . basename($fullPath) . '"',
-        'Cache-Control' => 'public, max-age=86400',
-    ]);
-})->where('path', '.*');
-
-// Route helper untuk generate symlink di cPanel
-Route::get('/buat-symlink', function () {
-    try {
-        \Illuminate\Support\Facades\Artisan::call('storage:link');
-        return '<h3 style="font-family:sans-serif;color:green;">✓ Berhasil membuat symlink storage via Artisan!</h3>';
-    } catch (\Exception $e) {
-        return '<h3 style="font-family:sans-serif;color:red;">Gagal: ' . $e->getMessage() . '</h3>';
-    }
-});
-
-// Route diagnosa untuk audit storage dan path di production
-Route::get('/diagnosa', function () {
-    return response()->json([
-        'base_path' => base_path(),
-        'storage_path' => storage_path('app/public'),
-        'public_path' => public_path(),
-        'app_url' => config('app.url'),
-        'storage_public_exists' => is_dir(storage_path('app/public')),
-        'storage_public_scandir' => is_dir(storage_path('app/public')) ? scandir(storage_path('app/public')) : null,
-        'permohonan_exists' => is_dir(storage_path('app/public/permohonan')),
-        'permohonan_scandir' => is_dir(storage_path('app/public/permohonan')) ? scandir(storage_path('app/public/permohonan')) : null,
-    ]);
-});
-
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes (Throttled)
+|--------------------------------------------------------------------------
+*/
 Route::get('/login', function (\Illuminate\Http\Request $request) {
     if (Auth::check()) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $user = Auth::user();
+        if ($user->role === 'dinas') {
+            return redirect()->route('dinas.dashboard');
+        } elseif ($user->role === 'kesbangpol') {
+            return redirect()->route('kesbangpol.dashboard');
+        } elseif (in_array($user->role, ['admin', 'superadmin'])) {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->role === 'bidang') {
+            return redirect()->route('bidang.dashboard');
+        }
+        return redirect()->route('peserta.dashboard');
     }
 
     $mode = $request->query('mode', 'login');
@@ -159,84 +66,7 @@ Route::get('/login', function (\Illuminate\Http\Request $request) {
     ]);
 })->name('login.form');
 
-// Auth action routes (Dev helper)
-Route::get('/dev/login/{id}', function ($id) {
-    Auth::loginUsingId($id);
-    $user = Auth::user();
-    if ($user->isKesbangpol() || $user->isAdmin()) {
-        return redirect('/kesbangpol/dashboard')->with('success', 'Berhasil login sebagai Super Admin / Kesbangpol');
-    }
-    if ($user->isDinas()) {
-        return redirect('/dinas/dashboard')->with('success', 'Berhasil login sebagai Dinas');
-    }
-    if ($user->isBidang()) {
-        return redirect('/bidang/dashboard')->with('success', 'Berhasil login sebagai Bidang');
-    }
-    return redirect('/')->with('success', 'Berhasil login sebagai Peserta');
-});
-
-Route::post('/login', function (\Illuminate\Http\Request $request) {
-    $loginInput = trim($request->input('login') ?? $request->input('email'));
-    $password = $request->input('password');
-
-    $cleanLogin = strtolower($loginInput);
-    $usernameBeforeAt = \Illuminate\Support\Str::before($cleanLogin, '@');
-
-    // 1. Try finding user by email, username, prefix before @, or name
-    $user = \App\Models\User::where('email', $cleanLogin)
-        ->orWhere('username', $cleanLogin)
-        ->orWhere('username', $usernameBeforeAt)
-        ->orWhere('email', $usernameBeforeAt . '@bidang.com')
-        ->orWhere('email', str_replace('_', '.', $usernameBeforeAt) . '@bidang.com')
-        ->orWhere('name', $loginInput)
-        ->first();
-
-    // 2. Alias fallback for 'superadmin' or 'admin' or 'aptika_diskominfo'
-    if (!$user) {
-        if (in_array($cleanLogin, ['superadmin', 'admin'], true)) {
-            $user = \App\Models\User::whereIn('role', ['admin', 'superadmin'])->first();
-        } elseif (in_array($cleanLogin, ['aptika_diskominfo', 'aptika_diskominfo@bidang.com'], true)) {
-            $user = \App\Models\User::where('bidang_id', 49)->first();
-        }
-    }
-
-    if ($user && (\Illuminate\Support\Facades\Hash::check($password, $user->password) || $password === 'password123' || $password === 'admin123')) {
-        Auth::login($user);
-    }
-
-    if (Auth::check()) {
-        $user = Auth::user();
-
-        // Check if account is inactive / email not verified for peserta
-        if (in_array($user->role, ['peserta', 'user'], true)) {
-            if ($user->status_akun === 'inactive' || $user->status_akun === 'nonaktif' || is_null($user->email_verified_at)) {
-                Auth::logout();
-                return back()
-                    ->withInput($request->only('login', 'email', 'username'))
-                    ->with('error', 'Akun Anda belum aktif. Silakan periksa inbox/spam email (' . $user->email . ') Anda untuk mengeklik tautan aktivasi akun.')
-                    ->with('resend_user_id', $user->id);
-            }
-        }
-
-        if ($user->isKesbangpol() || $user->isAdmin()) {
-            return redirect('/kesbangpol/dashboard');
-        }
-
-        if ($user->isDinas()) {
-            return redirect('/dinas/dashboard');
-        }
-
-        if ($user->isBidang()) {
-            return redirect('/bidang/dashboard');
-        }
-
-        return redirect('/');
-    }
-
-    return back()
-        ->withInput($request->only('login', 'email', 'username'))
-        ->with('error', 'Username / Email atau password tidak valid');
-})->name('login');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 
 Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $request) {
     Auth::logout();
@@ -246,124 +76,37 @@ Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $req
 })->name('logout');
 
 Route::get('/register', function () { return redirect()->route('login.form', ['mode' => 'register']); })->name('register');
-Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register'])->name('register.store');
-Route::get('/activate-account/{token}', [\App\Http\Controllers\AuthController::class, 'activateAccount'])->name('account.activate');
-Route::post('/resend-activation', [\App\Http\Controllers\AuthController::class, 'resendActivation'])->name('account.activate.resend');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
+Route::get('/activate-account/{token}', [AuthController::class, 'activateAccount'])->name('account.activate');
+Route::post('/resend-activation', [AuthController::class, 'resendActivation'])->middleware('throttle:5,1')->name('account.activate.resend');
 
 Route::get('/forgot-password', function () { return redirect()->route('login.form', ['mode' => 'forgot']); })->name('password.request');
-Route::post('/forgot-password/verify', [\App\Http\Controllers\AuthController::class, 'forgotPasswordVerify'])->name('password.verify');
-Route::get('/reset-password/{token}', [\App\Http\Controllers\AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
-Route::post('/reset-password', [\App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.update');
+Route::post('/forgot-password/verify', [AuthController::class, 'forgotPasswordVerify'])->middleware('throttle:5,1')->name('password.verify');
+Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
-
-
-use App\Http\Controllers\LayananController;
-use App\Http\Controllers\Kesbangpol\LayananController as KesbangpolLayananController;
-use App\Http\Controllers\MagangController;
-use App\Http\Controllers\Dinas\DashboardController as DinasDashboardController;
-use App\Http\Controllers\Dinas\RekrutmenController;
-use App\Http\Controllers\Dinas\ApplicationController;
-use App\Http\Controllers\Kesbangpol\ParticipantController as KesbangpolParticipantController;
-use App\Http\Controllers\Kesbangpol\HistoryController as KesbangpolHistoryController;
-use App\Http\Controllers\Kesbangpol\AdminDinasController;
-use App\Http\Controllers\Dinas\ParticipantController as DinasParticipantController;
-use App\Http\Controllers\Dinas\BidangController as DinasBidangController;
-
-// Rute Magang Front-end
-Route::get('/instansi', [MagangController::class, 'instansiList'])->name('landing.instansi');
-Route::get('/instansi/{id}', [MagangController::class, 'instansiDetail'])->name('landing.instansi_detail');
-
-use App\Http\Controllers\Peserta\DashboardController as PesertaDashboardController;
-use App\Http\Controllers\Bidang\DashboardController as BidangDashboardController;
-
+/*
+|--------------------------------------------------------------------------
+| Authenticated Core Routes (All Authenticated Roles)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth'])->group(function () {
-    // Rute Layanan Pemohon
-    Route::get('/layanan', [LayananController::class, 'index'])->name('layanan.index');
-    Route::get('/layanan/form/{slug}', [LayananController::class, 'create'])->name('layanan.create');
-    Route::post('/layanan/submit', [LayananController::class, 'submit'])->name('layanan.submit');
-    Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.show');
-    Route::post('/layanan/{id}/update', [LayananController::class, 'update'])->name('layanan.update');
-    Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
-    Route::post('/layanan/{id}/delete', [LayananController::class, 'destroy']);
+    // User Profile
+    Route::get('/profile', [LandingController::class, 'profile'])->name('landing.profile');
+    Route::post('/profile', [LandingController::class, 'updateProfile'])->name('landing.profile.update');
 
-    // Rute Pendaftaran Magang
-    Route::get('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applyForm'])->name('magang.apply');
-    Route::post('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applySubmit'])->name('magang.submit');
+    // Secure Document & Recommendation Letter PDF Delivery
+    Route::get('/berkas/{permohonan}/{field}', [LayananController::class, 'previewBerkas'])->name('berkas.preview');
+    Route::get('/surat-rekomendasi/pdf/{id}', [KesbangpolLayananController::class, 'downloadPdf'])->name('surat.pdf');
 
-    // Rute Admin & Superadmin Dashboard
-    Route::get('/admin/dashboard', [KesbangpolLayananController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/superadmin/dashboard', [KesbangpolLayananController::class, 'dashboard'])->name('superadmin.dashboard');
-
-    // Rute Kesbangpol
-    Route::prefix('kesbangpol')->name('kesbangpol.')->group(function () {
-        Route::get('/dashboard', [KesbangpolLayananController::class, 'dashboard'])->name('dashboard');
-        
-        // Kelola Akun Dinas (CRUD)
-        Route::get('/dinas', [AdminDinasController::class, 'index'])->name('dinas.index');
-        Route::post('/dinas', [AdminDinasController::class, 'store'])->name('dinas.store');
-        Route::put('/dinas/{id}', [AdminDinasController::class, 'update'])->name('dinas.update');
-        Route::post('/dinas/{id}/reset-password', [AdminDinasController::class, 'resetPassword'])->name('dinas.reset-password');
-        Route::delete('/dinas/{id}', [AdminDinasController::class, 'destroy'])->name('dinas.destroy');
-
-        Route::get('/layanan', [KesbangpolLayananController::class, 'index'])->name('layanan.index');
-        Route::get('/layanan/{id}', [KesbangpolLayananController::class, 'show'])->name('layanan.show');
-        Route::post('/layanan/{id}/verify', [KesbangpolLayananController::class, 'verify'])->name('layanan.verify');
-        Route::put('/layanan/{id}/update-pemohon', [KesbangpolLayananController::class, 'updatePemohon'])->name('layanan.update_pemohon');
-        Route::get('/layanan/{id}/generate-docx', [KesbangpolLayananController::class, 'generateDocx'])->name('layanan.generate_docx');
-        Route::get('/layanan/{id}/generate-pdf', [KesbangpolLayananController::class, 'downloadPdf'])->name('layanan.generate_pdf');
-        
-        // Peserta & Penempatan
-        Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
-        Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
-        Route::post('/participants/{id}/status', [KesbangpolParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
-        Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
-        Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
-        Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
-        Route::get('/participants/extend/{id}', [KesbangpolParticipantController::class, 'showExtend'])->name('extend.show');
-        
-        // History
-        Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');
-    });
-
-    // Rute Dinas
-    Route::prefix('dinas')->name('dinas.')->group(function () {
-        Route::get('/dashboard', [DinasDashboardController::class, 'index'])->name('dashboard');
-        Route::post('/status-magang', [DinasDashboardController::class, 'updateStatusMagang'])->name('status_magang.update');
-        Route::resource('/rekrutmen', RekrutmenController::class);
-        Route::resource('/bidang', DinasBidangController::class)->except(['create', 'show', 'edit']);
-        Route::post('/bidang/{id}/reset-password', [DinasBidangController::class, 'resetPassword'])->name('bidang.reset_password');
-        
-        Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
-        Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
-        Route::post('/applications/{id}/verify', [ApplicationController::class, 'verify'])->name('applications.verify');
-        
-        // Routes for Sidebar Dinas
-        Route::get('/participants', [DinasParticipantController::class, 'index'])->name('participants.index');
-        Route::get('/participants/{id}', [DinasParticipantController::class, 'show'])->name('participants.show');
-        Route::post('/participants/{id}/status', [DinasParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
-        Route::post('/participants/{id}/penempatan', [DinasParticipantController::class, 'updatePenempatan'])->name('participants.penempatan.update');
-        Route::post('/participants/{id}/surat', [DinasParticipantController::class, 'updateSurat'])->name('participants.surat.update');
-        Route::post('/participants/{id}/surat/generate', [DinasParticipantController::class, 'generateSurat'])->name('participants.surat.generate');
-        Route::post('/participants/{id}/jurnal/{jurnal_id}/verify', [DinasParticipantController::class, 'verifyJurnal'])->name('participants.jurnal.verify');
-        Route::get('/profile', [DinasDashboardController::class, 'editProfile'])->name('profile.edit');
-        Route::post('/profile', [DinasDashboardController::class, 'updateProfile'])->name('profile.update');
-    });
-
-    // Rute Bidang
-    Route::prefix('bidang')->name('bidang.')->group(function () {
-        Route::get('/dashboard', [BidangDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/peserta/{id}', [BidangDashboardController::class, 'showPeserta'])->name('peserta.show');
-        Route::post('/peserta/{id}/jadwal', [BidangDashboardController::class, 'updateJadwal'])->name('peserta.update_jadwal');
-        Route::post('/jurnal/{id}/verify', [BidangDashboardController::class, 'verifyJurnal'])->name('jurnal.verify');
-    });
-
-    // Rute Peserta (Mahasiswa Magang)
-    Route::prefix('peserta')->name('peserta.')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\Simalam\AttendanceController::class, 'index'])->name('dashboard');
-        Route::post('/check-in', [PesertaDashboardController::class, 'checkIn'])->name('checkin');
-        Route::post('/check-out', [PesertaDashboardController::class, 'checkOut'])->name('checkout');
-        Route::post('/jurnal', [PesertaDashboardController::class, 'storeJurnal'])->name('jurnal.store');
-    });
+    // Simalam User Absensi & Attendance Attachments
+    Route::get('/absensi', [SimalamAttendanceController::class, 'index'])->name('absensi.index');
+    Route::post('/absensi/absen', [SimalamAttendanceController::class, 'store'])->name('absensi.store');
+    Route::get('/absensi/form', [SimalamAttendanceController::class, 'showForm'])->name('absensi.form');
+    Route::get('/rekap', [SimalamAttendanceController::class, 'rekap'])->name('absensi.rekap');
+    Route::get('/absensi/lampiran/{absensi}', [SimalamAttendanceController::class, 'lampiran'])->name('absensi.lampiran');
+    Route::get('/absensi/kamera/{absensi}', [SimalamAttendanceController::class, 'kamera'])->name('absensi.kamera');
+    Route::post('/absensi/jurnal', [SimalamAttendanceController::class, 'storeJurnal'])->name('absensi.jurnal.store');
 
     // API Notifications
     Route::get('/api/notifications', function () {
@@ -392,110 +135,189 @@ Route::middleware(['auth'])->group(function () {
             ->update(['dibaca' => true]);
         return response()->json(['status' => 'success']);
     });
+
+    // Legacy & Prototype Route Aliases
+    Route::get('/participant/dashboard', function() { return redirect()->route('peserta.dashboard'); })->name('participant.dashboard');
+    Route::post('/participant/profile/update', [LandingController::class, 'updateProfile'])->name('participant.profile.update');
+    Route::get('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.index');
+    Route::post('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.store');
+    Route::get('/booking/search-users', function(\Illuminate\Http\Request $request) { 
+        return response()->json(\App\Models\User::where('nama', 'like', '%'.$request->q.'%')->orWhere('name', 'like', '%'.$request->q.'%')->orWhere('email', 'like', '%'.$request->q.'%')->take(5)->get()); 
+    })->name('booking.search_users');
+    Route::get('/application/form', function() { return redirect()->route('layanan.index'); })->name('application.form');
+    Route::post('/internship/store', function() { return redirect()->route('peserta.dashboard')->with('success', 'Pendaftaran magang berhasil diajukan.'); })->name('internship.store');
 });
 
-// Wildcard routes untuk melayani view secara statis
-Route::get('/pelayanan/{any?}', function ($any = 'landing/index') {
-    // Karena ekstensi adalah .blade.php, kita perlu mengganti / menjadi .
-    $viewName = 'pelayanan.' . str_replace('/', '.', $any);
-    if (View::exists($viewName)) {
-        try {
-            $rekrutmens = collect([
-                (object)[
-                    'id' => 1,
-                    'judul' => 'Software Engineer Intern',
-                    'dinas' => (object)['nama' => 'Diskominfo Kab. Bogor'],
-                    'kuota' => 5,
-                    'jenis_layanan' => ['Magang Mahasiswa'],
-                    'tanggal_berakhir' => now()->addDays(30)
-                ],
-                (object)[
-                    'id' => 2,
-                    'judul' => 'Data Analyst Intern',
-                    'dinas' => (object)['nama' => 'Bappeda Kab. Bogor'],
-                    'kuota' => 2,
-                    'jenis_layanan' => 'PKL SMK',
-                    'tanggal_berakhir' => now()->addDays(15)
-                ]
-            ]);
+/*
+|--------------------------------------------------------------------------
+| Role: User / Peserta
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role.user'])->group(function () {
+    // Rute Layanan Pemohon
+    Route::get('/layanan', [LayananController::class, 'index'])->name('layanan.index');
+    Route::get('/layanan/form/{slug}', [LayananController::class, 'create'])->name('layanan.create');
+    Route::post('/layanan/submit', [LayananController::class, 'submit'])->name('layanan.submit');
+    Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.show');
+    Route::post('/layanan/{id}/update', [LayananController::class, 'update'])->name('layanan.update');
+    Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
+    Route::post('/layanan/{id}/delete', [LayananController::class, 'destroy']);
 
-            $chartData = [
-                'Magang' => [
-                    'registered' => 15,
-                    'accepted' => 10,
-                    'today' => 2,
-                    'weekly_series' => [1, 2, 3, 2, 4, 1, 2]
-                ],
-                'Penelitian' => [
-                    'registered' => 8,
-                    'accepted' => 5,
-                    'today' => 1,
-                    'weekly_series' => [0, 1, 2, 1, 2, 1, 1]
-                ]
-            ];
+    // Rute Pendaftaran Magang
+    Route::get('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applyForm'])->name('magang.apply');
+    Route::post('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applySubmit'])->name('magang.submit');
 
-            $featuredInstansis = collect([
-                (object)[
-                    'id' => 1,
-                    'nama' => 'Diskominfo Kab. Bogor',
-                    'deskripsi' => 'Dinas Komunikasi dan Informatika Kabupaten Bogor.',
-                    'slot_tersedia' => 5
-                ],
-                (object)[
-                    'id' => 2,
-                    'nama' => 'Dinas Kesehatan Kab. Bogor',
-                    'deskripsi' => 'Dinas Kesehatan Kabupaten Bogor melayani kesehatan.',
-                    'slot_tersedia' => 0
-                ]
-            ]);
+    // Rute Peserta (Mahasiswa Magang)
+    Route::prefix('peserta')->name('peserta.')->group(function () {
+        Route::get('/dashboard', [PesertaDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/check-in', [PesertaDashboardController::class, 'checkIn'])->name('checkin');
+        Route::post('/check-out', [PesertaDashboardController::class, 'checkOut'])->name('checkout');
+        Route::post('/jurnal', [PesertaDashboardController::class, 'storeJurnal'])->name('jurnal.store');
+    });
 
-            $pesertas = collect([
-                (object)[
-                    'user' => (object)['name' => 'Budi Santoso'],
-                    'jurusan' => 'Teknik Informatika',
-                    'instansi_asal' => 'Universitas Indonesia',
-                    'dinas' => (object)['nama' => 'Diskominfo Kab. Bogor'],
-                    'bidang' => (object)['nama' => 'E-Government'],
-                    'tanggal_mulai' => now()->subDays(10),
-                    'tanggal_selesai' => now()->addDays(20),
-                    'status' => 'aktif'
-                ]
-            ]);
+    // Project and tasks (Peserta)
+    Route::post('/absensi/task/mulai/{task}', [SimalamProjectTimelineController::class, 'startWorkTask'])->name('absensi.task.start_work');
+    Route::post('/absensi/task/selesai/{task}', [SimalamProjectTimelineController::class, 'submitWorkTask'])->name('absensi.task.submit_work');
+    Route::post('/absensi/module/ambil/{module}', [SimalamProjectTimelineController::class, 'selfAssignModule'])->name('absensi.module.ambil');
+    Route::post('/absensi/task/ambil/{task}', [SimalamProjectTimelineController::class, 'selfAssignTask'])->name('absensi.task.ambil');
+    Route::post('/absensi/task/batal/{task}', [SimalamProjectTimelineController::class, 'cancelTask'])->name('absensi.task.batal');
+    Route::post('/timeline/note/selesai/{note}', [SimalamProjectTimelineController::class, 'completeNote'])->name('absensi.timeline.note.complete');
+});
 
-            $pastDayNames = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+/*
+|--------------------------------------------------------------------------
+| Role: Kesbangpol (Bakesbangpol & Admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role.kesbangpol'])->group(function () {
+    Route::prefix('kesbangpol')->name('kesbangpol.')->group(function () {
+        Route::get('/dashboard', [KesbangpolLayananController::class, 'dashboard'])->name('dashboard');
 
-            return view($viewName, compact('rekrutmens', 'chartData', 'featuredInstansis', 'pesertas', 'pastDayNames'));
-        } catch (\Throwable $e) {
-            return "Terjadi error rendering blade (kemungkinan karena variabel dinamis PHP): " . $e->getMessage() . " on line " . $e->getLine();
+        Route::get('/layanan', [KesbangpolLayananController::class, 'index'])->name('layanan.index');
+        Route::get('/layanan/{id}', [KesbangpolLayananController::class, 'show'])->name('layanan.show');
+        Route::post('/layanan/{id}/verify', [KesbangpolLayananController::class, 'verify'])->name('layanan.verify');
+        Route::put('/layanan/{id}/update-pemohon', [KesbangpolLayananController::class, 'updatePemohon'])->name('layanan.update_pemohon');
+        Route::post('/layanan/{id}/upload-surat-final', [KesbangpolLayananController::class, 'uploadSuratFinal'])->name('layanan.upload_surat_final');
+        Route::get('/layanan/{id}/generate-docx', [KesbangpolLayananController::class, 'generateDocx'])->name('layanan.generate_docx');
+        Route::get('/layanan/{id}/generate-pdf', [KesbangpolLayananController::class, 'generateDraftPdf'])->name('layanan.generate_pdf');
+        
+        // Peserta & Penempatan
+        Route::get('/participants', [KesbangpolParticipantController::class, 'index'])->name('participants.index');
+        Route::get('/participants/{id}/detail', [KesbangpolParticipantController::class, 'show'])->name('participants.detail');
+        Route::post('/participants/{id}/status', [KesbangpolParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
+        Route::get('/participants/placement', [KesbangpolParticipantController::class, 'placement'])->name('participants.placement');
+        Route::get('/participants/placement/{id}', [KesbangpolParticipantController::class, 'showPlacement'])->name('placement.show');
+        Route::get('/participants/extend', [KesbangpolParticipantController::class, 'extend'])->name('participants.extend');
+        Route::get('/participants/extend/{id}', [KesbangpolParticipantController::class, 'showExtend'])->name('extend.show');
+        
+        // History
+        Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Role: Admin / Superadmin Only
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role.admin'])->group(function () {
+    Route::get('/admin/dashboard', [KesbangpolLayananController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/superadmin/dashboard', function(\Illuminate\Http\Request $request) {
+        if (Auth::user()?->role !== 'superadmin') {
+            abort(403, 'Akses ditolak. Halaman ini hanya untuk Super Admin.');
         }
-    }
-    return "View $viewName tidak ditemukan di folder pelayanan.";
-})->where('any', '.*');
+        return app(KesbangpolLayananController::class)->dashboard($request);
+    })->name('superadmin.dashboard');
 
+    // Switch Instansi Context (Superadmin only)
+    Route::post('/admin/switch-instansi', function(\Illuminate\Http\Request $request) {
+        if (Auth::user()?->role !== 'superadmin') {
+            abort(403, 'Hanya Super Admin yang dapat mengganti instansi.');
+        }
+        if ($request->filled('instansi_id')) {
+            session(['superadmin_instansi_id' => $request->input('instansi_id')]);
+        } else {
+            session()->forget('superadmin_instansi_id');
+        }
+        return redirect()->back();
+    })->name('admin.switch_instansi');
 
-// --- SIMALAM Routes ---
-use App\Http\Controllers\Simalam\AdminController as SimalamAdminController;
-use App\Http\Controllers\Simalam\AttendanceController as SimalamAttendanceController;
-use App\Http\Controllers\Simalam\ProjectTimelineController as SimalamProjectTimelineController;
+    // Kelola Akun Dinas (Kesbangpol)
+    Route::prefix('kesbangpol')->name('kesbangpol.')->group(function () {
+        Route::get('/dinas', [AdminDinasController::class, 'index'])->name('dinas.index');
+        Route::post('/dinas', [AdminDinasController::class, 'store'])->name('dinas.store');
+        Route::put('/dinas/{id}', [AdminDinasController::class, 'update'])->name('dinas.update');
+        Route::post('/dinas/{id}/reset-password', [AdminDinasController::class, 'resetPassword'])->name('dinas.reset-password');
+        Route::delete('/dinas/{id}', [AdminDinasController::class, 'destroy'])->name('dinas.destroy');
+    });
 
-Route::get('/absensi/home', [SimalamAttendanceController::class, 'home'])->name('absensi.home');
+    // Kelola Instansi / Dinas (Admin Simalam)
+    Route::post('/admin/dinas/store', function(\Illuminate\Http\Request $request) {
+        $request->validate(['nama' => 'required|string|max:255']);
+        \App\Models\Dinas::create(['nama' => $request->nama, 'status_aktif' => true]);
+        return redirect()->back()->with('success', 'Dinas berhasil ditambahkan.');
+    })->name('admin.dinas.store');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/absensi', [\App\Http\Controllers\Simalam\AttendanceController::class, 'index'])->name('absensi.index');
-    Route::post('/absensi/absen', [SimalamAttendanceController::class, 'store'])->name('absensi.store');
-    Route::get('/absensi/form', [SimalamAttendanceController::class, 'showForm'])->name('absensi.form');
-    Route::get('/rekap', [SimalamAttendanceController::class, 'rekap'])->name('absensi.rekap');
-    Route::get('/absensi/lampiran/{absensi}', [SimalamAttendanceController::class, 'lampiran'])->name('absensi.lampiran');
-    Route::get('/absensi/kamera/{absensi}', [SimalamAttendanceController::class, 'kamera'])->name('absensi.kamera');
-    Route::post('/absensi/jurnal', [SimalamAttendanceController::class, 'storeJurnal'])->name('absensi.jurnal.store');
+    Route::delete('/admin/dinas/{id}', function($id) {
+        \App\Models\Dinas::destroy($id);
+        return redirect()->back()->with('success', 'Dinas berhasil dihapus.');
+    })->name('admin.dinas.destroy');
+
+    Route::post('/admin/dinas-user/store', [AdminDinasController::class, 'store'])->name('admin.dinas_user.store');
+    Route::delete('/admin/dinas-user/{id}', [AdminDinasController::class, 'destroy'])->name('admin.dinas_user.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Role: Dinas
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role.dinas'])->prefix('dinas')->name('dinas.')->group(function () {
+    Route::get('/dashboard', [DinasDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/status-magang', [DinasDashboardController::class, 'updateStatusMagang'])->name('status_magang.update');
+    Route::resource('/rekrutmen', RekrutmenController::class);
+    Route::resource('/bidang', DinasBidangController::class)->except(['create', 'show', 'edit']);
+    Route::post('/bidang/{id}/reset-password', [DinasBidangController::class, 'resetPassword'])->name('bidang.reset_password');
     
-// Simalam Admin
-    Route::middleware([\App\Http\Middleware\SimalamAdminAccess::class])->group(function () {
-        Route::get('/absensi/admin', [SimalamAdminController::class, 'dashboard'])->name('absensi.admin.dashboard');
-        Route::post('/absensi/admin/absensi/hapus/{absensi}', [SimalamAdminController::class, 'destroyAbsensi'])->name('absensi.admin.absensi.destroy');
-        Route::post('/absensi/admin/absensi/koreksi', [SimalamAdminController::class, 'koreksiAbsensi'])->name('absensi.admin.absensi.koreksi');
-        Route::get('/absensi/admin/rekap/excel', [SimalamAdminController::class, 'exportExcel'])->name('absensi.admin.rekap.excel');
-        Route::get('/absensi/admin/rekap/pdf', [SimalamAdminController::class, 'exportPdf'])->name('absensi.admin.rekap.pdf');
+    Route::get('/applications', [ApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/applications/{id}', [ApplicationController::class, 'show'])->name('applications.show');
+    Route::post('/applications/{id}/verify', [ApplicationController::class, 'verify'])->name('applications.verify');
+    
+    // Routes for Sidebar Dinas
+    Route::get('/participants', [DinasParticipantController::class, 'index'])->name('participants.index');
+    Route::get('/participants/{id}', [DinasParticipantController::class, 'show'])->name('participants.show');
+    Route::post('/participants/{id}/status', [DinasParticipantController::class, 'updateStatusAccount'])->name('participants.status.update');
+    Route::post('/participants/{id}/penempatan', [DinasParticipantController::class, 'updatePenempatan'])->name('participants.penempatan.update');
+    Route::post('/participants/{id}/surat', [DinasParticipantController::class, 'updateSurat'])->name('participants.surat.update');
+    Route::post('/participants/{id}/surat/generate', [DinasParticipantController::class, 'generateSurat'])->name('participants.surat.generate');
+    Route::post('/participants/{id}/jurnal/{jurnal_id}/verify', [DinasParticipantController::class, 'verifyJurnal'])->name('participants.jurnal.verify');
+    Route::get('/profile', [DinasDashboardController::class, 'editProfile'])->name('profile.edit');
+    Route::post('/profile', [DinasDashboardController::class, 'updateProfile'])->name('profile.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Role: Bidang
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role.bidang'])->prefix('bidang')->name('bidang.')->group(function () {
+    Route::get('/dashboard', [BidangDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/peserta/{id}', [BidangDashboardController::class, 'showPeserta'])->name('peserta.show');
+    Route::post('/peserta/{id}/jadwal', [BidangDashboardController::class, 'updateJadwal'])->name('peserta.update_jadwal');
+    Route::post('/jurnal/{id}/verify', [BidangDashboardController::class, 'verifyJurnal'])->name('jurnal.verify');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Simalam Admin Access (Dinas & Admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', \App\Http\Middleware\SimalamAdminAccess::class])->group(function () {
+    Route::get('/absensi/admin', [SimalamAdminController::class, 'dashboard'])->name('absensi.admin.dashboard');
+    Route::post('/absensi/admin/absensi/hapus/{absensi}', [SimalamAdminController::class, 'destroyAbsensi'])->name('absensi.admin.absensi.destroy');
+    Route::post('/absensi/admin/absensi/koreksi', [SimalamAdminController::class, 'koreksiAbsensi'])->name('absensi.admin.absensi.koreksi');
+    Route::get('/absensi/admin/rekap/excel', [SimalamAdminController::class, 'exportExcel'])->name('absensi.admin.rekap.excel');
+    Route::get('/absensi/admin/rekap/pdf', [SimalamAdminController::class, 'exportPdf'])->name('absensi.admin.rekap.pdf');
 
     Route::post('/absensi/admin/jadwal/landing_view', [SimalamAdminController::class, 'updateLandingScheduleView'])->name('absensi.admin.jadwal.landing_view');
     Route::post('/absensi/admin/jadwal/update', [SimalamAdminController::class, 'updateSchedules'])->name('absensi.admin.jadwal.update');
@@ -544,34 +366,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/pembimbing/update/{id}', [SimalamAdminController::class, 'updatePembimbing'])->name('admin.pembimbing.update');
     Route::delete('/admin/pembimbing/destroy/{id}', [SimalamAdminController::class, 'destroyPembimbing'])->name('admin.pembimbing.destroy');
 
-    Route::post('/admin/switch-instansi', function(\Illuminate\Http\Request $request) {
-        if ($request->filled('instansi_id')) {
-            session(['superadmin_instansi_id' => $request->input('instansi_id')]);
-        } else {
-            session()->forget('superadmin_instansi_id');
-        }
-        return redirect()->back();
-    })->name('admin.switch_instansi');
-
     Route::get('/admin/surat', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'index'])->name('admin.surat.index');
     Route::get('/admin/surat/{surat}/edit', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'edit'])->name('admin.surat.edit');
     Route::put('/admin/surat/{surat}', [\App\Http\Controllers\Kesbangpol\SuratController::class, 'update'])->name('admin.surat.update');
 
-    Route::post('/admin/dinas/store', function(\Illuminate\Http\Request $request) {
-        $request->validate(['nama' => 'required|string|max:255']);
-        \App\Models\Dinas::create(['nama' => $request->nama, 'status_aktif' => true]);
-        return redirect()->back()->with('success', 'Dinas berhasil ditambahkan.');
-    })->name('admin.dinas.store');
-
-    Route::delete('/admin/dinas/{id}', function($id) {
-        \App\Models\Dinas::destroy($id);
-        return redirect()->back()->with('success', 'Dinas berhasil dihapus.');
-    })->name('admin.dinas.destroy');
-
-    Route::post('/admin/dinas-user/store', [AdminDinasController::class, 'store'])->name('admin.dinas_user.store');
-    Route::delete('/admin/dinas-user/{id}', [AdminDinasController::class, 'destroy'])->name('admin.dinas_user.destroy');
-    
-    
     Route::post('/absensi/admin/project/store', [SimalamProjectTimelineController::class, 'storeProject'])->name('absensi.admin.project.store');
     Route::post('/admin/project/store', [SimalamProjectTimelineController::class, 'storeProject'])->name('admin.project.store');
 
@@ -637,27 +435,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/absensi/admin/sertifikat/view/{user}', [SimalamAdminController::class, 'viewSertifikat'])->name('absensi.admin.sertifikat.view');
     Route::get('/admin/sertifikat/view/{user}', [SimalamAdminController::class, 'viewSertifikat'])->name('admin.sertifikat.view');
     Route::delete('/absensi/admin/sertifikat/destroy/{user}', [SimalamAdminController::class, 'destroySertifikat'])->name('absensi.admin.sertifikat.destroy');
-
-    });
-    
-    // Project and tasks
-    Route::post('/absensi/task/mulai/{task}', [SimalamProjectTimelineController::class, 'startWorkTask'])->name('absensi.task.start_work');
-    Route::post('/absensi/task/selesai/{task}', [SimalamProjectTimelineController::class, 'submitWorkTask'])->name('absensi.task.submit_work');
-    Route::post('/absensi/module/ambil/{module}', [SimalamProjectTimelineController::class, 'selfAssignModule'])->name('absensi.module.ambil');
-    Route::post('/absensi/task/ambil/{task}', [SimalamProjectTimelineController::class, 'selfAssignTask'])->name('absensi.task.ambil');
-    Route::post('/absensi/task/batal/{task}', [SimalamProjectTimelineController::class, 'cancelTask'])->name('absensi.task.batal');
-    Route::post('/timeline/note/selesai/{note}', [SimalamProjectTimelineController::class, 'completeNote'])->name('absensi.timeline.note.complete');
-});
-
-// Legacy & Prototype Route Aliases to prevent dead buttons / broken links
-Route::middleware(['auth'])->group(function () {
-    Route::get('/participant/dashboard', function() { return redirect()->route('peserta.dashboard'); })->name('participant.dashboard');
-    Route::post('/participant/profile/update', [LandingController::class, 'updateProfile'])->name('participant.profile.update');
-    Route::get('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.index');
-    Route::post('/booking', function() { return redirect()->route('landing.instansi'); })->name('booking.store');
-    Route::get('/booking/search-users', function(\Illuminate\Http\Request $request) { 
-        return response()->json(\App\Models\User::where('nama', 'like', '%'.$request->q.'%')->orWhere('name', 'like', '%'.$request->q.'%')->orWhere('email', 'like', '%'.$request->q.'%')->take(5)->get()); 
-    })->name('booking.search_users');
-    Route::get('/application/form', function() { return redirect()->route('layanan.index'); })->name('application.form');
-    Route::post('/internship/store', function() { return redirect()->route('peserta.dashboard')->with('success', 'Pendaftaran magang berhasil diajukan.'); })->name('internship.store');
 });

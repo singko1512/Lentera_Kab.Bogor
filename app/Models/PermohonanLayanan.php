@@ -37,6 +37,9 @@ class PermohonanLayanan extends Model
         'file_surat_rekomendasi_lama',
         'file_pendukung',
         'file_surat_keluaran',
+        'file_surat_final',
+        'surat_final_diunggah_pada',
+        'surat_final_diunggah_oleh',
         'status_revisi',
         'catatan_pemohon',
         'dokumen_direvisi',
@@ -47,6 +50,7 @@ class PermohonanLayanan extends Model
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
         'tanggal_revisi' => 'datetime',
+        'surat_final_diunggah_pada' => 'datetime',
         'dokumen_direvisi' => 'array',
     ];
 
@@ -89,5 +93,20 @@ class PermohonanLayanan extends Model
     public function suratRekomendasi()
     {
         return $this->hasOne(SuratRekomendasi::class);
+    }
+
+    public function pengunggahSuratFinal(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'surat_final_diunggah_oleh');
+    }
+
+    public function magangApplication()
+    {
+        return $this->hasOne(MagangApplication::class, 'permohonan_layanan_id');
+    }
+
+    public function magangApplications()
+    {
+        return $this->hasMany(MagangApplication::class, 'permohonan_layanan_id');
     }
 }

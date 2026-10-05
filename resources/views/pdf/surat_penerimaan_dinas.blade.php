@@ -208,8 +208,8 @@
             $data = file_get_contents($logoPath);
             $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
         }
-        
-        $qrUrl = route('surat.pdf', $application->permohonan_layanan_id ?? 0);
+        $token = $application->permohonanLayanan?->suratRekomendasi?->verification_token;
+        $qrUrl = $token ? route('surat.verifikasi', $token) : url('/');
         $qrBase64 = null;
         try {
             $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')->size(200)->margin(0)->generate($qrUrl);

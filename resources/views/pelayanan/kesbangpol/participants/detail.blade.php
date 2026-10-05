@@ -103,10 +103,10 @@
                     <div class="bg-surface-container-low rounded-xl border border-outline-variant/40 overflow-hidden divide-y divide-outline-variant/40">
                         @php
                             $dokumenList = [
-                                ['nama' => 'KTP', 'file' => $application->permohonanLayanan->file_ktp, 'icon' => 'badge'],
-                                ['nama' => 'KTM', 'file' => $application->permohonanLayanan->file_ktm, 'icon' => 'branding_watermark'],
-                                ['nama' => 'Surat Pengantar', 'file' => $application->permohonanLayanan->file_surat_pengantar, 'icon' => 'article'],
-                                ['nama' => 'Proposal', 'file' => $application->permohonanLayanan->file_proposal, 'icon' => 'book'],
+                                ['nama' => 'KTP', 'field' => 'file_ktp', 'file' => $application->permohonanLayanan->file_ktp, 'icon' => 'badge'],
+                                ['nama' => 'KTM', 'field' => 'file_ktm', 'file' => $application->permohonanLayanan->file_ktm, 'icon' => 'branding_watermark'],
+                                ['nama' => 'Surat Pengantar', 'field' => 'file_surat_pengantar', 'file' => $application->permohonanLayanan->file_surat_pengantar, 'icon' => 'article'],
+                                ['nama' => 'Proposal', 'field' => 'file_proposal', 'file' => $application->permohonanLayanan->file_proposal, 'icon' => 'book'],
                             ];
                         @endphp
                         
@@ -122,7 +122,7 @@
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#D1FAE5] text-[#065F46] uppercase tracking-wide mt-1">Tersedia</span>
                                         </div>
                                     </div>
-                                    <a href="{{ asset('storage/dokumen/'.$dok['file']) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Lihat Dokumen">
+                                    <a href="{{ route('berkas.preview', ['permohonan' => $application->permohonanLayanan->id, 'field' => $dok['field']]) }}" target="_blank" class="p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer rounded-lg hover:bg-primary/10" title="Lihat Dokumen">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </a>
                                 </div>
