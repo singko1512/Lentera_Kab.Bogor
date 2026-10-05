@@ -423,37 +423,50 @@
             </p>
         </div>
         @elseif(isset($userApplications) && $userApplications->count() > 0)
-        <div class="overflow-x-auto rounded-xl border border-outline-variant/30">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-surface-container-low text-on-surface font-label-md text-label-md">
+        <div class="overflow-x-auto rounded-xl border border-outline-variant/30 shadow-level-1 bg-surface-container-lowest">
+            <table class="w-full text-left border-collapse min-w-[1050px]">
+                <thead class="bg-surface-container-low text-on-surface font-label-md text-xs uppercase tracking-wider border-b border-outline-variant/30">
                     <tr>
-                        <th class="p-4 pl-6">No / Tgl Pengajuan</th>
-                        <th class="p-4">Jenis Layanan</th>
-                        <th class="p-4">Dinas Tujuan & Topik</th>
-                        <th class="p-4 text-center">Status Kesbangpol</th>
-                        <th class="p-4 text-center">Status Dinas</th>
-                        <th class="p-4">Keterangan</th>
-                        <th class="p-4 pr-6 text-center">Aksi / Dokumen</th>
+                        <th class="py-4 px-4 pl-6 whitespace-nowrap w-[140px]">No / Tgl Pengajuan</th>
+                        <th class="py-4 px-4 min-w-[200px]">Jenis Layanan</th>
+                        <th class="py-4 px-4 min-w-[280px]">Dinas Tujuan & Topik</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap min-w-[160px]">Status Kesbangpol</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap min-w-[170px]">Status Dinas</th>
+                        <th class="py-4 px-4 text-center whitespace-nowrap min-w-[130px]">Keterangan</th>
+                        <th class="py-4 px-4 pr-6 text-center whitespace-nowrap min-w-[140px]">Aksi / Dokumen</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/20 font-body-md text-body-md text-on-surface">
                     @foreach($userApplications as $index => $app)
                     <tr class="hover:bg-surface-container-low/40 transition-colors">
-                        <td class="p-4 pl-6">
-                            <div class="font-bold text-on-surface">#{{ $app->id }}</div>
-                            <div class="text-xs text-on-surface-variant">{{ $app->created_at ? $app->created_at->format('d M Y, H:i') : '-' }}</div>
+                        <td class="py-4 px-4 pl-6 align-middle whitespace-nowrap">
+                            <div class="font-bold text-sm text-on-surface">#{{ $app->id }}</div>
+                            <div class="text-xs text-on-surface-variant mt-0.5">{{ $app->created_at ? $app->created_at->format('d M Y, H:i') : '-' }}</div>
                         </td>
-                        <td class="p-4 font-semibold text-primary">
-                            {{ $app->jenisLayanan->nama ?? $app->jenis_permohonan ?? 'Permohonan Rekomendasi' }}
+                        <td class="py-4 px-4 align-middle">
+                            <span class="font-semibold text-primary text-sm leading-snug block">
+                                {{ $app->jenisLayanan->nama ?? $app->jenis_permohonan ?? 'Permohonan Rekomendasi' }}
+                            </span>
                         </td>
-                        <td class="p-4">
-                            <div class="font-medium text-gray-900 flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px] text-primary">domain</span>
-                                {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                        <td class="py-4 px-4 align-middle">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-[18px]">apartment</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-sm text-on-surface leading-snug">
+                                        {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                                    </div>
+                                    @if(!empty($app->judul_kegiatan) && trim($app->judul_kegiatan) !== '-')
+                                        <div class="text-xs text-on-surface-variant mt-1 leading-tight flex items-center gap-1" title="{{ $app->judul_kegiatan }}">
+                                            <span class="material-symbols-outlined text-[13px] text-outline shrink-0">topic</span>
+                                            <span class="truncate">{{ $app->judul_kegiatan }}</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="text-xs text-on-surface-variant truncate max-w-xs mt-0.5">{{ $app->judul_kegiatan ?? '-' }}</div>
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="py-4 px-4 text-center align-middle whitespace-nowrap">
                             @php
                                 $statusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
                                 $statusNama = optional($app->statusMaster)->nama ?? 'Dalam Proses';
@@ -480,7 +493,7 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="py-4 px-4 text-center align-middle whitespace-nowrap">
                             @if($app->magangApplication)
                                 @php
                                     $dinasStatus = strtolower($app->magangApplication->status ?? 'menunggu');
@@ -516,29 +529,29 @@
                                 <span class="text-xs text-on-surface-variant italic">-</span>
                             @endif
                         </td>
-                        <td class="p-4">
+                        <td class="py-4 px-4 text-center align-middle">
                             @if($app->keterangan)
-                                <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium">
+                                <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium text-left">
                                     {{ $app->keterangan }}
                                 </div>
                             @elseif($app->magangApplication && $app->magangApplication->catatan_admin)
-                                <div class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-200 max-w-xs leading-relaxed font-medium">
+                                <div class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-200 max-w-xs leading-relaxed font-medium text-left">
                                     {{ $app->magangApplication->catatan_admin }}
                                 </div>
                             @else
-                                <span class="text-xs text-on-surface-variant italic">-</span>
+                                <span class="text-xs text-on-surface-variant font-medium">-</span>
                             @endif
                         </td>
-                        <td class="p-4 pr-6 text-center">
+                        <td class="py-4 px-4 pr-6 text-center align-middle whitespace-nowrap">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                 @if($app->file_surat_final)
-                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
-                                        <span class="material-symbols-outlined text-[15px]">picture_as_pdf</span>
+                                    <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
+                                        <span class="material-symbols-outlined text-[16px]">download</span>
                                         <span>Unduh Surat</span>
                                     </a>
                                 @elseif(in_array($statusKode, ['disetujui', 'selesai', 'diterima', 'aktif']))
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-amber-50 text-amber-800 border border-amber-200" title="Surat sedang diproses/ menunggu penandatanganan">
-                                        <span class="material-symbols-outlined text-[14px]">hourglass_top</span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60" title="Surat sedang diproses/ menunggu penandatanganan">
+                                        <span class="material-symbols-outlined text-[15px]">hourglass_top</span>
                                         <span>Surat diproses</span>
                                     </span>
                                 @endif
@@ -1006,16 +1019,19 @@
 
 <!-- Instansi Tujuan Magang -->
 <section id="instansi-section" class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
-<div class="flex justify-between items-end mb-stack-lg">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-stack-lg">
 <div class="flex flex-col gap-2">
 <h2 class="font-headline-lg text-headline-lg text-on-surface">Instansi Tujuan Magang</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Pilih instansi yang sesuai dengan bidang studi dan minat Anda.</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Pilih instansi tujuan magang yang sesuai dengan minat Anda. Memprioritaskan instansi dengan kuota yang tersedia.</p>
 </div>
-<a class="font-label-md text-label-md text-secondary hover:underline flex items-center gap-1" href="{{ route('landing.instansi') }}">Lihat Semua <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a>
+<a href="{{ route('landing.instansi') }}" class="group inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-semibold rounded-lg transition-all border border-outline-variant/30 hover:border-primary shadow-sm hover:shadow">
+    <span>Lihat Selengkapnya</span>
+    <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+</a>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-container">
-@foreach($featuredInstansis as $instansi)
-<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 border-outline-variant hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->id) }}">
+@forelse($featuredInstansis as $instansi)
+<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->id) }}">
 <div class="flex justify-between items-start mb-4">
   <div class="w-16 h-16 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
     <span class="material-symbols-outlined text-[32px] text-primary group-hover:scale-110 transition-transform">
@@ -1035,25 +1051,54 @@
     {{ $instansi->deskripsi ?? 'Fasilitas pelayanan, riset, dan magang di ' . $instansi->name . '.' }}
 </p>
 
-
-
 <div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
-  @php $badge = $instansi->status_badge; @endphp
-  <div class="flex items-center gap-1 px-3 py-1.5 {{ $badge['bg_class'] }} rounded-lg font-label-md text-caption font-bold">
-    <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span>
-    <span>{{ $badge['label'] }}</span>
-  </div>
+  @if($instansi->sisa_kuota > 0)
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-lg font-label-md text-caption font-bold">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>
+      <span>{{ $instansi->sisa_kuota }} Kuota Tersedia</span>
+    </div>
+  @else
+    @php $badge = $instansi->status_badge; @endphp
+    <div class="flex items-center gap-1 px-3 py-1.5 {{ $badge['bg_class'] }} rounded-lg font-label-md text-caption font-bold">
+      <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span>
+      <span>{{ $badge['label'] }}</span>
+    </div>
+  @endif
   <div class="py-2 px-4 bg-surface-container-low text-primary font-label-md text-label-md rounded-md hover:bg-surface-container transition-colors text-center inline-block">Lihat Detail</div>
 </div>
 </a>
-@endforeach
+@empty
+<div class="col-span-1 md:col-span-2 lg:col-span-3 py-12 px-6 text-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center">
+    <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-4">
+        <span class="material-symbols-outlined text-3xl">domain_disabled</span>
+    </div>
+    <h3 class="text-title-lg font-bold text-on-surface mb-2">Saat Ini Belum Ada Kuota Terbuka di Beranda</h3>
+    <p class="text-body-md text-on-surface-variant max-w-lg mb-6">
+        Instansi tujuan magang saat ini belum membuka slot baru atau kuota sedang terisi. Anda dapat melihat daftar lengkap seluruh instansi Pemerintah Kabupaten Bogor melalui tautan di bawah ini.
+    </p>
+    <a href="{{ route('landing.instansi') }}" class="px-5 py-2.5 bg-primary text-white rounded-xl font-label-md text-sm font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+        <span>Lihat Selengkapnya</span>
+        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+    </a>
 </div>
+@endforelse
+</div>
+
 </section>
 
 <!-- Peserta Magang Diterima -->
 <section class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
 <div class="flex flex-col gap-8">
-<div class="flex justify-between items-end mb-stack-lg"><div class="flex flex-col gap-2"><h2 class="font-headline-lg text-headline-lg text-on-surface">Peserta Magang Diterima</h2><p class="font-body-md text-body-md text-on-surface-variant">Daftar peserta yang telah diterima untuk mengikuti program magang di lingkungan Pemerintah Kabupaten Bogor.</p></div><a class="font-label-md text-label-md text-secondary hover:underline flex items-center gap-1" href="{{ route('landing.peserta') }}">Lihat Selengkapnya <span class="material-symbols-outlined text-[16px]">arrow_forward</span></a></div>
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-stack-lg">
+    <div class="flex flex-col gap-2">
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Peserta Magang Diterima</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Daftar peserta yang telah diterima untuk mengikuti program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
+    </div>
+    <a href="{{ route('landing.peserta') }}" class="group inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-semibold rounded-lg transition-all border border-outline-variant/30 hover:border-primary shadow-sm hover:shadow">
+        <span>Lihat Selengkapnya</span>
+        <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+    </a>
+</div>
 
 <div class="bg-surface-container-lowest rounded-xl shadow-ambient overflow-hidden border border-surface-container-high">
 <div class="overflow-x-auto">

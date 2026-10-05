@@ -51,8 +51,8 @@
             <a href="{{ route('layanan.index') }}" class="btn btn-secondary"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</a>
             
             @if($layanan->file_surat_final)
-                <a href="{{ route('surat.pdf', $layanan->id) }}" target="_blank" class="btn btn-success">
-                    <i class="fa-solid fa-file-pdf me-1"></i> Unduh Surat Rekomendasi Final
+                <a href="{{ route('surat.pdf', ['id' => $layanan->id, 'download' => 1]) }}" download class="btn btn-success">
+                    <i class="fa-solid fa-download me-1"></i> Unduh Surat Rekomendasi Final
                 </a>
             @elseif($layanan->statusMaster && in_array($layanan->statusMaster->kode, ['disetujui', 'selesai', 'diterima', 'aktif']))
                 <span class="badge bg-warning text-dark align-self-center p-2">

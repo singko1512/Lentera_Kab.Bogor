@@ -150,8 +150,8 @@
                 <p class="text-xs text-on-surface-variant">Lokasi/Tujuan: <strong>{{ $latestLayanan->tempat_kegiatan }}</strong></p>
 
                 @if($latestLayanan->file_surat_final)
-                <a href="{{ route('surat.pdf', $latestLayanan->id) }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                    <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> Unduh Surat Rekomendasi (PDF)
+                <a href="{{ route('surat.pdf', ['id' => $latestLayanan->id, 'download' => 1]) }}" download class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                    <span class="material-symbols-outlined text-[16px]">download</span> Unduh Surat Rekomendasi (PDF)
                 </a>
                 @elseif($latestLayanan->statusMaster && in_array($latestLayanan->statusMaster->kode, ['disetujui', 'selesai', 'diterima', 'aktif']))
                 <div class="mt-2 inline-flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold rounded-lg">

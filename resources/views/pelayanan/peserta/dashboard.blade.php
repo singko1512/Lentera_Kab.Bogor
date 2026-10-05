@@ -106,12 +106,18 @@
                             <td class="p-3.5 font-semibold text-indigo-700">
                                 {{ $app->jenisLayanan->nama ?? $app->jenis_permohonan ?? 'Permohonan Rekomendasi' }}
                             </td>
-                            <td class="p-3.5">
-                                <div class="font-bold text-gray-800 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[15px] text-gray-400">domain</span>
-                                    {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                            <td class="p-3.5 align-middle">
+                                <div class="flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">apartment</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-bold text-gray-800 leading-snug">
+                                            {{ $app->dinas->name ?? $app->tempat_kegiatan ?? '-' }}
+                                        </div>
+                                        @if(!empty($app->judul_kegiatan) && trim($app->judul_kegiatan) !== '-')
+                                            <div class="text-[11px] text-gray-500 truncate max-w-xs mt-0.5">{{ $app->judul_kegiatan }}</div>
+                                        @endif
+                                    </div>
                                 </div>
-                                <div class="text-[11px] text-gray-500 truncate max-w-xs">{{ $app->judul_kegiatan ?? '-' }}</div>
                             </td>
                             <td class="p-3.5 text-center">
                                 @if($statusKode == 'disetujui' || $statusKode == 'selesai')
@@ -174,7 +180,7 @@
                             </td>
                             <td class="p-3.5 pr-5 text-center">
                                 @if($app->file_surat_final)
-                                    <a href="{{ route('surat.pdf', $app->id) }}" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-[11px] shadow-sm transition-colors">
+                                    <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-[11px] shadow-sm transition-colors">
                                         <span class="material-symbols-outlined text-[14px]">download</span> Unduh Surat Final
                                     </a>
                                 @else

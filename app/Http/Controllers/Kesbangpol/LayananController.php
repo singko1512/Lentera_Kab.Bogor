@@ -958,15 +958,18 @@ class LayananController extends Controller
             $filePath = Storage::disk('public')->path($layanan->file_surat_final);
             $fileName = 'Surat_Rekomendasi_Final_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';
 
-            if (request()->has('download')) {
-                return response()->download($filePath, $fileName, [
+            // Jika secara eksplisit meminta preview / inline (misal modal viewer Dinas atau Kesbangpol)
+            if (request()->has('preview') || request()->has('inline')) {
+                return response()->file($filePath, [
                     'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $fileName . '"',
                 ]);
             }
 
-            return response()->file($filePath, [
+            // Default: langsung unduh otomatis (download attachment) ke perangkat pengguna
+            return response()->download($filePath, $fileName, [
                 'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
             ]);
         }
 

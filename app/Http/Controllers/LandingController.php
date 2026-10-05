@@ -28,16 +28,30 @@ class LandingController extends Controller
             $r->jenis_layanan = $r->bidang ? $r->bidang->nama : 'Umum';
         }
 
-        // 2. Ambil Seluruh Instansi (Dinas ±38) untuk landing page publik
-        $featuredInstansis = Dinas::with(['rekrutmens' => function($q) {
-                $q->where('is_active', true);
-            }])
-            ->orderBy('name', 'asc')
+        // 2. Ambil Instansi (Prioritaskan yang memiliki kuota, dibatasi tepat 1 row / 3 kartu)
+        $allInstansis = Dinas::with([
+                'rekrutmens' => function($q) {
+                    $q->where('is_active', true);
+                },
+                'rekrutmens.magangApplications'
+            ])
             ->get();
-        
-        foreach ($featuredInstansis as $dinas) {
-            $dinas->slot_tersedia = $dinas->rekrutmens->sum('slot_tersedia');
+
+        foreach ($allInstansis as $dinas) {
+            $dinas->slot_tersedia = $dinas->sisa_kuota;
         }
+
+        // Pisahkan instansi yang memiliki kuota dan yang belum ada kuota
+        $withKuota = $allInstansis->filter(function ($dinas) {
+            return $dinas->sisa_kuota > 0;
+        })->sortByDesc('sisa_kuota')->values();
+
+        $withoutKuota = $allInstansis->filter(function ($dinas) {
+            return $dinas->sisa_kuota <= 0;
+        })->sortBy('name')->values();
+
+        // Gabungkan: utamakan yang memiliki kuota, jika kurang/kosong diisi instansi lainnya (1 row = 3 card)
+        $featuredInstansis = $withKuota->concat($withoutKuota)->take(3)->values();
 
         // 3. Ambil Peserta Magang Diterima
         $pesertas = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang'])
@@ -228,7 +242,7 @@ class LandingController extends Controller
     {
         $query = Dinas::with(['rekrutmens' => function ($q) {
             $q->where('is_active', true);
-        }]);
+        }, 'rekrutmens.magangApplications']);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
