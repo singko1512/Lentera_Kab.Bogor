@@ -311,9 +311,7 @@ class LandingController extends Controller
     public function instansiDetail($id)
     {
         $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
-            $q->where('is_active', true)->with(['magangApplications' => function ($mq) {
-                $mq->whereIn('status', ['diterima', 'aktif'])->with('user', 'permohonanLayanan');
-            }]);
+            $q->where('is_active', true)->with('magangApplications');
         }])->findOrFail($id);
 
         $totalKuota = $instansi->rekrutmens->sum('kuota');

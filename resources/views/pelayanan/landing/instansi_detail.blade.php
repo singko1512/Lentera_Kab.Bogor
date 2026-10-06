@@ -229,19 +229,7 @@
                                     </div>
                                 </div>
                                 
-                                @if($rekrutmen->magangApplications->count() > 0)
-                                <div class="mb-4">
-                                    <span class="font-caption text-caption text-outline uppercase tracking-wider block mb-2">Peserta Magang Diterima</span>
-                                    <ul class="space-y-2">
-                                        @foreach($rekrutmen->magangApplications as $app)
-                                        <li class="flex flex-col bg-surface-container py-1.5 px-3 rounded text-sm">
-                                            <span class="font-semibold text-on-surface">{{ $app->user->nama ?? 'Peserta' }}</span>
-                                            <span class="text-xs text-on-surface-variant">{{ $app->permohonanLayanan->instansi_asal ?? '-' }}</span>
-                                        </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                                @endif
+
 
                                 @if(auth()->check())
                                     <div class="w-full py-2.5 px-3 bg-surface-container text-on-surface-variant font-label-md text-xs rounded-lg text-center border border-outline-variant/30 flex items-center justify-center gap-1.5">

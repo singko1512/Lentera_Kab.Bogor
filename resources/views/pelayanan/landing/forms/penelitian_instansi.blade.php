@@ -656,24 +656,36 @@
         }
     }
 
-                // Handle File Input Preview
+    // Handle File Input Preview
     document.querySelectorAll('input[type="file"]').forEach(input => {
         const label = input.closest('label');
         if (!label) return;
-        const fileNameSpan = label.querySelector('span:nth-of-type(2)');
+        const titleSpan = label.querySelector('span:nth-of-type(2)');
         const iconSpan = label.querySelector('.material-symbols-outlined');
         
-        if (!fileNameSpan || !iconSpan) return;
+        if (!titleSpan || !iconSpan) return;
 
-        const originalText = fileNameSpan.textContent;
+        const originalTitle = titleSpan.textContent;
         const originalIcon = iconSpan.textContent;
 
         input.addEventListener('change', function(e) {
+            let fileBadge = label.querySelector('.uploaded-file-badge');
             if (this.files && this.files.length > 0) {
                 const fileName = this.files[0].name;
-                fileNameSpan.textContent = fileName;
-                fileNameSpan.classList.remove('text-primary');
-                fileNameSpan.classList.add('text-[#137333]', 'font-bold');
+                
+                // Judul deskripsi seperti 'Upload KTP' tetap tampil
+                titleSpan.textContent = originalTitle;
+                titleSpan.classList.remove('text-primary');
+                titleSpan.classList.add('text-[#137333]', 'font-bold');
+                
+                // Tampilkan nama file dalam badge terpisah di bawah judul
+                if (!fileBadge) {
+                    fileBadge = document.createElement('div');
+                    fileBadge.className = 'uploaded-file-badge flex items-center justify-center gap-1.5 text-xs font-semibold text-[#137333] bg-white/90 border border-[#137333]/30 rounded-lg py-1 px-2.5 max-w-[95%] mx-auto shadow-xs mt-1';
+                    titleSpan.insertAdjacentElement('afterend', fileBadge);
+                }
+                fileBadge.innerHTML = `<span class="material-symbols-outlined text-[15px] shrink-0 text-[#137333]">description</span><span class="truncate" title="${fileName}">${fileName}</span>`;
+                fileBadge.classList.remove('hidden');
                 
                 iconSpan.textContent = 'check_circle';
                 iconSpan.classList.remove('text-secondary');
@@ -682,10 +694,14 @@
                 label.classList.remove('border-dashed', 'border-outline-variant', 'bg-surface-bright');
                 label.classList.add('border-solid', 'border-[#137333]', 'bg-[#e6f4ea]');
             } else {
-                fileNameSpan.textContent = originalText;
-                fileNameSpan.classList.add('text-primary');
-                fileNameSpan.classList.remove('text-[#137333]', 'font-bold');
+                titleSpan.textContent = originalTitle;
+                titleSpan.classList.add('text-primary');
+                titleSpan.classList.remove('text-[#137333]', 'font-bold');
                 
+                if (fileBadge) {
+                    fileBadge.classList.add('hidden');
+                }
+
                 iconSpan.textContent = originalIcon;
                 iconSpan.classList.add('text-secondary');
                 iconSpan.classList.remove('text-[#137333]');

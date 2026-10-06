@@ -81,15 +81,15 @@ class MagangController extends Controller
 
     public function instansiDetail($id)
     {
-        $instansi = Dinas::with(['rekrutmens' => function ($q) {
-            $q->where('is_active', true)->with(['magangApplications' => function ($mq) {
-                $mq->where('status', 'diterima')->with('user', 'permohonanLayanan');
-            }]);
+        $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
+            $q->where('is_active', true)->with('magangApplications');
         }])->findOrFail($id);
 
         $totalKuota = $instansi->rekrutmens->sum('kuota');
         $slotTersedia = $instansi->rekrutmens->sum('slot_tersedia');
-        $totalDiterima = $totalKuota - $slotTersedia;
+        $totalDiterima = MagangApplication::whereHas('rekrutmen', function ($q) use ($id) {
+            $q->where('dinas_id', $id);
+        })->whereIn('status', ['diterima', 'aktif'])->count();
 
         return view('pelayanan.landing.instansi_detail', compact(
             'instansi', 'totalKuota', 'slotTersedia', 'totalDiterima'
