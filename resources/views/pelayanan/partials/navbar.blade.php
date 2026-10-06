@@ -170,17 +170,16 @@
                 $hasAcceptedMagang = auth()->check() && \App\Models\MagangApplication::where('user_id', auth()->id())->whereIn('status', ['diterima', 'aktif'])->exists();
             @endphp
 
+            @guest
             <!-- Center Navigation Links -->
             <ul class="d-none d-md-flex align-items-center mb-0 list-unstyled mx-auto nav-sliding-wrapper" id="nav-sliding-wrapper">
                 <div id="nav-sliding-pill" class="nav-sliding-pill"></div>
-                @guest
                 <li>
                     <a href="{{ route('home') }}#timeline-section" class="nav-center-link" data-nav-target="timeline-section">
                         <span>Alur Permohonan</span>
                     </a>
                 </li>
                 <li><span class="nav-divider">|</span></li>
-                @endguest
                 <li>
                     <a href="{{ route('home') }}#services-section" class="nav-center-link" data-nav-target="services-section">
                         <span>Jenis Layanan</span>
@@ -192,19 +191,12 @@
                         <span>Instansi Tujuan</span>
                     </a>
                 </li>
-                @if($hasAcceptedMagang)
-                <li><span class="nav-divider">|</span></li>
-                <li>
-                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="nav-center-link nav-absensi-link" data-nav-target="jadwal-magang-section">
-                        <span>Absensi</span>
-                    </a>
-                </li>
-                @endif
             </ul>
+            @endguest
 
             <ul class="nav-links d-flex align-items-center gap-2.5">
                 @if($hasAcceptedMagang)
-                <li class="d-md-none">
+                <li>
                     <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="btn btn-primary btn-sm px-3 py-1.5 rounded-pill font-weight-bold d-inline-flex align-items-center gap-1.5 text-white shadow-sm" style="font-size: 0.85rem;">
                         <i class="fa-solid fa-fingerprint"></i> Absensi
                     </a>
