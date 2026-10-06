@@ -41,13 +41,15 @@ class Rekrutmen extends Model
         $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
 
         if ($this->relationLoaded('magangApplications')) {
-            $terisi = $this->magangApplications
+            $terisi = (int) $this->magangApplications
                 ->whereIn('status', $statusMemakai)
-                ->count();
+                ->sum(function ($app) {
+                    return (int) ($app->jumlah_orang ?? 1);
+                });
         } else {
-            $terisi = $this->magangApplications()
+            $terisi = (int) $this->magangApplications()
                 ->whereIn('status', $statusMemakai)
-                ->count();
+                ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(jumlah_orang, 1)'));
         }
 
         return max(0, $this->kuota - $terisi);

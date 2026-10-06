@@ -1152,7 +1152,7 @@
 <section id="jadwal-magang-section" class="max-w-container-max mx-auto px-margin-desktop py-12 w-full">
     <div class="bg-surface-container-lowest rounded-2xl shadow-level-2 border border-outline-variant/30 overflow-hidden reveal-scale">
         <!-- Header Banner -->
-        <div class="bg-gradient-to-r from-primary via-primary-container to-secondary p-8 text-white relative overflow-hidden">
+        <div class="bg-[#115cb9] p-8 text-white relative overflow-hidden">
             <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
                 <span class="material-symbols-outlined text-[200px]">calendar_month</span>
             </div>

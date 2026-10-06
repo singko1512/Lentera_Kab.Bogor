@@ -125,6 +125,18 @@ class LayananController extends Controller
             // Validasi ketersediaan kuota instansi tujuan jika dinas_id dipilih
             $targetDinas = null;
             $chosenRekrutmen = null;
+
+            // Hitung total peserta yang didaftarkan (1 jika Individu, atau minimal 2 jika Kelompok)
+            $isKelompok = $request->jumlah_peserta && str_contains($request->jumlah_peserta, 'Kelompok');
+            $anggotaList = [];
+            if ($request->has('nama_anggota') && is_array($request->nama_anggota)) {
+                $anggotaList = array_values(array_filter(array_map('trim', $request->nama_anggota)));
+            }
+            $totalPeserta = 1;
+            if ($isKelompok) {
+                $totalPeserta = max(2, (int) ($request->jumlah_anggota_count ?? (count($anggotaList) + 1)));
+            }
+
             if ($request->filled('dinas_id')) {
                 $targetDinas = \App\Models\Dinas::find($request->dinas_id);
                 if (!$targetDinas) {
@@ -159,23 +171,28 @@ class LayananController extends Controller
                     $activeRekrutmens = \App\Models\Rekrutmen::where('id', $defaultRek->id)->lockForUpdate()->get();
                 }
 
-                // Pilih rekrutmen yang kuotanya masih tersedia (urutan FIFO berdasarkan created_at)
+                // Pilih rekrutmen yang kuotanya masih tersedia mencukupi untuk $totalPeserta orang (urutan FIFO berdasarkan created_at)
                 $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
                 foreach ($activeRekrutmens as $rek) {
-                    $terisi = \App\Models\MagangApplication::where('rekrutmen_id', $rek->id)
+                    $terisi = (int) \App\Models\MagangApplication::where('rekrutmen_id', $rek->id)
                         ->whereIn('status', $statusMemakai)
-                        ->count();
+                        ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(jumlah_orang, 1)'));
 
-                    if (($rek->kuota - $terisi) > 0) {
+                    if (($rek->kuota - $terisi) >= $totalPeserta) {
                         $chosenRekrutmen = $rek;
                         break;
                     }
                 }
 
                 if (!$chosenRekrutmen) {
+                    $sisaTersedia = $targetDinas->sisa_kuota;
+                    $pesanError = $totalPeserta > 1
+                        ? 'Instansi ' . $targetDinas->name . ' hanya memiliki sisa kuota ' . $sisaTersedia . ', tidak mencukupi untuk ' . $totalPeserta . ' orang pendaftar kelompok. Silakan pilih instansi lain yang kuotanya mencukupi.'
+                        : 'Instansi ' . $targetDinas->name . ' saat ini kuotanya sudah penuh. Silakan pilih instansi yang tersedia.';
+
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Instansi ' . $targetDinas->name . ' saat ini kuotanya sudah penuh. Silakan pilih instansi yang tersedia.'
+                        'message' => $pesanError
                     ], 422);
                 }
             }
@@ -187,7 +204,28 @@ class LayananController extends Controller
 
             // Mapping Text Fields
             $permohonan->jenis_permohonan = $request->jenis_permohonan;
-            $permohonan->atas_nama = $request->atas_nama;
+
+            // Handle Peserta Kelompok / Individu
+            $atasNamaPerwakilan = trim($request->atas_nama);
+            $anggotaList = [];
+            if ($request->has('nama_anggota') && is_array($request->nama_anggota)) {
+                $anggotaList = array_values(array_filter(array_map('trim', $request->nama_anggota)));
+            }
+
+            if ($request->jumlah_peserta && str_contains($request->jumlah_peserta, 'Kelompok') && !empty($anggotaList)) {
+                $semuaNama = array_merge([$atasNamaPerwakilan], $anggotaList);
+                $joinedNama = implode(', ', $semuaNama);
+                if (mb_strlen($joinedNama) > 250) {
+                    $permohonan->atas_nama = mb_substr($atasNamaPerwakilan . ' dkk (' . count($semuaNama) . ' orang)', 0, 250);
+                } else {
+                    $permohonan->atas_nama = $joinedNama;
+                }
+                $catatanAnggota = "Perwakilan / Ketua: " . $atasNamaPerwakilan . "\nAnggota:\n- " . implode("\n- ", $anggotaList);
+                $permohonan->catatan_pemohon = $permohonan->catatan_pemohon ? ($permohonan->catatan_pemohon . "\n\n" . $catatanAnggota) : $catatanAnggota;
+            } else {
+                $permohonan->atas_nama = $atasNamaPerwakilan;
+            }
+
             $permohonan->no_hp = $request->no_hp ?: (Auth::user()->no_hp ?? '-');
             $permohonan->asal_instansi = $request->asal_instansi;
             $permohonan->judul_kegiatan = $request->judul_kegiatan;
@@ -233,6 +271,7 @@ class LayananController extends Controller
                         'dinas_id' => $targetDinas->id,
                         'rekrutmen_id' => $chosenRekrutmen->id,
                         'status' => 'menunggu',
+                        'jumlah_orang' => $totalPeserta,
                         'pesan_lamaran' => $permohonan->judul_kegiatan,
                         'tanggal_mulai' => $permohonan->tanggal_mulai,
                         'tanggal_selesai' => $permohonan->tanggal_selesai,
@@ -325,24 +364,30 @@ class LayananController extends Controller
                     $activeRekrutmens = \App\Models\Rekrutmen::where('id', $defaultRek->id)->lockForUpdate()->get();
                 }
 
+                $oldMagangApp = \App\Models\MagangApplication::where('permohonan_layanan_id', $permohonan->id)->first();
+                $existingJumlahOrang = ($oldMagangApp && $oldMagangApp->jumlah_orang > 0) ? (int)$oldMagangApp->jumlah_orang : 1;
+
                 $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
                 $chosenRekrutmen = null;
                 foreach ($activeRekrutmens as $rek) {
-                    $terisi = \App\Models\MagangApplication::where('rekrutmen_id', $rek->id)
+                    $terisi = (int) \App\Models\MagangApplication::where('rekrutmen_id', $rek->id)
                         ->whereIn('status', $statusMemakai)
-                        ->count();
+                        ->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(jumlah_orang, 1)'));
 
-                    if (($rek->kuota - $terisi) > 0) {
+                    if (($rek->kuota - $terisi) >= $existingJumlahOrang) {
                         $chosenRekrutmen = $rek;
                         break;
                     }
                 }
 
                 if (!$chosenRekrutmen) {
+                    $errMsg = $existingJumlahOrang > 1
+                        ? 'Sisa kuota di ' . $newDinas->name . ' tidak mencukupi untuk ' . $existingJumlahOrang . ' pendaftar.'
+                        : 'Kuota penerimaan di ' . $newDinas->name . ' saat ini sudah penuh.';
                     if ($request->wantsJson()) {
-                        return response()->json(['status' => 'error', 'message' => 'Kuota penerimaan di ' . $newDinas->name . ' saat ini sudah penuh.'], 422);
+                        return response()->json(['status' => 'error', 'message' => $errMsg], 422);
                     }
-                    return redirect()->back()->with('error', 'Kuota penerimaan di ' . $newDinas->name . ' saat ini sudah penuh.');
+                    return redirect()->back()->with('error', $errMsg);
                 }
 
                 $permohonan->dinas_id = $newDinas->id;
@@ -361,6 +406,7 @@ class LayananController extends Controller
                         'dinas_id' => $newDinas->id,
                         'rekrutmen_id' => $chosenRekrutmen->id,
                         'status' => 'menunggu',
+                        'jumlah_orang' => $existingJumlahOrang,
                         'tanggal_mulai' => $permohonan->tanggal_mulai,
                         'tanggal_selesai' => $permohonan->tanggal_selesai,
                         'berlaku_sampai' => $expiredAt->toDateString(),

@@ -275,4 +275,64 @@ class KuotaBookingTest extends TestCase
         $magangApp = MagangApplication::where('permohonan_layanan_id', $permohonan->id)->firstOrFail();
         $this->assertEquals($this->dinasB->id, $magangApp->dinas_id);
     }
+
+    /**
+     * 4. Pendaftaran kelompok memotong kuota sesuai total peserta
+     */
+    public function test_pendaftaran_kelompok_memotong_kuota_sesuai_jumlah_peserta(): void
+    {
+        // Dinas B memiliki kuota 5
+        $this->assertEquals(5, $this->rekrutmenB->slot_tersedia);
+
+        // Mahasiswa 1 mendaftar kelompok 3 orang (1 perwakilan + 2 anggota)
+        $res = $this->actingAs($this->student1)->postJson(route('layanan.submit'), [
+            'jenis_layanan_slug'   => $this->jenisLayanan->slug,
+            'dinas_id'             => $this->dinasB->id,
+            'jumlah_peserta'       => 'Kelompok (> 1 Orang)',
+            'jumlah_anggota_count' => 3,
+            'atas_nama'            => 'Ketua Kelompok',
+            'nama_anggota'         => ['Anggota 1', 'Anggota 2'],
+            'asal_instansi'        => 'Universitas Indonesia',
+            'judul_kegiatan'       => 'Riset Kelompok',
+            'tanggal_mulai'        => now()->toDateString(),
+            'tanggal_selesai'      => now()->addMonth()->toDateString(),
+        ]);
+        $res->assertStatus(200);
+
+        // Kuota Dinas B harus berkurang 3 (5 - 3 = 2)
+        $this->assertEquals(2, $this->rekrutmenB->fresh()->slot_tersedia);
+
+        // Mahasiswa 2 mendaftar kelompok 3 orang ke Dinas B -> harus ditolak karena sisa kuota tinggal 2
+        $res2 = $this->actingAs($this->student2)->postJson(route('layanan.submit'), [
+            'jenis_layanan_slug'   => $this->jenisLayanan->slug,
+            'dinas_id'             => $this->dinasB->id,
+            'jumlah_peserta'       => 'Kelompok (> 1 Orang)',
+            'jumlah_anggota_count' => 3,
+            'atas_nama'            => 'Ketua Lain',
+            'nama_anggota'         => ['Anggota A', 'Anggota B'],
+            'asal_instansi'        => 'IPB University',
+            'judul_kegiatan'       => 'Riset Kelompok Lain',
+            'tanggal_mulai'        => now()->toDateString(),
+            'tanggal_selesai'      => now()->addMonth()->toDateString(),
+        ]);
+        $res2->assertStatus(422);
+
+        // Mahasiswa 2 mendaftar kelompok 2 orang -> berhasil karena sisa kuota pas 2
+        $res3 = $this->actingAs($this->student2)->postJson(route('layanan.submit'), [
+            'jenis_layanan_slug'   => $this->jenisLayanan->slug,
+            'dinas_id'             => $this->dinasB->id,
+            'jumlah_peserta'       => 'Kelompok (> 1 Orang)',
+            'jumlah_anggota_count' => 2,
+            'atas_nama'            => 'Ketua Pas',
+            'nama_anggota'         => ['Anggota Pas'],
+            'asal_instansi'        => 'IPB University',
+            'judul_kegiatan'       => 'Riset Pas',
+            'tanggal_mulai'        => now()->toDateString(),
+            'tanggal_selesai'      => now()->addMonth()->toDateString(),
+        ]);
+        $res3->assertStatus(200);
+
+        // Kuota Dinas B sekarang habis (0)
+        $this->assertEquals(0, $this->rekrutmenB->fresh()->slot_tersedia);
+    }
 }

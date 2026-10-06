@@ -21,6 +21,7 @@ class MagangApplication extends Model
         'jadwal_wfh_wfo',
         'berlaku_sampai',
         'expired_at',
+        'jumlah_orang',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class MagangApplication extends Model
         'berlaku_sampai' => 'date',
         'expired_at' => 'datetime',
         'jadwal_wfh_wfo' => 'array',
+        'jumlah_orang' => 'integer',
     ];
 
     public function getJadwalWfhWfoAttribute($value)

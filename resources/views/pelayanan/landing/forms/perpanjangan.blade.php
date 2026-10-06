@@ -1,37 +1,7 @@
 @extends('pelayanan.layouts.app')
 
 @section('styles')
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries">
-    function togglePeserta(value) {
-        const fileDaftarPesertaContainer = document.getElementById('container-file-daftar-peserta');
-        const atasNamaInput = document.querySelector('input[name="atas_nama"]');
-        let labelAtasNama = null;
-        
-        if (atasNamaInput) {
-            labelAtasNama = atasNamaInput.parentElement.querySelector('label');
-        }
-
-        if (value.includes('Kelompok')) {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.remove('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.setAttribute('required', 'required');
-            }
-            if(labelAtasNama) {
-                labelAtasNama.innerHTML = 'Nama Perwakilan / Ketua Kelompok <span class="text-error">*</span>';
-            }
-        } else {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.add('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.removeAttribute('required');
-            }
-            if(labelAtasNama) {
-                labelAtasNama.innerHTML = 'Atas Nama <span class="text-error">*</span>';
-            }
-        }
-    }
-</script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -202,36 +172,6 @@
     },
         },
       }
-    
-    function togglePeserta(value) {
-        const fileDaftarPesertaContainer = document.getElementById('container-file-daftar-peserta');
-        const atasNamaInput = document.querySelector('input[name="atas_nama"]');
-        let labelAtasNama = null;
-        
-        if (atasNamaInput) {
-            labelAtasNama = atasNamaInput.parentElement.querySelector('label');
-        }
-
-        if (value.includes('Kelompok')) {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.remove('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.setAttribute('required', 'required');
-            }
-            if(labelAtasNama) {
-                labelAtasNama.innerHTML = 'Nama Perwakilan / Ketua Kelompok <span class="text-error">*</span>';
-            }
-        } else {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.add('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.removeAttribute('required');
-            }
-            if(labelAtasNama) {
-                labelAtasNama.innerHTML = 'Atas Nama <span class="text-error">*</span>';
-            }
-        }
-    }
 </script>
 
 @endsection
@@ -310,10 +250,39 @@
     </label>
 </div>
 </div>
+
+<!-- Kolom Jumlah Angka Pendaftar Kelompok (Stepper + dan -) -->
+<div id="container-jumlah-kelompok" style="display: none;" class="flex flex-col gap-stack-sm md:col-span-2 p-4 rounded-xl border border-secondary/30 bg-surface-container-low/70 transition-all">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary text-[20px]">group</span>
+                Jumlah Pendaftar (Termasuk Perwakilan) <span class="text-error">*</span>
+            </label>
+            <p class="font-caption text-caption text-on-surface-variant">Tentukan total pendaftar dalam kelompok (minimal 2 orang)</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="inline-flex items-center bg-surface-bright border-2 border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                <button type="button" onclick="ubahJumlahAnggota(-1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Kurangi jumlah pendaftar">
+                    <span class="material-symbols-outlined text-[18px]">remove</span>
+                </button>
+                <input type="number" id="input-jumlah-anggota" name="jumlah_anggota_count" min="2" max="50" value="2" oninput="handleJumlahAnggotaInput(this)" class="w-14 h-10 text-center font-bold text-primary bg-transparent border-0 focus:ring-0 p-0 text-base" />
+                <button type="button" onclick="ubahJumlahAnggota(1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Tambah jumlah pendaftar">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                </button>
+            </div>
+            <span class="font-body-md text-body-md font-semibold text-on-surface">Orang</span>
+        </div>
+    </div>
+</div>
+
 <div class="flex flex-col gap-stack-sm md:col-span-2">
-<label class="font-label-md text-label-md text-on-surface">Atas Nama <span class="text-error">*</span></label>
+<label id="label-atas-nama" class="font-label-md text-label-md text-on-surface">Atas Nama <span class="text-error">*</span></label>
 <input name="atas_nama" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan atas nama" type="text" required value="{{ auth()->check() ? auth()->user()->nama : '' }}">
 </div>
+
+<!-- Container Kolom Nama Anggota Otomatis Bertambah / Berkurang -->
+<div id="container-dynamic-anggota" style="display: none;" class="md:col-span-2 flex flex-col gap-stack-md"></div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Nomor WhatsApp Aktif <span class="text-error">*</span></label>
 <input name="no_hp" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan nomor HP/WhatsApp aktif" type="tel" required value="{{ auth()->check() ? auth()->user()->no_hp : '' }}">
@@ -340,13 +309,14 @@
 <select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
     <option value="">-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --</option>
     @forelse($dinasList as $dinas)
-        <option value="{{ $dinas->id }}">
+        <option value="{{ $dinas->id }}" data-original-name="{{ $dinas->name }}" data-base-kuota="{{ $dinas->sisa_kuota }}">
             {{ $dinas->name }} (Sisa Kuota: {{ $dinas->sisa_kuota }})
         </option>
     @empty
         <option value="" disabled>Saat ini belum ada instansi yang membuka kuota penerimaan</option>
     @endforelse
 </select>
+<div id="dinas-quota-warning" class="hidden"></div>
 <p class="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5 text-secondary">
     <span class="material-symbols-outlined text-[15px]">info</span>
     <span>Hanya menampilkan instansi yang aktif membuka kuota. Kuota instansi yang Anda pilih akan langsung terpotong otomatis saat permohonan dikirim.</span>
@@ -392,12 +362,6 @@
 <span class="material-symbols-outlined text-4xl text-secondary mx-auto">assignment</span>
 <span class="font-label-md text-label-md text-primary mt-2">Surat Rekomendasi Lama</span>
 <span class="font-caption text-caption text-outline">Format file: PDF. Wajib *</span>
-</label>
-<label id="container-file-daftar-peserta" class="hidden flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
-<input type="file" name="file_daftar_peserta" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-<span class="material-symbols-outlined text-4xl text-secondary mx-auto">group</span>
-<span class="font-label-md text-label-md text-primary mt-2">Upload Daftar Nama Peserta</span>
-<span class="font-caption text-caption text-outline">Format file: PDF. Wajib jika kelompok *</span>
 </label>
 <div class="flex flex-col gap-stack-sm md:col-span-2 mt-4">
 <label class="font-label-md text-label-md text-on-surface">Keterangan</label>
@@ -491,10 +455,17 @@
             try {
                 const dataObj = JSON.parse(savedData);
                 for (let key in dataObj) {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input && input.type !== 'file') {
-                        if (dataObj[key]) {
-                            input.value = dataObj[key];
+                    const radios = form.querySelectorAll(`input[type="radio"][name="${key}"]`);
+                    if (radios.length > 0) {
+                        radios.forEach(r => {
+                            r.checked = (r.value === dataObj[key]);
+                        });
+                    } else {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input && input.type !== 'file') {
+                            if (dataObj[key]) {
+                                input.value = dataObj[key];
+                            }
                         }
                     }
                 }
@@ -514,7 +485,17 @@
         restoreFormData();
         updateWizard();
         const checkedPeserta = document.querySelector('input[name="jumlah_peserta"]:checked');
-        if(checkedPeserta) togglePeserta(checkedPeserta.value);
+        if(checkedPeserta) {
+            togglePeserta(checkedPeserta.value);
+        } else {
+            togglePeserta('Individu (1 Orang)');
+        }
+        updateRealtimeDinasKuota();
+
+        const selectDinas = form.querySelector('select[name="dinas_id"]');
+        if (selectDinas) {
+            selectDinas.addEventListener('change', updateRealtimeDinasKuota);
+        }
 
         const tglMulai = form.querySelector('[name="tanggal_mulai"]');
         if (tglMulai) {
@@ -607,6 +588,20 @@
                 alert('Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai.');
                 tglSelesai.focus();
                 isValid = false;
+            }
+        }
+
+        if (isValid && currentStep === 2) {
+            const selectDinas = form.querySelector('select[name="dinas_id"]');
+            if (selectDinas && selectDinas.value) {
+                const opt = selectDinas.options[selectDinas.selectedIndex];
+                const baseKuota = parseInt(opt.getAttribute('data-base-kuota') || '0');
+                const totalPendaftar = getJumlahPendaftarSaatIni();
+                if (baseKuota < totalPendaftar) {
+                    alert(`Instansi "${opt.getAttribute('data-original-name') || ''}" tidak memiliki kuota yang cukup untuk ${totalPendaftar} orang pendaftar (sisa kuota: ${baseKuota}). Silakan pilih instansi lain.`);
+                    selectDinas.focus();
+                    isValid = false;
+                }
             }
         }
         
@@ -741,34 +736,171 @@
         });
     });
 
-    function togglePeserta(value) {
-        const fileDaftarPesertaContainer = document.getElementById('container-file-daftar-peserta');
-        const atasNamaInput = document.querySelector('input[name="atas_nama"]');
-        let labelAtasNama = null;
-        
-        if (atasNamaInput) {
-            labelAtasNama = atasNamaInput.parentElement.querySelector('label');
+    function getJumlahPendaftarSaatIni() {
+        const checkedRadio = document.querySelector('input[name="jumlah_peserta"]:checked');
+        if (checkedRadio && checkedRadio.value.includes('Kelompok')) {
+            const inputJumlah = document.getElementById('input-jumlah-anggota');
+            return inputJumlah ? (parseInt(inputJumlah.value) || 2) : 2;
         }
+        return 1;
+    }
 
-        if (value.includes('Kelompok')) {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.remove('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.setAttribute('required', 'required');
+    function updateRealtimeDinasKuota() {
+        const totalPendaftar = getJumlahPendaftarSaatIni();
+        const selectDinas = form.querySelector('select[name="dinas_id"]');
+        if (!selectDinas) return;
+
+        const warningEl = document.getElementById('dinas-quota-warning');
+        let selectedOptionInvalid = false;
+        let selectedDinasName = '';
+        let selectedDinasKuota = 0;
+
+        Array.from(selectDinas.options).forEach(opt => {
+            if (!opt.value) return;
+            const baseName = opt.getAttribute('data-original-name') || opt.text.split(' (Sisa Kuota')[0].trim();
+            if (!opt.getAttribute('data-original-name')) {
+                opt.setAttribute('data-original-name', baseName);
             }
-            if(labelAtasNama) {
+            const baseKuota = parseInt(opt.getAttribute('data-base-kuota') || '0');
+
+            if (totalPendaftar > 1) {
+                const sisaSetelahDaftar = baseKuota - totalPendaftar;
+                if (baseKuota >= totalPendaftar) {
+                    opt.text = `${baseName} (Sisa: ${baseKuota} - ${totalPendaftar} = ${sisaSetelahDaftar} slot)`;
+                    opt.disabled = false;
+                } else {
+                    opt.text = `${baseName} (Kuota Tidak Cukup: Sisa ${baseKuota}, butuh ${totalPendaftar})`;
+                    opt.disabled = true;
+                    if (opt.selected) {
+                        selectedOptionInvalid = true;
+                        selectedDinasName = baseName;
+                        selectedDinasKuota = baseKuota;
+                    }
+                }
+            } else {
+                opt.text = `${baseName} (Sisa Kuota: ${baseKuota})`;
+                opt.disabled = (baseKuota < 1);
+                if (baseKuota < 1 && opt.selected) {
+                    selectedOptionInvalid = true;
+                    selectedDinasName = baseName;
+                    selectedDinasKuota = baseKuota;
+                }
+            }
+        });
+
+        if (warningEl) {
+            if (selectedOptionInvalid) {
+                warningEl.className = 'mt-2 p-3 rounded-lg border border-error/40 bg-error/10 text-error flex items-center gap-2 text-sm';
+                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">warning</span><span>Instansi <strong>${selectedDinasName}</strong> tidak mencukupi untuk <strong>${totalPendaftar}</strong> pendaftar (sisa kuota: ${selectedDinasKuota}). Silakan pilih instansi lain.</span>`;
+            } else if (totalPendaftar > 1 && selectDinas.value) {
+                const selectedOpt = selectDinas.options[selectDinas.selectedIndex];
+                const baseKuota = parseInt(selectedOpt.getAttribute('data-base-kuota') || '0');
+                const sisa = baseKuota - totalPendaftar;
+                warningEl.className = 'mt-2 p-3 rounded-lg border border-secondary/40 bg-secondary/10 text-secondary flex items-center gap-2 text-sm';
+                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">info</span><span>Pendaftaran kelompok <strong>${totalPendaftar} orang</strong> akan memotong <strong>${totalPendaftar} kuota</strong> instansi secara otomatis (sisa kuota instansi menjadi ${sisa}).</span>`;
+            } else {
+                warningEl.className = 'hidden';
+                warningEl.innerHTML = '';
+            }
+        }
+    }
+
+    function ubahJumlahAnggota(delta) {
+        const input = document.getElementById('input-jumlah-anggota');
+        if (!input) return;
+        let currentVal = parseInt(input.value) || 2;
+        let newVal = currentVal + delta;
+        if (newVal < 2) newVal = 2;
+        if (newVal > 50) newVal = 50;
+        input.value = newVal;
+        renderDynamicAnggota(newVal);
+        updateRealtimeDinasKuota();
+    }
+
+    function handleJumlahAnggotaInput(inputEl) {
+        let val = parseInt(inputEl.value);
+        if (isNaN(val) || val < 2) {
+            updateRealtimeDinasKuota();
+            return;
+        }
+        if (val > 50) {
+            val = 50;
+            inputEl.value = 50;
+        }
+        renderDynamicAnggota(val);
+        updateRealtimeDinasKuota();
+    }
+
+    function renderDynamicAnggota(totalPeserta) {
+        const container = document.getElementById('container-dynamic-anggota');
+        if (!container) return;
+
+        const existingInputs = container.querySelectorAll('input[name="nama_anggota[]"]');
+        const existingValues = [];
+        existingInputs.forEach(inp => existingValues.push(inp.value));
+
+        let html = '';
+        for (let i = 2; i <= totalPeserta; i++) {
+            const val = existingValues[i - 2] || '';
+            html += `
+                <div class="flex flex-col gap-stack-sm" id="row-anggota-${i}">
+                    <label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5 font-medium">
+                        <span class="material-symbols-outlined text-secondary text-[18px]">person</span>
+                        <span>Nama Anggota ${i}</span> <span class="text-error">*</span>
+                    </label>
+                    <input name="nama_anggota[]" 
+                           class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" 
+                           placeholder="Masukkan nama lengkap anggota ${i}" 
+                           type="text" 
+                           required 
+                           value="${val}">
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    function togglePeserta(value) {
+        const containerJumlahKelompok = document.getElementById('container-jumlah-kelompok');
+        const containerDynamicAnggota = document.getElementById('container-dynamic-anggota');
+        const atasNamaInput = document.querySelector('input[name="atas_nama"]');
+        const labelAtasNama = document.getElementById('label-atas-nama') || (atasNamaInput ? atasNamaInput.parentElement.querySelector('label') : null);
+        const inputJumlah = document.getElementById('input-jumlah-anggota');
+
+        if (value && value.includes('Kelompok')) {
+            if (containerJumlahKelompok) {
+                containerJumlahKelompok.style.display = 'flex';
+            }
+            if (containerDynamicAnggota) {
+                containerDynamicAnggota.style.display = 'flex';
+            }
+            if (labelAtasNama) {
                 labelAtasNama.innerHTML = 'Nama Perwakilan / Ketua Kelompok <span class="text-error">*</span>';
             }
-        } else {
-            if(fileDaftarPesertaContainer) {
-                fileDaftarPesertaContainer.classList.add('hidden');
-                const fileInput = fileDaftarPesertaContainer.querySelector('input[type="file"]');
-                if(fileInput) fileInput.removeAttribute('required');
+            if (atasNamaInput) {
+                atasNamaInput.placeholder = 'Masukkan nama perwakilan / ketua kelompok';
             }
-            if(labelAtasNama) {
+
+            let count = inputJumlah ? (parseInt(inputJumlah.value) || 2) : 2;
+            if (count < 2) count = 2;
+            if (inputJumlah) inputJumlah.value = count;
+            renderDynamicAnggota(count);
+        } else {
+            if (containerJumlahKelompok) {
+                containerJumlahKelompok.style.display = 'none';
+            }
+            if (containerDynamicAnggota) {
+                containerDynamicAnggota.style.display = 'none';
+                containerDynamicAnggota.innerHTML = '';
+            }
+            if (labelAtasNama) {
                 labelAtasNama.innerHTML = 'Atas Nama <span class="text-error">*</span>';
             }
+            if (atasNamaInput) {
+                atasNamaInput.placeholder = 'Masukkan atas nama';
+            }
         }
+        updateRealtimeDinasKuota();
     }
 </script>
 
