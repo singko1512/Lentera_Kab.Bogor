@@ -446,10 +446,11 @@
         </div>
         @elseif(isset($userApplications) && $userApplications->count() > 0)
         <div class="overflow-x-auto rounded-xl border border-outline-variant/30 shadow-level-1 bg-surface-container-lowest">
-            <table class="w-full text-left border-collapse min-w-[1050px]">
+            <table class="w-full text-left border-collapse min-w-[1100px]">
                 <thead class="bg-surface-container-low text-on-surface font-label-md text-xs uppercase tracking-wider border-b border-outline-variant/30">
                     <tr>
-                        <th class="py-4 px-4 pl-6 whitespace-nowrap w-[140px]">No / Tgl Pengajuan</th>
+                        <th class="py-4 px-4 pl-6 whitespace-nowrap w-[70px]">No</th>
+                        <th class="py-4 px-4 whitespace-nowrap min-w-[180px]">Tanggal / Waktu Pengajuan</th>
                         <th class="py-4 px-4 min-w-[200px]">Jenis Layanan</th>
                         <th class="py-4 px-4 min-w-[280px]">Dinas Tujuan & Topik</th>
                         <th class="py-4 px-4 text-center whitespace-nowrap min-w-[160px]">Status Kesbangpol</th>
@@ -462,8 +463,10 @@
                     @foreach($userApplications as $index => $app)
                     <tr class="hover:bg-surface-container-low/40 transition-colors">
                         <td class="py-4 px-4 pl-6 align-middle whitespace-nowrap">
-                            <div class="font-bold text-sm text-on-surface">#{{ $app->id }}</div>
-                            <div class="text-xs text-on-surface-variant mt-0.5">{{ $app->created_at ? $app->created_at->format('d M Y, H:i') : '-' }}</div>
+                            <span class="font-bold text-sm text-on-surface">#{{ $app->id }}</span>
+                        </td>
+                        <td class="py-4 px-4 align-middle whitespace-nowrap">
+                            <span class="text-xs text-on-surface-variant font-medium">{{ $app->created_at ? $app->created_at->format('d M Y, H:i') : '-' }}</span>
                         </td>
                         <td class="py-4 px-4 align-middle">
                             <span class="font-semibold text-primary text-sm leading-snug block">
@@ -1217,11 +1220,11 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Periode Magang</span>
-                    <span class="text-base font-bold text-on-surface mt-1">
-                        {{ $userMagang->tanggal_mulai ? $userMagang->tanggal_mulai->format('d M Y') : 'Mulai Baru' }}
+                    <span class="text-sm md:text-base font-bold text-on-surface mt-1 whitespace-nowrap">
+                        {{ $userMagang->tanggal_mulai ? $userMagang->tanggal_mulai->format('d M Y') : 'Mulai' }} s.d. {{ $userMagang->tanggal_selesai ? $userMagang->tanggal_selesai->format('d M Y') : 'Selesai' }}
                     </span>
                     <span class="text-xs text-on-surface-variant font-medium">
-                        s.d. {{ $userMagang->tanggal_selesai ? $userMagang->tanggal_selesai->format('d M Y') : 'Selesai' }}
+                        Masa Pelaksanaan Kegiatan
                     </span>
                 </div>
             </div>
@@ -1233,8 +1236,11 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Rekan Magang Se-Bidang</span>
-                    <span class="text-base font-bold text-on-surface mt-1">{{ count($bidangParticipants) }} Peserta</span>
-                    <span class="text-xs text-on-surface-variant font-medium">Bidang {{ $userMagang->bidang->name ?? ($userMagang->rekrutmen->bidang->name ?? 'Terkait') }}</span>
+                    @php
+                        $namaBidang = $userMagang->bidang->name ?? ($userMagang->rekrutmen->bidang->name ?? 'Terkait');
+                        $teksBidang = preg_match('/^bidang\b/i', trim($namaBidang)) ? $namaBidang : 'Bidang ' . $namaBidang;
+                    @endphp
+                    <span class="text-xs text-on-surface-variant font-medium">{{ $teksBidang }}</span>
                 </div>
             </div>
         </div>

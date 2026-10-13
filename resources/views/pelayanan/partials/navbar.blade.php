@@ -197,8 +197,8 @@
             <ul class="nav-links d-flex align-items-center gap-2.5">
                 @if($hasAcceptedMagang)
                 <li>
-                    <a href="{{ route('absensi.index') }}" class="btn btn-primary btn-sm px-3 py-1.5 rounded-pill font-weight-bold d-inline-flex align-items-center gap-1.5 text-white shadow-sm" style="font-size: 0.85rem;">
-                        <i class="fa-solid fa-fingerprint"></i> Absensi
+                    <a href="{{ route('absensi.index') }}" class="btn btn-primary btn-sm px-3.5 py-1.5 rounded-3 font-weight-bold d-inline-flex align-items-center text-white shadow-sm" style="font-size: 0.85rem; border-radius: 8px !important;">
+                        Absensi
                     </a>
                 </li>
                 @endif
