@@ -301,6 +301,28 @@
         .hero-btn-secondary:active {
             transform: translateY(-2px) scale(0.96) !important;
         }
+
+        /* Dropdown Tambah Layanan Smooth Animation */
+        .dropdown-menu-custom {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px) scale(0.96);
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+            pointer-events: none;
+        }
+        .dropdown-menu-custom.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+        .dropdown-arrow-rotate {
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-block;
+        }
+        .dropdown-arrow-rotate.open {
+            transform: rotate(180deg);
+        }
     </style>
 @endsection
 
@@ -367,42 +389,42 @@
                     <span>Akun {{ ucwords(auth()->user()->status_akun) }}</span>
                 </button>
                 @else
-                <button onclick="toggleLayananDropdown(event)" type="button" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-label-md text-label-md font-semibold rounded-xl hover:bg-secondary transition-all shadow-md hover:shadow-lg cursor-pointer">
+                <button id="btn-dropdown-layanan" onclick="toggleLayananDropdown(event)" type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-primary text-white font-label-md text-label-md font-semibold rounded-xl hover:bg-secondary active:scale-95 transition-all duration-150 shadow-md hover:shadow-lg cursor-pointer select-none focus:outline-none">
                     <span class="material-symbols-outlined text-[20px]">add</span>
                     <span>Tambah Layanan Baru</span>
-                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                    <span id="arrow-dropdown-layanan" class="material-symbols-outlined text-[18px] dropdown-arrow-rotate">expand_more</span>
                 </button>
 
                 <!-- Dropdown Menu List Service Forms -->
-                <div id="dropdown-layanan-menu" class="hidden absolute right-0 top-full mt-2 w-80 rounded-xl bg-white shadow-2xl border border-outline-variant/30 py-2 z-[100] transition-all duration-200">
+                <div id="dropdown-layanan-menu" class="dropdown-menu-custom absolute right-0 top-full mt-2 w-80 rounded-2xl bg-white shadow-2xl border border-outline-variant/30 py-2.5 z-[100]">
                     <div class="px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-outline border-b border-outline-variant/20 mb-1">
                         Pilih Form Jenis Layanan:
                     </div>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('penelitian_pt')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('penelitian_pt')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">school</span>
                         <span>Penelitian (Perguruan Tinggi)</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('penelitian_instansi')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('penelitian_instansi')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">business</span>
                         <span>Penelitian (Instansi / Lembaga)</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkl_mahasiswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkl_mahasiswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">work</span>
                         <span>KKL / PKL / Magang (Mahasiswa)</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkn_mahasiswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkn_mahasiswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">groups</span>
                         <span>KKN Mahasiswa</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkl_siswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('kkl_siswa')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">backpack</span>
                         <span>KKL / PKL / Magang (Siswa Sekolah)</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('pelaksanaan_kegiatan')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('pelaksanaan_kegiatan')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors">
                         <span class="material-symbols-outlined text-primary text-[20px]">event</span>
                         <span>Pelaksanaan Kegiatan</span>
                     </a>
-                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('perpanjangan')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary transition-colors border-t border-outline-variant/20 mt-1 pt-2">
+                    <a href="javascript:void(0)" onclick="closeLayananDropdown(); openModal('perpanjangan')" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-surface-container-low hover:text-primary rounded-xl mx-1.5 transition-colors border-t border-outline-variant/20 mt-1 pt-2">
                         <span class="material-symbols-outlined text-primary text-[20px]">update</span>
                         <span>Perpanjangan Izin Rekomendasi</span>
                     </a>
@@ -497,18 +519,12 @@
                             @if($app->magangApplication)
                                 @php
                                     $dinasStatus = strtolower($app->magangApplication->status ?? 'menunggu');
-                                    $bidangPenempatan = $app->magangApplication->bidang->name ?? ($app->magangApplication->rekrutmen->bidang->name ?? null);
                                 @endphp
                                 @if(in_array($dinasStatus, ['diterima', 'aktif']))
-                                    <div class="inline-flex flex-col items-center">
-                                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold uppercase">
-                                            <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
-                                            <span>Diterima</span>
-                                        </span>
-                                        @if($bidangPenempatan)
-                                            <span class="text-[11px] text-gray-600 font-medium mt-1">{{ $bidangPenempatan }}</span>
-                                        @endif
-                                    </div>
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold uppercase">
+                                        <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
+                                        <span>Diterima</span>
+                                    </span>
                                 @elseif($dinasStatus == 'ditolak')
                                     <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-bold uppercase">
                                         <span class="material-symbols-outlined text-[14px]">close</span>
@@ -1249,22 +1265,17 @@
                         @forelse($bidangParticipants as $p)
                         @php
                             $todayAbsensi = $p->absensis->first();
+                            $namaPeserta = $p->permohonanLayanan->atas_nama ?? ($p->user->nama ?: ($p->user->name ?? '-'));
                         @endphp
                         <tr class="hover:bg-surface-container-low/40 transition-colors {{ $p->user_id === auth()->id() ? 'bg-primary/5 font-semibold' : '' }}">
                             <td class="p-4 pl-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs">
-                                        {{ strtoupper(substr($p->user->name ?? 'P', 0, 1)) }}
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-on-surface font-bold">
-                                            {{ $p->user->name ?? '-' }}
-                                            @if($p->user_id === auth()->id())
-                                                <span class="ml-1 text-[10px] px-2 py-0.5 bg-primary text-white rounded-full font-bold">Anda</span>
-                                            @endif
-                                        </span>
-                                        <span class="text-xs text-on-surface-variant">{{ $p->user->email ?? '-' }}</span>
-                                    </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-on-surface font-bold">
+                                        {{ $namaPeserta }}
+                                    </span>
+                                    @if($p->user_id === auth()->id())
+                                        <span class="text-[10px] px-2 py-0.5 bg-primary text-white rounded-full font-bold">Anda</span>
+                                    @endif
                                 </div>
                             </td>
                             <td class="p-4 text-on-surface-variant">
@@ -1598,24 +1609,49 @@
 <!-- Modal Script -->
 <script>
     function toggleLayananDropdown(e) {
-        if (e) e.stopPropagation();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         const menu = document.getElementById('dropdown-layanan-menu');
-        if (menu) {
-            menu.classList.toggle('hidden');
+        const arrow = document.getElementById('arrow-dropdown-layanan');
+        const btn = document.getElementById('btn-dropdown-layanan');
+        if (!menu) return;
+
+        const isOpen = menu.classList.contains('show');
+        if (isOpen) {
+            closeLayananDropdown();
+        } else {
+            menu.classList.add('show');
+            if (arrow) arrow.classList.add('open');
+            if (btn) btn.setAttribute('aria-expanded', 'true');
         }
     }
 
     function closeLayananDropdown() {
         const menu = document.getElementById('dropdown-layanan-menu');
-        if (menu) {
-            menu.classList.add('hidden');
-        }
+        const arrow = document.getElementById('arrow-dropdown-layanan');
+        const btn = document.getElementById('btn-dropdown-layanan');
+        if (menu) menu.classList.remove('show');
+        if (arrow) arrow.classList.remove('open');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
     }
 
+    // Close on click outside
     document.addEventListener('click', function(e) {
+        const btn = document.getElementById('btn-dropdown-layanan');
         const menu = document.getElementById('dropdown-layanan-menu');
-        if (menu && !menu.contains(e.target)) {
-            menu.classList.add('hidden');
+        if (menu && menu.classList.contains('show')) {
+            if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                closeLayananDropdown();
+            }
+        }
+    });
+
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLayananDropdown();
         }
     });
 

@@ -8,6 +8,7 @@ use App\Models\JenisLayanan;
 use App\Models\StatusMaster;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class LayananController extends Controller
 {
@@ -47,7 +48,7 @@ class LayananController extends Controller
             ->first();
 
         if ($activeLayanan) {
-            return 'Anda masih memiliki permohonan atau kegiatan yang aktif (belum berakhir). Anda tidak dapat mendaftar layanan baru kecuali "Perpanjangan Izin Rekomendasi".';
+            return 'Kegiatan Anda saat ini masih berjalan. Pendaftaran baru dapat dilakukan setelah kegiatan selesai, atau ajukan perpanjangan jika butuh tambahan waktu.';
         }
 
         // Cek juga di magang application
@@ -57,7 +58,7 @@ class LayananController extends Controller
             ->first();
 
         if ($activeMagang) {
-            return 'Anda masih berstatus aktif sebagai peserta/pendaftar di sebuah Instansi. Anda tidak dapat mendaftar layanan baru kecuali "Perpanjangan Izin Rekomendasi".';
+            return 'Magang Anda saat ini masih aktif. Pendaftaran baru dapat dilakukan setelah magang selesai, atau ajukan perpanjangan jika butuh tambahan waktu.';
         }
 
         return null;
@@ -109,7 +110,26 @@ class LayananController extends Controller
         }
 
         $validationRules = array_merge([
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
+            'tanggal_mulai' => 'nullable|date',
+            'tanggal_selesai' => [
+                'nullable',
+                'date',
+                'after_or_equal:tanggal_mulai',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->filled('tanggal_mulai') && $value) {
+                        $tglMulai = Carbon::parse($request->tanggal_mulai);
+                        $tglSelesai = Carbon::parse($value);
+
+                        if ($tglSelesai->lessThan($tglMulai->copy()->addMonth())) {
+                            $fail('Durasi kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
+                        }
+
+                        if ($tglSelesai->greaterThan($tglMulai->copy()->addMonths(3))) {
+                            $fail('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika durasi lebih dari 3 bulan, wajib mengajukan perpanjangan setelahnya.');
+                        }
+                    }
+                },
+            ],
         ], $this->getFileUploadRules());
 
         $validationMessages = array_merge([

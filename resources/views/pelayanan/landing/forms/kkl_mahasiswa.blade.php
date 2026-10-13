@@ -252,27 +252,25 @@
 </div>
 
 <!-- Kolom Jumlah Angka Pendaftar Kelompok (Stepper + dan -) -->
-<div id="container-jumlah-kelompok" style="display: none;" class="flex-col gap-stack-sm md:col-span-2 p-4 rounded-xl border border-secondary/30 bg-surface-container-low/70 transition-all">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-2">
-                <span class="material-symbols-outlined text-secondary text-[20px]">group</span>
-                Jumlah Pendaftar (Termasuk Perwakilan) <span class="text-error">*</span>
-            </label>
-            <p class="font-caption text-caption text-on-surface-variant">Tentukan total pendaftar dalam kelompok (minimal 2 orang)</p>
+<div id="container-jumlah-kelompok" style="display: none;" class="flex flex-col gap-3 md:col-span-2 p-4 rounded-xl border border-secondary/30 bg-surface-container-low/70 transition-all">
+    <div>
+        <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary text-[20px]">group</span>
+            Jumlah Pendaftar (Termasuk Perwakilan) <span class="text-error">*</span>
+        </label>
+        <p class="font-caption text-caption text-on-surface-variant mt-0.5">Tentukan total pendaftar dalam kelompok (minimal 2 orang)</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <div class="inline-flex items-center bg-surface-bright border-2 border-outline-variant rounded-xl overflow-hidden shadow-sm">
+            <button type="button" onclick="ubahJumlahAnggota(-1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Kurangi jumlah pendaftar">
+                <span class="material-symbols-outlined text-[18px]">remove</span>
+            </button>
+            <input type="number" id="input-jumlah-anggota" name="jumlah_anggota_count" min="2" max="50" value="2" oninput="handleJumlahAnggotaInput(this)" class="w-14 h-10 text-center font-bold text-primary bg-transparent border-0 focus:ring-0 p-0 text-base" />
+            <button type="button" onclick="ubahJumlahAnggota(1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Tambah jumlah pendaftar">
+                <span class="material-symbols-outlined text-[18px]">add</span>
+            </button>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="inline-flex items-center bg-surface-bright border-2 border-outline-variant rounded-xl overflow-hidden shadow-sm">
-                <button type="button" onclick="ubahJumlahAnggota(-1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Kurangi jumlah pendaftar">
-                    <span class="material-symbols-outlined text-[18px]">remove</span>
-                </button>
-                <input type="number" id="input-jumlah-anggota" name="jumlah_anggota_count" min="2" max="50" value="2" oninput="handleJumlahAnggotaInput(this)" class="w-14 h-10 text-center font-bold text-primary bg-transparent border-0 focus:ring-0 p-0 text-base" />
-                <button type="button" onclick="ubahJumlahAnggota(1)" class="w-10 h-10 flex items-center justify-center text-on-surface hover:bg-surface-variant/50 active:bg-surface-variant/80 transition-colors font-bold select-none cursor-pointer" title="Tambah jumlah pendaftar">
-                    <span class="material-symbols-outlined text-[18px]">add</span>
-                </button>
-            </div>
-            <span class="font-body-md text-body-md font-semibold text-on-surface">Orang</span>
-        </div>
+        <span class="font-body-md text-body-md font-semibold text-on-surface">Orang</span>
     </div>
 </div>
 
@@ -311,6 +309,7 @@
 <div class="flex flex-col gap-stack-sm">
 <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai <span class="text-error">*</span></label>
 <input name="tanggal_selesai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required>
+<p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dan maksimal 3 bulan dari tanggal mulai</p>
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan KKL / PKL <span class="text-error">*</span></label>
@@ -442,14 +441,55 @@
         sessionStorage.setItem(formDataKey, JSON.stringify(dataObj));
     }
 
+    function getMinEndDate(startDateStr) {
+        if (!startDateStr) return '';
+        const parts = startDateStr.split('-');
+        if (parts.length !== 3) return '';
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+
+        const d = new Date(year, month, day);
+        d.setMonth(d.getMonth() + 1);
+
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${dayStr}`;
+    }
+
+    function getMaxEndDate(startDateStr) {
+        if (!startDateStr) return '';
+        const parts = startDateStr.split('-');
+        if (parts.length !== 3) return '';
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+
+        const d = new Date(year, month, day);
+        d.setMonth(d.getMonth() + 3);
+
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${dayStr}`;
+    }
+
     function syncDateConstraints() {
         const tglMulai = form.querySelector('[name="tanggal_mulai"]');
         const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (tglMulai && tglSelesai) {
             if (tglMulai.value) {
-                tglSelesai.min = tglMulai.value;
-                if (tglSelesai.value && tglSelesai.value < tglMulai.value) {
-                    tglSelesai.value = tglMulai.value;
+                const minDate = getMinEndDate(tglMulai.value);
+                const maxDate = getMaxEndDate(tglMulai.value);
+                tglSelesai.min = minDate;
+                tglSelesai.max = maxDate;
+                if (tglSelesai.value) {
+                    if (minDate && tglSelesai.value < minDate) {
+                        tglSelesai.value = minDate;
+                    } else if (maxDate && tglSelesai.value > maxDate) {
+                        tglSelesai.value = maxDate;
+                    }
                 }
             }
         }
@@ -512,9 +552,25 @@
         }
 
         const tglMulai = form.querySelector('[name="tanggal_mulai"]');
+        const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (tglMulai) {
             tglMulai.addEventListener('change', syncDateConstraints);
             tglMulai.addEventListener('input', syncDateConstraints);
+        }
+        if (tglSelesai) {
+            tglSelesai.addEventListener('change', () => {
+                if (tglMulai && tglMulai.value && tglSelesai.value) {
+                    const minDate = getMinEndDate(tglMulai.value);
+                    const maxDate = getMaxEndDate(tglMulai.value);
+                    if (minDate && tglSelesai.value < minDate) {
+                        alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
+                        tglSelesai.value = minDate;
+                    } else if (maxDate && tglSelesai.value > maxDate) {
+                        alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
+                        tglSelesai.value = maxDate;
+                    }
+                }
+            });
         }
     });
     
@@ -579,6 +635,7 @@
         
         // Scroll to top of form
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateRealtimeDinasKuota();
     }
     
     function nextStep() {
@@ -598,8 +655,14 @@
         const tglMulai = form.querySelector('[name="tanggal_mulai"]');
         const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (isValid && tglMulai && tglSelesai && tglMulai.value && tglSelesai.value) {
-            if (tglSelesai.value < tglMulai.value) {
-                alert('Tanggal Selesai tidak boleh lebih awal dari Tanggal Mulai.');
+            const minDate = getMinEndDate(tglMulai.value);
+            const maxDate = getMaxEndDate(tglMulai.value);
+            if (minDate && tglSelesai.value < minDate) {
+                alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
+                tglSelesai.focus();
+                isValid = false;
+            } else if (maxDate && tglSelesai.value > maxDate) {
+                alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika kegiatan lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
                 tglSelesai.focus();
                 isValid = false;
             }
@@ -768,50 +831,64 @@
         let selectedOptionInvalid = false;
         let selectedDinasName = '';
         let selectedDinasKuota = 0;
+        let visibleCount = 0;
 
         Array.from(selectDinas.options).forEach(opt => {
             if (!opt.value) return;
-            const baseName = opt.getAttribute('data-original-name') || opt.text.split(' (Sisa Kuota')[0].trim();
+            const baseName = opt.getAttribute('data-original-name') || opt.text.split(' (Sisa Kuota')[0].split(' (Sisa:')[0].split(' (Kuota')[0].trim();
             if (!opt.getAttribute('data-original-name')) {
                 opt.setAttribute('data-original-name', baseName);
             }
             const baseKuota = parseInt(opt.getAttribute('data-base-kuota') || '0');
 
-            if (totalPendaftar > 1) {
-                const sisaSetelahDaftar = baseKuota - totalPendaftar;
-                if (baseKuota >= totalPendaftar) {
-                    opt.text = `${baseName} (Sisa: ${baseKuota} - ${totalPendaftar} = ${sisaSetelahDaftar} slot)`;
-                    opt.disabled = false;
-                } else {
-                    opt.text = `${baseName} (Kuota Tidak Cukup: Sisa ${baseKuota}, butuh ${totalPendaftar})`;
-                    opt.disabled = true;
-                    if (opt.selected) {
-                        selectedOptionInvalid = true;
-                        selectedDinasName = baseName;
-                        selectedDinasKuota = baseKuota;
-                    }
-                }
-            } else {
+            if (baseKuota >= totalPendaftar) {
+                visibleCount++;
+                opt.hidden = false;
+                opt.style.display = '';
+                opt.disabled = false;
                 opt.text = `${baseName} (Sisa Kuota: ${baseKuota})`;
-                opt.disabled = (baseKuota < 1);
-                if (baseKuota < 1 && opt.selected) {
+            } else {
+                // Kuota instansi tidak mencukupi untuk jumlah pendaftar -> sembunyikan (hide) dari dropdown
+                opt.hidden = true;
+                opt.style.display = 'none';
+                opt.disabled = true;
+                if (opt.selected) {
                     selectedOptionInvalid = true;
                     selectedDinasName = baseName;
                     selectedDinasKuota = baseKuota;
+                    opt.selected = false;
+                    selectDinas.value = '';
                 }
             }
         });
 
+        const defaultOpt = selectDinas.options[0];
+        if (defaultOpt) {
+            if (visibleCount === 0) {
+                defaultOpt.text = totalPendaftar > 1
+                    ? `-- Tidak Ada Instansi dengan Kuota Cukup (Minimal ${totalPendaftar} slot) --`
+                    : `-- Tidak ada instansi yang membuka kuota saat ini --`;
+            } else {
+                defaultOpt.text = '-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --';
+            }
+        }
+
         if (warningEl) {
-            if (selectedOptionInvalid) {
+            if (visibleCount === 0) {
                 warningEl.className = 'mt-2 p-3 rounded-lg border border-error/40 bg-error/10 text-error flex items-center gap-2 text-sm';
-                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">warning</span><span>Instansi <strong>${selectedDinasName}</strong> tidak mencukupi untuk <strong>${totalPendaftar}</strong> pendaftar (sisa kuota: ${selectedDinasKuota}). Silakan pilih instansi lain.</span>`;
+                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">error</span><span>Maaf, tidak ada instansi yang memiliki sisa kuota minimal <strong>${totalPendaftar} slot</strong> untuk kelompok Anda.</span>`;
+            } else if (selectedOptionInvalid) {
+                warningEl.className = 'mt-2 p-3 rounded-lg border border-amber-500/40 bg-amber-50 text-amber-800 flex items-center gap-2 text-sm';
+                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">warning</span><span>Pilihan instansi sebelumnya (<strong>${selectedDinasName}</strong>) otomatis direset karena kuotanya (${selectedDinasKuota}) kurang dari <strong>${totalPendaftar} orang</strong>. Hanya instansi dengan kuota &ge; ${totalPendaftar} yang ditampilkan.</span>`;
             } else if (totalPendaftar > 1 && selectDinas.value) {
                 const selectedOpt = selectDinas.options[selectDinas.selectedIndex];
                 const baseKuota = parseInt(selectedOpt.getAttribute('data-base-kuota') || '0');
                 const sisa = baseKuota - totalPendaftar;
                 warningEl.className = 'mt-2 p-3 rounded-lg border border-secondary/40 bg-secondary/10 text-secondary flex items-center gap-2 text-sm';
                 warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">info</span><span>Pendaftaran kelompok <strong>${totalPendaftar} orang</strong> akan memotong <strong>${totalPendaftar} kuota</strong> instansi secara otomatis (sisa kuota instansi menjadi ${sisa}).</span>`;
+            } else if (totalPendaftar > 1) {
+                warningEl.className = 'mt-2 p-3 rounded-lg border border-secondary/40 bg-secondary/10 text-secondary flex items-center gap-2 text-sm';
+                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">info</span><span>Menampilkan <strong>${visibleCount} instansi</strong> yang memiliki sisa kuota minimal <strong>${totalPendaftar} slot</strong>. Instansi yang kuotanya kurang dari ${totalPendaftar} otomatis disembunyikan.</span>`;
             } else {
                 warningEl.className = 'hidden';
                 warningEl.innerHTML = '';
