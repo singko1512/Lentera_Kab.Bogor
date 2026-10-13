@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\ResolveActiveAuthGuard::class,
+        ]);
+
         $middleware->alias([
             'role.kesbangpol' => \App\Http\Middleware\EnsureKesbangpolRole::class,
             'role.dinas' => \App\Http\Middleware\EnsureDinasRole::class,

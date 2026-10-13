@@ -30,7 +30,7 @@
                         "on-tertiary-fixed-variant": "#41474e",
                         "surface-container-highest": "#d3e4fe",
                         "surface-container-lowest": "var(--tw-surface-container-lowest)",
-                        "surface-bright": "#f8f9ff",
+                        "surface-bright": "var(--tw-surface-bright)",
                         "inverse-on-surface": "#eaf1ff",
                         "surface-tint": "#3a5f94",
                         "on-primary-fixed-variant": "#1f477b",
@@ -131,30 +131,30 @@
 
     @if($latestLayanan || $latestApp)
     <!-- Card Status Pengajuan & Surat Resmi -->
-    <div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-primary/20 flex flex-col gap-4">
-        <h2 class="text-title-lg font-bold text-primary flex items-center gap-2 border-b border-outline-variant/30 pb-3">
-            <span class="material-symbols-outlined text-primary">assignment</span>
+    <div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-primary/20 dark:border-primary/30 flex flex-col gap-4">
+        <h2 class="text-title-lg font-bold text-primary dark:text-blue-400 flex items-center gap-2 border-b border-outline-variant/30 pb-3">
+            <span class="material-symbols-outlined text-primary dark:text-blue-400">assignment</span>
             Status Pengajuan & Surat Resmi
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @if($latestLayanan)
-            <div class="p-4 rounded-xl border border-outline-variant/40 bg-surface-bright flex flex-col gap-2">
+            <div class="p-4 rounded-xl border border-primary/30 bg-surface-container-low flex flex-col gap-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-on-surface-variant uppercase">Rekomendasi Kesbangpol</span>
+                    <span class="text-xs font-bold text-primary dark:text-blue-400 uppercase">Rekomendasi Kesbangpol</span>
                     <span class="px-3 py-1 text-xs font-semibold rounded-full text-white" style="background-color: {{ $latestLayanan->statusMaster->warna ?? '#3A5F94' }}">
                         {{ $latestLayanan->statusMaster->nama ?? 'Menunggu' }}
                     </span>
                 </div>
                 <p class="text-sm font-semibold text-on-surface mt-1">{{ $latestLayanan->jenisLayanan->nama ?? 'Layanan Rekomendasi' }}</p>
-                <p class="text-xs text-on-surface-variant">Lokasi/Tujuan: <strong>{{ $latestLayanan->tempat_kegiatan }}</strong></p>
+                <p class="text-xs text-on-surface-variant">Lokasi/Tujuan: <strong class="text-on-surface">{{ $latestLayanan->tempat_kegiatan }}</strong></p>
 
                 @if($latestLayanan->file_surat_final)
-                <a href="{{ route('surat.pdf', ['id' => $latestLayanan->id, 'download' => 1]) }}" download class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                <a href="{{ route('surat.pdf', ['id' => $latestLayanan->id, 'download' => 1]) }}" download class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[16px]">download</span> Unduh Surat Rekomendasi (PDF)
                 </a>
                 @elseif($latestLayanan->statusMaster && in_array($latestLayanan->statusMaster->kode, ['disetujui', 'selesai', 'diterima', 'aktif']))
-                <div class="mt-2 inline-flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold rounded-lg">
+                <div class="mt-2 inline-flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 text-xs font-semibold rounded-lg">
                     <span class="material-symbols-outlined text-[16px]">hourglass_top</span> Surat sedang diproses/ menunggu penandatanganan
                 </div>
                 @endif
@@ -164,13 +164,13 @@
             @if($latestApp)
             <div class="p-4 rounded-xl border border-secondary/30 bg-surface-container-low flex flex-col gap-2">
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-secondary uppercase">Verifikasi Dinas Tujuan</span>
+                    <span class="text-xs font-bold text-secondary dark:text-blue-400 uppercase">Verifikasi Dinas Tujuan</span>
                     <span class="px-3 py-1 text-xs font-semibold rounded-full text-white {{ $latestApp->status == 'diterima' || $latestApp->status == 'aktif' ? 'bg-green-600' : ($latestApp->status == 'ditolak' ? 'bg-red-600' : 'bg-amber-600') }}">
                         {{ ucfirst($latestApp->status) }}
                     </span>
                 </div>
                 <p class="text-sm font-semibold text-on-surface mt-1">{{ $latestApp->dinas->name ?? 'Dinas Tujuan' }}</p>
-                <p class="text-xs text-on-surface-variant">Penempatan Bidang: <strong class="text-secondary">{{ $latestApp->bidang->name ?? 'Belum ditentukan' }}</strong></p>
+                <p class="text-xs text-on-surface-variant">Penempatan Bidang: <strong class="text-secondary dark:text-blue-400">{{ $latestApp->bidang->name ?? 'Belum ditentukan' }}</strong></p>
 
                 @if($latestApp->file_surat_penerimaan)
                 <a href="{{ $latestApp->permohonan_layanan_id ? route('berkas.preview', [$latestApp->permohonan_layanan_id, 'file_surat_penerimaan']) : '#' }}" target="_blank" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors">
@@ -179,7 +179,7 @@
                 @endif
 
                 @if($latestApp->status == 'diterima' || $latestApp->status == 'aktif')
-                <a href="{{ route('peserta.dashboard') }}" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-white text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity">
+                <a href="{{ route('peserta.dashboard') }}" class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors">
                     <span class="material-symbols-outlined text-[16px]">how_to_reg</span> Masuk ke Halaman Absensi
                 </a>
                 @endif
@@ -284,8 +284,8 @@
 
             <!-- Submit Button -->
             <div class="flex justify-end gap-3 mt-4">
-                <a href="{{ route('home') }}" class="px-6 py-3 border border-outline text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors">Batal</a>
-                <button type="submit" class="px-8 py-3 bg-secondary text-on-secondary font-label-md text-label-md rounded-lg hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm font-semibold">Simpan Perubahan</button>
+                <a href="{{ route('home') }}" class="px-6 py-3 border border-outline-variant text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors">Batal</a>
+                <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md rounded-lg transition-colors shadow-sm font-semibold">Simpan Perubahan</button>
             </div>
         </form>
     </div>

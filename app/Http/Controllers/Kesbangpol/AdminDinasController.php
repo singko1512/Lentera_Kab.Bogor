@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Kesbangpol;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Dinas;
+use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,7 +16,7 @@ class AdminDinasController extends Controller
     {
         $search = $request->input('search');
 
-        $query = Dinas::with(['users' => function($q) {
+        $query = Dinas::with(['admins' => function($q) {
             $q->where('role', 'dinas');
         }, 'bidang'])->orderBy('name', 'asc');
 
@@ -23,7 +24,7 @@ class AdminDinasController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhereHas('users', function($u) use ($search) {
+                  ->orWhereHas('admins', function($u) use ($search) {
                       $u->where('email', 'LIKE', "%{$search}%");
                   });
             });
@@ -32,7 +33,7 @@ class AdminDinasController extends Controller
         $dinasList = $query->paginate(12)->withQueryString();
 
         $totalDinas = Dinas::count();
-        $totalAkun = User::where('role', 'dinas')->count();
+        $totalAkun = Admin::where('role', 'dinas')->count();
         $totalBidang = \App\Models\Bidang::count();
 
         return view('pelayanan.kesbangpol.dinas.index', compact(
@@ -48,7 +49,7 @@ class AdminDinasController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:admins,email|unique:users,email',
             'password' => 'required|string|min:6',
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
@@ -82,15 +83,14 @@ class AdminDinasController extends Controller
             'is_kesbangpol' => stripos($request->name, 'KESATUAN BANGSA DAN POLITIK') !== false,
         ]);
 
-        // 2. Buat record User untuk Dinas
-        User::create([
+        // 2. Buat record Admin untuk Dinas di tabel admins
+        Admin::create([
             'name' => 'Admin ' . $dinas->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'dinas',
             'dinas_id' => $dinas->id,
-            'status_akun' => 'active',
-            'email_verified_at' => now(),
+            'status_akun' => 'aktif',
         ]);
 
         return redirect()->route('kesbangpol.dinas.index')
@@ -100,13 +100,13 @@ class AdminDinasController extends Controller
     public function update(Request $request, $id)
     {
         $dinas = Dinas::findOrFail($id);
-        $user = User::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
+        $admin = Admin::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
 
-        $userId = $user ? $user->id : null;
+        $adminId = $admin ? $admin->id : null;
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $userId,
+            'email' => 'required|email|unique:admins,email,' . $adminId . '|unique:users,email',
             'password' => 'nullable|string|min:6',
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
@@ -135,28 +135,27 @@ class AdminDinasController extends Controller
             'kop_surat' => $kopSuratPath,
         ]);
 
-        if ($user) {
-            $userData = [
+        if ($admin) {
+            $adminData = [
                 'name' => 'Admin ' . $dinas->name,
                 'email' => $request->email,
             ];
 
             if (!empty($request->password)) {
-                $userData['password'] = Hash::make($request->password);
+                $adminData['password'] = Hash::make($request->password);
             }
 
-            $user->update($userData);
+            $admin->update($adminData);
         } else {
-            // Buat jika akun user belum ada sebelumnya
+            // Buat jika akun admin dinas belum ada sebelumnya
             $plainPass = $request->password ?: Str::password(12);
-            User::create([
+            Admin::create([
                 'name' => 'Admin ' . $dinas->name,
                 'email' => $request->email,
                 'password' => Hash::make($plainPass),
                 'role' => 'dinas',
                 'dinas_id' => $dinas->id,
-                'status_akun' => 'active',
-                'email_verified_at' => now(),
+                'status_akun' => 'aktif',
             ]);
         }
 
@@ -167,11 +166,11 @@ class AdminDinasController extends Controller
     public function resetPassword(Request $request, $id)
     {
         $dinas = Dinas::findOrFail($id);
-        $user = User::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
+        $admin = Admin::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
 
-        if ($user) {
+        if ($admin) {
             $newPassword = Str::password(12);
-            $user->update([
+            $admin->update([
                 'password' => Hash::make($newPassword)
             ]);
             return redirect()->route('kesbangpol.dinas.index')
@@ -179,7 +178,7 @@ class AdminDinasController extends Controller
         }
 
         return redirect()->route('kesbangpol.dinas.index')
-            ->with('error', 'Akun user untuk dinas tersebut tidak ditemukan.');
+            ->with('error', 'Akun admin untuk dinas tersebut tidak ditemukan.');
     }
 
     public function destroy($id)
@@ -187,8 +186,9 @@ class AdminDinasController extends Controller
         $dinas = Dinas::findOrFail($id);
         $dinasName = $dinas->name;
 
-        // Delete associated users and bidang
-        User::where('dinas_id', $dinas->id)->delete();
+        // Delete associated admin accounts and bidang
+        Admin::where('dinas_id', $dinas->id)->delete();
+        User::where('dinas_id', $dinas->id)->update(['dinas_id' => null]);
         \App\Models\Bidang::where('dinas_id', $dinas->id)->delete();
         $dinas->delete();
 

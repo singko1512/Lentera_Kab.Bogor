@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Dinas;
 use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
@@ -19,8 +20,8 @@ class AdminSeeder extends Seeder
         $passwordPlain = $seedPassword ?: 'AdminLenteraBogor#2026!';
         $defaultPassword = Hash::make($passwordPlain);
 
-        // 1. Setup Super Admin
-        $superadmin = User::updateOrCreate(
+        // 1. Setup Super Admin di tabel admins
+        $superadmin = Admin::updateOrCreate(
             ['username' => 'superadmin'],
             [
                 'email' => 'superadmin@lentera.com',
@@ -32,14 +33,27 @@ class AdminSeeder extends Seeder
         );
         $this->command->info("Super Admin ID: " . $superadmin->id . " | Username: 'superadmin'");
 
-        // 2. Setup Akun Kesbangpol
+        // Setup Administrator di tabel admins
+        $admin = Admin::updateOrCreate(
+            ['username' => 'admin'],
+            [
+                'email' => 'admin@lentera.com',
+                'name' => 'Administrator Lentera',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'status_akun' => 'aktif',
+            ]
+        );
+        $this->command->info("Admin ID: " . $admin->id . " | Username: 'admin'");
+
+        // 2. Setup Akun Kesbangpol di tabel admins
         $dinasKesbangpol = Dinas::firstOrCreate(
             ['name' => 'BADAN KESATUAN BANGSA DAN POLITIK'],
             ['is_kesbangpol' => true]
         );
         $dinasKesbangpol->update(['is_kesbangpol' => true]);
 
-        $kesbangpol = User::updateOrCreate(
+        $kesbangpol = Admin::updateOrCreate(
             ['email' => 'kesbangpol@lentera.com'],
             [
                 'username' => 'kesbangpol',
@@ -51,19 +65,19 @@ class AdminSeeder extends Seeder
             ]
         );
         // Sinkronkan akun kesbangpol@dinas.com jika sudah ada
-        User::where('email', 'kesbangpol@dinas.com')->update([
+        Admin::where('email', 'kesbangpol@dinas.com')->update([
             'password' => $defaultPassword,
             'dinas_id' => $dinasKesbangpol->id,
             'status_akun' => 'aktif',
         ]);
         $this->command->info("Kesbangpol ID: " . $kesbangpol->id . " | Username: 'kesbangpol'");
 
-        // 3. Setup Akun Dinas (Diskominfo)
+        // 3. Setup Akun Dinas (Diskominfo) di tabel admins
         $dinasDiskominfo = Dinas::firstOrCreate(
             ['name' => 'DINAS KOMUNIKASI DAN INFORMATIKA']
         );
 
-        $dinasDiskominfoUser = User::updateOrCreate(
+        $dinasDiskominfoUser = Admin::updateOrCreate(
             ['email' => 'diskominfo@lentera.com'],
             [
                 'username' => 'diskominfo',
@@ -76,7 +90,7 @@ class AdminSeeder extends Seeder
         );
 
         // Akun generic username 'dinas'
-        $dinasGeneric = User::updateOrCreate(
+        $dinasGeneric = Admin::updateOrCreate(
             ['username' => 'dinas'],
             [
                 'email' => 'dinas@lentera.com',
@@ -89,7 +103,7 @@ class AdminSeeder extends Seeder
         );
 
         // Sinkronkan akun diskominfo@dinas.com jika sudah ada
-        User::where('email', 'diskominfo@dinas.com')->update([
+        Admin::where('email', 'diskominfo@dinas.com')->update([
             'password' => $defaultPassword,
             'dinas_id' => $dinasDiskominfo->id,
             'status_akun' => 'aktif',

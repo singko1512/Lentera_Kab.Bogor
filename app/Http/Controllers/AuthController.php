@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,8 @@ class AuthController extends Controller
 {
     /**
      * Login terpusat dan aman:
-     * - Hanya mencocokkan email atau username persis
+     * - Memeriksa tabel admins terlebih dahulu untuk akun Admin/Superadmin
+     * - Memeriksa tabel users untuk akun Peserta/Dinas/Bidang
      * - Hash::check wajib
      * - Tanpa backdoor password atau fallback alias
      * - Regenerasi sesi saat berhasil
@@ -40,7 +42,34 @@ class AuthController extends Controller
 
         $cleanLogin = strtolower($loginInput);
 
-        // Hanya cari by email ATAU username persis
+        // 1. Cek autentikasi di tabel admins (Admin / Super Admin)
+        $admin = Admin::where('email', $cleanLogin)
+            ->orWhere('username', $cleanLogin)
+            ->first();
+
+        if ($admin && Hash::check($request->password, $admin->password)) {
+            if ($admin->status_akun === 'diblokir' || $admin->status_akun === 'nonaktif') {
+                return back()
+                    ->withInput($request->only('login', 'email', 'username'))
+                    ->with('error', 'Akun Administrator Anda telah dinonaktifkan.');
+            }
+
+            Auth::guard('admin')->login($admin, $request->boolean('remember'));
+            Auth::shouldUse('admin');
+            $request->session()->regenerate();
+
+            if ($admin->isDinas()) {
+                return redirect()->intended('/dinas/dashboard');
+            }
+
+            if ($admin->isBidang()) {
+                return redirect()->intended('/bidang/dashboard');
+            }
+
+            return redirect()->intended('/kesbangpol/dashboard');
+        }
+
+        // 2. Cek autentikasi di tabel users (Peserta, Dinas, Bidang)
         $user = User::where('email', $cleanLogin)
             ->orWhere('username', $cleanLogin)
             ->first();
@@ -67,7 +96,8 @@ class AuthController extends Controller
             }
         }
 
-        Auth::login($user, $request->boolean('remember'));
+        Auth::guard('web')->login($user, $request->boolean('remember'));
+        Auth::shouldUse('web');
         $request->session()->regenerate();
 
         if ($user->isKesbangpol() || $user->isAdmin()) {

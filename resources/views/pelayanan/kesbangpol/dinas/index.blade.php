@@ -128,7 +128,7 @@
                 <tbody class="divide-y divide-outline-variant/30 text-body-md text-on-surface">
                     @forelse($dinasList as $dinas)
                     @php
-                        $userAccount = $dinas->users->first();
+                        $userAccount = $dinas->admins->first() ?? $dinas->users->first();
                     @endphp
                     <tr class="hover:bg-primary/5 transition-colors">
                         <!-- Nama Dinas -->

@@ -45,6 +45,11 @@ class Dinas extends Model
         return $this->hasMany(User::class);
     }
 
+    public function admins(): HasMany
+    {
+        return $this->hasMany(Admin::class);
+    }
+
     public function bidang(): HasMany
     {
         return $this->hasMany(Bidang::class);

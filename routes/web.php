@@ -69,7 +69,8 @@ Route::get('/login', function (\Illuminate\Http\Request $request) {
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 
 Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $request) {
-    Auth::logout();
+    Auth::guard('web')->logout();
+    Auth::guard('admin')->logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
     return redirect('/login')->with('success', 'Anda telah berhasil keluar dari sistem.');

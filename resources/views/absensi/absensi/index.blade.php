@@ -1,369 +1,287 @@
 @extends('absensi.layouts.app')
 
-@section('title', 'Ruang Kerja Magang')
+@section('title', 'Absensi dan Laporan Harian')
 
 @section('styles')
 <style>
 :root {
-    --radius: 12px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 8px rgba(0,0,0,0.03);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --border-color: #e2e8f0;
+    --primary-blue: #2563eb;
+    --primary-blue-hover: #1d4ed8;
 }
 
-/* ── Page Layout ── */
-.workspace-header { padding: 1.25rem 0 0.5rem; }
-.workspace-header h5 { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin: 0; }
-.workspace-header span { font-size: 0.78rem; color: var(--text-muted); }
-
-/* ── Card Base ── */
-.ws-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
+/* ── Container & Header ── */
+.workspace-header h5 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
 }
-.ws-card-header {
-    padding: 0.9rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    background: #fafbff;
-    border-radius: var(--radius) var(--radius) 0 0;
+.workspace-header span {
+    font-size: 0.82rem;
+    color: #64748b;
+}
+
+/* ── Modern Card Base ── */
+.presensi-card, .stat-widget, .history-wrap {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
+    padding: 1.5rem;
+}
+
+.card-heading {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+.card-heading i {
+    color: var(--primary-blue);
+    font-size: 0.95rem;
+}
+
+/* ── Status Grid & Cards ── */
+.form-label-custom {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.55rem;
+    display: block;
+}
+
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+@media (max-width: 576px) {
+    .status-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.status-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    padding: 1rem 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+}
+.status-card:hover {
+    border-color: #93c5fd;
+    background: #f8faff;
+}
+.btn-check:checked + .status-card {
+    border: 2px solid var(--primary-blue) !important;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px var(--primary-blue);
+}
+.btn-check:disabled + .status-card {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    pointer-events: none;
+}
+
+.s-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+.s-icon-hadir { background: #d1fae5; color: #059669; }
+.s-icon-wfh { background: #dbeafe; color: var(--primary-blue); }
+.s-icon-sakit { background: #fee2e2; color: #ef4444; }
+.s-icon-izin { background: #fef3c7; color: #d97706; }
+
+.s-name {
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: #1e293b;
+}
+.s-desc {
+    font-size: 0.72rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* ── Location Section ── */
+.location-panel { display: none; }
+.location-panel.show { display: block; }
+
+.location-box {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}
+
+/* ── Camera Input Card ── */
+.camera-start-actions {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
 }
-.ws-card-header h6 {
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--dark);
-    margin: 0;
+.camera-panel {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #0f172a;
+    margin-top: 0.75rem;
 }
-.ws-card-body { padding: 1.25rem; }
-
-/* ── Project Overview Card ── */
-.project-overview-card {
-    background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 100%);
-    border: 1px solid rgba(17, 92, 185,0.15);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
-    box-shadow: var(--shadow-sm);
+.camera-panel video {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
 }
-.project-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-}
-.status-on-track { background: rgba(16,185,129,0.12); color: #047857; }
-.status-late { background: rgba(239,68,68,0.12); color: #dc2626; }
-.status-ahead { background: rgba(17, 92, 185,0.12); color: #1f477b; }
-.progress-bar-slim { height: 6px; border-radius: 999px; background: rgba(0,0,0,0.07); overflow: hidden; }
-.progress-fill { height: 100%; border-radius: inherit; transition: width 0.4s ease; }
-
-/* ── Active Task Card ── */
-.task-active-card {
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--primary) !important;
-    border-radius: var(--radius);
-    background: var(--white);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 1rem;
+.camera-preview {
+    display: none;
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    background: #ffffff;
 }
 
-/* ── Status Badges ── */
-.task-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-.task-badge-working { background: rgba(17, 92, 185,0.1); color: #1f477b; }
-.task-badge-review { background: rgba(245,158,11,0.12); color: #b45309; }
-.task-badge-revision { background: rgba(239,68,68,0.1); color: #dc2626; }
-
-/* ── Available Task Module Header ── */
-.module-header {
+/* ── Submit Button ── */
+.btn-submit-absen {
+    background: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.92rem;
+    width: 100%;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
+    justify-content: center;
+    gap: 0.5rem;
+    transition: background 0.2s;
 }
-.module-icon {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: rgba(17, 92, 185,0.08);
-    color: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem;
-    flex-shrink: 0;
-}
-.module-title { font-size: 0.88rem; font-weight: 700; color: var(--dark); }
-.module-bobot {
-    font-size: 0.68rem; font-weight: 700;
-    background: rgba(17, 92, 185,0.08);
-    color: var(--primary);
-    padding: 0.2rem 0.5rem;
-    border-radius: 999px;
+.btn-submit-absen:hover {
+    background: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
+    color: #ffffff;
 }
 
-/* ── Task Item Card ── */
-.task-item {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--white);
-    padding: 1rem;
-    height: 100%;
-    display: flex; flex-direction: column; justify-content: space-between;
-    transition: box-shadow 0.2s, transform 0.2s;
-}
-.task-item:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.task-item-title { font-size: 0.86rem; font-weight: 700; color: var(--dark); margin-bottom: 0.35rem; }
-.task-item-meta { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-
-/* ── Form Presensi ── */
-.presensi-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-}
-.status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.65rem; }
-@media (max-width: 480px) { .status-grid { grid-template-columns: 1fr 1fr; } }
-.status-card {
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    background: var(--white);
-    padding: 1rem 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; flex-direction: column;
-    align-items: flex-start;
-    height: 100%;
-}
-.status-card:hover { border-color: #c7d2fe; background: #f5f3ff; }
-.btn-check:checked + .status-card { border-color: var(--primary); background: rgba(17, 92, 185,0.04); box-shadow: 0 0 0 3px rgba(17, 92, 185,0.1); }
-.btn-check:disabled + .status-card { opacity: 0.5; cursor: not-allowed; background: #f8fafc; border-color: #e2e8f0; pointer-events: none; }
-.s-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; margin-bottom: 0.6rem; }
-.s-icon-hadir { background: rgba(0,184,148,0.1); color: #00b894; }
-.s-icon-wfh { background: rgba(17, 92, 185,0.1); color: #115cb9; }
-.s-icon-sakit { background: rgba(225,112,85,0.1); color: #e17055; }
-.s-icon-izin { background: rgba(253,203,110,0.15); color: #d97706; }
-.s-name { font-weight: 700; font-size: 0.85rem; color: var(--dark); }
-.s-desc { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
-
-/* ── Upload & Camera ── */
+/* ── Upload Zone ── */
 .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    padding: 1.5rem;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
     background: #fafbff;
 }
-.upload-zone:hover { border-color: var(--primary); background: rgba(17, 92, 185,0.02); }
+.upload-zone:hover { border-color: var(--primary-blue); background: rgba(37, 99, 235, 0.02); }
 .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.upload-preview { display: none; width: 100%; max-height: 200px; margin-top: 0.85rem; border-radius: 10px; object-fit: contain; }
-.file-name { display: none; margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--primary); }
-.camera-panel { display: none; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #0f172a; margin-top: 0.85rem; }
-.camera-panel video { display: block; width: 100%; max-height: 480px; height: 100%; object-fit: cover; }
-.camera-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem; background: #fff; border-top: 1px solid var(--border); }
-.camera-preview { display: none; width: 100%; max-height: 480px; height: 100%; object-fit: contain; background: #fff; }
-.camera-start-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 10px; background: #fff; margin-top: 0.85rem; }
-.location-panel { display: none; }
-.location-panel.show { display: block; }
-.location-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.6rem; }
-.location-pill { border-radius: 999px; background: rgba(17, 92, 185,0.08); color: var(--primary); font-size: 0.72rem; font-weight: 700; padding: 0.28rem 0.6rem; }
+.upload-preview { display: none; width: 100%; max-height: 180px; margin-top: 0.75rem; border-radius: 8px; object-fit: contain; }
+.file-name { display: none; margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--primary-blue); }
 
-/* ── Stats Widget ── */
-.stat-widget { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 1.25rem; }
-.stat-row { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; border-radius: 10px; margin-bottom: 0.4rem; }
-.stat-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; margin-right: 0.45rem; }
+/* ── Monthly Stats Widget ── */
+.pct-ring-bg { stroke: #e2e8f0; }
+.pct-ring-fill { stroke: var(--primary-blue); transition: stroke-dashoffset 0.4s ease; transform: rotate(-90deg); transform-origin: 50% 50%; }
+
+.stat-row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+    margin-bottom: 0.45rem;
+}
+.stat-row-item:last-child { margin-bottom: 0; }
+
+.stat-row-hadir { background: #f0fdf4; }
+.stat-row-wfh { background: #eff6ff; }
+.stat-row-sakit { background: #fef2f2; }
+.stat-row-izin { background: #fffbeb; }
+
+.pill-badge {
+    border-radius: 6px;
+    padding: 0.25rem 0.65rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+.pill-badge-hadir { background: #dcfce7; color: #15803d; }
+.pill-badge-wfh { background: #dbeafe; color: #1d4ed8; }
+.pill-badge-sakit { background: #fee2e2; color: #b91c1c; }
+.pill-badge-izin { background: #fef3c7; color: #b45309; }
 
 /* ── History Table ── */
-.history-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 2rem; }
+.history-wrap { margin-top: 1.5rem; }
 .history-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
-.history-table thead th { background: #f8fafc; color: var(--text-muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
-.history-table tbody td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.history-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.history-table tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
 .history-table tbody tr:last-child td { border-bottom: none; }
 .history-table tbody tr:hover { background: #fafbff; }
-.badge-status { display: inline-block; padding: 0.28em 0.65em; font-size: 0.68rem; font-weight: 700; border-radius: 7px; text-transform: uppercase; letter-spacing: 0.3px; }
-.badge-hadir { background: rgba(0,184,148,0.1); color: #00b894; }
-.badge-wfh { background: rgba(17, 92, 185,0.1); color: var(--primary); }
-.badge-sakit { background: rgba(225,112,85,0.1); color: #e17055; }
-.badge-izin { background: rgba(253,203,110,0.15); color: #d97706; }
-.attachment-link { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; font-weight: 600; color: var(--primary); text-decoration: none; }
-.attachment-thumb { width: 36px; height: 36px; border-radius: 7px; object-fit: cover; border: 1px solid var(--border); }
 
-/* ── Filter Bar ── */
-.filter-bar-wrap { padding: 1.25rem; background: #fafbff; border-bottom: 1px solid var(--border); }
-.filter-extra { display: none; }
-.filter-extra.show { display: block; }
-
-/* ── Focus Banner ── */
-.focus-banner { border: 1px solid #c7d2fe; border-left: 4px solid var(--primary) !important; background: #f5f3ff; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; }
-.focus-banner-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(17, 92, 185,0.12); color: var(--primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-/* ── Empty States ── */
-.empty-state-ws { text-align: center; padding: 2.5rem 1rem; }
-.empty-state-ws .empty-icon { width: 52px; height: 52px; border-radius: 14px; background: rgba(17, 92, 185,0.06); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.75rem; }
-.empty-state-ws h6 { font-weight: 700; color: var(--dark); margin-bottom: 0.3rem; font-size: 0.9rem; }
-.empty-state-ws p { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
-
-@media (min-width: 992px) { .border-start-lg { border-left: 1px solid var(--border) !important; } }
-
-/* SVG progress ring styling */
-.pct-ring-bg { stroke: #eef2f6; }
-.pct-ring-fill { stroke: var(--primary); transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.badge-status {
+    display: inline-block;
+    padding: 0.28em 0.65em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.badge-hadir { background: #dcfce7; color: #15803d; }
+.badge-wfh { background: #dbeafe; color: #1d4ed8; }
+.badge-sakit { background: #fee2e2; color: #b91c1c; }
+.badge-izin { background: #fef3c7; color: #b45309; }
+.attachment-thumb { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border-color); }
 </style>
 @endsection
 
 @section('content')
 <div class="container py-3">
     <!-- Workspace Header -->
-    <div class="workspace-header mb-3">
+    <div class="workspace-header mb-4">
         <h5>Absensi dan Laporan Harian</h5>
         <span>Catat kehadiran harian dan buat laporan kegiatan magang Anda secara rutin</span>
     </div>
 
-    <!-- 1. Project Overview or Project Selector (Top - Full Width) -->
-    @if ($selectedProject)
-        @php $project = $selectedProject; @endphp
-        <div class="project-overview-card">
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
-                <div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="project-status-badge status-on-track">
-                            <i class="fa-solid fa-circle-play me-1"></i> Proyek Aktif
-                        </span>
-                        @if (!$hasActiveTask)
-                            <div class="dropdown d-inline-block">
-                                <button class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2.5 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size:0.75rem;">
-                                    <i class="fa-solid fa-arrows-rotate me-1"></i> Ganti Proyek
-                                </button>
-                                <ul class="dropdown-menu shadow-sm border-0">
-                                    @if (isset($allActiveProjects) && $allActiveProjects->count() > 1)
-                                        <li class="dropdown-header small">Pilih Proyek Lain</li>
-                                        @foreach ($allActiveProjects as $pOption)
-                                            @if ($pOption->id !== $project->id)
-                                                <li>
-                                                    <a class="dropdown-item small" href="{{ route('absensi.index', ['project_id' => $pOption->id]) }}">
-                                                        <i class="fa-solid fa-folder me-1 text-primary"></i> {{ $pOption->nama }}
-                                                    </a>
-                                                </li>
-                                            @endif
-                                        @endforeach
-                                        <li><hr class="dropdown-divider"></li>
-                                    @endif
-                                    <li>
-                                        <a class="dropdown-item small text-danger" href="{{ route('absensi.index', ['reset_project' => 1]) }}">
-                                            <i class="fa-solid fa-rotate-left me-1"></i> Batalkan Pilihan
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        @else
-                            <span class="badge bg-light text-muted border rounded-pill py-1 px-2.5" style="font-size:0.75rem;" title="Batalkan tugas aktif pada 'Tugas Saya Hari Ini' untuk mengganti proyek">
-                                <i class="fa-solid fa-lock me-1"></i> Terkunci karena ada tugas aktif
-                            </span>
-                        @endif
-                    </div>
-                    <h4 class="fw-bold mt-2 mb-1 text-dark">{{ $project->nama }}</h4>
-                    <p class="text-muted small mb-0">
-                        <i class="fa-regular fa-calendar me-1"></i> Durasi: {{ $project->tanggal_mulai->translatedFormat('d M Y') }} — {{ $project->tanggal_selesai->translatedFormat('d M Y') }}
-                    </p>
-                </div>
-                <!-- Progress Ring SVG -->
-                <div class="d-flex align-items-center gap-3">
-                    <div style="width: 60px; height: 60px; position: relative;">
-                        <svg viewBox="0 0 36 36" style="width: 100%; height: 100%;">
-                            <circle class="pct-ring-bg" cx="18" cy="18" r="16" fill="none" stroke-width="3" />
-                            <circle class="pct-ring-fill" cx="18" cy="18" r="16" fill="none" stroke-width="3" stroke-dasharray="{{ $project->actual_progress }}, 100" />
-                        </svg>
-                        <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: var(--dark);">
-                            {{ $project->actual_progress }}%
-                        </div>
-                    </div>
-                    <div>
-                        <div class="small fw-bold text-dark">Progres Aktual</div>
-                        <div class="text-muted small">Berdasarkan modul selesai</div>
-                    </div>
-                </div>
-            </div>
-            @if ($project->kebutuhan)
-                <p class="text-muted small mb-3">{{ \Illuminate\Support\Str::limit($project->kebutuhan, 200) }}</p>
-            @endif
-            <div class="row g-3 align-items-center mt-2">
-                <div class="col-sm-6">
-                    <div class="d-flex justify-content-between mb-1 small">
-                        <span class="text-muted">Target Jadwal</span>
-                        <span class="fw-bold text-dark">{{ $project->planned_progress }}%</span>
-                    </div>
-                    <div class="progress-bar-slim">
-                        <div class="progress-fill" style="width: {{ $project->planned_progress }}%; background: #94a3b8;"></div>
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="d-flex justify-content-between mb-1 small">
-                        <span class="text-muted">Progres Pengerjaan</span>
-                        <span class="fw-bold text-primary">{{ $project->actual_progress }}%</span>
-                    </div>
-                    <div class="progress-bar-slim">
-                        <div class="progress-fill" style="width: {{ $project->actual_progress }}%; background: var(--primary);"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @elseif (isset($allActiveProjects) && $allActiveProjects->isNotEmpty())
-        <!-- Project Selector Card when no project has been selected yet -->
-        <div class="project-overview-card p-4" style="background: linear-gradient(135deg, rgba(17, 92, 185,0.06) 0%, rgba(255,255,255,1) 100%); border: 1.5px dashed rgba(17, 92, 185,0.35);">
-            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
-                <div>
-                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 fw-semibold mb-2">
-                        <i class="fa-solid fa-hand-pointer me-1"></i> Pilih Proyek Magang
-                    </span>
-                    <h5 class="fw-bold text-dark mb-1">Silakan Pilih Proyek Anda Terlebih Dahulu</h5>
-                    <p class="text-muted small mb-0">Pilih salah satu proyek aktif berikut untuk menampilkan modul pengerjaan dan tugas yang tersedia.</p>
-                </div>
-                <div class="w-100 w-md-auto" style="min-width: 280px; max-width: 400px;">
-                    <form action="{{ route('absensi.index') }}" method="GET" class="d-flex gap-2">
-                        <select name="project_id" class="form-select form-control-admin" required>
-                            <option value="" disabled selected>-- Pilih Proyek Aktif --</option>
-                            @foreach ($allActiveProjects as $pOption)
-                                <option value="{{ $pOption->id }}">
-                                    {{ $pOption->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <button type="submit" class="btn btn-primary rounded-3 px-3.5 d-flex align-items-center gap-1.5" title="Terapkan Pilihan Proyek">
-                            <i class="fa-solid fa-check"></i>
-                            <span class="d-none d-sm-inline small fw-semibold">Pilih</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    <!-- 2. Workspace Grid (Middle - Two Column Layout) -->
+    <!-- Layout Grid -->
     <div class="row g-4">
-        <!-- Kolom Kiri -->
+        <!-- Kolom Kiri: Form Absensi -->
         <div class="col-lg-8">
 
 
@@ -461,7 +379,10 @@
                     </form>
                 @else
                     <!-- Check-in form -->
-                    <h6 class="fw-bold mb-3"><i class="fa-solid fa-right-to-bracket me-2 text-primary"></i>Absen Masuk</h6>
+                    <div class="card-heading">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Absen Masuk</span>
+                    </div>
                     
                     @php
                         $isHadirWfhDisabled = false;
@@ -473,21 +394,15 @@
                         <input type="hidden" name="lokasi_longitude" id="lokasi_longitude" value="{{ old('lokasi_longitude') }}">
                         <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="{{ old('lokasi_akurasi') }}">
 
-                        @if ($hasActiveTask)
-                            @php $activeTaskId = $myTodayTasks->first() ? $myTodayTasks->first()->id : null; @endphp
-                            <input type="hidden" name="task_id" value="{{ $activeTaskId }}">
-                        @endif
-
                         <!-- Status Absensi Radios -->
                         <div class="mb-3">
-                            <label class="form-label-admin">Status Absensi Masuk <span class="text-danger">*</span></label>
+                            <label class="form-label-custom">Status Absensi Masuk <span class="text-danger">*</span></label>
                             <div class="status-grid">
-                                
                                 <!-- Hadir -->
                                 <div>
                                     <input type="radio" class="btn-check" name="status" id="status_hadir" value="hadir" {{ old('status', $isHadirWfhDisabled ? 'sakit' : 'hadir') === 'hadir' ? 'checked' : '' }} {{ $isHadirWfhDisabled ? 'disabled' : '' }} autocomplete="off">
                                     <label class="status-card" for="status_hadir">
-                                        <div class="s-icon s-icon-hadir"><i class="fa-solid fa-building"></i></div>
+                                        <div class="s-icon s-icon-hadir"><i class="fa-solid fa-store"></i></div>
                                         <div class="s-name">Hadir</div>
                                         <div class="s-desc">Di kantor</div>
                                     </label>
@@ -507,7 +422,7 @@
                                 <div>
                                     <input type="radio" class="btn-check" name="status" id="status_sakit" value="sakit" {{ old('status', $isHadirWfhDisabled ? 'sakit' : '') === 'sakit' ? 'checked' : '' }} autocomplete="off">
                                     <label class="status-card" for="status_sakit">
-                                        <div class="s-icon s-icon-sakit"><i class="fa-solid fa-face-tired"></i></div>
+                                        <div class="s-icon s-icon-sakit"><i class="fa-solid fa-face-frown"></i></div>
                                         <div class="s-name">Sakit</div>
                                         <div class="s-desc">Izin medis</div>
                                     </label>
@@ -517,7 +432,7 @@
                                 <div>
                                     <input type="radio" class="btn-check" name="status" id="status_izin" value="izin" {{ old('status') === 'izin' ? 'checked' : '' }} autocomplete="off">
                                     <label class="status-card" for="status_izin">
-                                        <div class="s-icon s-icon-izin"><i class="fa-solid fa-file-lines"></i></div>
+                                        <div class="s-icon s-icon-izin"><i class="fa-regular fa-file-lines"></i></div>
                                         <div class="s-name">Izin</div>
                                         <div class="s-desc">Keperluan lain</div>
                                     </label>
@@ -527,37 +442,37 @@
 
                         <!-- Location Locker Section -->
                         <div class="mb-3 location-panel show" id="location_section">
-                            <label class="form-label-admin" id="location_label">Lokasi WFH / Kantor <span class="text-danger">*</span></label>
-                            <div class="location-status p-3 border rounded-3 bg-light d-flex gap-3 align-items-start">
-                                <i class="fa-solid fa-location-dot text-primary mt-1" style="font-size:1.3rem;"></i>
-                                <div class="w-100">
-                                    <div id="location_status" class="small fw-semibold text-dark">Klik tombol di bawah untuk mengunci lokasi.</div>
-                                    <div id="location_address" class="small text-muted mt-1" style="display:none;"></div>
-                                    <div class="location-meta mt-2 d-flex flex-wrap gap-1 align-items-center" style="display:none;">
-                                        <span class="badge bg-secondary-subtle text-dark" id="location_accuracy" style="display:none;">Akurasi: -</span>
-                                        <span class="badge bg-secondary-subtle text-dark" id="location_coordinates" style="display:none;">Koordinat: -</span>
-                                        <a href="#" target="_blank" id="location_map_link" class="badge bg-primary-subtle text-primary text-decoration-none" style="display:none;">
-                                            <i class="fa-solid fa-map-location-dot me-1"></i> Buka Google Maps
-                                        </a>
-                                    </div>
-                                    <div class="mt-2 d-flex align-items-center gap-2">
-                                        <button type="button" class="btn btn-outline-primary btn-sm rounded-3" id="lock_location">
-                                            <i class="fa-solid fa-location-dot me-1"></i> Kunci Lokasi
-                                        </button>
-                                        <span id="location_spinner" class="spinner-border spinner-border-sm text-primary" style="display:none;" role="status"></span>
-                                    </div>
+                            <label class="form-label-custom" id="location_label">Lokasi Hadir (Kantor) <span class="text-danger">*</span></label>
+                            <div class="location-box d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-location-dot" style="color: #2563eb; font-size: 1.1rem;"></i>
+                                    <span id="location_status" class="small fw-semibold text-dark">Klik Kunci Lokasi untuk memverifikasi posisi Anda di kantor.</span>
+                                    <span id="location_spinner" class="spinner-border spinner-border-sm text-primary" style="display:none;" role="status"></span>
+                                </div>
+                                <div id="location_address" class="small text-muted align-items-start gap-1" style="display:none; color: #334155 !important;"></div>
+                                <div class="location-meta d-flex flex-wrap gap-1 align-items-center" style="display:none;">
+                                    <span class="badge bg-secondary-subtle text-dark" id="location_accuracy" style="display:none;">Akurasi: -</span>
+                                    <span class="badge bg-secondary-subtle text-dark" id="location_coordinates" style="display:none;">Koordinat: -</span>
+                                    <a href="#" target="_blank" id="location_map_link" class="badge bg-primary-subtle text-primary text-decoration-none" style="display:none;">
+                                        <i class="fa-solid fa-map-location-dot me-1"></i> Buka Google Maps
+                                    </a>
+                                </div>
+                                <div class="pt-1">
+                                    <button type="button" class="btn btn-outline-primary btn-sm fw-semibold d-inline-flex align-items-center gap-1.5" id="lock_location" style="border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; background: #fff;">
+                                        <i class="fa-solid fa-location-dot"></i> Kunci Lokasi
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Camera Capture Section -->
                         <div class="mb-3" id="camera_section">
-                            <label class="form-label-admin" id="camera_label">Foto Kamera <span class="text-danger">*</span></label>
+                            <label class="form-label-custom" id="camera_label">Foto Kamera <span class="text-danger">*</span></label>
                             <input type="file" name="foto_kamera" id="foto_kamera" accept="image/*" class="d-none">
                             <div class="camera-start-actions" id="camera_start_actions">
-                                <span class="camera-message small">Nyalakan kamera lalu ambil foto diri untuk bukti.</span>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="start_camera">
-                                    <i class="fa-solid fa-video me-1"></i> Kamera
+                                <span class="camera-message small text-muted" id="camera_start_message" style="font-size: 0.84rem;">Nyalakan kamera lalu ambil foto diri untuk bukti.</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1.5" id="start_camera" style="border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; color: #475569; border-color: #cbd5e1; background: #f8fafc;">
+                                    <i class="fa-solid fa-video"></i> Kamera
                                 </button>
                             </div>
                             <div class="camera-panel" id="camera_panel" style="display: none;">
@@ -566,7 +481,7 @@
                                 <canvas id="camera_canvas" class="d-none"></canvas>
                                 <div class="camera-actions p-2 bg-light border-top d-flex justify-content-between align-items-center">
                                     <span class="camera-message small text-muted" id="camera_message">Kamera Aktif</span>
-                                    <button type="button" class="btn btn-primary btn-sm rounded-3" id="capture_photo">
+                                    <button type="button" class="btn btn-primary btn-sm rounded-2 px-3 fw-semibold" id="capture_photo" style="background: #2563eb; border-color: #2563eb;">
                                         <i class="fa-solid fa-camera me-1"></i> Ambil Foto
                                     </button>
                                 </div>
@@ -575,35 +490,34 @@
 
                         <!-- Upload File (for Sakit / Izin) -->
                         <div class="mb-3" id="photo_section" style="display: none;">
-                            <label id="foto_label" class="form-label-admin">Surat Keterangan / Lampiran</label>
-                            <div class="upload-zone p-3 border text-center rounded-3 bg-light">
+                            <label id="foto_label" class="form-label-custom">Surat Keterangan / Lampiran</label>
+                            <div class="upload-zone p-3">
                                 <i class="fa-solid fa-cloud-arrow-up text-muted d-block mb-1" style="font-size: 1.5rem;"></i>
                                 <div class="small fw-semibold text-dark" id="upload_text">Klik untuk unggah berkas</div>
                                 <input type="file" name="foto" id="foto" accept="image/*,.pdf">
                                 <div class="file-name text-primary small mt-1" id="file_name" style="display: none;">
                                     <i class="fa-solid fa-check-circle me-1"></i><span id="fname"></span>
                                 </div>
-                                <img src="" class="upload-preview mt-2 w-100 rounded-3 border" id="foto_preview" style="display: none; max-height: 180px; object-fit: contain;">
+                                <img src="" class="upload-preview" id="foto_preview" style="display: none;">
                             </div>
                         </div>
 
                         <!-- Laporan / Alasan (Izin / Sakit) -->
                         <div class="mb-3" id="laporan_section" style="display: none;">
-                            <label for="laporan" id="laporan_label" class="form-label-admin">Catatan/Alasan <span class="text-danger">*</span></label>
-                            <textarea name="keterangan" id="laporan" rows="2" class="form-control form-control-admin w-100" placeholder="Rincian alasan atau keterangan tambahan...">{{ old('keterangan') }}</textarea>
+                            <label for="laporan" id="laporan_label" class="form-label-custom">Catatan/Alasan <span class="text-danger">*</span></label>
+                            <textarea name="keterangan" id="laporan" rows="2" class="form-control w-100" style="border-radius: 10px; border-color: #cbd5e1; font-size: 0.88rem;" placeholder="Rincian alasan atau keterangan tambahan...">{{ old('keterangan') }}</textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 py-2.5 rounded-3">
-                            <i class="fa-solid fa-paper-plane me-1"></i> Kirim Absen Masuk
+                        <button type="submit" class="btn btn-submit-absen mt-3">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Absen Masuk
                         </button>
                     </form>
                 @endif
             </div>
         </div>
 
-        <!-- Kolom Kanan -->
+        <!-- Kolom Kanan: Kehadiran Bulanan -->
         <div class="col-lg-4">
-            <!-- Ringkasan Kehadiran -->
             @if(auth()->user()->status_akun == 'diblokir')
             <div class="stat-widget h-100 d-flex flex-column align-items-center justify-content-center text-center py-5">
                 <i class="fa-solid fa-lock text-danger mb-3" style="font-size:2.5rem;"></i>
@@ -612,37 +526,52 @@
             </div>
             @else
             <div class="stat-widget h-100">
-                <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Kehadiran Bulanan</h6>
+                <div class="card-heading">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Kehadiran Bulanan</span>
+                </div>
                 
-                <div class="d-flex align-items-center justify-content-center mb-4">
-                    <div style="width: 120px; height: 120px; position: relative;">
+                <div class="d-flex align-items-center justify-content-center my-4">
+                    <div style="width: 125px; height: 125px; position: relative;">
                         <svg viewBox="0 0 36 36" style="width: 100%; height: 100%;">
-                            <circle class="pct-ring-bg" cx="18" cy="18" r="16" fill="none" stroke-width="3" />
-                            <circle class="pct-ring-fill" cx="18" cy="18" r="16" fill="none" stroke-width="3" stroke-dasharray="{{ $stats['persentase'] }}, 100" />
+                            <circle class="pct-ring-bg" cx="18" cy="18" r="16" fill="none" stroke-width="3.2" />
+                            <circle class="pct-ring-fill" cx="18" cy="18" r="16" fill="none" stroke-width="3.2" stroke-dasharray="{{ $stats['persentase'] }}, 100" />
                         </svg>
                         <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                            <span style="font-size: 1.3rem; font-weight: 800; color: var(--dark); line-height: 1;">{{ $stats['persentase'] }}%</span>
-                            <span class="text-muted" style="font-size: 0.65rem;">Kehadiran</span>
+                            <span style="font-size: 1.45rem; font-weight: 800; color: #0f172a; line-height: 1;">{{ $stats['persentase'] }}%</span>
+                            <span class="text-muted" style="font-size: 0.72rem; margin-top: 4px;">Kehadiran</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="stat-rows mt-2">
-                    <div class="stat-row" style="background: rgba(0, 184, 148, 0.05);">
-                        <span class="small fw-semibold"><span class="stat-dot" style="background:#00b894;"></span>Hadir</span>
-                        <span class="badge bg-success-subtle text-success">{{ $stats['hadir'] }} hari</span>
+                <div class="stat-rows mt-3">
+                    <div class="stat-row-item stat-row-hadir">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                            <span class="fw-semibold text-dark" style="font-size: 0.84rem;">Hadir</span>
+                        </div>
+                        <span class="pill-badge pill-badge-hadir">{{ $stats['hadir'] }} hari</span>
                     </div>
-                    <div class="stat-row" style="background: rgba(17, 92, 185, 0.05);">
-                        <span class="small fw-semibold"><span class="stat-dot" style="background:var(--primary);"></span>WFH</span>
-                        <span class="badge bg-primary-subtle text-primary">{{ $stats['wfh'] }} hari</span>
+                    <div class="stat-row-item stat-row-wfh">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; display: inline-block;"></span>
+                            <span class="fw-semibold text-dark" style="font-size: 0.84rem;">WFH</span>
+                        </div>
+                        <span class="pill-badge pill-badge-wfh">{{ $stats['wfh'] }} hari</span>
                     </div>
-                    <div class="stat-row" style="background: rgba(225, 112, 85, 0.05);">
-                        <span class="small fw-semibold"><span class="stat-dot" style="background:#e17055;"></span>Sakit</span>
-                        <span class="badge bg-danger-subtle text-danger">{{ $stats['sakit'] }} hari</span>
+                    <div class="stat-row-item stat-row-sakit">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                            <span class="fw-semibold text-dark" style="font-size: 0.84rem;">Sakit</span>
+                        </div>
+                        <span class="pill-badge pill-badge-sakit">{{ $stats['sakit'] }} hari</span>
                     </div>
-                    <div class="stat-row" style="background: rgba(253, 203, 110, 0.08);">
-                        <span class="small fw-semibold"><span class="stat-dot" style="background:#fdcb6e;"></span>Izin</span>
-                        <span class="badge bg-warning-subtle text-warning">{{ $stats['izin'] }} hari</span>
+                    <div class="stat-row-item stat-row-izin">
+                        <div class="d-flex align-items-center gap-2">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                            <span class="fw-semibold text-dark" style="font-size: 0.84rem;">Izin</span>
+                        </div>
+                        <span class="pill-badge pill-badge-izin">{{ $stats['izin'] }} hari</span>
                     </div>
                 </div>
             </div>
@@ -650,12 +579,15 @@
         </div>
     </div> <!-- /row -->
 
-    <!-- Riwayat Presensi (Bottom - Full Width) -->
-    <div class="history-wrap mt-4">
-        <div class="ws-card-header">
-            <h6><i class="fa-solid fa-clock-rotate-left me-2" style="color:var(--primary);"></i>Riwayat Kehadiran</h6>
+    <!-- Riwayat Kehadiran (Full Width Bottom) -->
+    <div class="history-wrap">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="card-heading mb-0">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Riwayat Kehadiran</span>
+            </div>
             @if(auth()->user()->status_akun != 'diblokir')
-            <span class="badge bg-light text-dark border">{{ $absensi->count() }} entri</span>
+            <span class="badge border bg-white" style="border-color: #e2e8f0 !important; color: #334155; border-radius: 6px; padding: 4px 10px; font-size: 0.75rem; font-weight: 600;">{{ $absensi->count() }} entri</span>
             @endif
         </div>
         
@@ -669,14 +601,14 @@
             </div>
         @elseif ($absensi->isEmpty())
             <div class="text-center py-5">
-                <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px; height:56px; background:rgba(17, 92, 185,0.06);">
-                    <i class="fa-solid fa-calendar-xmark text-primary" style="font-size:1.3rem;"></i>
+                <div class="d-inline-flex align-items-center justify-content-center mb-3" style="width:52px; height:52px; border-radius: 12px; background:#eff6ff;">
+                    <i class="fa-solid fa-calendar-xmark text-primary" style="font-size:1.35rem;"></i>
                 </div>
-                <h6 class="fw-bold">Belum ada riwayat presensi</h6>
-                <p class="text-muted small">Catatan kehadiran Anda akan muncul di sini setelah melakukan absen masuk.</p>
+                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.95rem;">Belum ada riwayat presensi</h6>
+                <p class="text-muted small mb-0" style="font-size: 0.82rem;">Catatan kehadiran Anda akan muncul di sini setelah melakukan absen masuk.</p>
             </div>
         @else
-            <div class="table-responsive">
+            <div class="table-responsive mt-2">
                 <table class="history-table w-100">
                     <thead>
                         <tr>
@@ -691,10 +623,8 @@
                         @foreach ($absensi as $rec)
                             <tr>
                                 <td>
-                                    <div class="fw-semibold">{{ \Carbon\Carbon::parse($rec->tanggal)->translatedFormat('d M Y') }}</div>
-                                    <div class="text-muted" style="font-size:0.75rem;">
-                                        Masuk: {{ $rec->jam_masuk ?? '-' }} | Pulang: {{ $rec->jam_pulang ?? '-' }}
-                                    </div>
+                                    <div class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($rec->tanggal)->translatedFormat('d M Y') }}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">{{ $rec->created_at->format('H:i') }} WIB</div>
                                 </td>
                                 <td>
                                     <span class="badge-status badge-{{ $rec->status }}">
@@ -702,7 +632,8 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-medium text-dark">{{ $rec->jam_masuk ?? '-' }}</span>
                                         @if ($rec->foto_kamera)
                                             <a href="{{ route('absensi.kamera', $rec) }}" target="_blank">
                                                 <img src="{{ route('absensi.kamera', $rec) }}" class="attachment-thumb" title="Foto Kamera">
@@ -717,7 +648,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-medium text-dark">{{ $rec->jam_pulang ?? '-' }}</span>
                                         @if ($rec->foto_pulang)
                                             <a href="{{ asset($rec->foto_pulang) }}" target="_blank">
                                                 <img src="{{ asset($rec->foto_pulang) }}" class="attachment-thumb" title="Foto Jam Pulang">
@@ -807,8 +739,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (resp.ok) {
                 const data = await resp.json();
                 if (data && data.display_name) {
-                    locationAddress.innerHTML = `<i class="fa-solid fa-map-pin text-danger me-1"></i> <span class="fw-medium text-dark">${data.display_name}</span>`;
-                    locationAddress.style.display = 'block';
+                    locationAddress.innerHTML = `<i class="fa-solid fa-map-pin text-danger mt-0.5 flex-shrink-0" style="font-size: 0.82rem;"></i> <span class="fw-normal text-secondary" style="font-size: 0.82rem; line-height: 1.45;">${data.display_name}</span>`;
+                    locationAddress.style.display = 'flex';
                 }
             }
         } catch (e) {

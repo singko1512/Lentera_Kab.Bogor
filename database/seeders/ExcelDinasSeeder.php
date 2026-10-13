@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Dinas;
 use App\Models\Bidang;
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -36,11 +36,11 @@ class ExcelDinasSeeder extends Seeder
                 $dinas->update(['is_kesbangpol' => true]);
             }
 
-            // Buat Akun Dinas
+            // Buat Akun Dinas di tabel admins
             $shortName = $this->getDinasAcronym($dinasName);
             $dinasEmail = $shortName . '@dinas.com';
 
-            User::firstOrCreate(
+            Admin::firstOrCreate(
                 ['email' => $dinasEmail],
                 [
                     'name' => 'Admin ' . Dinas::formatSingkatan($dinasName),

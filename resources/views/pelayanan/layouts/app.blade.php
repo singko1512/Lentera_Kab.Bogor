@@ -44,6 +44,7 @@
             --tw-surface-container: #152d4b;
             --tw-surface-variant: #1f477b;
             --tw-outline-variant: #3e5066;
+            --tw-surface-bright: #0f243d;
         }
 
         :root {
@@ -72,6 +73,7 @@
             --tw-surface-container: #e5eeff;
             --tw-surface-variant: #d3e4fe;
             --tw-outline-variant: #c3c6d1;
+            --tw-surface-bright: #f8f9ff;
         }
 
         /* Smooth transition for theme switching */
