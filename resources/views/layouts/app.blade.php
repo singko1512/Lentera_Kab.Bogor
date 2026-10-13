@@ -30,6 +30,7 @@
             --white: #ffffff;
             --border: #eef0f6;
             --green: #00b894;
+            
             --rose: #e17055;
             --amber: #fdcb6e;
             --font: 'Plus Jakarta Sans', -apple-system, sans-serif;

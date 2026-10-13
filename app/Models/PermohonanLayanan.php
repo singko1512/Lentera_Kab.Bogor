@@ -95,9 +95,19 @@ class PermohonanLayanan extends Model
         return $this->hasOne(SuratRekomendasi::class);
     }
 
+    public function getPengunggahSuratFinalAttribute()
+    {
+        if (!$this->surat_final_diunggah_oleh) {
+            return null;
+        }
+
+        return Admin::find($this->surat_final_diunggah_oleh)
+            ?? User::find($this->surat_final_diunggah_oleh);
+    }
+
     public function pengunggahSuratFinal(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'surat_final_diunggah_oleh');
+        return $this->belongsTo(Admin::class, 'surat_final_diunggah_oleh');
     }
 
     public function magangApplication()

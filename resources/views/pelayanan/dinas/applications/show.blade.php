@@ -384,7 +384,10 @@
                             ?? optional($application->rekrutmen)->bidang_id 
                             ?? optional($application->user)->bidang_id;
 
-                        if (!$targetBidangId && !empty($bidangs)) {
+                        // Jika hanya 1 bidang yang membuka kuota, langsung jadikan target default
+                        if ($bidangs->count() === 1) {
+                            $targetBidangId = $bidangs->first()->id;
+                        } elseif (!$targetBidangId && !empty($bidangs)) {
                             $searchTerms = array_filter([
                                 $application->bidang->name ?? (is_string($application->bidang) ? $application->bidang : null),
                                 optional(optional($application->rekrutmen)->bidang)->name,
@@ -404,28 +407,57 @@
                                         $targetBidangId = $b->id;
                                         break 2;
                                     }
-                                    if (str_contains($termClean, 'aptika') && (str_contains($bName, 'aptika') || str_contains($bName, 'aplikasi') || str_contains($bName, 'informatika'))) {
-                                        $targetBidangId = $b->id;
-                                        break 2;
-                                    }
                                 }
                             }
                         }
                     @endphp
                     <div id="bidang_container" class="{{ $application->status == 'diterima' ? '' : 'hidden' }}">
                         <label class="block text-label-sm font-bold text-on-surface mb-2">Penempatan Bidang Kerja <span class="text-red-500">*</span></label>
-                        <select name="bidang_id" id="bidang_id" class="w-full px-3 py-2.5 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium">
-                            <option value="">-- Pilih Bidang Penempatan --</option>
-                            @foreach($bidangs ?? [] as $b)
-                                @php
-                                    $isSelected = ($targetBidangId == $b->id);
-                                @endphp
-                                <option value="{{ $b->id }}" {{ $isSelected ? 'selected' : '' }}>
-                                    {{ $b->name }}
+                        
+                        @if($bidangs->isEmpty())
+                            <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-start gap-2 mb-2">
+                                <span class="material-symbols-outlined text-red-600 text-sm mt-0.5">warning</span>
+                                <div>
+                                    <p class="font-bold">Tidak Ada Bidang dengan Kuota Terbuka</p>
+                                    <p class="mt-0.5">Saat ini tidak ada bidang yang membuka kuota penerimaan atau kuota telah penuh. Silakan buka lowongan / tambah kuota terlebih dahulu di menu <strong>Lowongan</strong>.</p>
+                                </div>
+                            </div>
+                        @elseif($bidangs->count() === 1)
+                            @php $onlyBidang = $bidangs->first(); @endphp
+                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-900 flex items-start gap-2 mb-2">
+                                <span class="material-symbols-outlined text-blue-600 text-sm mt-0.5">lock</span>
+                                <div>
+                                    <p class="font-bold">Penempatan Otomatis: {{ $onlyBidang->name }}</p>
+                                    <p class="mt-0.5">Hanya bidang ini yang membuka kuota pada instansi Anda. Peserta secara otomatis ditetapkan ke bidang ini.</p>
+                                </div>
+                            </div>
+                            <select name="bidang_id" id="bidang_id" class="w-full px-3 py-2.5 border border-outline-variant/50 rounded-xl bg-surface-container-low text-sm font-bold text-on-surface focus:outline-none">
+                                <option value="{{ $onlyBidang->id }}" selected>
+                                    {{ $onlyBidang->name }} @if(isset($onlyBidang->sisa_slot)) (Sisa Kuota: {{ $onlyBidang->sisa_slot }}) @endif
                                 </option>
-                            @endforeach
-                        </select>
-                        <p class="text-xs text-on-surface-variant mt-1">Peserta akan ditempatkan di bidang ini dan dapat mulai melakukan presensi harian.</p>
+                            </select>
+                            <p class="text-xs text-on-surface-variant mt-1">Karena hanya satu bidang yang membuka kuota, penempatan otomatis diarahkan ke bidang ini.</p>
+                        @else
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 flex items-start gap-2 mb-2">
+                                <span class="material-symbols-outlined text-primary text-sm mt-0.5">tune</span>
+                                <div>
+                                    <p class="font-bold">Pilih Bidang Penempatan</p>
+                                    <p class="mt-0.5">Terdapat {{ $bidangs->count() }} bidang yang membuka kuota. Admin dinas dapat menentukan penempatan sesuai bidang yang diinginkan.</p>
+                                </div>
+                            </div>
+                            <select name="bidang_id" id="bidang_id" class="w-full px-3 py-2.5 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-sm font-medium">
+                                <option value="">-- Pilih Bidang Penempatan ({{ $bidangs->count() }} Tersedia) --</option>
+                                @foreach($bidangs as $b)
+                                    @php
+                                        $isSelected = ($targetBidangId == $b->id);
+                                    @endphp
+                                    <option value="{{ $b->id }}" {{ $isSelected ? 'selected' : '' }}>
+                                        {{ $b->name }} @if(isset($b->sisa_slot)) (Sisa Kuota: {{ $b->sisa_slot }}) @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-on-surface-variant mt-1">Peserta akan ditempatkan di bidang yang dipilih dan akun presensi akan terhubung ke bidang tersebut.</p>
+                        @endif
                     </div>
 
                     <div>

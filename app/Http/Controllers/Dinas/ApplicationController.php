@@ -51,7 +51,43 @@ class ApplicationController extends Controller
             ->where('dinas_id', $dinasId)
             ->findOrFail($id);
 
-        $bidangs = Bidang::where('dinas_id', $dinasId)->orderBy('name')->get();
+        $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
+        $jumlahDibutuhkan = (int) ($application->jumlah_orang ?? 1);
+
+        // Ambil semua rekrutmen aktif milik instansi ini
+        $activeRekrutmens = \App\Models\Rekrutmen::with('bidang')
+            ->where('dinas_id', $dinasId)
+            ->where('is_active', true)
+            ->get();
+
+        $rekrutmensWithBidang = $activeRekrutmens->whereNotNull('bidang_id');
+
+        if ($rekrutmensWithBidang->isNotEmpty()) {
+            // Hanya bidang yang memiliki rekrutmen aktif dengan sisa kuota yang mencukupi untuk pemohon ini
+            $availableBidangs = collect();
+            foreach ($rekrutmensWithBidang as $rek) {
+                if (!$rek->bidang) continue;
+
+                $terisiLain = (int) MagangApplication::where('rekrutmen_id', $rek->id)
+                    ->where('id', '!=', $application->id)
+                    ->whereIn('status', $statusMemakai)
+                    ->sum(DB::raw('COALESCE(jumlah_orang, 1)'));
+
+                $sisaSlot = max(0, $rek->kuota - $terisiLain);
+
+                if ($sisaSlot >= $jumlahDibutuhkan || ($application->status === 'diterima' && $application->bidang_id == $rek->bidang_id)) {
+                    $b = clone $rek->bidang;
+                    $b->sisa_slot = $sisaSlot;
+                    $b->kuota_total = $rek->kuota;
+                    $b->rekrutmen_id = $rek->id;
+                    $availableBidangs->push($b);
+                }
+            }
+            $bidangs = $availableBidangs;
+        } else {
+            // Fallback untuk instansi tanpa rekrutmen spesifik per bidang
+            $bidangs = Bidang::where('dinas_id', $dinasId)->orderBy('name')->get();
+        }
 
         return view('pelayanan.dinas.applications.show', compact('application', 'dinas', 'bidangs'));
     }
@@ -124,8 +160,45 @@ class ApplicationController extends Controller
                 'bidang_id.required_if' => 'Bidang penempatan wajib dipilih saat menerima pemohon.',
             ]);
 
-            // 5. Lock Rekrutmen terkait
-            if ($application->rekrutmen_id) {
+            // 5. Validasi kuota bidang & sinkronisasi rekrutmen_id jika instansi membuka kuota spesifik per bidang
+            $activeRekrutmensWithBidang = \App\Models\Rekrutmen::where('dinas_id', $dinasId)
+                ->where('is_active', true)
+                ->whereNotNull('bidang_id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($request->status === 'diterima' && $activeRekrutmensWithBidang->isNotEmpty()) {
+                $matchedRekrutmen = $activeRekrutmensWithBidang->firstWhere('bidang_id', $request->bidang_id);
+
+                if (!$matchedRekrutmen) {
+                    $pesan = 'Bidang yang dipilih tidak membuka kuota penerimaan magang pada instansi Anda.';
+                    if ($request->wantsJson()) {
+                        return response()->json(['status' => 'error', 'message' => $pesan], 422);
+                    }
+                    return redirect()->back()->with('error', $pesan);
+                }
+
+                $statusMemakai = config('lentera.status_memakai_kuota', ['menunggu', 'diterima', 'aktif']);
+                $terisiLain = (int) MagangApplication::where('rekrutmen_id', $matchedRekrutmen->id)
+                    ->where('id', '!=', $application->id)
+                    ->whereIn('status', $statusMemakai)
+                    ->sum(DB::raw('COALESCE(jumlah_orang, 1)'));
+
+                $sisaSlot = max(0, $matchedRekrutmen->kuota - $terisiLain);
+                $jumlahDibutuhkan = (int) ($application->jumlah_orang ?? 1);
+
+                if ($sisaSlot < $jumlahDibutuhkan) {
+                    $bidangNama = optional(Bidang::find($request->bidang_id))->name ?? 'bidang tersebut';
+                    $pesan = 'Sisa kuota pada ' . $bidangNama . ' tidak mencukupi (sisa kuota: ' . $sisaSlot . ').';
+                    if ($request->wantsJson()) {
+                        return response()->json(['status' => 'error', 'message' => $pesan], 422);
+                    }
+                    return redirect()->back()->with('error', $pesan);
+                }
+
+                // Sinkronkan rekrutmen_id aplikasi ke rekrutmen bidang yang dipilih
+                $application->rekrutmen_id = $matchedRekrutmen->id;
+            } elseif ($application->rekrutmen_id) {
                 \App\Models\Rekrutmen::where('id', $application->rekrutmen_id)->lockForUpdate()->first();
             }
 

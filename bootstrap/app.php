@@ -16,7 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\ResolveActiveAuthGuard::class,
         ]);
 
+        $middleware->prependToPriorityList(
+            \Illuminate\Auth\Middleware\Authenticate::class,
+            \App\Http\Middleware\ResolveActiveAuthGuard::class,
+        );
+
         $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
             'role.kesbangpol' => \App\Http\Middleware\EnsureKesbangpolRole::class,
             'role.dinas' => \App\Http\Middleware\EnsureDinasRole::class,
             'role.admin' => \App\Http\Middleware\EnsureAdminRole::class,
