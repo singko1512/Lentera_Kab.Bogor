@@ -1461,6 +1461,7 @@
                                     <th>Status</th>
                                     <th>Jam Masuk</th>
                                     <th>Jam Pulang</th>
+                                    <th>Dokumentasi</th>
                                     <th>Catatan Pekerjaan</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -1485,42 +1486,61 @@
                                         </td>
                                         <!-- Jam Masuk -->
                                         <td>
-                                            @if ($rec->foto_masuk || $rec->foto_kamera)
-                                                @php $kameraMasukUrl = route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'masuk']); @endphp
-                                                <a href="{{ $kameraMasukUrl }}" target="_blank" title="Foto Masuk" class="attachment-link">
-                                                    <img src="{{ $kameraMasukUrl }}" alt="Foto Masuk" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-                                                    <span class="d-none badge bg-primary-subtle text-primary" style="font-size:0.75rem;"><i class="fa-solid fa-camera"></i> Masuk</span>
-                                                </a>
-                                            @else
-                                                <span class="text-muted" style="font-size:0.82rem;">-</span>
-                                            @endif
+                                            <span class="fw-bold" style="color:var(--dark); font-size:0.85rem;">{{ $rec->jam_masuk ? substr($rec->jam_masuk, 0, 5) : '-' }}</span>
                                         </td>
                                         <!-- Jam Pulang -->
                                         <td>
-                                            <div class="d-flex align-items-center gap-1">
-                                                @if ($rec->foto_pulang)
-                                                    @php $kameraPulangUrl = route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'pulang']); @endphp
-                                                    <a href="{{ $kameraPulangUrl }}" target="_blank" title="Foto Pulang" class="attachment-link">
+                                            <span class="fw-bold" style="color:var(--dark); font-size:0.85rem;">{{ $rec->jam_pulang ? substr($rec->jam_pulang, 0, 5) : '-' }}</span>
+                                        </td>
+                                        <!-- Dokumentasi -->
+                                        <td>
+                                            @php
+                                                $hasDocsAdmin = false;
+                                                $kameraMasukUrl = ($rec->foto_masuk || $rec->foto_kamera) ? route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'masuk']) : null;
+                                                $kameraPulangUrl = $rec->foto_pulang ? route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'pulang']) : null;
+                                                $lampiranUrl = (!empty($rec->foto) && !in_array(strtolower($rec->status), ['hadir', 'wfh'])) ? route('absensi.lampiran', $rec) : ($rec->surat_izin ? asset($rec->surat_izin) : null);
+                                            @endphp
+                                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                @if ($kameraMasukUrl)
+                                                    @php $hasDocsAdmin = true; @endphp
+                                                    <a href="{{ $kameraMasukUrl }}" target="_blank" title="Foto Masuk" class="attachment-link position-relative text-decoration-none">
+                                                        <img src="{{ $kameraMasukUrl }}" alt="Foto Masuk" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                                                        <span class="d-none badge bg-primary-subtle text-primary" style="font-size:0.75rem;"><i class="fa-solid fa-camera"></i> Masuk</span>
+                                                        <span class="badge bg-primary position-absolute bottom-0 end-0" style="font-size:0.6rem; padding: 1px 3px; transform: translate(15%, 15%);">In</span>
+                                                    </a>
+                                                @endif
+
+                                                @if ($kameraPulangUrl)
+                                                    @php $hasDocsAdmin = true; @endphp
+                                                    <a href="{{ $kameraPulangUrl }}" target="_blank" title="Foto Pulang" class="attachment-link position-relative text-decoration-none">
                                                         <img src="{{ $kameraPulangUrl }}" alt="Foto Pulang" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
                                                         <span class="d-none badge bg-success-subtle text-success" style="font-size:0.75rem;"><i class="fa-solid fa-camera"></i> Pulang</span>
+                                                        <span class="badge bg-success position-absolute bottom-0 end-0" style="font-size:0.6rem; padding: 1px 3px; transform: translate(15%, 15%);">Out</span>
                                                     </a>
                                                 @endif
-                                                @if ($rec->foto)
-                                                    @php $lampiranUrl = route('absensi.lampiran', $rec); @endphp
+
+                                                @if ($lampiranUrl)
+                                                    @php $hasDocsAdmin = true; @endphp
                                                     <a href="{{ $lampiranUrl }}" target="_blank" title="Lihat lampiran" class="attachment-link">
                                                         <img src="{{ $lampiranUrl }}" alt="Lampiran" class="attachment-thumb" onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-                                                        <span class="d-none badge bg-info-subtle text-info" style="font-size:0.75rem;"><i class="fa-regular fa-image"></i> File</span>
+                                                        <span class="badge bg-warning-subtle text-warning-emphasis" style="font-size:0.75rem;"><i class="fa-regular fa-file"></i> Surat</span>
                                                     </a>
                                                 @endif
-                                                @if (!$rec->foto_pulang && !$rec->foto)
-                                                    <span class="text-muted" style="font-size:0.82rem;">-</span>
+
+                                                @if (!$hasDocsAdmin)
+                                                    <span class="text-muted" style="font-size:0.85rem;">-</span>
                                                 @endif
                                             </div>
                                         </td>
                                         <!-- Catatan Pekerjaan -->
                                         <td style="max-width:260px;">
                                             @php
-                                                $catatan = $rec->jurnal ? $rec->jurnal->hasil_pekerjaan : ($rec->laporan ?: '-');
+                                                $catatan = $rec->jurnal ? ($rec->jurnal->hasil_pekerjaan ?: $rec->jurnal->kegiatan) : ($rec->laporan ?: '-');
+                                                if (in_array(strtolower($rec->status), ['hadir', 'wfh']) && empty($rec->jam_pulang) && empty($rec->waktu_pulang)) {
+                                                    $catatan = '-';
+                                                } elseif ($catatan === 'Website absensi') {
+                                                    $catatan = '-';
+                                                }
                                             @endphp
                                             <span class="text-muted" style="font-size:0.82rem;line-height:1.45;" title="{{ $catatan }}">
                                                 {{ $catatan !== '-' ? \Illuminate\Support\Str::limit($catatan, 90) : '-' }}

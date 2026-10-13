@@ -135,6 +135,23 @@
                 </div>
             @endif
 
+            @if(session('warning'))
+                <div class="bg-amber-50 border border-amber-300 text-amber-900 dark:bg-amber-950/40 dark:border-amber-700/50 dark:text-amber-200 p-4 rounded-xl text-sm mb-4 flex flex-col gap-2">
+                    <div class="flex items-start gap-2">
+                        <span class="material-symbols-outlined text-[20px] shrink-0 mt-0.5 text-amber-600 dark:text-amber-400">warning</span>
+                        <span>{{ session('warning') }}</span>
+                    </div>
+                    @if(session('local_activation_url'))
+                        <div class="mt-2 pt-1">
+                            <a href="{{ session('local_activation_url') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[16px]">touch_app</span>
+                                Buka Link Aktivasi / Reset (Mode Lokal)
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @endif
+
             @if(session('error'))
                 <div class="bg-error/15 border border-error/30 text-error p-4 rounded-xl text-sm mb-4 flex flex-col gap-2">
                     <div class="flex items-start gap-2">

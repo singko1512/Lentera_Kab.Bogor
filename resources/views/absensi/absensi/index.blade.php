@@ -273,6 +273,14 @@
 
 @section('content')
 <div class="container py-3">
+    <!-- Top Navigation / Kembali ke Dashboard User -->
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <a href="{{ route('home') }}" class="btn btn-sm btn-white border rounded-3 d-inline-flex align-items-center gap-2 px-3 py-2 text-decoration-none shadow-sm" style="color: #475569; font-weight: 600; font-size: 0.82rem; background: #fff;">
+            <i class="fa-solid fa-arrow-left text-primary"></i>
+            <span>Kembali ke Dashboard User</span>
+        </a>
+    </div>
+
     <!-- Workspace Header -->
     <div class="workspace-header mb-4">
         <h5>Absensi dan Laporan Harian</h5>
@@ -616,6 +624,7 @@
                             <th>Status</th>
                             <th>Jam Masuk</th>
                             <th>Jam Pulang</th>
+                            <th>Dokumentasi</th>
                             <th>Catatan Pekerjaan</th>
                         </tr>
                     </thead>
@@ -632,38 +641,44 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-medium text-dark">{{ $rec->jam_masuk ?? '-' }}</span>
-                                        @if ($rec->foto_kamera)
-                                            <a href="{{ route('absensi.kamera', $rec) }}" target="_blank">
-                                                <img src="{{ route('absensi.kamera', $rec) }}" class="attachment-thumb" title="Foto Kamera">
-                                            </a>
-                                        @elseif ($rec->foto_masuk)
-                                            <a href="{{ route('absensi.kamera', $rec) }}" target="_blank">
-                                                <img src="{{ asset($rec->foto_masuk) }}" class="attachment-thumb" title="Foto Masuk">
-                                            </a>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </div>
+                                    <span class="fw-medium text-dark">{{ $rec->jam_masuk ?? '-' }}</span>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-medium text-dark">{{ $rec->jam_pulang ?? '-' }}</span>
-                                        @if ($rec->foto_pulang)
-                                            <a href="{{ asset($rec->foto_pulang) }}" target="_blank">
-                                                <img src="{{ asset($rec->foto_pulang) }}" class="attachment-thumb" title="Foto Jam Pulang">
+                                    <span class="fw-medium text-dark">{{ $rec->jam_pulang ?? '-' }}</span>
+                                </td>
+                                <td>
+                                    @php
+                                        $hasDocs = false;
+                                        $fotoMasukUrl = ($rec->foto_kamera || $rec->foto_masuk) ? route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'masuk']) : null;
+                                        $fotoPulangUrl = $rec->foto_pulang ? route('absensi.kamera', ['absensi' => $rec->id, 'tipe' => 'pulang']) : null;
+                                        $lampiranUrl = (!empty($rec->foto) && !in_array(strtolower($rec->status), ['hadir', 'wfh'])) ? route('absensi.lampiran', $rec) : ($rec->surat_izin ? asset($rec->surat_izin) : ($rec->jurnal && $rec->jurnal->file_lampiran ? asset($rec->jurnal->file_lampiran) : null));
+                                    @endphp
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        @if ($fotoMasukUrl)
+                                            @php $hasDocs = true; @endphp
+                                            <a href="{{ $fotoMasukUrl }}" target="_blank" title="Foto Masuk" class="position-relative d-inline-block text-decoration-none">
+                                                <img src="{{ $fotoMasukUrl }}" class="attachment-thumb" alt="Foto Masuk" onerror="this.onerror=null; @if($rec->foto_masuk) this.src='{{ asset($rec->foto_masuk) }}'; @endif">
+                                                <span class="position-absolute bottom-0 end-0 badge bg-primary" style="font-size: 0.6rem; padding: 1px 3px;">In</span>
                                             </a>
-                                        @elseif ($rec->foto)
-                                            <a href="{{ asset($rec->foto) }}" target="_blank">
-                                                <img src="{{ asset($rec->foto) }}" class="attachment-thumb" title="File Lampiran">
+                                        @endif
+
+                                        @if ($fotoPulangUrl)
+                                            @php $hasDocs = true; @endphp
+                                            <a href="{{ $fotoPulangUrl }}" target="_blank" title="Foto Pulang" class="position-relative d-inline-block text-decoration-none">
+                                                <img src="{{ $fotoPulangUrl }}" class="attachment-thumb" alt="Foto Pulang" onerror="this.onerror=null; this.src='{{ asset($rec->foto_pulang) }}';">
+                                                <span class="position-absolute bottom-0 end-0 badge bg-success" style="font-size: 0.6rem; padding: 1px 3px;">Out</span>
                                             </a>
-                                        @elseif ($rec->jurnal && $rec->jurnal->file_lampiran)
-                                            <a href="{{ asset($rec->jurnal->file_lampiran) }}" target="_blank">
-                                                <img src="{{ asset($rec->jurnal->file_lampiran) }}" class="attachment-thumb" title="File Lampiran">
+                                        @endif
+
+                                        @if ($lampiranUrl)
+                                            @php $hasDocs = true; @endphp
+                                            <a href="{{ $lampiranUrl }}" target="_blank" title="Lampiran / Surat" class="d-inline-flex align-items-center justify-content-center rounded bg-warning-subtle text-warning border border-warning" style="width: 36px; height: 36px;">
+                                                <i class="fa-regular fa-file"></i>
                                             </a>
-                                        @else
-                                            <span class="text-muted">-</span>
+                                        @endif
+
+                                        @if (!$hasDocs)
+                                            <span class="text-muted small">-</span>
                                         @endif
                                     </div>
                                 </td>

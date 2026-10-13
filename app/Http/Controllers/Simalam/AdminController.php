@@ -78,9 +78,9 @@ class AdminController extends Controller
     {
         $currentAdmin = Auth::user();
         $adminRole = $currentAdmin->role;
-        $isSuperAdmin = in_array($adminRole, ['admin', 'superadmin'], true);
+        $isSuperAdmin = in_array($adminRole, ['admin', 'superadmin', 'kesbangpol'], true);
         $dashboardRouteName = 'absensi.admin.dashboard';
-        $activeAdminTab = (string) $request->input('tab', 'pegawai');
+        $activeAdminTab = (string) $request->input('tab', 'rekap');
         $allowedTabs = ['rekap', 'pegawai', 'jadwal', 'laporan', 'sertifikat'];
         if ($isSuperAdmin) {
             $allowedTabs[] = 'bidang';
@@ -88,7 +88,7 @@ class AdminController extends Controller
 
         if (! in_array($activeAdminTab, $allowedTabs, true)) {
             return redirect()
-                ->route('absensi.admin.dashboard', ['tab' => 'pegawai'])
+                ->route('absensi.admin.dashboard', ['tab' => 'rekap'])
                 ->with('error_swal', 'Role Anda tidak memiliki akses ke menu tersebut.');
         }
 

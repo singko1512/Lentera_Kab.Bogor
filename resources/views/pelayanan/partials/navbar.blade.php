@@ -197,7 +197,7 @@
             <ul class="nav-links d-flex align-items-center gap-2.5">
                 @if($hasAcceptedMagang)
                 <li>
-                    <a href="{{ Route::is('home') ? '#jadwal-magang-section' : route('home') . '#jadwal-magang-section' }}" class="btn btn-primary btn-sm px-3 py-1.5 rounded-pill font-weight-bold d-inline-flex align-items-center gap-1.5 text-white shadow-sm" style="font-size: 0.85rem;">
+                    <a href="{{ route('absensi.index') }}" class="btn btn-primary btn-sm px-3 py-1.5 rounded-pill font-weight-bold d-inline-flex align-items-center gap-1.5 text-white shadow-sm" style="font-size: 0.85rem;">
                         <i class="fa-solid fa-fingerprint"></i> Absensi
                     </a>
                 </li>
@@ -275,10 +275,18 @@
                             ->exists();
                     @endphp
                     @if($isPesertaAccepted)
-                    <!-- Absensi (Peserta) -->
+                    <!-- Dashboard Peserta -->
                     <a href="{{ route('peserta.dashboard') }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all border-0 text-start w-100 mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border) !important; outline: none;" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary) !important';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border) !important';">
                         <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
-                            <i class="fa-solid fa-clipboard-user text-primary fs-5"></i> Absensi
+                            <i class="fa-solid fa-gauge-high text-primary fs-5"></i> Dashboard Magang
+                        </span>
+                        <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
+                    </a>
+
+                    <!-- Absensi (Peserta) -->
+                    <a href="{{ route('absensi.index') }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all border-0 text-start w-100 mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border) !important; outline: none;" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary) !important';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border) !important';">
+                        <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
+                            <i class="fa-solid fa-clipboard-user text-primary fs-5"></i> Absensi Hari Ini (Kamera)
                         </span>
                         <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
                     </a>
@@ -307,9 +315,9 @@
                     </a>
                 @endif
                 
-                @if(auth()->user()->role === 'dinas')
+                @if(in_array(auth()->user()->role, ['dinas', 'kesbangpol', 'admin', 'superadmin']))
                     <!-- Dashboard SIMALAM (Absensi) -->
-                    <a href="{{ route('absensi.admin.dashboard') }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border);" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+                    <a href="{{ route('absensi.admin.dashboard', ['tab' => 'rekap']) }}" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all mt-1" style="color: var(--text); background: var(--bg); border: 1px solid var(--border);" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary)';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
                         <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
                             <i class="fa-solid fa-calendar-check text-primary fs-5"></i> Dashboard Absensi
                         </span>

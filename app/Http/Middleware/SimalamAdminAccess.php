@@ -16,7 +16,7 @@ class SimalamAdminAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'superadmin', 'dinas'])) {
+        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'superadmin', 'dinas', 'kesbangpol'])) {
             abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.');
         }
 

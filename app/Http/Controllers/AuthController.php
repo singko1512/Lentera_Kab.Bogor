@@ -168,6 +168,8 @@ class AuthController extends Controller
         $activationUrl = route('account.activate', ['token' => $activationToken]);
 
         // Send activation email
+        $mailSent = false;
+        $mailError = null;
         try {
             Mail::send('emails.activation', [
                 'name' => $user->name,
@@ -176,8 +178,16 @@ class AuthController extends Controller
                 $message->to($user->email, $user->name)
                     ->subject('Aktivasi Akun LENTERA Kabupaten Bogor');
             });
+            $mailSent = true;
         } catch (\Exception $e) {
+            $mailError = $e->getMessage();
             Log::error('Failed to send activation email: ' . $e->getMessage());
+        }
+
+        if (!$mailSent && app()->environment('local')) {
+            return redirect()->route('login.form', ['mode' => 'login'])
+                ->with('warning', 'Registrasi berhasil! Namun pengiriman email aktivasi gagal melalui SMTP lokal (' . $mailError . '). Untuk keperluan testing di lingkungan lokal, Anda dapat langsung mengaktifkan akun melalui tombol di bawah:')
+                ->with('local_activation_url', $activationUrl);
         }
 
         return redirect()->route('login.form', ['mode' => 'login'])
@@ -217,6 +227,8 @@ class AuthController extends Controller
 
             $activationUrl = route('account.activate', ['token' => $activationToken]);
 
+            $mailSent = false;
+            $mailError = null;
             try {
                 Mail::send('emails.activation', [
                     'name' => $user->name,
@@ -225,8 +237,16 @@ class AuthController extends Controller
                     $message->to($user->email, $user->name)
                         ->subject('Aktivasi Akun LENTERA Kabupaten Bogor');
                 });
+                $mailSent = true;
             } catch (\Exception $e) {
+                $mailError = $e->getMessage();
                 Log::error('Failed to resend activation email: ' . $e->getMessage());
+            }
+
+            if (!$mailSent && app()->environment('local')) {
+                return redirect()->route('login.form', ['mode' => 'login'])
+                    ->with('warning', 'Permintaan kirim ulang diterima, namun SMTP lokal gagal mengirim email (' . $mailError . '). Anda dapat langsung mengaktifkan akun melalui tautan di bawah:')
+                    ->with('local_activation_url', $activationUrl);
             }
         }
 
@@ -259,6 +279,8 @@ class AuthController extends Controller
 
             $resetUrl = route('password.reset.form', ['token' => $token, 'email' => $user->email]);
 
+            $mailSent = false;
+            $mailError = null;
             try {
                 Mail::send('emails.reset_password', [
                     'name' => $user->name,
@@ -267,8 +289,16 @@ class AuthController extends Controller
                     $message->to($user->email, $user->name)
                         ->subject('Permintaan Reset Password Akun LENTERA');
                 });
+                $mailSent = true;
             } catch (\Exception $e) {
+                $mailError = $e->getMessage();
                 Log::error('Failed to send reset password email: ' . $e->getMessage());
+            }
+
+            if (!$mailSent && app()->environment('local')) {
+                return redirect()->route('login.form', ['mode' => 'forgot'])
+                    ->with('warning', 'Permintaan reset password diproses, namun SMTP lokal gagal mengirim email (' . $mailError . '). Anda dapat langsung mereset password melalui tautan di bawah:')
+                    ->with('local_activation_url', $resetUrl);
             }
         }
 

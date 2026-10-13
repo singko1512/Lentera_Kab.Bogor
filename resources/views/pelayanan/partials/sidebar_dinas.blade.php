@@ -45,12 +45,10 @@
 <span class="text-label-md font-label-md min-w-0 leading-snug">Kelola Bidang</span>
 </a>
 
-@if(!in_array(Auth::user()->role, ['superadmin', 'admin']))
-<a data-turbo="false" class="flex items-center gap-3 px-3.5 py-2.5 overflow-hidden {{ Route::is('absensi.admin.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-colors duration-150" href="{{ route('absensi.admin.dashboard') }}">
-<span class="material-symbols-outlined shrink-0 text-[22px] {{ Route::is('absensi.admin.dashboard') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">assignment_ind</span>
-<span class="text-label-md font-label-md min-w-0 leading-snug">Manajemen Magang & Sertifikat</span>
+<a data-turbo="false" class="flex items-center gap-3 px-3.5 py-2.5 overflow-hidden {{ Route::is('absensi.admin*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-colors duration-150" href="{{ route('absensi.admin.dashboard', ['tab' => 'rekap']) }}">
+<span class="material-symbols-outlined shrink-0 text-[22px] {{ Route::is('absensi.admin*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-110">co_present</span>
+<span class="text-label-md font-label-md min-w-0 leading-snug">Absensi & Rekap Magang</span>
 </a>
-@endif
 </nav>
 <div class="mt-auto space-y-1.5 pt-6 border-t border-outline-variant/50">
 <a class="flex items-center gap-3 px-3.5 py-2.5 overflow-hidden {{ Route::is('dinas.profile*') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} transition-colors duration-150 rounded-xl group" href="{{ route('dinas.profile.edit') }}">
