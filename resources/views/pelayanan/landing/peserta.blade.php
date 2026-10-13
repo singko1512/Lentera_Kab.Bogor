@@ -140,7 +140,7 @@
 <select name="dinas_id" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-secondary focus:border-secondary block w-full p-2.5" id="dinas">
 <option value="">Semua Dinas</option>
 @foreach($semuaDinas as $dn)
-<option value="{{ $dn->id }}" {{ $dinasId == $dn->id ? 'selected' : '' }}>{{ $dn->name }}</option>
+<option value="{{ $dn->id }}" {{ $dinasId == $dn->id ? 'selected' : '' }}>{{ \App\Models\Dinas::formatTitleCaseKbbi($dn->name) }}</option>
 @endforeach
 </select>
 </div>
@@ -159,45 +159,97 @@
 </form>
 
 <!-- Data Table -->
-<div class="bg-surface-container-lowest rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden border border-outline-variant/30">
 <div class="overflow-x-auto">
-<table class="w-full text-left font-body-md text-body-md text-on-surface whitespace-nowrap">
-<thead class="font-label-md text-label-md uppercase bg-surface-container-low border-b border-surface-container-high text-on-surface-variant">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead class="bg-surface-container-low text-on-surface-variant font-label-md text-xs uppercase tracking-wider border-b border-outline-variant/30">
 <tr>
-<th class="px-6 py-4" scope="col">Nama Peserta</th>
-<th class="px-6 py-4" scope="col">Asal Instansi & Jurusan</th>
-<th class="px-6 py-4" scope="col">Tujuan Dinas & Bidang</th>
-<th class="px-6 py-4" scope="col">Tanggal Diterima</th>
-<th class="px-6 py-4" scope="col">Tanggal Berakhir</th>
-<th class="px-6 py-4" scope="col">Status</th>
+<th class="px-6 py-4 whitespace-nowrap min-w-[200px]" scope="col">Nama Peserta</th>
+<th class="px-6 py-4 whitespace-nowrap min-w-[220px]" scope="col">Asal Lembaga & Jurusan</th>
+<th class="px-6 py-4 whitespace-nowrap min-w-[260px]" scope="col">Tujuan Dinas & Bidang</th>
+<th class="px-6 py-4 whitespace-nowrap min-w-[160px]" scope="col">Tanggal Diterima</th>
+<th class="px-6 py-4 whitespace-nowrap min-w-[160px]" scope="col">Tanggal Berakhir</th>
+<th class="px-6 py-4 text-center whitespace-nowrap min-w-[130px]" scope="col">Status</th>
 </tr>
 </thead>
-<tbody>
+<tbody class="divide-y divide-outline-variant/20 font-body-md text-body-md text-on-surface">
 @forelse($pesertas as $peserta)
-<tr class="border-b border-surface-container-high hover:bg-surface-container-low transition-colors">
-<td class="px-6 py-4 font-medium text-on-surface">
-    {{ $peserta->user->name }}
+@php
+    $rawDinas = $peserta->dinas->name ?? '-';
+    $dinasFormatted = $rawDinas !== '-' ? \App\Models\Dinas::formatTitleCaseKbbi($rawDinas) : '-';
+
+    $rawBidang = $peserta->bidang->nama ?? ($peserta->rekrutmen?->bidang?->name ?? '-');
+    if ($rawBidang !== '-') {
+        $teksBidang = preg_match('/^bidang\b/i', trim($rawBidang)) ? $rawBidang : 'Bidang ' . $rawBidang;
+        $bidangFormatted = \App\Models\Dinas::formatTitleCaseKbbi($teksBidang);
+    } else {
+        $bidangFormatted = '-';
+    }
+@endphp
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="px-6 py-4 align-middle whitespace-nowrap">
+    <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20">
+            {{ strtoupper(substr($peserta->user->name ?? 'P', 0, 2)) }}
+        </div>
+        <div class="flex flex-col">
+            <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->user->name }}</span>
+            <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta Magang</span>
+        </div>
+    </div>
 </td>
-<td class="px-6 py-4 whitespace-normal min-w-[200px]">
-    <div class="text-on-surface">{{ $peserta->instansi_asal }}</div>
-    <div class="text-on-surface-variant text-sm mt-1">{{ $peserta->jurusan }}</div>
+<td class="px-6 py-4 align-middle whitespace-normal min-w-[220px]">
+    <div class="flex flex-col">
+        <div class="flex items-center gap-1.5 font-semibold text-sm text-on-surface">
+            <span class="material-symbols-outlined text-[16px] text-secondary shrink-0">school</span>
+            <span>{{ $peserta->instansi_asal }}</span>
+        </div>
+        <div class="text-xs text-on-surface-variant mt-1 pl-5 font-normal leading-snug">
+            {{ $peserta->jurusan }}
+        </div>
+    </div>
 </td>
-<td class="px-6 py-4 whitespace-normal min-w-[200px]">
-    <div class="text-on-surface">{{ $peserta->dinas->name ?? '-' }}</div>
-    <div class="text-on-surface-variant text-sm mt-1">{{ $peserta->bidang->nama ?? '-' }}</div>
+<td class="px-6 py-4 align-middle whitespace-normal min-w-[260px]">
+    <div class="flex flex-col">
+        <div class="flex items-center gap-1.5 font-semibold text-sm text-primary">
+            <span class="material-symbols-outlined text-[16px] text-primary shrink-0">account_balance</span>
+            <span class="leading-tight">{{ $dinasFormatted }}</span>
+        </div>
+        @if($bidangFormatted !== '-')
+        <div class="mt-1 pl-5">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-surface-container-high/80 text-on-surface-variant text-[11px] font-medium border border-outline-variant/30">
+                <span class="material-symbols-outlined text-[13px] text-secondary">domain_verification</span>
+                {{ $bidangFormatted }}
+            </span>
+        </div>
+        @endif
+    </div>
 </td>
-<td class="px-6 py-4">{{ $peserta->tanggal_mulai ? $peserta->tanggal_mulai->format('d M Y') : '-' }}</td>
-<td class="px-6 py-4">{{ $peserta->tanggal_selesai ? $peserta->tanggal_selesai->format('d M Y') : '-' }}</td>
-<td class="px-6 py-4">
-<span class="bg-[#DCFCE7] text-[#15803d] dark:bg-emerald-950/40 dark:text-emerald-400 font-label-md text-caption uppercase px-2 py-1 rounded">{{ $peserta->status->nama ?? 'DITERIMA' }}</span>
+<td class="px-6 py-4 align-middle whitespace-nowrap">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
+        <span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
+        <span>{{ $peserta->tanggal_mulai ? $peserta->tanggal_mulai->format('d M Y') : '-' }}</span>
+    </div>
+</td>
+<td class="px-6 py-4 align-middle whitespace-nowrap">
+    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
+        <span class="material-symbols-outlined text-[15px] text-on-surface-variant">event_available</span>
+        <span>{{ $peserta->tanggal_selesai ? $peserta->tanggal_selesai->format('d M Y') : '-' }}</span>
+    </div>
+</td>
+<td class="px-6 py-4 align-middle whitespace-nowrap text-center">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] font-bold text-xs uppercase tracking-wide">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
+        {{ $peserta->status->nama ?? 'Diterima' }}
+    </span>
 </td>
 </tr>
 @empty
 <tr>
-<td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">
-    <div class="flex flex-col items-center justify-center">
-        <span class="material-symbols-outlined text-[48px] mb-2 text-outline">search_off</span>
-        <p>Tidak ada peserta yang cocok dengan kriteria pencarian.</p>
+<td colspan="6" class="px-6 py-12 text-center text-on-surface-variant">
+    <div class="flex flex-col items-center justify-center gap-2">
+        <span class="material-symbols-outlined text-[48px] text-outline-variant">search_off</span>
+        <p class="font-medium text-sm">Tidak ada peserta yang cocok dengan kriteria pencarian.</p>
     </div>
 </td>
 </tr>
@@ -206,8 +258,8 @@
 </table>
 </div>
 <!-- Pagination -->
-<div class="px-6 py-4 border-t border-surface-container-high">
-{{ $pesertas->links() }}
+<div class="px-6 py-4 border-t border-outline-variant/30 bg-surface-container-low/30 flex justify-center">
+    {{ $pesertas->links() }}
 </div>
 </div>
 </main>

@@ -62,8 +62,8 @@ class LandingController extends Controller
         
         // Mapping properti agar sesuai dengan view (dulu pakai struktur dummy)
         foreach ($pesertas as $p) {
-            $p->jurusan = $p->permohonanLayanan->jenisLayanan->nama ?? 'Umum';
-            $p->instansi_asal = $p->permohonanLayanan->asal_instansi ?? 'Instansi/Kampus';
+            $p->jurusan = $p->user?->program_studi ?: ($p->permohonanLayanan?->jenisLayanan?->nama ?? 'Umum');
+            $p->instansi_asal = $p->user?->asal_instansi ?: ($p->permohonanLayanan?->asal_instansi ?? 'Instansi/Kampus');
             $p->dinas = $p->rekrutmen?->dinas;
             $p->bidang = $p->rekrutmen?->bidang;
         }
@@ -229,8 +229,8 @@ class LandingController extends Controller
         $semuaDinas = \App\Models\Dinas::orderBy('name')->get();
 
         foreach ($pesertas as $p) {
-            $p->jurusan = $p->permohonanLayanan->jenisLayanan->nama ?? 'Umum';
-            $p->instansi_asal = $p->permohonanLayanan->asal_instansi ?? 'Instansi/Kampus';
+            $p->jurusan = $p->user?->program_studi ?: ($p->permohonanLayanan?->jenisLayanan?->nama ?? 'Umum');
+            $p->instansi_asal = $p->user?->asal_instansi ?: ($p->permohonanLayanan?->asal_instansi ?? 'Instansi/Kampus');
             $p->dinas = $p->rekrutmen?->dinas;
             $p->bidang = $p->rekrutmen?->bidang;
         }

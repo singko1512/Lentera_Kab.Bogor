@@ -283,6 +283,11 @@
                     <textarea name="alamat" rows="2" placeholder="Alamat lengkap instansi dinas..." class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium"></textarea>
                 </div>
 
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Deskripsi Singkat (Opsional)</label>
+                    <textarea name="deskripsi" rows="2" placeholder="Deskripsi instansi atau layanan (otomatis diformat sesuai KBBI)..." class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium"></textarea>
+                </div>
+
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/30">
                     <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 rounded-xl border border-outline-variant/60 text-on-surface-variant text-sm font-bold hover:bg-surface-container-low transition-colors">
                         Batal
@@ -351,6 +356,11 @@
                     <textarea name="alamat" x-model="editData.alamat" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium"></textarea>
                 </div>
 
+                <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Deskripsi Singkat (Opsional)</label>
+                    <textarea name="deskripsi" x-model="editData.deskripsi" rows="2" placeholder="Deskripsi instansi atau layanan (otomatis diformat sesuai KBBI)..." class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium"></textarea>
+                </div>
+
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-outline-variant/30">
                     <button type="button" @click="showEditModal = false" class="px-5 py-2.5 rounded-xl border border-outline-variant/60 text-on-surface-variant text-sm font-bold hover:bg-surface-container-low transition-colors">
                         Batal
@@ -376,6 +386,7 @@
                 email: '',
                 telepon: '',
                 alamat: '',
+                deskripsi: '',
                 nama_kepala: '',
                 nip_kepala: '',
             },
@@ -389,6 +400,7 @@
                     email: userAccount ? userAccount.email : (dinas.email || ''),
                     telepon: dinas.telepon || '',
                     alamat: dinas.alamat || '',
+                    deskripsi: dinas.deskripsi || '',
                     nama_kepala: dinas.nama_kepala || '',
                     nip_kepala: dinas.nip_kepala || '',
                 };

@@ -263,7 +263,7 @@
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface group-hover:text-primary mb-2 transition-colors line-clamp-2">{{ $instansi->name }}</h3>
 <p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-3">
-    {{ $instansi->deskripsi ?? 'Fasilitas pelayanan, riset, dan magang di ' . $instansi->name . '.' }}
+    {{ $instansi->deskripsi }}
 </p>
 
 

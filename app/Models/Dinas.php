@@ -36,6 +36,88 @@ class Dinas extends Model
         $this->attributes['name'] = $value;
     }
 
+    public function getDeskripsiAttribute(?string $value): ?string
+    {
+        if (!empty($value)) {
+            return self::formatTitleCaseKbbi($value);
+        }
+
+        $namaInstansi = self::formatTitleCaseKbbi($this->name ?? $this->nama ?? '');
+        return !empty($namaInstansi)
+            ? 'Fasilitas pelayanan, riset, dan magang di ' . $namaInstansi . '.'
+            : null;
+    }
+
+    public function setDeskripsiAttribute($value): void
+    {
+        $this->attributes['deskripsi'] = !empty($value) ? self::formatTitleCaseKbbi(trim($value)) : null;
+    }
+
+    /**
+     * Format teks ke Title Case sesuai kaidah KBBI/PUEBI:
+     * - Huruf pertama tiap kata kapital (Title Case), bukan all-caps.
+     * - Kata tugas/hubung/depan (dan, di, ke, dari, pada, untuk, dll) tetap huruf kecil.
+     * - Mempertahankan singkatan resmi (RSUD, BKPSDM, BPBD, dll).
+     */
+    public static function formatTitleCaseKbbi(?string $text): string
+    {
+        if (empty($text)) {
+            return '';
+        }
+
+        $kataTugas = [
+            'dan', 'atau', 'serta', 'di', 'ke', 'dari', 'pada', 'dalam',
+            'untuk', 'dengan', 'oleh', 'tentang', 'terhadap', 'bagi',
+            'antara', 'sampai', 'seperti', 'tanpa', 'guna', 'yang', 'atas',
+            'pun', 'per', 'sebagai'
+        ];
+
+        $acronyms = [
+            'RSUD', 'UPTD', 'BKPSDM', 'BPBD', 'BPKAD', 'DPUPR', 'DPKPP',
+            'DPTR', 'DP3AP2KB', 'DKP', 'DLH', 'DPMD', 'DPMPTSP', 'UKM',
+            'DPRD', 'SETDA', 'SETWAN', 'TIK', 'KB', 'SD', 'SMP', 'SMA', 'SMK'
+        ];
+
+        $parts = preg_split('/(\s+)/u', trim($text), -1, PREG_SPLIT_DELIM_CAPTURE);
+        $result = '';
+        $wordIndex = 0;
+
+        foreach ($parts as $part) {
+            if (preg_match('/^\s+$/u', $part)) {
+                $result .= $part;
+                continue;
+            }
+
+            preg_match('/^([^\p{L}\p{N}]*)([\p{L}\p{N}\-]+)([^\p{L}\p{N}]*)$/u', $part, $matches);
+            if (!empty($matches)) {
+                $prefix = $matches[1];
+                $word = $matches[2];
+                $suffix = $matches[3];
+
+                $wordUpper = mb_strtoupper($word);
+                $wordLower = mb_strtolower($word);
+
+                if (in_array($wordUpper, $acronyms)) {
+                    $w = $wordUpper;
+                } elseif ($wordIndex === 0) {
+                    $w = mb_convert_case($wordLower, MB_CASE_TITLE, 'UTF-8');
+                } elseif (in_array($wordLower, $kataTugas)) {
+                    $w = $wordLower;
+                } else {
+                    $w = mb_convert_case($wordLower, MB_CASE_TITLE, 'UTF-8');
+                }
+
+                $result .= $prefix . $w . $suffix;
+            } else {
+                $result .= $part;
+            }
+
+            $wordIndex++;
+        }
+
+        return $result;
+    }
+
     protected $casts = [
         'is_kesbangpol' => 'boolean',
     ];

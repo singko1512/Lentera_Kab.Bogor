@@ -133,7 +133,7 @@
                 </span>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed max-w-container-max mt-2">
-                {{ $instansi->deskripsi ?? 'Fasilitas pelayanan, riset, dan magang di ' . $instansi->name . '.' }}
+                {{ $instansi->deskripsi }}
             </p>
             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mt-4 pt-4 border-t border-outline-variant">
                 <div class="flex items-center gap-2 text-on-surface-variant">
