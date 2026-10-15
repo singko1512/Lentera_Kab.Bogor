@@ -119,7 +119,7 @@
                 <thead>
                     <tr class="bg-surface-container-low border-b border-outline-variant/40 text-caption font-bold text-on-surface-variant uppercase tracking-wider">
                         <th class="p-4 pl-6">Instansi Dinas</th>
-                        <th class="p-4">Email Login Akun</th>
+                        <th class="p-4">Username & Email Login</th>
                         <th class="p-4">Bidang / Unit Kerja</th>
                         <th class="p-4 text-center">Status Login</th>
                         <th class="p-4 pr-6 text-center">Aksi / Pengelolaan</th>
@@ -145,14 +145,20 @@
                             @endif
                         </td>
 
-                        <!-- Email Login -->
+                        <!-- Akun Login: Username & Email -->
                         <td class="p-4">
-                            <div class="font-semibold text-primary text-sm flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px]">mail</span>
+                            @if($userAccount && $userAccount->username)
+                            <div class="font-bold text-on-surface text-sm flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-secondary text-[16px]">badge</span>
+                                <span>Username: <code class="bg-secondary/10 text-secondary px-1.5 py-0.5 rounded font-mono font-bold">{{ $userAccount->username }}</code></span>
+                            </div>
+                            @endif
+                            <div class="font-semibold text-primary text-xs flex items-center gap-1.5 mt-1">
+                                <span class="material-symbols-outlined text-[15px]">mail</span>
                                 <span>{{ $userAccount->email ?? ($dinas->email ?? 'Belum ada email') }}</span>
                             </div>
-                            <div class="text-[11px] text-on-surface-variant mt-0.5">
-                                Password Default: <code class="bg-surface-container px-1.5 py-0.5 rounded font-mono text-[11px]">password123</code>
+                            <div class="text-[11px] text-on-surface-variant mt-1">
+                                Password Default: <code class="bg-surface-container px-1.5 py-0.5 rounded font-mono text-[10px]">Tegarberiman</code> / <code class="bg-surface-container px-1.5 py-0.5 rounded font-mono text-[10px]">password123</code>
                             </div>
                         </td>
 
@@ -247,14 +253,19 @@
                 </div>
 
                 <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Username Login Akun <span class="text-error">*</span></label>
+                    <input type="text" name="username" required placeholder="Contoh: DISDIK / RSUDCIAWI" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium uppercase">
+                </div>
+
+                <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Email Login (@dinas.com) <span class="text-error">*</span></label>
-                    <input type="email" name="email" required placeholder="Contoh: dinas_pendidikan@dinas.com" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
+                    <input type="email" name="email" required placeholder="Contoh: disdik@dinas.com" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
                 </div>
 
                 <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Password Login <span class="text-error">*</span></label>
-                    <input type="text" name="password" required value="password123" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-mono">
-                    <span class="text-[11px] text-on-surface-variant mt-1 block">Default password diset `password123`. Bisa disesuaikan jika perlu.</span>
+                    <input type="text" name="password" required value="Tegarberiman" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-mono">
+                    <span class="text-[11px] text-on-surface-variant mt-1 block">Default password diset `Tegarberiman` (atau `password123`). Bisa disesuaikan jika perlu.</span>
                 </div>
 
                 <div>
@@ -322,6 +333,11 @@
                 </div>
 
                 <div>
+                    <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Username Login Akun <span class="text-error">*</span></label>
+                    <input type="text" name="username" x-model="editData.username" required placeholder="Contoh: DISDIK / RSUDCIAWI" class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium uppercase">
+                </div>
+
+                <div>
                     <label class="block text-caption font-bold text-on-surface-variant uppercase mb-1">Email Login (@dinas.com) <span class="text-error">*</span></label>
                     <input type="email" name="email" x-model="editData.email" required class="w-full px-4 py-2.5 rounded-xl border border-outline-variant/60 focus:border-primary focus:ring focus:ring-primary/20 text-sm font-medium">
                 </div>
@@ -383,6 +399,7 @@
             editData: {
                 id: '',
                 name: '',
+                username: '',
                 email: '',
                 telepon: '',
                 alamat: '',
@@ -397,6 +414,7 @@
                 this.editData = {
                     id: dinas.id,
                     name: dinas.name,
+                    username: userAccount ? (userAccount.username || '') : '',
                     email: userAccount ? userAccount.email : (dinas.email || ''),
                     telepon: dinas.telepon || '',
                     alamat: dinas.alamat || '',

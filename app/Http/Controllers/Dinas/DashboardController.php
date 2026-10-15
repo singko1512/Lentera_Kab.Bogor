@@ -12,9 +12,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
         $dinasId = \App\Support\CurrentDinas::id();
         
-        if (!$dinasId && in_array($user->role, ['superadmin', 'admin'])) {
+        if (!$dinasId && $user && in_array($user->role, ['superadmin', 'admin'])) {
             $dinasId = \App\Models\Dinas::first()?->id;
         }
 
@@ -79,14 +80,14 @@ class DashboardController extends Controller
     public function editProfile()
     {
         $user = Auth::user();
-        $dinas = $user->dinas;
+        $dinas = \App\Support\CurrentDinas::model() ?? $user->dinas;
         return view('pelayanan.dinas.profile.edit', compact('user', 'dinas'));
     }
 
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        $dinas = $user->dinas;
+        $dinas = \App\Support\CurrentDinas::model() ?? $user->dinas;
 
         $request->validate([
             'nama' => 'nullable|string|max:255',
