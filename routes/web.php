@@ -159,6 +159,7 @@ Route::middleware(['auth', 'role.user'])->group(function () {
     // Rute Layanan Pemohon
     Route::get('/layanan', [LayananController::class, 'index'])->name('layanan.index');
     Route::get('/layanan/form/{slug}', [LayananController::class, 'create'])->name('layanan.create');
+    Route::get('/layanan/api/registered-users', [LayananController::class, 'getRegisteredUsers'])->name('layanan.registered_users');
     Route::post('/layanan/submit', [LayananController::class, 'submit'])->name('layanan.submit');
     Route::get('/layanan/{id}', [LayananController::class, 'show'])->name('layanan.show');
     Route::post('/layanan/{id}/update', [LayananController::class, 'update'])->name('layanan.update');

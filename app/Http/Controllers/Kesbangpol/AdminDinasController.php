@@ -84,8 +84,11 @@ class AdminDinasController extends Controller
         ]);
 
         // 2. Buat record Admin untuk Dinas di tabel admins
+        $username = $request->username ? mb_strtoupper(trim($request->username)) : mb_strtoupper(str_replace(' ', '', $request->name));
+
         Admin::create([
             'name' => 'Admin ' . $dinas->name,
+            'username' => $username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'dinas',
@@ -106,6 +109,7 @@ class AdminDinasController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:100',
             'email' => 'required|email|unique:admins,email,' . $adminId . '|unique:users,email',
             'password' => 'nullable|string|min:6',
             'telepon' => 'nullable|string|max:20',
@@ -135,9 +139,12 @@ class AdminDinasController extends Controller
             'kop_surat' => $kopSuratPath,
         ]);
 
+        $username = $request->username ? mb_strtoupper(trim($request->username)) : ($admin ? $admin->username : mb_strtoupper(str_replace(' ', '', $request->name)));
+
         if ($admin) {
             $adminData = [
                 'name' => 'Admin ' . $dinas->name,
+                'username' => $username,
                 'email' => $request->email,
             ];
 
@@ -151,6 +158,7 @@ class AdminDinasController extends Controller
             $plainPass = $request->password ?: Str::password(12);
             Admin::create([
                 'name' => 'Admin ' . $dinas->name,
+                'username' => $username,
                 'email' => $request->email,
                 'password' => Hash::make($plainPass),
                 'role' => 'dinas',

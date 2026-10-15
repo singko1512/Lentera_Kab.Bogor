@@ -208,6 +208,18 @@
                     <button id="theme-toggle" class="nav-blue-glow-btn p-0 d-flex align-items-center justify-content-center border-0" type="button" aria-label="Toggle theme" style="width: 38px; height: 38px; border-radius: 50% !important; background: var(--border); color: var(--text-muted); outline: none; box-shadow: none; text-decoration: none !important;">
                         <span id="theme-toggle-icon" class="material-symbols-outlined" style="font-size: 20px; text-decoration: none !important; border-bottom: 0 !important;">dark_mode</span>
                     </button>
+                    <script>
+                        (function() {
+                            try {
+                                var isDark = document.documentElement.classList.contains('dark') || localStorage.getItem('theme') === 'dark';
+                                var icon = document.getElementById('theme-toggle-icon');
+                                if (icon && isDark) {
+                                    icon.textContent = 'light_mode';
+                                    icon.style.color = '#fdcb6e';
+                                }
+                            } catch(e) {}
+                        })();
+                    </script>
                 </li>
 
                 @if(auth()->check())
@@ -472,6 +484,9 @@
             }
 
             function toggleThemeWithRipple(e) {
+                if (!document.body.classList.contains('theme-transition')) {
+                    document.body.classList.add('theme-transition');
+                }
                 const isDark = html.classList.contains('dark');
                 const toggleBtn = document.getElementById('theme-toggle');
 

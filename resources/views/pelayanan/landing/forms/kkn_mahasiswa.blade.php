@@ -3,8 +3,7 @@
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"/>
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -279,8 +278,7 @@
 <input name="atas_nama" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan atas nama" type="text" required value="{{ auth()->check() ? auth()->user()->nama : '' }}">
 </div>
 
-<!-- Container Kolom Nama Anggota Otomatis Bertambah / Berkurang -->
-<div id="container-dynamic-anggota" style="display: none;" class="md:col-span-2 flex-col gap-stack-md"></div>
+@include('pelayanan.partials.dynamic_anggota_tag')
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Nomor WhatsApp Aktif <span class="text-error">*</span></label>
 <input name="no_hp" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan nomor HP/WhatsApp aktif" type="tel" required value="{{ auth()->check() ? auth()->user()->no_hp : '' }}">
@@ -904,7 +902,9 @@
         if (newVal < 2) newVal = 2;
         if (newVal > 50) newVal = 50;
         input.value = newVal;
-        renderDynamicAnggota(newVal);
+        if (typeof renderDynamicAnggota === 'function') {
+            renderDynamicAnggota(newVal);
+        }
         updateRealtimeDinasKuota();
     }
 
@@ -918,37 +918,10 @@
             val = 50;
             inputEl.value = 50;
         }
-        renderDynamicAnggota(val);
-        updateRealtimeDinasKuota();
-    }
-
-    function renderDynamicAnggota(totalPeserta) {
-        const container = document.getElementById('container-dynamic-anggota');
-        if (!container) return;
-
-        const existingInputs = container.querySelectorAll('input[name="nama_anggota[]"]');
-        const existingValues = [];
-        existingInputs.forEach(inp => existingValues.push(inp.value));
-
-        let html = '';
-        for (let i = 2; i <= totalPeserta; i++) {
-            const val = existingValues[i - 2] || '';
-            html += `
-                <div class="flex flex-col gap-stack-sm" id="row-anggota-${i}">
-                    <label class="font-label-md text-label-md text-on-surface flex items-center gap-1.5 font-medium">
-                        <span class="material-symbols-outlined text-secondary text-[18px]">person</span>
-                        <span>Nama Anggota ${i}</span> <span class="text-error">*</span>
-                    </label>
-                    <input name="nama_anggota[]" 
-                           class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" 
-                           placeholder="Masukkan nama lengkap anggota ${i}" 
-                           type="text" 
-                           required 
-                           value="${val}">
-                </div>
-            `;
+        if (typeof renderDynamicAnggota === 'function') {
+            renderDynamicAnggota(val);
         }
-        container.innerHTML = html;
+        updateRealtimeDinasKuota();
     }
 
     function togglePeserta(value) {
@@ -975,7 +948,9 @@
             let count = inputJumlah ? (parseInt(inputJumlah.value) || 2) : 2;
             if (count < 2) count = 2;
             if (inputJumlah) inputJumlah.value = count;
-            renderDynamicAnggota(count);
+            if (typeof renderDynamicAnggota === 'function') {
+                renderDynamicAnggota(count);
+            }
         } else {
             if (containerJumlahKelompok) {
                 containerJumlahKelompok.style.display = 'none';
