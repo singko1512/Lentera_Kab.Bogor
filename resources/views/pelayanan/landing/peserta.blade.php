@@ -5,8 +5,7 @@
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -188,37 +187,23 @@
 @endphp
 <tr class="hover:bg-surface-container-low/40 transition-colors">
 <td class="px-6 py-4 align-middle whitespace-nowrap">
-    <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-primary/20">
-            {{ strtoupper(substr($peserta->user->name ?? 'P', 0, 2)) }}
-        </div>
-        <div class="flex flex-col">
-            <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->user->name }}</span>
-            <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta Magang</span>
-        </div>
+    <div class="flex flex-col">
+        <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->user->name }}</span>
+        <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta Magang</span>
     </div>
 </td>
-<td class="px-6 py-4 align-middle whitespace-normal min-w-[220px]">
+<td class="px-6 py-4 align-middle whitespace-normal min-w-[200px]">
     <div class="flex flex-col">
-        <div class="flex items-center gap-1.5 font-semibold text-sm text-on-surface">
-            <span class="material-symbols-outlined text-[16px] text-secondary shrink-0">school</span>
-            <span>{{ $peserta->instansi_asal }}</span>
-        </div>
-        <div class="text-xs text-on-surface-variant mt-1 pl-5 font-normal leading-snug">
-            {{ $peserta->jurusan }}
-        </div>
+        <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->instansi_asal }}</span>
+        <span class="text-xs text-on-surface-variant mt-0.5 font-normal leading-snug">{{ $peserta->jurusan }}</span>
     </div>
 </td>
-<td class="px-6 py-4 align-middle whitespace-normal min-w-[260px]">
+<td class="px-6 py-4 align-middle whitespace-normal min-w-[240px]">
     <div class="flex flex-col">
-        <div class="flex items-center gap-1.5 font-semibold text-sm text-primary">
-            <span class="material-symbols-outlined text-[16px] text-primary shrink-0">account_balance</span>
-            <span class="leading-tight">{{ $dinasFormatted }}</span>
-        </div>
+        <span class="font-semibold text-sm text-primary leading-tight">{{ $dinasFormatted }}</span>
         @if($bidangFormatted !== '-')
-        <div class="mt-1 pl-5">
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-surface-container-high/80 text-on-surface-variant text-[11px] font-medium border border-outline-variant/30">
-                <span class="material-symbols-outlined text-[13px] text-secondary">domain_verification</span>
+        <div class="mt-1">
+            <span class="inline-block px-2.5 py-0.5 rounded-md bg-surface-container-high/80 text-on-surface-variant text-[11px] font-medium border border-outline-variant/30">
                 {{ $bidangFormatted }}
             </span>
         </div>
@@ -226,14 +211,12 @@
     </div>
 </td>
 <td class="px-6 py-4 align-middle whitespace-nowrap">
-    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
-        <span class="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
+    <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
         <span>{{ $peserta->tanggal_mulai ? $peserta->tanggal_mulai->format('d M Y') : '-' }}</span>
     </div>
 </td>
 <td class="px-6 py-4 align-middle whitespace-nowrap">
-    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
-        <span class="material-symbols-outlined text-[15px] text-on-surface-variant">event_available</span>
+    <div class="inline-flex items-center px-3 py-1.5 rounded-lg bg-surface-container border border-outline-variant/30 text-xs font-semibold text-on-surface">
         <span>{{ $peserta->tanggal_selesai ? $peserta->tanggal_selesai->format('d M Y') : '-' }}</span>
     </div>
 </td>

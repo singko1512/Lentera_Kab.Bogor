@@ -91,9 +91,16 @@ class LayananController extends Controller
                 return $dinas->sisa_kuota > 0;
             })
             ->values();
+
+        $registeredUsers = \App\Models\User::whereIn('role', ['peserta', 'user'])
+            ->where('status_akun', '!=', 'diblokir')
+            ->where('id', '!=', Auth::id())
+            ->select('id', 'name', 'asal_instansi', 'program_studi', 'email')
+            ->orderBy('name')
+            ->get();
         
         // Render view berdasarkan slug
-        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList'));
+        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList', 'registeredUsers'));
     }
 
     public function submit(Request $request)
@@ -149,12 +156,28 @@ class LayananController extends Controller
             // Hitung total peserta yang didaftarkan (1 jika Individu, atau minimal 2 jika Kelompok)
             $isKelompok = $request->jumlah_peserta && str_contains($request->jumlah_peserta, 'Kelompok');
             $anggotaList = [];
-            if ($request->has('nama_anggota') && is_array($request->nama_anggota)) {
+            $anggotaUsers = collect();
+
+            if ($request->has('anggota_user_ids') && is_array($request->anggota_user_ids)) {
+                $cleanUserIds = array_values(array_filter($request->anggota_user_ids));
+                if (!empty($cleanUserIds)) {
+                    $anggotaUsers = \App\Models\User::whereIn('id', $cleanUserIds)->get();
+                    $anggotaList = $anggotaUsers->pluck('name')->toArray();
+                }
+            }
+            if (empty($anggotaList) && $request->has('nama_anggota') && is_array($request->nama_anggota)) {
                 $anggotaList = array_values(array_filter(array_map('trim', $request->nama_anggota)));
             }
+
             $totalPeserta = 1;
             if ($isKelompok) {
-                $totalPeserta = max(2, (int) ($request->jumlah_anggota_count ?? (count($anggotaList) + 1)));
+                if (count($anggotaList) < 1) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Pendaftaran kelompok wajib men-tag minimal 1 anggota kelompok yang telah terdaftar di LENTERA.'
+                    ], 422);
+                }
+                $totalPeserta = count($anggotaList) + 1;
             }
 
             if ($request->filled('dinas_id')) {
@@ -227,12 +250,8 @@ class LayananController extends Controller
 
             // Handle Peserta Kelompok / Individu
             $atasNamaPerwakilan = trim($request->atas_nama);
-            $anggotaList = [];
-            if ($request->has('nama_anggota') && is_array($request->nama_anggota)) {
-                $anggotaList = array_values(array_filter(array_map('trim', $request->nama_anggota)));
-            }
 
-            if ($request->jumlah_peserta && str_contains($request->jumlah_peserta, 'Kelompok') && !empty($anggotaList)) {
+            if ($isKelompok && !empty($anggotaList)) {
                 $semuaNama = array_merge([$atasNamaPerwakilan], $anggotaList);
                 $joinedNama = implode(', ', $semuaNama);
                 if (mb_strlen($joinedNama) > 250) {
@@ -240,7 +259,18 @@ class LayananController extends Controller
                 } else {
                     $permohonan->atas_nama = $joinedNama;
                 }
-                $catatanAnggota = "Perwakilan / Ketua: " . $atasNamaPerwakilan . "\nAnggota:\n- " . implode("\n- ", $anggotaList);
+
+                if ($anggotaUsers->isNotEmpty()) {
+                    $detailLines = [];
+                    foreach ($anggotaUsers as $idx => $aUser) {
+                        $kampus = $aUser->asal_instansi ?: 'Instansi/Kampus';
+                        $detailLines[] = ($idx + 1) . ". {$aUser->name} ({$kampus} - {$aUser->email})";
+                    }
+                    $catatanAnggota = "Pendaftaran Kelompok (" . count($semuaNama) . " Orang):\nKetua: {$atasNamaPerwakilan} (" . ($permohonan->asal_instansi ?: (Auth::user()->asal_instansi ?? '-')) . ")\nAnggota Terdaftar:\n" . implode("\n", $detailLines);
+                } else {
+                    $catatanAnggota = "Perwakilan / Ketua: " . $atasNamaPerwakilan . "\nAnggota:\n- " . implode("\n- ", $anggotaList);
+                }
+
                 $permohonan->catatan_pemohon = $permohonan->catatan_pemohon ? ($permohonan->catatan_pemohon . "\n\n" . $catatanAnggota) : $catatanAnggota;
             } else {
                 $permohonan->atas_nama = $atasNamaPerwakilan;

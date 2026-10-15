@@ -8,23 +8,54 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
 
+    <script>
+        // Immediately apply saved theme to documentElement before any CSS or content is rendered
+        (function() {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Default theme is Light Mode. Dark mode is only enabled if explicitly saved in localStorage.
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 
     <style>
+        html {
+            background-color: #f7f8fc;
+        }
+        html.dark {
+            background-color: #0b1c30;
+            color-scheme: dark;
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            user-select: none;
+        }
         html.dark {
             --dark: #f8f9ff;
             --text: #eaf1ff;
@@ -283,11 +314,6 @@
             border-top: 1px solid var(--border);
         }
     </style>
-    <script>
-        window.addEventListener('load', () => {
-            setTimeout(() => document.body.classList.add('theme-transition'), 100);
-        });
-    </script>
     @yield('styles')
 </head>
 <body>
