@@ -20,3 +20,7 @@ yarn-error.log
 /public/storage
 /public/fonts-manifest.dev.json
 /public/build
+temp_docx/
+storage/logs/*.log
+storage/app/public/test_*.docx
+.DS_Store

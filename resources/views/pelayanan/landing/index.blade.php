@@ -740,8 +740,76 @@
 @endauth
 
 @guest
+<!-- Timeline Section (Alur Tahapan Permohonan Magang) -->
+<section id="timeline-section" class="max-w-container-max mx-auto px-margin-desktop pt-16 pb-8 w-full">
+<div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
+    <h2 class="font-headline-lg text-headline-lg text-on-surface">
+        Alur Tahapan Permohonan Magang
+    </h2>
+    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Informasi tahapan pelaksanaan program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
+</div>
+<div class="relative">
+<!-- Connecting Line -->
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10 stagger-container">
+<!-- Stage 1 -->
+<div class="flex flex-col relative group cursor-pointer reveal-element">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-center mb-1">
+    <span class="font-label-md text-label-md text-secondary font-bold">01</span>
+    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+        <span class="material-symbols-outlined text-[20px] fill">description</span>
+    </div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Pendaftaran Calon Peserta Magang</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta mengajukan pendaftaran program magang sesuai dengan ketentuan yang berlaku.</p>
+</div>
+</div>
+<!-- Stage 2 -->
+<div class="flex flex-col relative group cursor-pointer reveal-element">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-center mb-1">
+    <span class="font-label-md text-label-md text-secondary font-bold">02</span>
+    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+        <span class="material-symbols-outlined text-[20px] fill">search</span>
+    </div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Verifikasi Peserta</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Data dan persyaratan calon peserta melalui proses verifikasi.</p>
+</div>
+</div>
+<!-- Stage 3 -->
+<div class="flex flex-col relative group cursor-pointer reveal-element">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-center mb-1">
+    <span class="font-label-md text-label-md text-secondary font-bold">03</span>
+    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+        <span class="material-symbols-outlined text-[20px] fill">check_circle</span>
+    </div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Penetapan Peserta Magang</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta yang memenuhi persyaratan ditetapkan sebagai peserta magang dan memperoleh informasi penempatan.</p>
+</div>
+</div>
+<!-- Stage 4 -->
+<div class="flex flex-col relative group cursor-pointer reveal-element">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
+<div class="flex justify-between items-center mb-1">
+    <span class="font-label-md text-label-md text-secondary font-bold">04</span>
+    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+        <span class="material-symbols-outlined text-[20px] fill">work</span>
+    </div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface">Pelaksanaan Program Magang</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Peserta melaksanakan program magang pada Dinas / OPD yang telah ditetapkan sesuai dengan ketentuan yang berlaku.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
 <!-- Jenis Pelayanan Surat Izin Rekomendasi Section -->
-<section id="services-section" class="max-w-container-max mx-auto px-margin-desktop pt-16 pb-4 relative z-10 w-full overflow-hidden">
+<section id="services-section" class="max-w-container-max mx-auto px-margin-desktop pt-8 pb-8 relative z-10 w-full overflow-hidden">
 <div class="flex flex-col md:flex-row md:items-end md:justify-between mb-10 gap-4">
     <div class="flex flex-col gap-2">
         <h2 class="font-headline-lg text-headline-lg text-on-surface">Jenis Pelayanan Surat Izin Rekomendasi</h2>
@@ -846,74 +914,6 @@
 </div>
 </section>
 
-<!-- Timeline Section -->
-<section id="timeline-section" class="max-w-container-max mx-auto px-margin-desktop pt-8 pb-8 w-full">
-<div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
-    <h2 class="font-headline-lg text-headline-lg text-on-surface">
-        Alur Tahapan Permohonan Magang
-    </h2>
-    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Informasi tahapan pelaksanaan program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
-</div>
-<div class="relative">
-<!-- Connecting Line -->
-
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10 stagger-container">
-<!-- Stage 1 -->
-<div class="flex flex-col relative group cursor-pointer reveal-element">
-<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
-<div class="flex justify-between items-center mb-1">
-    <span class="font-label-md text-label-md text-secondary font-bold">01</span>
-    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-        <span class="material-symbols-outlined text-[20px] fill">description</span>
-    </div>
-</div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Pendaftaran Calon Peserta Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta mengajukan pendaftaran program magang sesuai dengan ketentuan yang berlaku.</p>
-</div>
-</div>
-<!-- Stage 2 -->
-<div class="flex flex-col relative group cursor-pointer reveal-element">
-<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
-<div class="flex justify-between items-center mb-1">
-    <span class="font-label-md text-label-md text-secondary font-bold">02</span>
-    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-        <span class="material-symbols-outlined text-[20px] fill">search</span>
-    </div>
-</div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Verifikasi Peserta</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Data dan persyaratan calon peserta melalui proses verifikasi.</p>
-</div>
-</div>
-<!-- Stage 3 -->
-<div class="flex flex-col relative group cursor-pointer reveal-element">
-<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
-<div class="flex justify-between items-center mb-1">
-    <span class="font-label-md text-label-md text-secondary font-bold">03</span>
-    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-        <span class="material-symbols-outlined text-[20px] fill">check_circle</span>
-    </div>
-</div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Penetapan Peserta Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta yang memenuhi persyaratan ditetapkan sebagai peserta magang dan memperoleh informasi penempatan.</p>
-</div>
-</div>
-<!-- Stage 4 -->
-<div class="flex flex-col relative group cursor-pointer reveal-element">
-<div class="bg-surface-container-lowest p-6 rounded-xl shadow-ambient border border-surface-container-high flex-grow flex flex-col gap-3 group-hover:border-primary group-hover:shadow-hover group-hover:-translate-y-1 transition-all duration-300">
-<div class="flex justify-between items-center mb-1">
-    <span class="font-label-md text-label-md text-secondary font-bold">04</span>
-    <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-        <span class="material-symbols-outlined text-[20px] fill">work</span>
-    </div>
-</div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Pelaksanaan Program Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Peserta melaksanakan program magang pada Dinas / OPD yang telah ditetapkan sesuai dengan ketentuan yang berlaku.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-
 <!-- Statistics Section (SMART Setjen DPR RI Style) -->
 <section id="statistics-section" class="max-w-container-max mx-auto px-margin-desktop pt-8 pb-12 relative z-20 w-full">
 <div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
@@ -1007,28 +1007,25 @@
                 </div>
             </div>
 
-            <!-- Right Card: Bar Chart (Weekly/Daily Submissions) -->
+            <!-- Right Card: Bar Chart (Top 10 Instansi Pendaftar Terbanyak) -->
             <div class="lg:col-span-3 bg-surface-container-low/40 rounded-xl p-6 border border-outline-variant/20 flex flex-col gap-6">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div class="flex flex-col gap-1">
                         <h3 class="font-title-lg text-title-lg text-on-surface flex items-center gap-2">
-                            <span class="material-symbols-outlined text-secondary text-[22px]">bar_chart</span>
-                            Aktivitas Pendaftaran Harian
+                            <span class="material-symbols-outlined text-secondary text-[22px]">leaderboard</span>
+                            Top 10 Instansi Pendaftar Terbanyak
                         </h3>
-                        <p class="font-caption text-caption text-on-surface-variant">Jumlah pendaftar harian selama 7 hari terakhir.</p>
+                        <p class="font-caption text-caption text-on-surface-variant">10 Perangkat Daerah dan Kecamatan dengan jumlah pendaftar tertinggi.</p>
                     </div>
-                    <!-- Today Badge -->
-                    <div class="bg-secondary/10 border border-secondary/20 rounded-lg px-4 py-2 flex items-center gap-2 text-secondary">
-                        <span class="material-symbols-outlined text-[20px]">today</span>
-                        <div class="flex flex-col">
-                            <span class="font-caption text-[10px] font-bold uppercase tracking-wider leading-none">Pengguna Hari Ini</span>
-                            <span id="today-count-badge" class="font-label-md text-label-md font-bold leading-none mt-1">0 Orang</span>
-                        </div>
-                    </div>
+                    <!-- Right Action: Lihat Selengkapnya Text Link -->
+                    <a href="{{ route('landing.statistik_instansi') }}" class="group inline-flex items-center gap-1.5 text-secondary dark:text-primary hover:text-primary dark:hover:text-primary/80 font-bold text-xs sm:text-sm transition-all self-start md:self-auto py-1 hover:underline">
+                        <span>Lihat Selengkapnya</span>
+                        <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+                    </a>
                 </div>
 
                 <!-- Chart Area -->
-                <div class="flex-grow min-h-[280px] flex items-center justify-center">
+                <div class="flex-grow min-h-[300px] flex items-center justify-center">
                     <div id="bar-chart-container" class="w-full"></div>
                 </div>
             </div>
@@ -1895,7 +1892,6 @@
             // Update stats summary in HTML
             document.getElementById('stat-registered-val').textContent = Number(data.registered).toLocaleString('id-ID');
             document.getElementById('stat-accepted-val').textContent = Number(data.accepted).toLocaleString('id-ID');
-            document.getElementById('today-count-badge').textContent = `${data.today} Orang`;
 
             // Donut Chart Config
             const donutOptions = {
@@ -1975,18 +1971,35 @@
                 }
             };
 
-            // Bar Chart Config (highlight last column which represents Today)
-            const colors = Array(6).fill('#818cf8'); // soft indigo for previous days
-            colors.push('#10b981'); // Emerald Green for Today
+            // Bar Chart Config: Top 10 Dinas Terbanyak Pendaftarnya
+            const topDinasData = data.top_dinas || { categories: [], full_names: [], series: [] };
+            const isDark = document.documentElement.classList.contains('dark');
+            const chartLabelColor = isDark ? '#f8fafc' : '#1e293b';
+            const chartSubColor = isDark ? '#cbd5e1' : '#64748b';
+            const chartGridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+
+            // Modern distinct color palette highlighting #1 with Emerald Green
+            const top10Colors = [
+                '#10b981', // 1: Emerald highlight (Peringkat 1)
+                '#3b82f6', // 2: Blue
+                '#6366f1', // 3: Indigo
+                '#8b5cf6', // 4: Purple
+                '#0ea5e9', // 5: Sky
+                '#06b6d4', // 6: Cyan
+                '#14b8a6', // 7: Teal
+                '#f59e0b', // 8: Amber
+                '#84cc16', // 9: Lime
+                '#64748b'  // 10: Slate
+            ];
 
             const barOptions = {
                 series: [{
-                    name: 'Jumlah Pengguna',
-                    data: data.weekly_series
+                    name: 'Jumlah Pendaftar',
+                    data: topDinasData.series || []
                 }],
                 chart: {
                     type: 'bar',
-                    height: 280,
+                    height: 300,
                     fontFamily: 'Plus Jakarta Sans, sans-serif',
                     toolbar: {
                         show: false
@@ -1997,28 +2010,44 @@
                         speed: 500
                     }
                 },
-                colors: colors,
+                colors: top10Colors.slice(0, (topDinasData.series || []).length),
                 plotOptions: {
                     bar: {
-                        borderRadius: 4,
-                        columnWidth: '50%',
-                        distributed: true
+                        borderRadius: 6,
+                        columnWidth: '55%',
+                        distributed: true,
+                        dataLabels: {
+                            position: 'top'
+                        }
                     }
                 },
                 dataLabels: {
-                    enabled: false
+                    enabled: true,
+                    offsetY: -20,
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        colors: [chartLabelColor]
+                    },
+                    formatter: function (val) {
+                        return val > 0 ? val : '';
+                    }
                 },
                 legend: {
                     show: false
                 },
                 xaxis: {
-                    categories: dayNames,
+                    categories: topDinasData.categories || [],
                     labels: {
+                        rotate: -35,
+                        rotateAlways: false,
                         style: {
-                            colors: Array(7).fill('var(--tw-on-surface-variant)'),
-                            fontSize: '12px',
+                            colors: Array((topDinasData.categories || []).length).fill(chartLabelColor),
+                            fontSize: '11px',
                             fontWeight: 600
-                        }
+                        },
+                        trim: true,
+                        maxHeight: 75
                     },
                     axisBorder: {
                         show: false
@@ -2030,7 +2059,7 @@
                 yaxis: {
                     labels: {
                         style: {
-                            colors: 'var(--tw-on-surface-variant)'
+                            colors: chartSubColor
                         },
                         formatter: function (val) {
                             return Math.round(val);
@@ -2038,7 +2067,7 @@
                     }
                 },
                 grid: {
-                    borderColor: 'var(--tw-outline-variant)',
+                    borderColor: chartGridColor,
                     opacity: 0.1,
                     strokeDashArray: 4,
                     yaxis: {
@@ -2049,10 +2078,26 @@
                 },
                 tooltip: {
                     theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-                    y: {
-                        formatter: function (val) {
-                            return val + " Pengguna";
-                        }
+                    custom: function({ series, seriesIndex, dataPointIndex }) {
+                        const count = series[seriesIndex][dataPointIndex];
+                        const shortName = topDinasData.categories[dataPointIndex] || '';
+                        const fullName = (topDinasData.full_names && topDinasData.full_names[dataPointIndex]) 
+                            ? topDinasData.full_names[dataPointIndex] 
+                            : shortName;
+                        const rank = dataPointIndex + 1;
+                        return `
+                            <div style="padding: 10px 14px; font-family: 'Plus Jakarta Sans', sans-serif;" class="text-xs shadow-xl rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                                    <span style="background: #10b981; color: white; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">#${rank}</span>
+                                    <span style="font-weight: 700; font-size: 12px; color: #10b981;">${shortName}</span>
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; margin-bottom: 6px; max-width: 240px; line-height: 1.3;">${fullName}</div>
+                                <div style="border-top: 1px solid rgba(148, 163, 184, 0.2); padding-top: 6px; display: flex; justify-content: space-between; gap: 12px; font-weight: 600;">
+                                    <span style="color: #64748b;">Jumlah Pendaftar:</span>
+                                    <span style="font-weight: 700; color: #0f766e;">${count} Orang</span>
+                                </div>
+                            </div>
+                        `;
                     }
                 }
             };
@@ -2080,6 +2125,16 @@
             serviceSelector.addEventListener('change', function(e) {
                 renderCharts(e.target.value);
             });
+
+            // Re-render charts when theme is switched between light and dark
+            const indexThemeObserver = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.attributeName === 'class') {
+                        renderCharts(serviceSelector.value);
+                    }
+                }
+            });
+            indexThemeObserver.observe(document.documentElement, { attributes: true });
         }
 
         // Handle Card Clicks in services list

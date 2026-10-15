@@ -556,7 +556,7 @@
                 let activeLink = null;
                 let isHoveringWrapper = false;
 
-                function movePillTo(element) {
+                function movePillTo(element, animateSlide = true) {
                     if (!element) {
                         pill.style.opacity = '0';
                         return;
@@ -570,11 +570,22 @@
                     const w = elemRect.width;
                     const h = elemRect.height;
 
-                    // GPU 120 FPS hardware accelerated translate3d
-                    pill.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-                    pill.style.width = `${w}px`;
-                    pill.style.height = `${h}px`;
-                    pill.style.opacity = '1';
+                    if (!animateSlide) {
+                        pill.style.transition = 'none';
+                        pill.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                        pill.style.width = `${w}px`;
+                        pill.style.height = `${h}px`;
+                        pill.style.opacity = '1';
+                        void pill.offsetWidth;
+                        setTimeout(() => {
+                            pill.style.transition = '';
+                        }, 60);
+                    } else {
+                        pill.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+                        pill.style.width = `${w}px`;
+                        pill.style.height = `${h}px`;
+                        pill.style.opacity = '1';
+                    }
                 }
 
                 function checkActiveState() {
@@ -592,9 +603,20 @@
                     });
 
                     if (activeLink && !isHoveringWrapper) {
-                        movePillTo(activeLink);
+                        movePillTo(activeLink, false);
                     }
                 }
+
+                let targetSectionLocked = null;
+                let clickScrollTimer = null;
+
+                window.addEventListener('wheel', () => {
+                    targetSectionLocked = null;
+                }, { passive: true });
+
+                window.addEventListener('touchmove', () => {
+                    targetSectionLocked = null;
+                }, { passive: true });
 
                 links.forEach(link => {
                     link.addEventListener('click', (e) => {
@@ -609,6 +631,9 @@
                                 const elementPosition = elementRect - bodyRect;
                                 const offsetPosition = elementPosition - offset;
 
+                                targetSectionLocked = targetId;
+                                if (clickScrollTimer) clearTimeout(clickScrollTimer);
+
                                 window.scrollTo({
                                     top: offsetPosition,
                                     behavior: 'smooth'
@@ -617,13 +642,26 @@
                                 if (history.pushState) {
                                     history.pushState(null, null, '#' + targetId);
                                 }
+
+                                const handleScrollEnd = () => {
+                                    targetSectionLocked = null;
+                                    window.removeEventListener('scrollend', handleScrollEnd);
+                                };
+
+                                if ('onscrollend' in window) {
+                                    window.addEventListener('scrollend', handleScrollEnd, { once: true });
+                                }
+
+                                clickScrollTimer = setTimeout(() => {
+                                    targetSectionLocked = null;
+                                }, 2500);
                             }
                         }
 
                         links.forEach(l => l.classList.remove('active-nav'));
                         link.classList.add('active-nav');
                         activeLink = link;
-                        movePillTo(link);
+                        movePillTo(link, false);
                     });
                 });
 
@@ -640,6 +678,15 @@
                 };
 
                 const observer = new IntersectionObserver((entries) => {
+                    if (targetSectionLocked) {
+                        const targetEntry = entries.find(e => e.target.id === targetSectionLocked && e.isIntersecting);
+                        if (targetEntry) {
+                            targetSectionLocked = null;
+                        } else {
+                            return;
+                        }
+                    }
+
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const targetId = entry.target.id;
@@ -652,7 +699,7 @@
                                 links.forEach(l => l.classList.remove('active-nav'));
                                 currentLink.classList.add('active-nav');
                                 activeLink = currentLink;
-                                movePillTo(currentLink);
+                                movePillTo(currentLink, true);
                             }
                         }
                     });
@@ -661,6 +708,7 @@
                 sections.forEach(section => observer.observe(section));
 
                 window.addEventListener('scroll', () => {
+                    if (targetSectionLocked) return;
                     // Remove active state if user scrolls up past the first section
                     if (window.scrollY < 200) {
                         links.forEach(l => l.classList.remove('active-nav'));

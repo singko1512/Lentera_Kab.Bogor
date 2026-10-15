@@ -7,6 +7,7 @@ use App\Models\Rekrutmen;
 use App\Models\Dinas;
 use App\Models\MagangApplication;
 use App\Models\PermohonanLayanan;
+use Illuminate\Support\Facades\DB;
 
 class LandingController extends Controller
 {
@@ -87,6 +88,7 @@ class LandingController extends Controller
         }
 
         $servicesList = [
+            'Semua Layanan' => 'all',
             'Penelitian (Perguruan Tinggi)' => 'penelitian_pt',
             'Penelitian (Instansi / Lembaga Lainnya)' => 'penelitian_instansi',
             'KKL / PKL / Magang (Mahasiswa)' => 'kkl_mahasiswa',
@@ -96,38 +98,78 @@ class LandingController extends Controller
             'Perpanjangan Izin Rekomendasi' => 'perpanjangan',
         ];
 
+        // Global top 10 dinas sebagai referensi/fallback
+        $globalTopDinasRaw = PermohonanLayanan::whereNotNull('dinas_id')
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->orderByDesc('total')
+            ->take(10)
+            ->with('dinas')
+            ->get();
+
         $chartData = [];
 
         foreach ($servicesList as $groupKey => $slug) {
-            $registeredCount = PermohonanLayanan::whereHas('jenisLayanan', function($q) use ($slug) {
-                $q->where('slug', $slug);
-            })->count();
+            $baseQuery = PermohonanLayanan::query();
+            if ($slug !== 'all') {
+                $baseQuery->whereHas('jenisLayanan', function($q) use ($slug) {
+                    $q->where('slug', $slug);
+                });
+            }
 
-            $acceptedCount = PermohonanLayanan::whereHas('jenisLayanan', function($q) use ($slug) {
-                $q->where('slug', $slug);
-            })->whereHas('statusMaster', function($q) {
+            $registeredCount = (clone $baseQuery)->count();
+
+            $acceptedCount = (clone $baseQuery)->whereHas('statusMaster', function($q) {
                 $q->whereIn('kode', ['disetujui', 'selesai']);
             })->count();
 
-            $todayCount = PermohonanLayanan::whereDate('created_at', now()->format('Y-m-d'))
-                ->whereHas('jenisLayanan', function($q) use ($slug) {
-                    $q->where('slug', $slug);
-                })->count();
+            $todayCount = (clone $baseQuery)->whereDate('created_at', now()->format('Y-m-d'))->count();
 
             $weeklySeries = [];
             for ($i = 6; $i >= 0; $i--) {
                 $date = now()->subDays($i);
-                $weeklySeries[] = PermohonanLayanan::whereDate('created_at', $date->format('Y-m-d'))
-                    ->whereHas('jenisLayanan', function($q) use ($slug) {
-                        $q->where('slug', $slug);
-                    })->count();
+                $weeklySeries[] = (clone $baseQuery)->whereDate('created_at', $date->format('Y-m-d'))->count();
             }
+
+            // Query 10 Dinas Terbanyak Pendaftarnya untuk layanan ini
+            $topDinasRaw = (clone $baseQuery)
+                ->whereNotNull('dinas_id')
+                ->select('dinas_id', DB::raw('count(*) as total'))
+                ->groupBy('dinas_id')
+                ->orderByDesc('total')
+                ->take(10)
+                ->with('dinas')
+                ->get();
+
+            $dinasDataToUse = $topDinasRaw->isNotEmpty() ? $topDinasRaw : $globalTopDinasRaw;
+
+            $topDinasCategories = [];
+            $topDinasFullNames = [];
+            $topDinasSeries = [];
+
+            foreach ($dinasDataToUse as $row) {
+                $dName = $row->dinas?->name ?? 'Dinas';
+                $topDinasCategories[] = Dinas::formatSingkatan($dName);
+                $topDinasFullNames[] = $dName;
+                $topDinasSeries[] = (int) $row->total;
+            }
+
+            $firstItem = $dinasDataToUse->first();
+            $topDinasBadge = $firstItem
+                ? (Dinas::formatSingkatan($firstItem->dinas?->name ?? 'Diskominfo') . ' (' . $firstItem->total . ' Orang)')
+                : '-';
 
             $chartData[$groupKey] = [
                 'registered' => $registeredCount,
                 'accepted' => $acceptedCount,
                 'today' => $todayCount,
-                'weekly_series' => $weeklySeries
+                'weekly_series' => $weeklySeries,
+                'top_dinas' => [
+                    'categories' => $topDinasCategories,
+                    'full_names' => $topDinasFullNames,
+                    'series' => $topDinasSeries,
+                    'top_badge' => $topDinasBadge,
+                ]
             ];
         }
 
@@ -453,5 +495,105 @@ class LandingController extends Controller
             'tanggalTerbit' => $tanggalTerbit,
             'catatan' => $catatan,
         ]);
+    }
+
+    /**
+     * Halaman Statistik dan Rekapitulasi Pendaftaran Seluruh Instansi (Kedinasan & Kecamatan)
+     */
+    public function statistikInstansi()
+    {
+        // 1. Agregasi pendaftar per dinas
+        $aggregates = PermohonanLayanan::whereNotNull('dinas_id')
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->pluck('total', 'dinas_id');
+
+        $acceptedAggregates = PermohonanLayanan::whereNotNull('dinas_id')
+            ->whereHas('statusMaster', function($q) {
+                $q->whereIn('kode', ['disetujui', 'selesai']);
+            })
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->pluck('total', 'dinas_id');
+
+        // 2. Ambil semua dinas beserta rekrutmen aktif untuk kuota
+        $allDinas = Dinas::with(['rekrutmens' => function($q) {
+            $q->where('is_active', true);
+        }])->get();
+
+        $dinasList = [];
+        $kecamatanList = [];
+        $tableData = [];
+
+        foreach ($allDinas as $dinas) {
+            $nameClean = trim($dinas->name);
+            $isKecamatan = str_starts_with(strtoupper($nameClean), 'KECAMATAN');
+            
+            $total = (int) ($aggregates[$dinas->id] ?? 0);
+            $diterima = (int) ($acceptedAggregates[$dinas->id] ?? 0);
+            $proses = max(0, $total - $diterima);
+            $singkatan = Dinas::formatSingkatan($nameClean);
+
+            $item = [
+                'id' => $dinas->id,
+                'name' => $nameClean,
+                'singkatan' => $singkatan,
+                'tipe' => $isKecamatan ? 'Kecamatan' : 'Perangkat Daerah',
+                'is_kecamatan' => $isKecamatan,
+                'total_pendaftar' => $total,
+                'diterima' => $diterima,
+                'proses' => $proses,
+                'status_magang' => $dinas->status_magang ?? 'otomatis',
+                'sisa_kuota' => $dinas->sisa_kuota,
+                'email' => $dinas->email ?: '-',
+                'telepon' => $dinas->telepon ?: '-',
+                'updated_at' => $dinas->updated_at ? $dinas->updated_at->format('Y-m-d') : '-',
+            ];
+
+            if ($isKecamatan) {
+                $kecamatanList[] = $item;
+            } else {
+                $dinasList[] = $item;
+            }
+
+            $tableData[] = $item;
+        }
+
+        // Urutkan dinas & kecamatan berdasarkan total_pendaftar terbanyak
+        usort($dinasList, fn($a, $b) => $b['total_pendaftar'] <=> $a['total_pendaftar'] ?: strcmp($a['name'], $b['name']));
+        usort($kecamatanList, fn($a, $b) => $b['total_pendaftar'] <=> $a['total_pendaftar'] ?: strcmp($a['name'], $b['name']));
+        usort($tableData, fn($a, $b) => $b['total_pendaftar'] <=> $a['total_pendaftar'] ?: strcmp($a['name'], $b['name']));
+
+        // Data chart Kedinasan (horizontal bar)
+        $chartDinas = [
+            'categories' => array_column($dinasList, 'singkatan'),
+            'full_names' => array_column($dinasList, 'name'),
+            'series' => array_column($dinasList, 'total_pendaftar'),
+        ];
+
+        // Data chart Kecamatan (horizontal bar)
+        $chartKecamatan = [
+            'categories' => array_column($kecamatanList, 'singkatan'),
+            'full_names' => array_column($kecamatanList, 'name'),
+            'series' => array_column($kecamatanList, 'total_pendaftar'),
+        ];
+
+        $summary = [
+            'total_instansi' => count($allDinas),
+            'total_kedinasan' => count($dinasList),
+            'total_kecamatan' => count($kecamatanList),
+            'total_pendaftar' => array_sum(array_column($tableData, 'total_pendaftar')),
+            'total_diterima' => array_sum(array_column($tableData, 'diterima')),
+            'total_proses' => array_sum(array_column($tableData, 'proses')),
+        ];
+
+        return view('pelayanan.landing.statistik_instansi', compact(
+            'dinasList',
+            'kecamatanList',
+            'chartDinas',
+            'chartKecamatan',
+            'tableData',
+            'summary'
+        ));
     }
 }

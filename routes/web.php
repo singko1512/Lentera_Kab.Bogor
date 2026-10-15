@@ -32,6 +32,7 @@ Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->name('land
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
 Route::get('/instansi', [LandingController::class, 'instansiList'])->name('landing.instansi');
 Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
+Route::get('/statistik-instansi', [LandingController::class, 'statistikInstansi'])->name('landing.statistik_instansi');
 Route::get('/verifikasi-surat/{token}', [LandingController::class, 'verifikasiSurat'])->name('surat.verifikasi');
 Route::get('/sertifikat/{slug}', function($slug) { return redirect()->route('absensi.admin.dashboard'); })->name('sertifikat.show');
 Route::get('/absensi/home', [SimalamAttendanceController::class, 'home'])->name('absensi.home');
