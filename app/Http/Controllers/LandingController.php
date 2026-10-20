@@ -216,6 +216,41 @@ class LandingController extends Controller
             $bidangParticipants = $query->get();
         }
 
+        $isApproaching3Months = false;
+        $daysRemaining3Months = null;
+        $batas3Bulan = null;
+
+        if ($userMagang && $userMagang->tanggal_mulai) {
+            $tglMulai = \Carbon\Carbon::parse($userMagang->tanggal_mulai);
+            $batas3Bulan = $tglMulai->copy()->addMonths(3);
+            $now = \Carbon\Carbon::now();
+            $daysRemaining3Months = (int) $now->diffInDays($batas3Bulan, false);
+
+            // Jika durasi magang sudah berjalan mendekati batas 3 bulan (sisa <= 14 hari) atau sudah melampaui 3 bulan
+            if ($daysRemaining3Months <= 14) {
+                $isApproaching3Months = true;
+
+                // Buat notifikasi di lonceng/drawer jika belum ada notifikasi pengingat perpanjangan dalam 7 hari terakhir
+                if (auth()->check()) {
+                    $recentNotif = \App\Models\Notification::where('user_id', auth()->id())
+                        ->where('judul', 'like', '%Perpanjangan Surat Rekomendasi%')
+                        ->where('created_at', '>=', now()->subDays(7))
+                        ->first();
+
+                    if (!$recentNotif) {
+                        $dinasName = $userMagang->dinas->name ?? ($userMagang->rekrutmen->dinas->name ?? 'Instansi Penempatan');
+                        \App\Models\Notification::create([
+                            'user_id' => auth()->id(),
+                            'judul' => 'Pengingat Wajib Perpanjangan Surat Rekomendasi',
+                            'pesan' => 'Masa berlaku Surat Rekomendasi kegiatan magang Anda di ' . $dinasName . ' mendekati batas waktu 3 bulan. Anda wajib mengajukan perpanjangan izin agar masa magang dan absensi tetap berlaku sah.',
+                            'link' => route('layanan.create', 'perpanjangan'),
+                            'dibaca' => false,
+                        ]);
+                    }
+                }
+            }
+        }
+
         return view('pelayanan.landing.index', compact(
             'rekrutmens', 
             'featuredInstansis', 
@@ -227,7 +262,10 @@ class LandingController extends Controller
             'stats',
             'userApplications',
             'userMagang',
-            'bidangParticipants'
+            'bidangParticipants',
+            'isApproaching3Months',
+            'daysRemaining3Months',
+            'batas3Bulan'
         ));
     }
 

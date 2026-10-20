@@ -764,7 +764,7 @@
                                 <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">2. Pengajuan Berkas</span>
                                 <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Formulir & Dokumen</span>
                                 <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                                    <span class="material-symbols-outlined text-[13px]">check_circle</span> Terkirim ({{ $app->created_at ? $app->created_at->format('d/m/y') : '-' }})
+                                    <span class="material-symbols-outlined text-[13px]">check_circle</span> Terkirim
                                 </span>
                             </div>
 
@@ -911,44 +911,7 @@
                         </div>
                     </div>
 
-                    <!-- Guidance & Next Steps Banner -->
-                    <div class="mt-4 p-4 sm:p-5 rounded-xl border transition-all duration-300 {{ $cardClass }}">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div class="flex items-start gap-3.5">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 {{ $cardIconBg }}">
-                                    <span class="material-symbols-outlined text-[22px]">{{ $cardIcon }}</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md {{ $cardBadgeClass }}">
-                                            {{ $cardBadgeText }}
-                                        </span>
-                                        <span class="text-[11px] font-semibold {{ $cardMetaClass }}">
-                                            &bull; {{ $cardMetaText }}
-                                        </span>
-                                    </div>
-                                    <h4 class="font-title-lg text-sm sm:text-base font-bold {{ $cardTitleClass }} mt-1">
-                                        {{ $cardTitle }}
-                                    </h4>
-                                    <p class="font-body-md text-xs sm:text-sm {{ $cardDescClass }} mt-1 leading-relaxed">
-                                        {!! $cardDescription !!}
-                                    </p>
-                                    @if(!empty($cardNote))
-                                    <div class="mt-2.5 p-2.5 rounded-lg bg-surface-container-lowest/80 dark:bg-slate-900/60 border border-outline-variant/20 dark:border-slate-800 text-xs text-on-surface dark:text-slate-300 flex items-start gap-2">
-                                        <span class="material-symbols-outlined text-[16px] text-primary dark:text-blue-400 shrink-0 mt-0.5">info</span>
-                                        <span class="leading-relaxed">{!! $cardNote !!}</span>
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            @if(!empty($cardActionHtml))
-                            <div class="flex items-center gap-2 shrink-0 self-start sm:self-center pt-1 sm:pt-0">
-                                {!! $cardActionHtml !!}
-                            </div>
-                            @endif
-                        </div>
-                    </div>
+
                 </div>
                 @endforeach
 
@@ -978,7 +941,7 @@
                                     <span class="material-symbols-outlined text-[20px]">post_add</span>
                                 </div>
                                 <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">2. Pengajuan Berkas</span>
-                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pilih Formulir</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Tambah Layanan Baru</span>
                                 <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
                                     <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Tahap Saat Ini
                                 </span>
@@ -1029,40 +992,6 @@
 
                         </div>
                     </div>
-
-                    <!-- Guidance Card for Empty State -->
-                    <div class="mt-4 p-4 sm:p-5 rounded-xl border border-primary/30 dark:border-blue-800/60 bg-primary/5 dark:bg-blue-950/40 transition-all duration-300">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div class="flex items-start gap-3.5">
-                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-primary dark:bg-blue-600 text-white">
-                                    <span class="material-symbols-outlined text-[22px]">post_add</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary dark:bg-blue-900/60 dark:text-blue-200 dark:border dark:border-blue-700/50">
-                                            Tahap 2: Pengajuan Layanan
-                                        </span>
-                                        <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-semibold">
-                                            &bull; Langkah Berikutnya
-                                        </span>
-                                    </div>
-                                    <h4 class="font-title-lg text-sm sm:text-base font-bold text-on-surface dark:text-slate-100 mt-1">
-                                        Silakan Mengajukan Permohonan Surat Izin / Magang
-                                    </h4>
-                                    <p class="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-slate-300 mt-1 leading-relaxed">
-                                        Akun Anda telah aktif dan terverifikasi di sistem LENTERA Kabupaten Bogor. Untuk memulai proses izin rekomendasi atau magang, silakan klik tombol <strong>"+ Tambah Layanan Baru"</strong> di atas atau tombol di bawah ini.
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 shrink-0 self-start sm:self-center pt-1 sm:pt-0">
-                                <button type="button" onclick="document.getElementById('btn-dropdown-layanan').click();" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-secondary dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer">
-                                    <span class="material-symbols-outlined text-[18px]">add</span>
-                                    <span>Ajukan Permohonan Sekarang</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             @endif
         </div>
@@ -1081,21 +1010,22 @@
         </div>
         @elseif(isset($userApplications) && $userApplications->count() > 0)
         <div class="overflow-x-auto rounded-xl border border-outline-variant/30 shadow-level-1 bg-surface-container-lowest">
-            <table class="w-full text-left border-collapse min-w-[1100px]">
+            <table class="w-full text-left border-collapse min-w-[850px]">
                 <thead class="bg-surface-container-low text-on-surface font-label-md text-xs uppercase tracking-wider border-b border-outline-variant/30">
                     <tr>
                         <th class="py-4 px-4 pl-6 whitespace-nowrap w-[70px]">No</th>
                         <th class="py-4 px-4 whitespace-nowrap min-w-[180px]">Tanggal / Waktu Pengajuan</th>
                         <th class="py-4 px-4 min-w-[200px]">Jenis Layanan</th>
                         <th class="py-4 px-4 min-w-[280px]">Dinas Tujuan & Topik</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap min-w-[160px]">Status Kesbangpol</th>
-                        <th class="py-4 px-4 text-center whitespace-nowrap min-w-[170px]">Status Dinas</th>
                         <th class="py-4 px-4 text-center whitespace-nowrap min-w-[130px]">Keterangan</th>
                         <th class="py-4 px-4 pr-6 text-center whitespace-nowrap min-w-[140px]">Aksi / Dokumen</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/20 font-body-md text-body-md text-on-surface">
                     @foreach($userApplications as $index => $app)
+                    @php
+                        $statusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
+                    @endphp
                     <tr id="app-row-{{ $app->id }}" class="hover:bg-surface-container-low/40 transition-colors">
                         <td class="py-4 px-4 pl-6 align-middle whitespace-nowrap">
                             <span class="font-bold text-sm text-on-surface">#{{ $app->id }}</span>
@@ -1126,63 +1056,6 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-4 px-4 text-center align-middle whitespace-nowrap">
-                            @php
-                                $statusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
-                                $statusNama = optional($app->statusMaster)->nama ?? 'Dalam Proses';
-                            @endphp
-                            @if($statusKode == 'disetujui' || $statusKode == 'selesai')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F5E9] dark:bg-emerald-950/70 text-[#2E7D32] dark:text-emerald-300 border border-[#C8E6C9] dark:border-emerald-800/60 rounded-full text-xs font-bold uppercase">
-                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                    <span>{{ $statusNama }}</span>
-                                </span>
-                            @elseif($statusKode == 'perlu_revisi')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 rounded-full text-xs font-bold uppercase">
-                                    <span class="material-symbols-outlined text-[14px]">edit_note</span>
-                                    <span>{{ $statusNama }}</span>
-                                </span>
-                            @elseif($statusKode == 'ditolak')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#FFEBEE] dark:bg-red-950/70 text-[#C62828] dark:text-red-300 border border-[#FFCDD2] dark:border-red-800/60 rounded-full text-xs font-bold uppercase">
-                                    <span class="material-symbols-outlined text-[14px]">cancel</span>
-                                    <span>{{ $statusNama }}</span>
-                                </span>
-                            @else
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-full text-xs font-bold uppercase">
-                                    <span class="material-symbols-outlined text-[14px]">pending</span>
-                                    <span>{{ $statusNama }}</span>
-                                </span>
-                            @endif
-                        </td>
-                        <td class="py-4 px-4 text-center align-middle whitespace-nowrap">
-                            @if($app->magangApplication)
-                                @php
-                                    $dinasStatus = strtolower($app->magangApplication->status ?? 'menunggu');
-                                @endphp
-                                @if(in_array($dinasStatus, ['diterima', 'aktif']))
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 rounded-full text-xs font-bold uppercase">
-                                        <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
-                                        <span>Diterima</span>
-                                    </span>
-                                @elseif($dinasStatus == 'ditolak')
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 dark:bg-red-950/70 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60 rounded-full text-xs font-bold uppercase">
-                                        <span class="material-symbols-outlined text-[14px]">close</span>
-                                        <span>Ditolak Dinas</span>
-                                    </span>
-                                @elseif($dinasStatus == 'expired')
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-700 rounded-full text-xs font-bold uppercase">
-                                        <span class="material-symbols-outlined text-[14px]">event_busy</span>
-                                        <span>Kedaluwarsa</span>
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 rounded-full text-xs font-bold uppercase" title="Kuota terbooking, menunggu persetujuan dinas">
-                                        <span class="material-symbols-outlined text-[14px]">hourglass_empty</span>
-                                        <span>Menunggu Dinas</span>
-                                    </span>
-                                @endif
-                            @else
-                                <span class="text-xs text-on-surface-variant italic">-</span>
-                            @endif
-                        </td>
                         <td class="py-4 px-4 text-center align-middle">
                             @if($app->keterangan)
                                 <div class="text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-lg border border-red-200 dark:border-red-900/60 max-w-xs leading-relaxed font-medium text-left">
@@ -1198,10 +1071,7 @@
                         </td>
                         <td class="py-4 px-4 pr-6 text-center align-middle whitespace-nowrap">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                <button type="button" onclick="changeStepperApplication('{{ $app->id }}'); document.getElementById('user-applications-stepper').scrollIntoView({behavior: 'smooth', block: 'nearest'});" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-surface-container dark:bg-slate-800 text-primary dark:text-blue-400 rounded-lg text-xs font-semibold hover:bg-primary/10 dark:hover:bg-blue-950/60 border border-transparent dark:border-slate-700 transition-all shadow-xs" title="Lihat Alur Tahapan Permohonan Ini">
-                                    <span class="material-symbols-outlined text-[15px]">route</span>
-                                    <span>Alur</span>
-                                </button>
+
                                 @if($app->file_surat_final)
                                     <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
                                         <span class="material-symbols-outlined text-[16px]">download</span>
@@ -1871,6 +1741,39 @@
             </div>
         </div>
 
+        @if(isset($isApproaching3Months) && $isApproaching3Months)
+        <!-- Warning Banner: Wajib Perpanjangan Surat Rekomendasi 3 Bulan -->
+        <div class="p-6 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/5 border-b border-amber-500/30">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-md ring-4 ring-amber-100 dark:ring-amber-950/60 animate-bounce">
+                        <span class="material-symbols-outlined text-[26px]">notification_important</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400">Pemberitahuan Wajib Perpanjangan Surat</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold {{ $daysRemaining3Months <= 0 ? 'bg-red-500 text-white' : 'bg-amber-200 text-amber-900 dark:bg-amber-900/80 dark:text-amber-200' }}">
+                                {{ $daysRemaining3Months <= 0 ? 'Batas 3 Bulan Telah Tercapai' : 'Mendekati Batas 3 Bulan (Sisa ' . $daysRemaining3Months . ' Hari)' }}
+                            </span>
+                        </div>
+                        <h3 class="text-base font-extrabold text-on-surface dark:text-white mt-1">
+                            Surat Rekomendasi Magang Memerlukan Perpanjangan Izin
+                        </h3>
+                        <p class="text-xs md:text-sm text-on-surface-variant dark:text-slate-300 mt-0.5 leading-relaxed">
+                            Sesuai regulasi Badan Kesbangpol Kab. Bogor, masa berlaku Surat Rekomendasi adalah 3 bulan per periode (Jatuh tempo: <strong>{{ $batas3Bulan ? $batas3Bulan->locale('id')->translatedFormat('d F Y') : '-' }}</strong>). Anda wajib mengajukan perpanjangan izin agar masa magang dan kehadiran presensi tetap sah di instansi tujuan.
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0 w-full md:w-auto">
+                    <a href="{{ route('layanan.create', 'perpanjangan') }}" class="inline-flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 whitespace-nowrap">
+                        <span class="material-symbols-outlined text-[20px]">edit_calendar</span>
+                        <span>Ajukan Perpanjangan Sekarang</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <!-- Working Hours & Information Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-surface-container-low/30 border-b border-outline-variant/20">
             <!-- Card 1: Working Hours -->
@@ -1935,7 +1838,6 @@
                         <tr class="bg-surface-container-low text-xs font-bold uppercase tracking-wider text-on-surface-variant border-b border-outline-variant/20">
                             <th class="p-4 pl-6">Nama Peserta</th>
                             <th class="p-4">Asal Instansi / Universitas</th>
-                            <th class="p-4 text-center">Jadwal Masuk</th>
                             <th class="p-4 text-center">Status Kehadiran Hari Ini</th>
                         </tr>
                     </thead>
@@ -1958,9 +1860,6 @@
                             </td>
                             <td class="p-4 text-on-surface-variant">
                                 {{ $p->permohonanLayanan->asal_instansi ?? ($p->user->asal_instansi ?? 'Umum') }}
-                            </td>
-                            <td class="p-4 text-center text-on-surface">
-                                <span class="px-2.5 py-1 bg-surface-container rounded-md font-mono text-xs font-semibold">08.00 - 16.00 WIB</span>
                             </td>
                             <td class="p-4 text-center">
                                 @if($todayAbsensi)
@@ -2000,7 +1899,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="p-6 text-center text-on-surface-variant">
+                            <td colspan="3" class="p-6 text-center text-on-surface-variant">
                                 Belum ada peserta lain di bidang ini.
                             </td>
                         </tr>

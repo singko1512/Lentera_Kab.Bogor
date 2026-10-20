@@ -317,7 +317,7 @@ class LayananController extends Controller
                     );
 
                     // Beritahu instansi tujuan bahwa rekomendasi telah disetujui Kesbangpol
-                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->where('role', 'dinas')->get();
                     foreach ($dinasUsers as $dUser) {
                         \App\Models\Notification::create([
                             'user_id' => $dUser->id,
@@ -359,7 +359,7 @@ class LayananController extends Controller
                 ]);
 
                 if ($layanan->dinas_id) {
-                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->where('role', 'dinas')->get();
                     foreach ($dinasUsers as $dUser) {
                         \App\Models\Notification::create([
                             'user_id' => $dUser->id,
@@ -386,7 +386,7 @@ class LayananController extends Controller
                 ]);
 
                 if ($layanan->dinas_id) {
-                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+                    $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->where('role', 'dinas')->get();
                     foreach ($dinasUsers as $dUser) {
                         \App\Models\Notification::create([
                             'user_id' => $dUser->id,
@@ -914,7 +914,7 @@ class LayananController extends Controller
         // 2. Notifikasi untuk akun dinas tujuan
         if ($layanan->dinas_id) {
             $magangApp = \App\Models\MagangApplication::where('permohonan_layanan_id', $layanan->id)->first();
-            $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->get();
+            $dinasUsers = \App\Models\User::where('dinas_id', $layanan->dinas_id)->where('role', 'dinas')->get();
             foreach ($dinasUsers as $dUser) {
                 \App\Models\Notification::create([
                     'user_id' => $dUser->id,

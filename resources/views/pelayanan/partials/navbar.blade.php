@@ -153,6 +153,17 @@
         transform: translate(-50%, -50%) scale(0);
         transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
     }
+    @keyframes pulse-red {
+        0% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+        }
+        70% {
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+        }
+        100% {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+    }
 </style>
 
     <!-- Navbar -->
@@ -168,6 +179,7 @@
 
             @php
                 $hasAcceptedMagang = auth()->check() && \App\Models\MagangApplication::where('user_id', auth()->id())->whereIn('status', ['diterima', 'aktif'])->exists();
+                $unreadNotifCount = auth()->check() ? \App\Models\Notification::where('user_id', auth()->id())->where('dibaca', false)->count() : 0;
             @endphp
 
             @guest
@@ -195,13 +207,7 @@
             @endguest
 
             <ul class="nav-links d-flex align-items-center gap-2.5">
-                @if($hasAcceptedMagang)
-                <li>
-                    <a href="{{ route('absensi.index') }}" class="btn btn-primary btn-sm px-3.5 py-1.5 rounded-3 font-weight-bold d-inline-flex align-items-center text-white shadow-sm" style="font-size: 0.85rem; border-radius: 8px !important;">
-                        Absensi
-                    </a>
-                </li>
-                @endif
+
 
                 <!-- Light / Dark Mode Toggle Button (Outside, round button) -->
                 <li>
@@ -225,8 +231,9 @@
                 @if(auth()->check())
                     <!-- Burger Toggle Button (For Sidebar Menu, only shown when logged in) -->
                     <li>
-                        <button class="nav-blue-glow-btn p-0 d-flex align-items-center justify-content-center border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenu" aria-label="Toggle menu" style="width: 38px; height: 38px; border-radius: 50% !important; color: var(--text); outline: none; box-shadow: none; text-decoration: none !important;">
+                        <button class="nav-blue-glow-btn p-0 d-flex align-items-center justify-content-center border-0 position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#userMenu" aria-label="Toggle menu" style="width: 38px; height: 38px; border-radius: 50% !important; color: var(--text); outline: none; box-shadow: none; text-decoration: none !important;">
                             <i class="fa-solid fa-bars fs-5" style="text-decoration: none !important;"></i>
+                            <span id="burger-notif-dot" class="position-absolute bg-danger border border-white dark:border-slate-900 rounded-circle {{ $unreadNotifCount > 0 ? '' : 'd-none' }}" style="top: 2px; right: 2px; width: 10px; height: 10px; animation: pulse-red 2s infinite;"></span>
                         </button>
                     </li>
                 @else
@@ -275,7 +282,7 @@
                 <button type="button" data-bs-toggle="modal" data-bs-target="#notificationModal" class="d-flex align-items-center justify-content-between p-3 rounded-3 text-decoration-none transition-all border-0 text-start w-100" style="color: var(--text); background: var(--bg); border: 1px solid var(--border) !important; outline: none;" onmouseover="this.style.transform='translateX(4px)'; this.style.borderColor='var(--primary) !important';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--border) !important';">
                     <span class="d-flex align-items-center gap-2" style="font-weight: 600; font-size: 0.9rem;">
                         <i class="fa-regular fa-bell text-primary fs-5"></i> Notifikasi
-                        <span id="nav-notif-badge" class="badge rounded-pill bg-danger ms-1 d-none" style="font-size: 0.7rem;">0</span>
+                        <span id="nav-notif-badge" class="badge rounded-pill bg-danger ms-1 {{ $unreadNotifCount > 0 ? '' : 'd-none' }}" style="font-size: 0.7rem;">{{ $unreadNotifCount }}</span>
                     </span>
                     <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.8rem;"></i>
                 </button>
@@ -395,6 +402,15 @@
                         badge.classList.add('d-none');
                     }
                 }
+
+                const burgerDot = document.getElementById('burger-notif-dot');
+                if (burgerDot) {
+                    if (data.unread_count > 0) {
+                        burgerDot.classList.remove('d-none');
+                    } else {
+                        burgerDot.classList.add('d-none');
+                    }
+                }
                 
                 const container = document.getElementById('notification-list-container');
                 if (container) {
@@ -449,7 +465,9 @@
                     'X-Requested-With': 'XMLHttpRequest',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 }
-            }).catch(err => console.error(err));
+            })
+            .then(() => loadNotifications())
+            .catch(err => console.error(err));
         }
 
         document.addEventListener('DOMContentLoaded', () => {

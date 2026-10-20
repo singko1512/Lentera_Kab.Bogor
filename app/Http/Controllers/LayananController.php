@@ -79,24 +79,57 @@ class LayananController extends Controller
 
         $jenisLayanan = JenisLayanan::where('slug', $slug)->firstOrFail();
         
+        // Cari instansi aktif peserta (jika sedang berjalan masa magangnya)
+        $userActiveDinas = null;
+        $activeMagang = null;
+        if (Auth::check()) {
+            $activeMagang = \App\Models\MagangApplication::with(['dinas', 'rekrutmen.dinas'])
+                ->where('user_id', Auth::id())
+                ->whereIn('status', ['menunggu', 'diterima', 'aktif'])
+                ->latest()
+                ->first();
+
+            if ($activeMagang) {
+                $userActiveDinas = $activeMagang->dinas ?? $activeMagang->rekrutmen?->dinas;
+            }
+
+            if (!$userActiveDinas) {
+                $lastPermohonan = \App\Models\PermohonanLayanan::with('dinas')
+                    ->where('user_id', Auth::id())
+                    ->whereNotNull('dinas_id')
+                    ->latest()
+                    ->first();
+                $userActiveDinas = $lastPermohonan?->dinas;
+            }
+
+            if (!$userActiveDinas && Auth::user()->dinas_id) {
+                $userActiveDinas = \App\Models\Dinas::find(Auth::user()->dinas_id);
+            }
+        }
+
         // Hanya tampilkan instansi yang sedang membuka rekrutmen aktif dan masih memiliki sisa kuota (sisa_kuota > 0)
-        $dinasList = \App\Models\Dinas::where(function ($q) {
-                $q->whereNull('status_magang')
-                  ->orWhere('status_magang', 'otomatis')
-                  ->orWhere('status_magang', 'tersedia');
-            })
-            ->whereHas('rekrutmens', function ($q) {
-                $q->where('is_active', true);
-            })
-            ->with(['rekrutmens' => function ($q) {
-                $q->where('is_active', true);
-            }])
-            ->orderBy('name')
-            ->get()
-            ->filter(function ($dinas) {
-                return $dinas->sisa_kuota > 0;
-            })
-            ->values();
+        // KECUALI jika untuk perpanjangan, kuota baru tidak menjadi pembatas
+        if ($slug === 'perpanjangan') {
+            $dinasList = \App\Models\Dinas::orderBy('name')->get();
+        } else {
+            $dinasList = \App\Models\Dinas::where(function ($q) {
+                    $q->whereNull('status_magang')
+                      ->orWhere('status_magang', 'otomatis')
+                      ->orWhere('status_magang', 'tersedia');
+                })
+                ->whereHas('rekrutmens', function ($q) {
+                    $q->where('is_active', true);
+                })
+                ->with(['rekrutmens' => function ($q) {
+                    $q->where('is_active', true);
+                }])
+                ->orderBy('name')
+                ->get()
+                ->filter(function ($dinas) {
+                    return $dinas->sisa_kuota > 0;
+                })
+                ->values();
+        }
 
         $registeredUsers = \App\Models\User::whereIn('role', ['peserta', 'user'])
             ->where('status_akun', '!=', 'diblokir')
@@ -106,7 +139,7 @@ class LayananController extends Controller
             ->get();
         
         // Render view berdasarkan slug
-        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList', 'registeredUsers'));
+        return view('pelayanan.landing.forms.' . $slug, compact('jenisLayanan', 'dinasList', 'registeredUsers', 'userActiveDinas', 'activeMagang'));
     }
 
     public function submit(Request $request)
@@ -135,10 +168,6 @@ class LayananController extends Controller
 
                         if ($tglSelesai->lessThan($tglMulai->copy()->addMonth())) {
                             $fail('Durasi kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
-                        }
-
-                        if ($tglSelesai->greaterThan($tglMulai->copy()->addMonths(3))) {
-                            $fail('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika durasi lebih dari 3 bulan, wajib mengajukan perpanjangan setelahnya.');
                         }
                     }
                 },
@@ -186,6 +215,14 @@ class LayananController extends Controller
                 $totalPeserta = count($anggotaList) + 1;
             }
 
+            $isPerpanjangan = ($request->jenis_layanan_slug === 'perpanjangan');
+            $prevMagang = $isPerpanjangan
+                ? \App\Models\MagangApplication::where('user_id', Auth::id())
+                    ->whereIn('status', ['menunggu', 'diterima', 'aktif'])
+                    ->latest()
+                    ->first()
+                : null;
+
             if ($request->filled('dinas_id')) {
                 $targetDinas = \App\Models\Dinas::find($request->dinas_id);
                 if (!$targetDinas) {
@@ -195,7 +232,7 @@ class LayananController extends Controller
                     ], 422);
                 }
 
-                if (in_array($targetDinas->status_magang, ['tidak_tersedia', 'penuh'])) {
+                if (!$isPerpanjangan && in_array($targetDinas->status_magang, ['tidak_tersedia', 'penuh'])) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Instansi ' . $targetDinas->name . ' saat ini tidak menerima pengajuan magang/PKL (Status: ' . strtoupper($targetDinas->status_magang) . ').'
@@ -234,15 +271,22 @@ class LayananController extends Controller
                 }
 
                 if (!$chosenRekrutmen) {
-                    $sisaTersedia = $targetDinas->sisa_kuota;
-                    $pesanError = $totalPeserta > 1
-                        ? 'Instansi ' . $targetDinas->name . ' hanya memiliki sisa kuota ' . $sisaTersedia . ', tidak mencukupi untuk ' . $totalPeserta . ' orang pendaftar kelompok. Silakan pilih instansi lain yang kuotanya mencukupi.'
-                        : 'Instansi ' . $targetDinas->name . ' saat ini kuotanya sudah penuh. Silakan pilih instansi yang tersedia.';
+                    if ($isPerpanjangan) {
+                        // Untuk perpanjangan, peserta sudah berjalan magangnya dan tidak memotong kuota baru
+                        $chosenRekrutmen = ($prevMagang && $prevMagang->rekrutmen_id)
+                            ? \App\Models\Rekrutmen::find($prevMagang->rekrutmen_id)
+                            : ($activeRekrutmens->first() ?? \App\Models\Rekrutmen::where('dinas_id', $targetDinas->id)->first());
+                    } else {
+                        $sisaTersedia = $targetDinas->sisa_kuota;
+                        $pesanError = $totalPeserta > 1
+                            ? 'Instansi ' . $targetDinas->name . ' hanya memiliki sisa kuota ' . $sisaTersedia . ', tidak mencukupi untuk ' . $totalPeserta . ' orang pendaftar kelompok. Silakan pilih instansi lain yang kuotanya mencukupi.'
+                            : 'Instansi ' . $targetDinas->name . ' saat ini kuotanya sudah penuh. Silakan pilih instansi yang tersedia.';
 
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => $pesanError
-                    ], 422);
+                        return response()->json([
+                            'status' => 'error',
+                            'message' => $pesanError
+                        ], 422);
+                    }
                 }
             }
 
@@ -326,8 +370,9 @@ class LayananController extends Controller
                     [
                         'dinas_id' => $targetDinas->id,
                         'rekrutmen_id' => $chosenRekrutmen->id,
+                        'bidang_id' => $prevMagang?->bidang_id,
                         'status' => 'menunggu',
-                        'jumlah_orang' => $totalPeserta,
+                        'jumlah_orang' => $isPerpanjangan ? 0 : $totalPeserta,
                         'pesan_lamaran' => $permohonan->judul_kegiatan,
                         'tanggal_mulai' => $permohonan->tanggal_mulai,
                         'tanggal_selesai' => $permohonan->tanggal_selesai,
@@ -337,7 +382,7 @@ class LayananController extends Controller
                 );
 
                 // Kirim notifikasi masuk langsung ke akun instansi tujuan sejak awal
-                $dinasUsers = \App\Models\User::where('dinas_id', $targetDinas->id)->get();
+                $dinasUsers = \App\Models\User::where('dinas_id', $targetDinas->id)->where('role', 'dinas')->get();
                 $namaPemohon = $permohonan->atas_nama ?: (Auth::user()->name ?? 'Pemohon');
                 $asalInstansi = $permohonan->asal_instansi ?: (Auth::user()->asal_instansi ?? '-');
                 $layananNama = $jenisLayanan->nama ?? 'Surat Rekomendasi';
@@ -471,7 +516,7 @@ class LayananController extends Controller
                 );
 
                 // Beritahu instansi tujuan baru
-                $dinasUsers = \App\Models\User::where('dinas_id', $newDinas->id)->get();
+                $dinasUsers = \App\Models\User::where('dinas_id', $newDinas->id)->where('role', 'dinas')->get();
                 foreach ($dinasUsers as $dUser) {
                     \App\Models\Notification::create([
                         'user_id' => $dUser->id,

@@ -319,22 +319,49 @@
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan <span class="text-error">*</span></label>
 <p class="font-caption text-caption text-error font-medium">Untuk perpanjangan surat Rekomendasi dari Bakesbangpol Kab. Bogor WAJIB sama tempat pelaksanaan dengan sebelumnya. Jika Berbeda maka pengajuan baru.</p>
-<p class="font-caption text-caption text-on-surface-variant font-medium">Untuk perpanjangan surat Rekomendasi dari Bakesbangpol Kab. Bogor WAJIB sama tempat pelaksanaan dengan sebelumnya. Jika Berbeda maka pengajuan baru.</p>
-<select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
-    <option value="">-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --</option>
-    @forelse($dinasList as $dinas)
-        <option value="{{ $dinas->id }}" data-original-name="{{ $dinas->name }}" data-base-kuota="{{ $dinas->sisa_kuota }}">
-            {{ $dinas->name }} (Sisa Kuota: {{ $dinas->sisa_kuota }})
-        </option>
-    @empty
-        <option value="" disabled>Saat ini belum ada instansi yang membuka kuota penerimaan</option>
-    @endforelse
-</select>
+
+@if(isset($userActiveDinas) && $userActiveDinas)
+    <!-- Input hidden otomatis untuk mengirim dinas_id -->
+    <input type="hidden" name="dinas_id" id="input_dinas_id" value="{{ $userActiveDinas->id }}">
+
+    <!-- Card Tampilan Otomatis Instansi Penempatan (Terkunci & Bebas Kuota) -->
+    <div class="p-4 rounded-xl border-2 border-primary/30 bg-primary/5 dark:bg-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm mt-1">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
+                <span class="material-symbols-outlined text-[28px]">corporate_fare</span>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-primary">Instansi Penempatan Saat Ini</span>
+                <span class="text-base font-extrabold text-on-surface dark:text-white mt-0.5">{{ $userActiveDinas->name }}</span>
+                <span class="text-xs text-on-surface-variant font-medium mt-0.5">Lokasi kegiatan magang/PKL yang sedang Anda jalani</span>
+            </div>
+        </div>
+        <div class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-primary/15 text-primary rounded-full text-xs font-bold border border-primary/20">
+            <span class="material-symbols-outlined text-[16px]">lock</span>
+            <span>Otomatis Terpilih</span>
+        </div>
+    </div>
+    <p class="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5 text-secondary">
+        <span class="material-symbols-outlined text-[16px] text-primary">verified</span>
+        <span>Instansi otomatis ditentukan dari kegiatan magang Anda saat ini. Perpanjangan masa magang tidak memerlukan pemilihan ulang berdasarkan kuota.</span>
+    </p>
+@else
+    <select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
+        <option value="">-- Pilih Instansi / Dinas Tempat Magang Anda Sebelumnya --</option>
+        @forelse($dinasList as $dinas)
+            <option value="{{ $dinas->id }}" data-original-name="{{ $dinas->name }}" data-base-kuota="999">
+                {{ $dinas->name }}
+            </option>
+        @empty
+            <option value="" disabled>Saat ini belum ada data instansi</option>
+        @endforelse
+    </select>
+    <p class="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5 text-secondary">
+        <span class="material-symbols-outlined text-[15px]">info</span>
+        <span>Pilih instansi tempat pelaksanaan magang/penelitian Anda yang sedang berjalan.</span>
+    </p>
+@endif
 <div id="dinas-quota-warning" class="hidden"></div>
-<p class="text-xs text-on-surface-variant mt-1.5 flex items-center gap-1.5 text-secondary">
-    <span class="material-symbols-outlined text-[15px]">info</span>
-    <span>Hanya menampilkan instansi yang aktif membuka kuota. Kuota instansi yang Anda pilih akan langsung terpotong otomatis saat permohonan dikirim.</span>
-</p>
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Waktu Pelaksanaan <span class="text-error">*</span></label>
@@ -342,12 +369,19 @@
 </div>
 <div class="flex flex-col gap-stack-sm">
     <label class="font-label-md text-label-md text-on-surface">Tanggal Mulai <span class="text-error">*</span></label>
-    <input name="tanggal_mulai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required value="{{ date('Y-m-d') }}">
+    @php
+        $defaultStartDate = date('Y-m-d');
+        if (isset($activeMagang) && $activeMagang && $activeMagang->tanggal_selesai) {
+            $tglNext = \Carbon\Carbon::parse($activeMagang->tanggal_selesai)->addDay()->format('Y-m-d');
+            $defaultStartDate = $tglNext;
+        }
+    @endphp
+    <input name="tanggal_mulai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required value="{{ $defaultStartDate }}">
 </div>
 <div class="flex flex-col gap-stack-sm">
     <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai <span class="text-error">*</span></label>
     <input name="tanggal_selesai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required>
-    <p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dan maksimal 3 bulan dari tanggal mulai</p>
+    <p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dari tanggal mulai (jika durasi melebihi 3 bulan, wajib mengajukan perpanjangan izin)</p>
 </div>
 </div>
 </div>
@@ -370,7 +404,6 @@
 <span class="font-label-md text-label-md text-primary mt-2">Surat Pengajuan Permohonan</span>
 <span class="font-caption text-caption text-on-surface-variant">Ditujukan kepada Kepala Badan Kesbangpol dan Instansi Terkait</span>
 <span class="font-caption text-caption text-error font-medium">PASTIKAN TELAH ADA PEMBUBUHAN CAP DARI INSTANSI TERKAIT SEPERTI SEBELUMNYA</span>
-<span class="font-caption text-caption text-on-surface-variant font-semibold">PASTIKAN TELAH ADA PEMBUBUHAN CAP DARI INSTANSI TERKAIT SEPERTI SEBELUMNYA</span>
 <span class="font-caption text-caption text-outline">Format file: PDF. Wajib *</span>
 </label>
 <label class="flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
@@ -500,9 +533,8 @@
         if (tglMulai && tglSelesai) {
             if (tglMulai.value) {
                 const minDate = getMinEndDate(tglMulai.value);
-                const maxDate = getMaxEndDate(tglMulai.value);
                 tglSelesai.min = minDate;
-                tglSelesai.max = maxDate;
+                tglSelesai.removeAttribute('max');
                 // Tidak paksa reset nilai agar user bebas memilih tanggal
                 // Validasi range dilakukan saat klik Lanjut (nextStep)
             }
@@ -711,32 +743,13 @@
         const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (isValid && tglMulai && tglSelesai && tglMulai.value && tglSelesai.value) {
             const minDate = getMinEndDate(tglMulai.value);
-            const maxDate = getMaxEndDate(tglMulai.value);
             if (minDate && tglSelesai.value < minDate) {
                 alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
-                tglSelesai.focus();
-                isValid = false;
-            } else if (maxDate && tglSelesai.value > maxDate) {
-                alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika kegiatan lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
                 tglSelesai.focus();
                 isValid = false;
             }
         }
 
-        if (isValid && currentStep === 2) {
-            const selectDinas = form.querySelector('select[name="dinas_id"]');
-            if (selectDinas && selectDinas.value) {
-                const opt = selectDinas.options[selectDinas.selectedIndex];
-                const baseKuota = parseInt(opt.getAttribute('data-base-kuota') || '0');
-                const totalPendaftar = getJumlahPendaftarSaatIni();
-                if (baseKuota < totalPendaftar) {
-                    alert(`Instansi "${opt.getAttribute('data-original-name') || ''}" tidak memiliki kuota yang cukup untuk ${totalPendaftar} orang pendaftar (sisa kuota: ${baseKuota}). Silakan pilih instansi lain.`);
-                    selectDinas.focus();
-                    isValid = false;
-                }
-            }
-        }
-        
         if (isValid && currentStep < totalSteps) {
             currentStep++;
             sessionStorage.setItem(storageKey, currentStep);
@@ -878,77 +891,22 @@
     }
 
     function updateRealtimeDinasKuota() {
-        const totalPendaftar = getJumlahPendaftarSaatIni();
+        const warningEl = document.getElementById('dinas-quota-warning');
+        if (warningEl) {
+            warningEl.className = 'hidden';
+            warningEl.innerHTML = '';
+        }
+
         const selectDinas = form.querySelector('select[name="dinas_id"]');
         if (!selectDinas) return;
 
-        const warningEl = document.getElementById('dinas-quota-warning');
-        let selectedOptionInvalid = false;
-        let selectedDinasName = '';
-        let selectedDinasKuota = 0;
-        let visibleCount = 0;
-
+        // Untuk formulir perpanjangan, pilihan instansi tidak disembunyikan/dibatasi oleh kuota baru
         Array.from(selectDinas.options).forEach(opt => {
             if (!opt.value) return;
-            const baseName = opt.getAttribute('data-original-name') || opt.text.split(' (Sisa Kuota')[0].split(' (Sisa:')[0].split(' (Kuota')[0].trim();
-            if (!opt.getAttribute('data-original-name')) {
-                opt.setAttribute('data-original-name', baseName);
-            }
-            const baseKuota = parseInt(opt.getAttribute('data-base-kuota') || '0');
-
-            if (baseKuota >= totalPendaftar) {
-                visibleCount++;
-                opt.hidden = false;
-                opt.style.display = '';
-                opt.disabled = false;
-                opt.text = `${baseName} (Sisa Kuota: ${baseKuota})`;
-            } else {
-                // Kuota instansi tidak mencukupi untuk jumlah pendaftar -> sembunyikan (hide) dari dropdown
-                opt.hidden = true;
-                opt.style.display = 'none';
-                opt.disabled = true;
-                if (opt.selected) {
-                    selectedOptionInvalid = true;
-                    selectedDinasName = baseName;
-                    selectedDinasKuota = baseKuota;
-                    opt.selected = false;
-                    selectDinas.value = '';
-                }
-            }
+            opt.hidden = false;
+            opt.style.display = '';
+            opt.disabled = false;
         });
-
-        const defaultOpt = selectDinas.options[0];
-        if (defaultOpt) {
-            if (visibleCount === 0) {
-                defaultOpt.text = totalPendaftar > 1
-                    ? `-- Tidak Ada Instansi dengan Kuota Cukup (Minimal ${totalPendaftar} slot) --`
-                    : `-- Tidak ada instansi yang membuka kuota saat ini --`;
-            } else {
-                defaultOpt.text = '-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --';
-            }
-        }
-
-        if (warningEl) {
-            if (visibleCount === 0) {
-                warningEl.className = 'mt-2 p-3 rounded-lg border border-error/40 bg-error/10 text-error flex items-center gap-2 text-sm';
-                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">error</span><span>Maaf, tidak ada instansi yang memiliki sisa kuota minimal <strong>${totalPendaftar} slot</strong> untuk kelompok Anda.</span>`;
-            } else if (selectedOptionInvalid) {
-                warningEl.className = 'mt-2 p-3 rounded-lg border border-amber-500/40 bg-amber-50 text-amber-800 flex items-center gap-2 text-sm';
-                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">warning</span><span>Pilihan instansi sebelumnya (<strong>${selectedDinasName}</strong>) otomatis direset karena kuotanya (${selectedDinasKuota}) kurang dari <strong>${totalPendaftar} orang</strong>. Hanya instansi dengan kuota &ge; ${totalPendaftar} yang ditampilkan.</span>`;
-            } else if (totalPendaftar > 1 && selectDinas.value) {
-                const selectedOpt = selectDinas.options[selectDinas.selectedIndex];
-                const baseKuota = parseInt(selectedOpt.getAttribute('data-base-kuota') || '0');
-                const sisa = baseKuota - totalPendaftar;
-                warningEl.className = 'mt-2 p-3 rounded-lg border border-secondary/40 bg-secondary/10 text-secondary flex items-center gap-2 text-sm';
-                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">info</span><span>Pendaftaran kelompok <strong>${totalPendaftar} orang</strong> akan memotong <strong>${totalPendaftar} kuota</strong> instansi secara otomatis (sisa kuota instansi menjadi ${sisa}).</span>`;
-            } else if (totalPendaftar > 1) {
-                warningEl.className = 'mt-2 p-3 rounded-lg border border-secondary/40 bg-secondary/10 text-secondary flex items-center gap-2 text-sm';
-                warningEl.innerHTML = `<span class="material-symbols-outlined text-[18px]">info</span><span>Menampilkan <strong>${visibleCount} instansi</strong> yang memiliki sisa kuota minimal <strong>${totalPendaftar} slot</strong>. Instansi yang kuotanya kurang dari ${totalPendaftar} otomatis disembunyikan.</span>`;
-            } else {
-                warningEl.className = 'hidden';
-                warningEl.innerHTML = '';
-            }
-        }
     }
 
     function ubahJumlahAnggota(delta) {

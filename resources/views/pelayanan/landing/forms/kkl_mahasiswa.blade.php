@@ -307,7 +307,7 @@
 <div class="flex flex-col gap-stack-sm">
 <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai <span class="text-error">*</span></label>
 <input name="tanggal_selesai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required>
-<p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dan maksimal 3 bulan dari tanggal mulai</p>
+<p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dari tanggal mulai (jika kegiatan lebih dari 3 bulan, wajib mengajukan perpanjangan izin)</p>
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan KKL / PKL <span class="text-error">*</span></label>
@@ -479,9 +479,8 @@
         if (tglMulai && tglSelesai) {
             if (tglMulai.value) {
                 const minDate = getMinEndDate(tglMulai.value);
-                const maxDate = getMaxEndDate(tglMulai.value);
                 tglSelesai.min = minDate;
-                tglSelesai.max = maxDate;
+                tglSelesai.removeAttribute('max');
                 // Tidak paksa reset nilai agar user bebas memilih tanggal
                 // Validasi range dilakukan saat klik Lanjut (nextStep)
             }
@@ -640,13 +639,8 @@
         const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (isValid && tglMulai && tglSelesai && tglMulai.value && tglSelesai.value) {
             const minDate = getMinEndDate(tglMulai.value);
-            const maxDate = getMaxEndDate(tglMulai.value);
             if (minDate && tglSelesai.value < minDate) {
                 alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
-                tglSelesai.focus();
-                isValid = false;
-            } else if (maxDate && tglSelesai.value > maxDate) {
-                alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika kegiatan lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
                 tglSelesai.focus();
                 isValid = false;
             }
