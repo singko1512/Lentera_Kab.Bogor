@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             MasterDataSeeder::class,
             ExcelDinasSeeder::class,
             AdminSeeder::class,
+            TestUserSeeder::class,
         ]);
     }
 }

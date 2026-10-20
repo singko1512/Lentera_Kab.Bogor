@@ -192,7 +192,7 @@
 </ol>
 </nav>
 <h1 class="font-headline-lg text-headline-lg text-primary mt-2">Form Pengajuan Perpanjangan Izin Rekomendasi</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-white/70 max-w-3xl">Lengkapi formulir di bawah ini untuk mengajukan permohonan rekomendasi pelaksanaan program Kuliah Kerja Nyata (KKN) di wilayah Kabupaten Bogor.</p>
+<p class="font-body-lg text-body-lg text-on-surface-variant dark:text-white/70 max-w-3xl">Lengkapi formulir di bawah ini untuk mengajukan permohonan perpanjangan izin rekomendasi di wilayah Kabupaten Bogor.</p>
 </div>
 <div class="flex flex-col md:flex-row gap-stack-lg">
 <!-- Sidebar (Tahapan Pengajuan) -->
@@ -235,6 +235,21 @@
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Email <span class="text-error">*</span></label>
 <input name="email" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan alamat email aktif" type="email" required value="{{ auth()->check() ? auth()->user()->email : '' }}">
+</div>
+<div class="flex flex-col gap-stack-sm md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface">Permohonan Perpanjangan <span class="text-error">*</span></label>
+<p class="font-caption text-caption text-on-surface-variant">Silahkan dipilih satu</p>
+<select name="jenis_permohonan" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
+    <option value="" disabled selected>Pilih Permohonan Perpanjangan</option>
+    <option value="Penelitian">Penelitian</option>
+    <option value="Pengambilan Data">Pengambilan Data</option>
+    <option value="Wawancara">Wawancara</option>
+    <option value="Survey">Survey</option>
+    <option value="Magang / PKL / KKL (Mahasiswa)">Magang / PKL / KKL (Mahasiswa)</option>
+    <option value="KKN">KKN</option>
+    <option value="PKL (anak sekolah)">PKL (anak sekolah)</option>
+    <option value="Pelaksanaan Kegiatan">Pelaksanaan Kegiatan</option>
+</select>
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
 <label class="font-label-md text-label-md text-on-surface">Jumlah Peserta <span class="text-error">*</span></label>
@@ -284,12 +299,12 @@
 <input name="no_hp" maxlength="15" oninput="this.value = this.value.replace(/[^0-9+]/g, ''); if(this.value.startsWith('0')) this.value = '+62' + this.value.substring(1);" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan nomor HP/WhatsApp aktif" type="tel" required value="{{ auth()->check() ? auth()->user()->no_hp : '' }}">
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
-<label class="font-label-md text-label-md text-on-surface">Asal Institusi / Organisasi / Komunitas <span class="text-error">*</span></label>
-<input name="asal_instansi" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Contoh: Universitas Indonesia / Karang Taruna" type="text" required value="{{ auth()->check() ? auth()->user()->asal_instansi : '' }}">
+<label class="font-label-md text-label-md text-on-surface">Asal Institusi / Sekolah / Organisasi / Komunitas <span class="text-error">*</span></label>
+<input name="asal_instansi" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Contoh: Universitas Indonesia / SMA Negeri 1 / Karang Taruna" type="text" required value="{{ auth()->check() ? auth()->user()->asal_instansi : '' }}">
 </div>
 </div>
 </div>
-<!-- Section 2: Informasi KKN -->
+<!-- Section 2: Informasi Kegiatan -->
 <div id="step-2" class="step-content hidden bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-t-4 border-primary p-6 md:p-8 flex flex-col gap-stack-md">
 <h2 class="font-title-lg text-title-lg text-primary flex items-center gap-2 border-b border-surface-variant pb-3">
 <span class="material-symbols-outlined" data-icon="work">work</span>
@@ -297,11 +312,14 @@
                     </h2>
 <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md mt-2">
 <div class="flex flex-col gap-stack-sm md:col-span-2">
-<label class="font-label-md text-label-md text-on-surface">Judul Penelitian / Kegiatan <span class="text-error">*</span></label>
-<input name="judul_kegiatan" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan judul penelitian / kegiatan" type="text" required>
+<label class="font-label-md text-label-md text-on-surface">Judul / Tema</label>
+<p class="font-caption text-caption text-on-surface-variant">Untuk PKL / Magang tidak diisi</p>
+<input name="judul_kegiatan" id="input_judul_kegiatan" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" placeholder="Masukkan judul / tema (kosongkan jika PKL / Magang)" type="text">
 </div>
 <div class="flex flex-col gap-stack-sm md:col-span-2">
-<label class="font-label-md text-label-md text-on-surface">Tempat Penelitian / Kegiatan <span class="text-error">*</span></label>
+<label class="font-label-md text-label-md text-on-surface">Tempat Pelaksanaan <span class="text-error">*</span></label>
+<p class="font-caption text-caption text-error font-medium">Untuk perpanjangan surat Rekomendasi dari Bakesbangpol Kab. Bogor WAJIB sama tempat pelaksanaan dengan sebelumnya. Jika Berbeda maka pengajuan baru.</p>
+<p class="font-caption text-caption text-on-surface-variant font-medium">Untuk perpanjangan surat Rekomendasi dari Bakesbangpol Kab. Bogor WAJIB sama tempat pelaksanaan dengan sebelumnya. Jika Berbeda maka pengajuan baru.</p>
 <select name="dinas_id" class="w-full rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" required>
     <option value="">-- Pilih Instansi / Dinas (Hanya yang Membuka Kuota) --</option>
     @forelse($dinasList as $dinas)
@@ -318,12 +336,16 @@
     <span>Hanya menampilkan instansi yang aktif membuka kuota. Kuota instansi yang Anda pilih akan langsung terpotong otomatis saat permohonan dikirim.</span>
 </p>
 </div>
+<div class="flex flex-col gap-stack-sm md:col-span-2">
+<label class="font-label-md text-label-md text-on-surface">Waktu Pelaksanaan <span class="text-error">*</span></label>
+<p class="font-caption text-caption text-on-surface-variant">Contoh: 17 Agustus 2021 s.d 17 Oktober 2021 (Maks 3 Bulan) jika lebih dari 3 bulan maka wajib perpanjang dengan mencantumkan surat yang kami keluarkan.</p>
+</div>
 <div class="flex flex-col gap-stack-sm">
-    <label class="font-label-md text-label-md text-on-surface">Tanggal Mulai Perpanjangan <span class="text-error">*</span></label>
+    <label class="font-label-md text-label-md text-on-surface">Tanggal Mulai <span class="text-error">*</span></label>
     <input name="tanggal_mulai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required value="{{ date('Y-m-d') }}">
 </div>
 <div class="flex flex-col gap-stack-sm">
-    <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai Perpanjangan <span class="text-error">*</span></label>
+    <label class="font-label-md text-label-md text-on-surface">Tanggal Selesai <span class="text-error">*</span></label>
     <input name="tanggal_selesai" class="rounded-lg border-outline-variant bg-surface-bright focus:border-secondary focus:ring focus:ring-secondary/20 font-body-md text-body-md p-3 text-on-surface" type="date" required>
     <p class="font-caption text-caption text-on-surface-variant">Minimal 1 bulan dan maksimal 3 bulan dari tanggal mulai</p>
 </div>
@@ -343,22 +365,27 @@
 <span class="font-caption text-caption text-outline">Format file: PDF. Wajib *</span>
 </label>
 <label class="flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
-<input type="file" name="file_id_card" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-<span class="material-symbols-outlined text-4xl text-secondary mx-auto">id_card</span>
-<span class="font-label-md text-label-md text-primary mt-2">Upload ID Card / Surat Penunjukan / SK</span>
-<span class="font-caption text-caption text-outline">Jika perwakilan instansi atau organisasi. Format file: PDF. Opsional</span>
-</label>
-<label class="flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
 <input type="file" name="file_surat_permohonan" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
 <span class="material-symbols-outlined text-4xl text-secondary mx-auto">draft</span>
-<span class="font-label-md text-label-md text-primary mt-2">Surat Permohonan yang Ditujukan kepada Kepala Badan Kesbangpol</span>
+<span class="font-label-md text-label-md text-primary mt-2">Surat Pengajuan Permohonan</span>
+<span class="font-caption text-caption text-on-surface-variant">Ditujukan kepada Kepala Badan Kesbangpol dan Instansi Terkait</span>
+<span class="font-caption text-caption text-error font-medium">PASTIKAN TELAH ADA PEMBUBUHAN CAP DARI INSTANSI TERKAIT SEPERTI SEBELUMNYA</span>
+<span class="font-caption text-caption text-on-surface-variant font-semibold">PASTIKAN TELAH ADA PEMBUBUHAN CAP DARI INSTANSI TERKAIT SEPERTI SEBELUMNYA</span>
 <span class="font-caption text-caption text-outline">Format file: PDF. Wajib *</span>
 </label>
 <label class="flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
 <input type="file" name="file_surat_rekomendasi_lama" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
 <span class="material-symbols-outlined text-4xl text-secondary mx-auto">assignment</span>
-<span class="font-label-md text-label-md text-primary mt-2">Surat Rekomendasi Lama</span>
+<span class="font-label-md text-label-md text-primary mt-2">Surat Rekomendasi Sebelumnya</span>
+<span class="font-caption text-caption text-on-surface-variant">Diterbitkan oleh Badan Kesatuan Bangsa dan Politik Kabupaten Bogor</span>
 <span class="font-caption text-caption text-outline">Format file: PDF. Wajib *</span>
+</label>
+<label id="container_file_proposal" class="flex flex-col gap-stack-sm p-4 border-2 border-dashed border-outline-variant rounded-xl bg-surface-bright hover:bg-surface-container-low transition-colors text-center cursor-pointer relative overflow-hidden">
+<input type="file" name="file_proposal" id="input_file_proposal" accept="application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+<span class="material-symbols-outlined text-4xl text-secondary mx-auto">menu_book</span>
+<span class="font-label-md text-label-md text-primary mt-2">Proposal Penelitian</span>
+<span class="font-caption text-caption text-outline">PDF ONLY (PENELITIAN, RISET, WAWANCARA WAJIB MELAMPIRKAN PROPOSAL)</span>
+<span class="font-caption text-caption text-secondary " id="proposal_status_badge">Format file: PDF. Opsional (Wajib untuk Penelitian/Wawancara)</span>
 </label>
 <div class="flex flex-col gap-stack-sm md:col-span-2 mt-4">
 <label class="font-label-md text-label-md text-on-surface">Keterangan</label>
@@ -476,13 +503,8 @@
                 const maxDate = getMaxEndDate(tglMulai.value);
                 tglSelesai.min = minDate;
                 tglSelesai.max = maxDate;
-                if (tglSelesai.value) {
-                    if (minDate && tglSelesai.value < minDate) {
-                        tglSelesai.value = minDate;
-                    } else if (maxDate && tglSelesai.value > maxDate) {
-                        tglSelesai.value = maxDate;
-                    }
-                }
+                // Tidak paksa reset nilai agar user bebas memilih tanggal
+                // Validasi range dilakukan saat klik Lanjut (nextStep)
             }
         }
     }
@@ -549,6 +571,50 @@
             selectDinas.addEventListener('change', updateRealtimeDinasKuota);
         }
 
+        const selectJenis = form.querySelector('select[name="jenis_permohonan"]');
+        const inputJudul = document.getElementById('input_judul_kegiatan');
+        const inputProposal = document.getElementById('input_file_proposal');
+        const proposalBadge = document.getElementById('proposal_status_badge');
+
+        function syncJudulPlaceholder() {
+            if (!selectJenis || !inputJudul) return;
+            const val = selectJenis.value || '';
+            if (val.includes('Magang') || val.includes('PKL') || val.includes('KKL')) {
+                inputJudul.placeholder = '(Tidak perlu diisi untuk PKL / Magang)';
+            } else {
+                inputJudul.placeholder = 'Masukkan judul / tema';
+            }
+        }
+
+        function syncProposalRequirement() {
+            if (!selectJenis || !inputProposal) return;
+            const val = selectJenis.value || '';
+            const isPenelitian = ['Penelitian', 'Pengambilan Data', 'Wawancara', 'Survey'].includes(val);
+            if (isPenelitian) {
+                inputProposal.required = true;
+                if (proposalBadge) {
+                    proposalBadge.textContent = 'Format file: PDF. Wajib untuk jenis permohonan ini *';
+                    proposalBadge.className = 'font-caption text-caption text-error font-medium';
+                    proposalBadge.className = 'font-caption text-caption text-on-surface-variant font-medium';
+                }
+            } else {
+                inputProposal.required = false;
+                if (proposalBadge) {
+                    proposalBadge.textContent = 'Format file: PDF. Opsional (Tidak wajib untuk Magang / PKL / Kegiatan)';
+                    proposalBadge.className = 'font-caption text-caption text-secondary font-medium';
+                }
+            }
+        }
+
+        if (selectJenis) {
+            selectJenis.addEventListener('change', () => {
+                syncJudulPlaceholder();
+                syncProposalRequirement();
+            });
+            syncJudulPlaceholder();
+            syncProposalRequirement();
+        }
+
         const tglMulai = form.querySelector('[name="tanggal_mulai"]');
         const tglSelesai = form.querySelector('[name="tanggal_selesai"]');
         if (tglMulai) {
@@ -557,17 +623,8 @@
         }
         if (tglSelesai) {
             tglSelesai.addEventListener('change', () => {
-                if (tglMulai && tglMulai.value && tglSelesai.value) {
-                    const minDate = getMinEndDate(tglMulai.value);
-                    const maxDate = getMaxEndDate(tglMulai.value);
-                    if (minDate && tglSelesai.value < minDate) {
-                        alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
-                        tglSelesai.value = minDate;
-                    } else if (maxDate && tglSelesai.value > maxDate) {
-                        alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
-                        tglSelesai.value = maxDate;
-                    }
-                }
+                // Validasi dilakukan saat tombol Lanjut ditekan (nextStep)
+                // agar user bebas mengganti bulan/tahun di date picker tanpa terganggu alert
             });
         }
     });

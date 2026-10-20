@@ -39,19 +39,25 @@ class LayananController extends Controller
 
         $now = now()->toDateString();
 
-        // Cek apakah ada permohonan layanan yang masih aktif/berjalan
+        // Cek apakah ada permohonan layanan yang masih aktif/berjalan.
+        // PENGECUALIAN: jika permohonan sudah disetujui kesbangpol tapi kemudian DITOLAK oleh dinas,
+        // user diperbolehkan membuat permohonan baru.
         $activeLayanan = \App\Models\PermohonanLayanan::where('user_id', Auth::id())
             ->whereHas('statusMaster', function($q) {
                 $q->whereIn('kode', ['menunggu_verifikasi', 'disetujui']);
             })
             ->whereDate('tanggal_selesai', '>=', $now)
+            // Jangan anggap aktif jika MagangApplication terkait sudah ditolak dinas
+            ->whereDoesntHave('magangApplication', function($mq) {
+                $mq->where('status', 'ditolak');
+            })
             ->first();
 
         if ($activeLayanan) {
             return 'Kegiatan Anda saat ini masih berjalan. Pendaftaran baru dapat dilakukan setelah kegiatan selesai, atau ajukan perpanjangan jika butuh tambahan waktu.';
         }
 
-        // Cek juga di magang application
+        // Cek juga di magang application — hanya yang belum ditolak dinas
         $activeMagang = \App\Models\MagangApplication::where('user_id', Auth::id())
             ->whereIn('status', ['menunggu', 'diterima', 'aktif'])
             ->whereDate('tanggal_selesai', '>=', $now)

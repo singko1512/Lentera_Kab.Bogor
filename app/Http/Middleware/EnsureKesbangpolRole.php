@@ -16,7 +16,8 @@ class EnsureKesbangpolRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = Auth::user();
+        // Akun admin/kesbangpol menggunakan guard 'admin', sementara peserta menggunakan guard 'web'
+        $user = Auth::guard('admin')->user() ?? Auth::guard('web')->user();
 
         if (!$user || !$user->isKesbangpol()) {
             abort(403, 'Akses ditolak. Halaman ini hanya dapat diakses oleh Bakesbangpol atau Administrator.');

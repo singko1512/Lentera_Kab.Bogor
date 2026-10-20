@@ -433,6 +433,641 @@
             </div>
         </div>
 
+        @if(auth()->user()->status_akun != 'diblokir')
+        <!-- Alur / Step-by-Step Progress Tracker Permohonan -->
+        <div id="user-applications-stepper" class="mb-8 p-5 sm:p-6 bg-gradient-to-br from-surface-container-low/70 via-surface-container-lowest to-surface-container-low/40 dark:from-[#0d223a] dark:via-[#0b1c30] dark:to-[#0f2642] rounded-2xl border border-outline-variant/30 dark:border-slate-800 shadow-xs">
+            <!-- Header Alur & Dropdown Switcher -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-outline-variant/20 dark:border-slate-800">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary dark:bg-blue-950/70 dark:text-blue-300 dark:border dark:border-blue-800/60 rounded-full text-xs font-bold uppercase tracking-wider mb-1.5">
+                        <span class="material-symbols-outlined text-[16px]">route</span>
+                        <span>Alur Proses Layanan</span>
+                    </div>
+                    <h3 class="font-title-lg text-lg sm:text-xl text-on-surface dark:text-slate-100 font-bold">
+                        Tahapan Permohonan Surat Izin & Magang
+                    </h3>
+                    <p class="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-slate-400 mt-0.5">
+                        Pantau posisi permohonan Anda mulai dari registrasi akun hingga penerbitan surat dan pelaksanaan.
+                    </p>
+                </div>
+
+                @if(isset($userApplications) && $userApplications->count() > 1)
+                <div class="flex items-center gap-2 mt-2 sm:mt-0 shrink-0">
+                    <label for="stepper-app-select" class="text-xs font-semibold text-on-surface-variant dark:text-slate-400 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px] text-primary dark:text-blue-400">swap_horiz</span>
+                        <span>Pilih Permohonan:</span>
+                    </label>
+                    <select id="stepper-app-select" onchange="changeStepperApplication(this.value)" class="text-xs font-semibold py-1.5 px-3 pr-8 rounded-xl bg-white dark:bg-slate-800 border border-outline-variant/30 dark:border-slate-700 text-on-surface dark:text-slate-100 focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-xs cursor-pointer">
+                        @foreach($userApplications as $idx => $a)
+                            <option value="{{ $a->id }}" {{ $idx === 0 ? 'selected' : '' }}>
+                                #{{ $a->id }} - {{ Str::limit($a->jenisLayanan->nama ?? $a->jenis_permohonan, 26) }} {{ $idx === 0 ? '(Terbaru)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @elseif(isset($userApplications) && $userApplications->count() === 1)
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container-low dark:bg-slate-800/80 rounded-xl border border-outline-variant/20 dark:border-slate-700 text-xs font-semibold text-on-surface dark:text-slate-200 shrink-0 self-start sm:self-center">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Permohonan #{{ $userApplications->first()->id }}: {{ Str::limit($userApplications->first()->jenisLayanan->nama ?? $userApplications->first()->jenis_permohonan, 28) }}</span>
+                </div>
+                @endif
+            </div>
+
+            @if(isset($userApplications) && $userApplications->count() > 0)
+                {{-- Loop untuk setiap permohonan pemohon --}}
+                @foreach($userApplications as $index => $app)
+                @php
+                    $statusKode = strtolower(optional($app->statusMaster)->kode ?? 'proses');
+                    $magangApp = $app->magangApplication;
+                    $dinasStatus = $magangApp ? strtolower($magangApp->status ?? 'menunggu') : null;
+                    $isMagang = (bool)$magangApp;
+
+                    // Deteksi Jenis Layanan untuk Pelaksanaan Dinamis (PKL, Magang, KKN, Riset, dll.)
+                    $serviceSlug = strtolower(optional($app->jenisLayanan)->slug ?? '');
+                    $serviceName = strtolower(optional($app->jenisLayanan)->nama ?? ($app->jenis_permohonan ?? ''));
+
+                    if ($serviceSlug === 'kkl_siswa' || str_contains($serviceName, 'siswa') || str_contains($serviceName, 'sekolah')) {
+                        $pelaksanaanLabel = 'Pelaksanaan PKL';
+                        $pelaksanaanSub = 'PKL di ' . ($app->dinas->name ?? 'Dinas');
+                        $pelaksanaanIcon = 'backpack';
+                    } elseif ($serviceSlug === 'kkn_mahasiswa' || str_contains($serviceName, 'kkn')) {
+                        $pelaksanaanLabel = 'Pelaksanaan KKN';
+                        $pelaksanaanSub = 'Kegiatan di Wilayah';
+                        $pelaksanaanIcon = 'groups';
+                    } elseif ($serviceSlug === 'kkl_mahasiswa' || str_contains($serviceName, 'magang') || str_contains($serviceName, 'kkl') || $isMagang) {
+                        $pelaksanaanLabel = 'Pelaksanaan Magang';
+                        $pelaksanaanSub = 'Presensi di ' . ($app->dinas->name ?? 'Dinas');
+                        $pelaksanaanIcon = 'work';
+                    } elseif (str_contains($serviceSlug, 'penelitian') || str_contains($serviceName, 'penelitian') || str_contains($serviceName, 'riset')) {
+                        $pelaksanaanLabel = 'Pelaksanaan Riset';
+                        $pelaksanaanSub = 'Penelitian & Data';
+                        $pelaksanaanIcon = 'science';
+                    } elseif (str_contains($serviceSlug, 'perpanjangan') || str_contains($serviceName, 'perpanjangan')) {
+                        $pelaksanaanLabel = 'Pelaksanaan Lanjutan';
+                        $pelaksanaanSub = 'Perpanjangan Izin';
+                        $pelaksanaanIcon = 'update';
+                    } else {
+                        $pelaksanaanLabel = 'Pelaksanaan Kegiatan';
+                        $pelaksanaanSub = 'Aktivitas Kegiatan';
+                        $pelaksanaanIcon = 'event';
+                    }
+
+                    // Pengecekan apakah kegiatan sudah tuntas selesai
+                    $isFinished = ($magangApp && $magangApp->status === 'selesai')
+                        || ($statusKode === 'selesai')
+                        || ($app->tanggal_selesai && $app->tanggal_selesai->isPast() && ($statusKode === 'disetujui' || in_array($dinasStatus, ['diterima', 'aktif'])));
+
+                    // Step 1: Akun Terdaftar (Selalu selesai untuk pemohon login)
+                    $s1_state = 'completed';
+
+                    // Step 2: Pengajuan Berkas (Selesai karena permohonan ini sudah diajukan)
+                    $s2_state = 'completed';
+
+                    // Default variables for Card Guidance
+                    $cardClass = '';
+                    $cardIconBg = '';
+                    $cardIcon = '';
+                    $cardBadgeClass = '';
+                    $cardBadgeText = '';
+                    $cardMetaText = '';
+                    $cardMetaClass = '';
+                    $cardTitle = '';
+                    $cardTitleClass = '';
+                    $cardDescription = '';
+                    $cardDescClass = '';
+                    $cardNote = null;
+                    $cardActionHtml = '';
+
+                    // Step 3, 4, 5, 6 logic with complete Dark Mode contrast support
+                    if ($statusKode === 'perlu_revisi') {
+                        $s3_state = 'revision';
+                        $s4_state = 'pending';
+                        $s5_state = 'pending';
+                        $s6_state = 'pending';
+
+                        $cardClass = 'border-amber-300 dark:border-amber-800/60 bg-amber-50/90 dark:bg-amber-950/40';
+                        $cardIconBg = 'bg-amber-500 text-white';
+                        $cardIcon = 'edit_document';
+                        $cardBadgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200 dark:border dark:border-amber-700/50';
+                        $cardBadgeText = 'Tahap 3: Perbaikan Dokumen';
+                        $cardMetaText = 'Perlu Tindakan Anda';
+                        $cardMetaClass = 'text-amber-700 dark:text-amber-300/80';
+                        $cardTitle = 'Permohonan Memerlukan Revisi Dokumen';
+                        $cardTitleClass = 'text-amber-950 dark:text-amber-100';
+                        $cardDescription = 'Petugas verifikator Bakesbangpol telah memeriksa permohonan Anda dan meminta perbaikan berkas: <strong>"' . e($app->keterangan) . '"</strong>. Silakan klik tombol perbaiki untuk memperbarui dokumen.';
+                        $cardDescClass = 'text-amber-900/90 dark:text-amber-200/90';
+                        $cardActionHtml = '<button type="button" onclick="openEditModal(\'' . $app->id . '\')" class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer"><span class="material-symbols-outlined text-[18px]">edit</span><span>Perbaiki Dokumen Sekarang</span></button>';
+                    } elseif ($statusKode === 'ditolak') {
+                        $s3_state = 'rejected';
+                        $s4_state = 'pending';
+                        $s5_state = 'pending';
+                        $s6_state = 'pending';
+
+                        $cardClass = 'border-red-200 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/40';
+                        $cardIconBg = 'bg-red-500 text-white';
+                        $cardIcon = 'cancel';
+                        $cardBadgeClass = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200 dark:border dark:border-red-700/50';
+                        $cardBadgeText = 'Tahap 3: Tidak Disetujui';
+                        $cardMetaText = 'Permohonan Ditolak';
+                        $cardMetaClass = 'text-red-700 dark:text-red-300/80';
+                        $cardTitle = 'Permohonan Ditolak oleh Bakesbangpol';
+                        $cardTitleClass = 'text-red-950 dark:text-red-100';
+                        $cardDescription = 'Mohon maaf, berkas permohonan tidak dapat disetujui. Alasan: <strong>"' . e($app->keterangan ?? 'Dokumen tidak memenuhi persyaratan verifikasi.') . '"</strong>. Anda dapat mengajukan permohonan baru dengan dokumen yang memenuhi syarat.';
+                        $cardDescClass = 'text-red-900/90 dark:text-red-200/90';
+                        $cardActionHtml = '<button type="button" onclick="document.getElementById(\'btn-dropdown-layanan\').click();" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-secondary dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer"><span class="material-symbols-outlined text-[18px]">add</span><span>Ajukan Permohonan Baru</span></button>';
+                    } elseif (in_array($statusKode, ['disetujui', 'selesai'])) {
+                        $s3_state = 'completed';
+
+                        if ($isMagang) {
+                            if ($dinasStatus === 'ditolak') {
+                                $s4_state = 'rejected';
+                                $s5_state = 'pending';
+                                $s6_state = 'pending';
+
+                                $cardClass = 'border-red-200 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/40';
+                                $cardIconBg = 'bg-red-500 text-white';
+                                $cardIcon = 'domain_disabled';
+                                $cardBadgeClass = 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200 dark:border dark:border-red-700/50';
+                                $cardBadgeText = 'Tahap 4: Ditolak oleh SKPD Tujuan';
+                                $cardMetaText = 'Kuota Penuh';
+                                $cardMetaClass = 'text-red-700 dark:text-red-300/80';
+                                $cardTitle = 'Penempatan Belum Dapat Diterima Dinas';
+                                $cardTitleClass = 'text-red-950 dark:text-red-100';
+                                $cardDescription = 'Rekomendasi Bakesbangpol telah disetujui, namun pihak instansi <strong>' . e($app->dinas->name ?? 'Terkait') . '</strong> belum dapat menerima penempatan saat ini. ' . ($magangApp->catatan_admin ? 'Catatan: <strong>"' . e($magangApp->catatan_admin) . '"</strong>.' : '');
+                                $cardDescClass = 'text-red-900/90 dark:text-red-200/90';
+                                $cardActionHtml = '<button type="button" onclick="document.getElementById(\'btn-dropdown-layanan\').click();" class="inline-flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-secondary dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer"><span class="material-symbols-outlined text-[18px]">add</span><span>Ajukan ke Dinas Lain</span></button>';
+                            } elseif ($dinasStatus === 'menunggu') {
+                                $s4_state = 'active';
+                                $s5_state = 'pending';
+                                $s6_state = 'pending';
+
+                                $cardClass = 'border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/80 dark:bg-indigo-950/40';
+                                $cardIconBg = 'bg-indigo-600 text-white';
+                                $cardIcon = 'apartment';
+                                $cardBadgeClass = 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-200 dark:border dark:border-indigo-700/50';
+                                $cardBadgeText = 'Tahap 4: Konfirmasi Penerimaan Dinas Tujuan';
+                                $cardMetaText = 'Menunggu Konfirmasi SKPD';
+                                $cardMetaClass = 'text-indigo-700 dark:text-indigo-300/80';
+                                $cardTitle = 'Menunggu Persetujuan dari ' . e($app->dinas->name ?? 'Dinas Terkait');
+                                $cardTitleClass = 'text-indigo-950 dark:text-indigo-100';
+                                $cardDescription = 'Surat Rekomendasi telah disetujui oleh Bakesbangpol! Saat ini berkas Anda sedang diverifikasi oleh pihak <strong>' . e($app->dinas->name ?? 'Dinas Terkait') . '</strong> untuk validasi kuota dan penerbitan izin penerimaan magang resmi.';
+                                $cardDescClass = 'text-indigo-900/90 dark:text-indigo-200/90';
+                                $cardNote = 'Setelah disetujui dinas, izin penerimaan resmi diterbitkan dan Anda dapat memulai tahap ' . strtolower($pelaksanaanLabel) . ' serta presensi SIMALAM.';
+                                $cardActionHtml = '<a href="#app-row-' . $app->id . '" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-surface-container-low dark:hover:bg-slate-700 border border-outline-variant/30 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs font-semibold rounded-xl transition shadow-xs"><span class="material-symbols-outlined text-[16px]">visibility</span><span>Lihat di Tabel</span></a>';
+                            } else {
+                                // 'diterima', 'aktif', 'selesai'
+                                $s4_state = 'completed';
+
+                                if ($isFinished) {
+                                    $s5_state = 'completed';
+                                    $s6_state = 'completed';
+
+                                    $cardClass = 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/80 dark:bg-emerald-950/40';
+                                    $cardIconBg = 'bg-emerald-600 text-white';
+                                    $cardIcon = 'workspace_premium';
+                                    $cardBadgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border dark:border-emerald-700/50';
+                                    $cardBadgeText = 'Tahap 6: Seluruh Rangkaian Selesai';
+                                    $cardMetaText = 'Kegiatan Tuntas Selesai';
+                                    $cardMetaClass = 'text-emerald-700 dark:text-emerald-300/80';
+                                    $cardTitle = 'Selamat! ' . $pelaksanaanLabel . ' Telah Tuntas Dilaksanakan';
+                                    $cardTitleClass = 'text-emerald-950 dark:text-emerald-100';
+                                    $cardDescription = 'Seluruh rangkaian ' . strtolower($pelaksanaanLabel) . ' Anda di <strong>' . e($app->dinas->name ?? 'Dinas Terkait') . '</strong> telah selesai dilaksanakan. Surat rekomendasi dan riwayat tuntas tersimpan aman di sistem LENTERA.';
+                                    $cardDescClass = 'text-emerald-900/90 dark:text-emerald-200/90';
+
+                                    $btns = '';
+                                    if ($app->file_surat_final) {
+                                        $btns .= '<a href="' . route('surat.pdf', ['id' => $app->id, 'download' => 1]) . '" download class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"><span class="material-symbols-outlined text-[18px]">download</span><span>Unduh Surat Rekomendasi</span></a>';
+                                    }
+                                    $btns .= '<a href="#app-row-' . $app->id . '" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-surface-container-low dark:hover:bg-slate-700 border border-outline-variant/30 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs font-semibold rounded-xl transition shadow-xs"><span class="material-symbols-outlined text-[16px]">history</span><span>Lihat Riwayat</span></a>';
+                                    $cardActionHtml = $btns;
+                                } else {
+                                    // Sedang Berjalan
+                                    $s5_state = 'active';
+                                    $s6_state = 'pending';
+
+                                    $cardClass = 'border-blue-200 dark:border-blue-800/60 bg-blue-50/80 dark:bg-blue-950/40';
+                                    $cardIconBg = 'bg-primary dark:bg-blue-600 text-white';
+                                    $cardIcon = 'co_present';
+                                    $cardBadgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 dark:border dark:border-blue-700/50';
+                                    $cardBadgeText = 'Tahap 5: ' . $pelaksanaanLabel;
+                                    $cardMetaText = 'Sedang Berlangsung';
+                                    $cardMetaClass = 'text-blue-700 dark:text-blue-300/80';
+                                    $cardTitle = $pelaksanaanLabel . ' Sedang Berlangsung di ' . e($app->dinas->name ?? 'Dinas Terkait');
+                                    $cardTitleClass = 'text-blue-950 dark:text-blue-100';
+                                    $cardDescription = 'Permohonan Anda telah resmi diterima oleh <strong>' . e($app->dinas->name ?? 'Dinas Terkait') . '</strong>. Periode pelaksanaan: <strong>' . ($app->tanggal_mulai ? $app->tanggal_mulai->format('d M Y') : '-') . ' s/d ' . ($app->tanggal_selesai ? $app->tanggal_selesai->format('d M Y') : '-') . '</strong>. Pastikan Anda mengisi presensi online secara rutin di portal SIMALAM.';
+                                    $cardDescClass = 'text-blue-900/90 dark:text-blue-200/90';
+
+                                    $btns = '';
+                                    if ($app->file_surat_final) {
+                                        $btns .= '<a href="' . route('surat.pdf', ['id' => $app->id, 'download' => 1]) . '" download class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"><span class="material-symbols-outlined text-[18px]">download</span><span>Unduh Surat</span></a>';
+                                    }
+                                    $btns .= '<a href="' . route('absensi.index') . '" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-secondary dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-sm"><span class="material-symbols-outlined text-[18px]">co_present</span><span>Presensi SIMALAM</span></a>';
+                                    $cardActionHtml = $btns;
+                                }
+                            }
+                        } else {
+                            // Non-magang: Penelitian PT / Instansi / KKN / Pelaksanaan Kegiatan
+                            $s4_state = 'completed'; // Surat Rekomendasi Terbit
+
+                            if ($isFinished) {
+                                $s5_state = 'completed';
+                                $s6_state = 'completed';
+
+                                $cardClass = 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/80 dark:bg-emerald-950/40';
+                                $cardIconBg = 'bg-emerald-600 text-white';
+                                $cardIcon = 'workspace_premium';
+                                $cardBadgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border dark:border-emerald-700/50';
+                                $cardBadgeText = 'Tahap 6: Seluruh Rangkaian Selesai';
+                                $cardMetaText = 'Kegiatan Tuntas Selesai';
+                                $cardMetaClass = 'text-emerald-700 dark:text-emerald-300/80';
+                                $cardTitle = 'Selamat! ' . $pelaksanaanLabel . ' Telah Tuntas Dilaksanakan';
+                                $cardTitleClass = 'text-emerald-950 dark:text-emerald-100';
+                                $cardDescription = 'Seluruh rangkaian permohonan dan ' . strtolower($pelaksanaanLabel) . ' Anda di <strong>' . e($app->dinas->name ?? $app->tempat_kegiatan ?? 'lokasi tujuan') . '</strong> telah selesai dilaksanakan secara resmi.';
+                                $cardDescClass = 'text-emerald-900/90 dark:text-emerald-200/90';
+
+                                if ($app->file_surat_final) {
+                                    $cardActionHtml = '<a href="' . route('surat.pdf', ['id' => $app->id, 'download' => 1]) . '" download class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"><span class="material-symbols-outlined text-[18px]">download</span><span>Unduh Surat Rekomendasi</span></a>';
+                                }
+                            } else {
+                                // Sedang Berjalan
+                                $s5_state = 'active';
+                                $s6_state = 'pending';
+
+                                $cardClass = 'border-blue-200 dark:border-blue-800/60 bg-blue-50/80 dark:bg-blue-950/40';
+                                $cardIconBg = 'bg-primary dark:bg-blue-600 text-white';
+                                $cardIcon = $pelaksanaanIcon;
+                                $cardBadgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 dark:border dark:border-blue-700/50';
+                                $cardBadgeText = 'Tahap 5: ' . $pelaksanaanLabel;
+                                $cardMetaText = 'Sedang Berlangsung';
+                                $cardMetaClass = 'text-blue-700 dark:text-blue-300/80';
+                                $cardTitle = $pelaksanaanLabel . ' Sedang Berjalan';
+                                $cardTitleClass = 'text-blue-950 dark:text-blue-100';
+                                $cardDescription = 'Surat rekomendasi izin resmi telah diterbitkan Bakesbangpol Kabupaten Bogor. Saat ini Anda sedang dalam masa ' . strtolower($pelaksanaanLabel) . ' di <strong>' . e($app->dinas->name ?? $app->tempat_kegiatan ?? 'lokasi tujuan') . '</strong> hingga <strong>' . ($app->tanggal_selesai ? $app->tanggal_selesai->format('d M Y') : 'periode berakhir') . '</strong>.';
+                                $cardDescClass = 'text-blue-900/90 dark:text-blue-200/90';
+
+                                if ($app->file_surat_final) {
+                                    $cardActionHtml = '<a href="' . route('surat.pdf', ['id' => $app->id, 'download' => 1]) . '" download class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm"><span class="material-symbols-outlined text-[18px]">download</span><span>Unduh Surat Rekomendasi</span></a>';
+                                }
+                            }
+                        }
+                    } else {
+                        // Menunggu verifikasi / proses
+                        $s3_state = 'active';
+                        $s4_state = 'pending';
+                        $s5_state = 'pending';
+                        $s6_state = 'pending';
+
+                        $cardClass = 'border-blue-200 dark:border-blue-900/60 bg-blue-50/80 dark:bg-blue-950/40';
+                        $cardIconBg = 'bg-blue-500 text-white dark:bg-blue-600';
+                        $cardIcon = 'hourglass_top';
+                        $cardBadgeClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200 dark:border dark:border-blue-700/50';
+                        $cardBadgeText = 'Tahap 3: Verifikasi Dokumen Kesbangpol';
+                        $cardMetaText = 'Estimasi 1–3 Hari Kerja';
+                        $cardMetaClass = 'text-blue-700 dark:text-blue-300/80';
+                        $cardTitle = 'Permohonan Sedang Dalam Antrean Verifikasi';
+                        $cardTitleClass = 'text-blue-950 dark:text-blue-100';
+                        $cardDescription = 'Permohonan <strong>' . e($app->jenisLayanan->nama ?? $app->jenis_permohonan) . '</strong> (#' . $app->id . ') telah diterima sistem LENTERA. Petugas verifikator Bakesbangpol Kab. Bogor saat ini sedang meneliti kelengkapan berkas dan dokumen persyaratan.';
+                        $cardDescClass = 'text-blue-900/90 dark:text-blue-200/90';
+                        $cardNote = 'Dinas Tujuan: <strong>' . e($app->dinas->name ?? $app->tempat_kegiatan ?? '-') . '</strong> &bull; Diajukan pada: <strong>' . ($app->created_at ? $app->created_at->format('d M Y, H:i') : '-') . ' WIB</strong>';
+                        $cardActionHtml = '<a href="#app-row-' . $app->id . '" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-surface-container-low dark:hover:bg-slate-700 border border-outline-variant/30 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs font-semibold rounded-xl transition shadow-xs"><span class="material-symbols-outlined text-[16px]">visibility</span><span>Lihat di Tabel</span></a>';
+                    }
+                @endphp
+
+                <div id="app-stepper-view-{{ $app->id }}" class="app-stepper-view {{ $index === 0 ? '' : 'hidden' }} pt-5">
+                    <!-- Horizontal Stepper Row: 6 Steps -->
+                    <div class="w-full overflow-x-auto pb-3 pt-1 -mx-2 px-2 scrollbar-thin">
+                        <div class="relative flex items-start justify-between w-full min-w-[780px] xl:min-w-0">
+                            
+                            <!-- Step 1: Akun Terdaftar -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <!-- Connector to Step 2 -->
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 {{ $s2_state === 'completed' ? 'bg-emerald-500 dark:bg-emerald-500' : 'bg-gray-200 dark:bg-slate-700/80' }} z-0"></div>
+                                
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                    <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">1. Akun Terdaftar</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Masuk Sistem</span>
+                                <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                    <span class="material-symbols-outlined text-[13px]">check_circle</span> Selesai
+                                </span>
+                            </div>
+
+                            <!-- Step 2: Pengajuan Berkas -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <!-- Connector to Step 3 -->
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 {{ $s3_state === 'completed' ? 'bg-emerald-500 dark:bg-emerald-500' : 'bg-gray-200 dark:bg-slate-700/80' }} z-0"></div>
+
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                    <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">2. Pengajuan Berkas</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Formulir & Dokumen</span>
+                                <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                    <span class="material-symbols-outlined text-[13px]">check_circle</span> Terkirim ({{ $app->created_at ? $app->created_at->format('d/m/y') : '-' }})
+                                </span>
+                            </div>
+
+                            <!-- Step 3: Verifikasi Kesbangpol -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <!-- Connector to Step 4 -->
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 {{ $s4_state === 'completed' ? 'bg-emerald-500 dark:bg-emerald-500' : 'bg-gray-200 dark:bg-slate-700/80' }} z-0"></div>
+
+                                @if($s3_state === 'completed')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                        <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pemeriksaan Berkas</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                        <span class="material-symbols-outlined text-[13px]">check_circle</span> Disetujui
+                                    </span>
+                                @elseif($s3_state === 'revision')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-amber-500 text-white shadow-md ring-4 ring-amber-100 dark:ring-amber-950/70 animate-pulse">
+                                        <span class="material-symbols-outlined text-[20px]">edit_document</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-amber-700 dark:text-amber-400 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Catatan Perbaikan</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 mt-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/70 dark:border dark:border-amber-800/60">
+                                        <span class="material-symbols-outlined text-[13px]">warning</span> Perlu Revisi
+                                    </span>
+                                @elseif($s3_state === 'rejected')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md ring-4 ring-red-100 dark:ring-red-950/70">
+                                        <span class="material-symbols-outlined text-[20px]">close</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-red-700 dark:text-red-400 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Tidak Disetujui</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-red-700 dark:text-red-300 mt-1 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/70 dark:border dark:border-red-800/60">
+                                        <span class="material-symbols-outlined text-[13px]">cancel</span> Ditolak
+                                    </span>
+                                @else
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                        <span class="material-symbols-outlined text-[20px]">hourglass_top</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pemeriksaan Berkas</span>
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Tahap Saat Ini
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Step 4: Penerimaan Dinas / Instansi -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <!-- Connector to Step 5 -->
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 {{ $s5_state === 'completed' ? 'bg-emerald-500 dark:bg-emerald-500' : 'bg-gray-200 dark:bg-slate-700/80' }} z-0"></div>
+
+                                @if($s4_state === 'completed')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                        <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">{{ $isMagang ? 'Diterima SKPD' : 'Surat Terbit' }}</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                        <span class="material-symbols-outlined text-[13px]">check_circle</span> {{ $isMagang ? 'Diterima' : 'Disetujui' }}
+                                    </span>
+                                @elseif($s4_state === 'active')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-indigo-600 text-white shadow-md ring-4 ring-indigo-100 dark:ring-indigo-950/70 animate-pulse">
+                                        <span class="material-symbols-outlined text-[20px]">apartment</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-indigo-700 dark:text-indigo-400 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pengecekan Kuota</span>
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 mt-1 px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 dark:border dark:border-indigo-800/60">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-ping"></span> Menunggu Dinas
+                                    </span>
+                                @elseif($s4_state === 'rejected')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md ring-4 ring-red-100 dark:ring-red-950/70">
+                                        <span class="material-symbols-outlined text-[20px]">close</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-red-700 dark:text-red-400 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Tidak Diterima</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-red-700 dark:text-red-300 mt-1 px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/70 dark:border dark:border-red-800/60">
+                                        <span class="material-symbols-outlined text-[13px]">cancel</span> Ditolak Dinas
+                                    </span>
+                                @else
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                        <span class="font-bold text-sm">4</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">{{ $isMagang ? 'Validasi SKPD' : 'Surat Terbit' }}</span>
+                                    <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Menunggu</span>
+                                @endif
+                            </div>
+
+                            <!-- Step 5: Pelaksanaan Dinamis (PKL / Magang / KKN / Riset / Kegiatan) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <!-- Connector to Step 6 -->
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 {{ $s6_state === 'completed' ? 'bg-emerald-500 dark:bg-emerald-500' : 'bg-gray-200 dark:bg-slate-700/80' }} z-0"></div>
+
+                                @if($s5_state === 'completed')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                        <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">5. {{ $pelaksanaanLabel }}</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Aktivitas Selesai</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                        <span class="material-symbols-outlined text-[13px]">check_circle</span> Selesai
+                                    </span>
+                                @elseif($s5_state === 'active')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                        <span class="material-symbols-outlined text-[20px]">{{ $pelaksanaanIcon }}</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">5. {{ $pelaksanaanLabel }}</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">{{ $pelaksanaanSub }}</span>
+                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Sedang Berjalan
+                                    </span>
+                                @else
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                        <span class="font-bold text-sm">5</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">5. {{ $pelaksanaanLabel }}</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">{{ $pelaksanaanSub }}</span>
+                                    <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Menunggu</span>
+                                @endif
+                            </div>
+
+                            <!-- Step 6: Selesai -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                @if($s6_state === 'completed')
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                        <span class="material-symbols-outlined text-[20px] font-bold">workspace_premium</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">6. Selesai</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Kegiatan Tuntas</span>
+                                    <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                        <span class="material-symbols-outlined text-[13px]">check_circle</span> Tuntas
+                                    </span>
+                                @else
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                        <span class="font-bold text-sm">6</span>
+                                    </div>
+                                    <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">6. Selesai</span>
+                                    <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">Tahap Penutupan</span>
+                                    <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Tahap Akhir</span>
+                                @endif
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Guidance & Next Steps Banner -->
+                    <div class="mt-4 p-4 sm:p-5 rounded-xl border transition-all duration-300 {{ $cardClass }}">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3.5">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 {{ $cardIconBg }}">
+                                    <span class="material-symbols-outlined text-[22px]">{{ $cardIcon }}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md {{ $cardBadgeClass }}">
+                                            {{ $cardBadgeText }}
+                                        </span>
+                                        <span class="text-[11px] font-semibold {{ $cardMetaClass }}">
+                                            &bull; {{ $cardMetaText }}
+                                        </span>
+                                    </div>
+                                    <h4 class="font-title-lg text-sm sm:text-base font-bold {{ $cardTitleClass }} mt-1">
+                                        {{ $cardTitle }}
+                                    </h4>
+                                    <p class="font-body-md text-xs sm:text-sm {{ $cardDescClass }} mt-1 leading-relaxed">
+                                        {!! $cardDescription !!}
+                                    </p>
+                                    @if(!empty($cardNote))
+                                    <div class="mt-2.5 p-2.5 rounded-lg bg-surface-container-lowest/80 dark:bg-slate-900/60 border border-outline-variant/20 dark:border-slate-800 text-xs text-on-surface dark:text-slate-300 flex items-start gap-2">
+                                        <span class="material-symbols-outlined text-[16px] text-primary dark:text-blue-400 shrink-0 mt-0.5">info</span>
+                                        <span class="leading-relaxed">{!! $cardNote !!}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            @if(!empty($cardActionHtml))
+                            <div class="flex items-center gap-2 shrink-0 self-start sm:self-center pt-1 sm:pt-0">
+                                {!! $cardActionHtml !!}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+
+            @else
+                {{-- Empty State: User logged in but no applications submitted yet --}}
+                <div id="app-stepper-view-empty" class="pt-5">
+                    <div class="w-full overflow-x-auto pb-3 pt-1 -mx-2 px-2 scrollbar-thin">
+                        <div class="relative flex items-start justify-between w-full min-w-[780px] xl:min-w-0">
+                            
+                            <!-- Step 1: Akun Terdaftar (Selesai) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-emerald-500 text-white shadow-xs ring-4 ring-emerald-100 dark:ring-emerald-950/70">
+                                    <span class="material-symbols-outlined text-[20px] font-bold">check</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface dark:text-slate-200 mt-2.5 leading-snug">1. Akun Terdaftar</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Masuk Sistem</span>
+                                <span class="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                                    <span class="material-symbols-outlined text-[13px]">check_circle</span> Selesai
+                                </span>
+                            </div>
+
+                            <!-- Step 2: Pengajuan Berkas (Aktif / Tahap Saat Ini) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                    <span class="material-symbols-outlined text-[20px]">post_add</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">2. Pengajuan Berkas</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pilih Formulir</span>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Tahap Saat Ini
+                                </span>
+                            </div>
+
+                            <!-- Step 3: Verifikasi Kesbangpol (Pending) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                    <span class="font-bold text-sm">3</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">Pemeriksaan Berkas</span>
+                                <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Menunggu</span>
+                            </div>
+
+                            <!-- Step 4: Penerimaan Dinas (Pending) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                    <span class="font-bold text-sm">4</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">Validasi SKPD</span>
+                                <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Menunggu</span>
+                            </div>
+
+                            <!-- Step 5: Pelaksanaan Kegiatan (Pending) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                    <span class="font-bold text-sm">5</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">5. Pelaksanaan Kegiatan</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">Aktivitas & Presensi</span>
+                                <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Menunggu</span>
+                            </div>
+
+                            <!-- Step 6: Selesai (Pending) -->
+                            <div class="flex-1 flex flex-col items-center text-center relative px-1">
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
+                                    <span class="font-bold text-sm">6</span>
+                                </div>
+                                <span class="font-bold text-xs sm:text-sm text-on-surface/70 dark:text-slate-400 mt-2.5 leading-snug">6. Selesai</span>
+                                <span class="text-[11px] text-on-surface-variant dark:text-slate-500 font-medium mt-0.5">Kegiatan Tuntas</span>
+                                <span class="text-[10px] font-medium text-on-surface-variant/70 dark:text-slate-500 mt-1">Tahap Akhir</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Guidance Card for Empty State -->
+                    <div class="mt-4 p-4 sm:p-5 rounded-xl border border-primary/30 dark:border-blue-800/60 bg-primary/5 dark:bg-blue-950/40 transition-all duration-300">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3.5">
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 bg-primary dark:bg-blue-600 text-white">
+                                    <span class="material-symbols-outlined text-[22px]">post_add</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary dark:bg-blue-900/60 dark:text-blue-200 dark:border dark:border-blue-700/50">
+                                            Tahap 2: Pengajuan Layanan
+                                        </span>
+                                        <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-semibold">
+                                            &bull; Langkah Berikutnya
+                                        </span>
+                                    </div>
+                                    <h4 class="font-title-lg text-sm sm:text-base font-bold text-on-surface dark:text-slate-100 mt-1">
+                                        Silakan Mengajukan Permohonan Surat Izin / Magang
+                                    </h4>
+                                    <p class="font-body-md text-xs sm:text-sm text-on-surface-variant dark:text-slate-300 mt-1 leading-relaxed">
+                                        Akun Anda telah aktif dan terverifikasi di sistem LENTERA Kabupaten Bogor. Untuk memulai proses izin rekomendasi atau magang, silakan klik tombol <strong>"+ Tambah Layanan Baru"</strong> di atas atau tombol di bawah ini.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 shrink-0 self-start sm:self-center pt-1 sm:pt-0">
+                                <button type="button" onclick="document.getElementById('btn-dropdown-layanan').click();" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-secondary dark:bg-blue-600 dark:hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition shadow-sm cursor-pointer">
+                                    <span class="material-symbols-outlined text-[18px]">add</span>
+                                    <span>Ajukan Permohonan Sekarang</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+        @endif
+
         <!-- Table Content -->
         @if(auth()->user()->status_akun == 'diblokir')
         <div class="text-center py-10 px-4 bg-red-50/50 rounded-xl border border-dashed border-red-200 flex flex-col items-center justify-center gap-3">
@@ -461,7 +1096,7 @@
                 </thead>
                 <tbody class="divide-y divide-outline-variant/20 font-body-md text-body-md text-on-surface">
                     @foreach($userApplications as $index => $app)
-                    <tr class="hover:bg-surface-container-low/40 transition-colors">
+                    <tr id="app-row-{{ $app->id }}" class="hover:bg-surface-container-low/40 transition-colors">
                         <td class="py-4 px-4 pl-6 align-middle whitespace-nowrap">
                             <span class="font-bold text-sm text-on-surface">#{{ $app->id }}</span>
                         </td>
@@ -497,22 +1132,22 @@
                                 $statusNama = optional($app->statusMaster)->nama ?? 'Dalam Proses';
                             @endphp
                             @if($statusKode == 'disetujui' || $statusKode == 'selesai')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-full text-xs font-bold uppercase">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#E8F5E9] dark:bg-emerald-950/70 text-[#2E7D32] dark:text-emerald-300 border border-[#C8E6C9] dark:border-emerald-800/60 rounded-full text-xs font-bold uppercase">
                                     <span class="material-symbols-outlined text-[14px]">check_circle</span>
                                     <span>{{ $statusNama }}</span>
                                 </span>
                             @elseif($statusKode == 'perlu_revisi')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-300 rounded-full text-xs font-bold uppercase">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-amber-50 dark:bg-amber-950/70 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 rounded-full text-xs font-bold uppercase">
                                     <span class="material-symbols-outlined text-[14px]">edit_note</span>
                                     <span>{{ $statusNama }}</span>
                                 </span>
                             @elseif($statusKode == 'ditolak')
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#FFEBEE] text-[#C62828] border border-[#FFCDD2] rounded-full text-xs font-bold uppercase">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#FFEBEE] dark:bg-red-950/70 text-[#C62828] dark:text-red-300 border border-[#FFCDD2] dark:border-red-800/60 rounded-full text-xs font-bold uppercase">
                                     <span class="material-symbols-outlined text-[14px]">cancel</span>
                                     <span>{{ $statusNama }}</span>
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-bold uppercase">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 rounded-full text-xs font-bold uppercase">
                                     <span class="material-symbols-outlined text-[14px]">pending</span>
                                     <span>{{ $statusNama }}</span>
                                 </span>
@@ -524,22 +1159,22 @@
                                     $dinasStatus = strtolower($app->magangApplication->status ?? 'menunggu');
                                 @endphp
                                 @if(in_array($dinasStatus, ['diterima', 'aktif']))
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold uppercase">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 rounded-full text-xs font-bold uppercase">
                                         <span class="material-symbols-outlined text-[14px]">how_to_reg</span>
                                         <span>Diterima</span>
                                     </span>
                                 @elseif($dinasStatus == 'ditolak')
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-bold uppercase">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-50 dark:bg-red-950/70 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/60 rounded-full text-xs font-bold uppercase">
                                         <span class="material-symbols-outlined text-[14px]">close</span>
                                         <span>Ditolak Dinas</span>
                                     </span>
                                 @elseif($dinasStatus == 'expired')
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 border border-gray-300 rounded-full text-xs font-bold uppercase">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-700 rounded-full text-xs font-bold uppercase">
                                         <span class="material-symbols-outlined text-[14px]">event_busy</span>
                                         <span>Kedaluwarsa</span>
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-bold uppercase" title="Kuota terbooking, menunggu persetujuan dinas">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 rounded-full text-xs font-bold uppercase" title="Kuota terbooking, menunggu persetujuan dinas">
                                         <span class="material-symbols-outlined text-[14px]">hourglass_empty</span>
                                         <span>Menunggu Dinas</span>
                                     </span>
@@ -550,11 +1185,11 @@
                         </td>
                         <td class="py-4 px-4 text-center align-middle">
                             @if($app->keterangan)
-                                <div class="text-xs text-red-700 bg-red-50 p-2.5 rounded-lg border border-red-200 max-w-xs leading-relaxed font-medium text-left">
+                                <div class="text-xs text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-lg border border-red-200 dark:border-red-900/60 max-w-xs leading-relaxed font-medium text-left">
                                     {{ $app->keterangan }}
                                 </div>
                             @elseif($app->magangApplication && $app->magangApplication->catatan_admin)
-                                <div class="text-xs text-gray-700 bg-gray-50 p-2.5 rounded-lg border border-gray-200 max-w-xs leading-relaxed font-medium text-left">
+                                <div class="text-xs text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800/60 p-2.5 rounded-lg border border-gray-200 dark:border-slate-700 max-w-xs leading-relaxed font-medium text-left">
                                     {{ $app->magangApplication->catatan_admin }}
                                 </div>
                             @else
@@ -563,6 +1198,10 @@
                         </td>
                         <td class="py-4 px-4 pr-6 text-center align-middle whitespace-nowrap">
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                <button type="button" onclick="changeStepperApplication('{{ $app->id }}'); document.getElementById('user-applications-stepper').scrollIntoView({behavior: 'smooth', block: 'nearest'});" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-surface-container dark:bg-slate-800 text-primary dark:text-blue-400 rounded-lg text-xs font-semibold hover:bg-primary/10 dark:hover:bg-blue-950/60 border border-transparent dark:border-slate-700 transition-all shadow-xs" title="Lihat Alur Tahapan Permohonan Ini">
+                                    <span class="material-symbols-outlined text-[15px]">route</span>
+                                    <span>Alur</span>
+                                </button>
                                 @if($app->file_surat_final)
                                     <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
                                         <span class="material-symbols-outlined text-[16px]">download</span>
@@ -2189,6 +2828,21 @@
             }
         });
     });
+
+    // Global switcher for Application Stepper View
+    window.changeStepperApplication = function(appId) {
+        const select = document.getElementById('stepper-app-select');
+        if (select && select.value != appId) {
+            select.value = appId;
+        }
+        document.querySelectorAll('.app-stepper-view').forEach(function(el) {
+            el.classList.add('hidden');
+        });
+        const target = document.getElementById('app-stepper-view-' + appId);
+        if (target) {
+            target.classList.remove('hidden');
+        }
+    };
 </script>
 @endsection
 

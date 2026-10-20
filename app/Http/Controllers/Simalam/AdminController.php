@@ -15,6 +15,7 @@ use App\Models\Simalam\Project;
 use App\Models\Simalam\ProjectModule;
 use App\Models\Simalam\ProjectTask;
 use App\Models\MagangApplication;
+use App\Models\Admin;
 use App\Models\User;
 use App\Support\CertificatePayload;
 use App\Support\CertificateTemplate;
@@ -457,7 +458,7 @@ class AdminController extends Controller
         return 'jadwal_landing_view_bidang_'.$bidangId;
     }
 
-    private function resolveAdminBidangScope(Request $request, User $admin, bool $isSuperAdmin): ?Bidang
+    private function resolveAdminBidangScope(Request $request, Admin|User $admin, bool $isSuperAdmin): ?Bidang
     {
         if ($isSuperAdmin) {
             $bidangId = (int) $request->input('bidang_id', 0);

@@ -506,13 +506,8 @@
                 const maxDate = getMaxEndDate(tglMulai.value);
                 tglSelesai.min = minDate;
                 tglSelesai.max = maxDate;
-                if (tglSelesai.value) {
-                    if (minDate && tglSelesai.value < minDate) {
-                        tglSelesai.value = minDate;
-                    } else if (maxDate && tglSelesai.value > maxDate) {
-                        tglSelesai.value = maxDate;
-                    }
-                }
+                // Tidak paksa reset nilai agar user bebas memilih tanggal
+                // Validasi range dilakukan saat klik Lanjut (nextStep)
             }
         }
     }
@@ -585,17 +580,8 @@
         }
         if (tglSelesai) {
             tglSelesai.addEventListener('change', () => {
-                if (tglMulai && tglMulai.value && tglSelesai.value) {
-                    const minDate = getMinEndDate(tglMulai.value);
-                    const maxDate = getMaxEndDate(tglMulai.value);
-                    if (minDate && tglSelesai.value < minDate) {
-                        alert('Masa berlaku kegiatan minimal 1 (satu) bulan dari tanggal mulai.');
-                        tglSelesai.value = minDate;
-                    } else if (maxDate && tglSelesai.value > maxDate) {
-                        alert('Masa berlaku kegiatan maksimal 3 (tiga) bulan dari tanggal mulai. Jika lebih dari 3 bulan, wajib mengajukan perpanjangan izin setelahnya.');
-                        tglSelesai.value = maxDate;
-                    }
-                }
+                // Validasi dilakukan saat tombol Lanjut ditekan (nextStep)
+                // agar user bebas mengganti bulan/tahun di date picker tanpa terganggu alert
             });
         }
     });

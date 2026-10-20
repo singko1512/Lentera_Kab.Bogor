@@ -11,7 +11,7 @@
                 </p>
                 <div class="flex gap-3">
                     <a href="https://www.instagram.com/diskominfokabbogor/?hl=en" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://www.facebook.com/diskominfobogorkab/" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="https://www.youtube.com/@DISKOMINFOKABBOGOR" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
                 </div>
             </div>
