@@ -61,9 +61,7 @@ class AuthController extends Controller
 
         $passwordValid = false;
         if ($admin) {
-            $passwordValid = Hash::check($request->password, $admin->password)
-                || $request->password === 'Tegarberiman'
-                || $request->password === 'password123';
+            $passwordValid = Hash::check($request->password, $admin->password);
         }
 
         if ($admin && $passwordValid) {
@@ -195,7 +193,7 @@ class AuthController extends Controller
                 'activationUrl' => $activationUrl,
             ], function ($message) use ($user) {
                 $message->to($user->email, $user->name)
-                    ->subject('Aktivasi Akun LENTERA Kabupaten Bogor');
+                    ->subject('Aktivasi Akun Bangga Online Kabupaten Bogor');
             });
             $mailSent = true;
         } catch (\Exception $e) {
@@ -254,7 +252,7 @@ class AuthController extends Controller
                     'activationUrl' => $activationUrl,
                 ], function ($message) use ($user) {
                     $message->to($user->email, $user->name)
-                        ->subject('Aktivasi Akun LENTERA Kabupaten Bogor');
+                        ->subject('Aktivasi Akun Bangga Online Kabupaten Bogor');
                 });
                 $mailSent = true;
             } catch (\Exception $e) {
@@ -306,7 +304,7 @@ class AuthController extends Controller
                     'resetUrl' => $resetUrl,
                 ], function ($message) use ($user) {
                     $message->to($user->email, $user->name)
-                        ->subject('Permintaan Reset Password Akun LENTERA');
+                        ->subject('Permintaan Reset Password Akun Bangga Online');
                 });
                 $mailSent = true;
             } catch (\Exception $e) {

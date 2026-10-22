@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Profil Saya - LENTERA Kab Bogor')
+@section('title', 'Profil Saya - Bangga Online Kab Bogor')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

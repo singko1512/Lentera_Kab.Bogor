@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Statistik Pendaftaran Instansi - LENTERA Kab Bogor')
+@section('title', 'Statistik Pendaftaran Instansi - Bangga Online Kab Bogor')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

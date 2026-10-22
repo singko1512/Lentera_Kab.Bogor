@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'LENTERA Kab Bogor - Dashboard Admin')
+@section('title', 'Bangga Online Kab Bogor - Dashboard Admin')
 
 @section('styles')
 <style>
@@ -819,7 +819,7 @@
                 <h1 class="fw-bold mb-0" style="font-size:1
                 
                 etter-spacing:-0.3px; color:var(--dark);">
-                    {{ $isSuperAdmin ? 'Dashboard Super Admin LENTERA Kab Bogor' : 'Dashboard Admin LENTERA Kab Bogor' }}
+                    {{ $isSuperAdmin ? 'Dashboard Super Admin Bangga Online Kab Bogor' : 'Dashboard Admin Bangga Online Kab Bogor' }}
                 </h1>
                 <p class="mb-0 text-muted" style="font-size:0.85rem;">
                     {{ $isSuperAdmin ? 'Akses penuh Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor' : 'Kelola peserta magang, absensi, laporan, dan sertifikat' }}

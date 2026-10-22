@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Reset Kata Sandi - LENTERA Kabupaten Bogor')
+@section('title', 'Reset Kata Sandi - Bangga Online Kabupaten Bogor')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

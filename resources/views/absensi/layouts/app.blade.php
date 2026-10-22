@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'LENTERA Kab Bogor')</title>
+    <title>@yield('title', 'Bangga Online Kab Bogor')</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
 
@@ -242,7 +242,7 @@
             <a href="{{ route('home') }}" class="nav-brand">
                 <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" style="height: 42px; width: auto; object-fit: contain; margin-right: 0.5rem;">
                 <div class="nav-brand-text">
-                    <strong>LENTERA Kab Bogor</strong>
+                    <strong>Bangga Online Kab Bogor</strong>
                     <span>Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</span>
                 </div>
             </a>
@@ -251,7 +251,7 @@
                 @if(auth()->check())
                     <li>
                         <a href="{{ route('home') }}" style="color: var(--text);border:0;background:transparent;display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 0.9rem;border-radius:10px;font-size:0.85rem;font-weight:600;text-decoration:none;" onmouseover="this.style.background='rgba(17, 92, 185, 0.05)';this.style.color='var(--primary)';" onmouseout="this.style.background='transparent';this.style.color='var(--text)';">
-                            <i class="fa-solid fa-house"></i> Kembali ke Lentera
+                            <i class="fa-solid fa-house"></i> Kembali ke Bangga Online
                         </a>
                     </li>
                     <li>
@@ -280,7 +280,7 @@
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2">
             @if(auth()->check())
-                <a href="{{ route('home') }}" class="btn btn-outline-primary rounded-3 text-start"><i class="fa-solid fa-house me-2"></i> Kembali ke Lentera</a>
+                <a href="{{ route('home') }}" class="btn btn-outline-primary rounded-3 text-start"><i class="fa-solid fa-house me-2"></i> Kembali ke Bangga Online</a>
                 <a href="{{ auth()->user()->role === 'user' ? route('absensi.index') : route('absensi.admin.dashboard') }}" class="btn btn-dark rounded-3 text-start"><i class="fa-solid fa-gauge-high me-2"></i> Dashboard</a>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -300,7 +300,7 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            &copy; {{ date('Y') }} LENTERA &middot; Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor
+            &copy; {{ date('Y') }} Bangga Online &middot; Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor
         </div>
     </footer>
 

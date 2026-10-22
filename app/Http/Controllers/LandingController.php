@@ -480,7 +480,7 @@ class LandingController extends Controller
                 'namaPemohon' => '-',
                 'instansiTujuan' => '-',
                 'tanggalTerbit' => '-',
-                'catatan' => 'Dokumen Surat Rekomendasi dengan tanda verifikasi digital ini tidak terdaftar dalam sistem resmi LENTERA Kabupaten Bogor.',
+                'catatan' => 'Dokumen Surat Rekomendasi dengan tanda verifikasi digital ini tidak terdaftar dalam sistem resmi Bangga Online Kabupaten Bogor.',
             ]);
         }
 

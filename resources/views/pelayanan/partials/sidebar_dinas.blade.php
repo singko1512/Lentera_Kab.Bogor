@@ -5,7 +5,7 @@
     <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Lambang Kabupaten Bogor" class="w-10 h-10 object-contain shrink-0 drop-shadow-sm">
 </div>
 <div>
-<h1 class="text-headline-md font-headline-md font-bold text-on-surface leading-tight tracking-tight">LENTERA</h1>
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface leading-tight tracking-tight">BANGGA ONLINE</h1>
 <p class="text-[12px] text-on-surface-variant font-medium truncate w-40">Kabupaten Bogor</p>
 </div>
 </div>

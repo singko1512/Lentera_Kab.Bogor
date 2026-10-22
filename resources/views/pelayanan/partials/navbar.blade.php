@@ -172,7 +172,7 @@
             <a href="{{ route('home') }}" class="nav-brand">
                 <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" style="height: 42px; width: auto; object-fit: contain; margin-right: 0.5rem;">
                 <div class="nav-brand-text">
-                    <strong>LENTERA Kab Bogor</strong>
+                    <strong>Bangga Online Kab Bogor</strong>
                     <span>Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</span>
                 </div>
             </a>

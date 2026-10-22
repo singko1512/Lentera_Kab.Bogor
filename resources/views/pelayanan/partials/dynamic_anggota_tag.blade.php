@@ -38,7 +38,7 @@
                             <span class="material-symbols-outlined text-secondary text-[18px]">person</span>
                             <span>Nama Anggota ${i}</span> <span class="text-error">*</span>
                         </label>
-                        <span class="text-[11px] text-on-surface-variant font-normal">Tag akun terdaftar di LENTERA</span>
+                        <span class="text-[11px] text-on-surface-variant font-normal">Tag akun terdaftar di Bangga Online</span>
                     </div>
 
                     <div class="relative">
@@ -160,7 +160,7 @@
         if (badge) {
             badge.classList.remove('hidden');
             const kampusSpan = badge.querySelector('.badge-kampus-text');
-            if (kampusSpan) kampusSpan.textContent = user.asal_instansi || 'Akun Terdaftar LENTERA';
+            if (kampusSpan) kampusSpan.textContent = user.asal_instansi || 'Akun Terdaftar Bangga Online';
         }
 
         if (clearBtn) clearBtn.classList.remove('hidden');

@@ -209,7 +209,7 @@ class LayananController extends Controller
                 if (count($anggotaList) < 1) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Pendaftaran kelompok wajib men-tag minimal 1 anggota kelompok yang telah terdaftar di LENTERA.'
+                        'message' => 'Pendaftaran kelompok wajib men-tag minimal 1 anggota kelompok yang telah terdaftar di Bangga Online.'
                     ], 422);
                 }
                 $totalPeserta = count($anggotaList) + 1;

@@ -2,7 +2,7 @@
     <div class="sidebar-header d-flex align-items-center gap-3 p-4 border-bottom">
         <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Lambang Kabupaten Bogor" style="width: 44px; height: 44px; object-fit: contain; flex-shrink: 0;">
         <div>
-            <h5 class="mb-0 fw-bold" style="font-family: var(--font);">LENTERA</h5>
+            <h5 class="mb-0 fw-bold" style="font-family: var(--font);">BANGGA ONLINE</h5>
             <small class="text-muted">Kabupaten Bogor</small>
         </div>
     </div>

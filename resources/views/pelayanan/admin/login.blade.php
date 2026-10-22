@@ -92,7 +92,7 @@
         
         <div class="relative z-10 flex items-center gap-3">
                 <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" class="h-8 w-auto object-contain">
-                <span class="text-[24px] font-bold tracking-tight">LENTERA</span>
+                <span class="text-[24px] font-bold tracking-tight">BANGGA ONLINE</span>
             </div>
             
             <h1 class="text-[32px] md:text-[48px] font-bold mt-12 max-w-lg leading-tight">
@@ -111,7 +111,7 @@
             
             <div class="md:hidden flex items-center gap-2 mb-stack-md text-primary-container">
                 <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" class="h-8 w-auto object-contain">
-                <span class="text-[24px] font-bold">LENTERA</span>
+                <span class="text-[24px] font-bold">BANGGA ONLINE</span>
             </div>
 
             <!-- Form Header -->
@@ -129,7 +129,7 @@
                     </p>
                 @else
                     <p class="text-[16px] text-on-surface-variant">
-                        Masuk untuk mengakses layanan LENTERA.
+                        Masuk untuk mengakses layanan Bangga Online.
                     </p>
                 @endif
             </div>

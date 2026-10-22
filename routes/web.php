@@ -58,7 +58,7 @@ Route::get('/login', function (\Illuminate\Http\Request $request) {
     }
 
     $mode = $request->query('mode', 'login');
-    $title = $mode === 'register' ? 'Register Peserta Magang' : 'Login - LENTERA';
+    $title = $mode === 'register' ? 'Register Peserta Magang' : 'Login - Bangga Online';
     return view('pelayanan.admin.login', [
         'activeAuthMode' => $mode,
         'title' => $title,

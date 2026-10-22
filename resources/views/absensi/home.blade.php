@@ -1,6 +1,6 @@
 @extends('absensi.layouts.app')
 
-@section('title', 'LENTERA - Sistem Informasi Monitoring Absensi dan Laporan Magang')
+@section('title', 'Bangga Online - Sistem Informasi Monitoring Absensi dan Laporan Magang')
 
 @section('styles')
 <style>
@@ -425,7 +425,7 @@
     <!-- Hero -->
     <div class="hero-section">
         <h1 class="hero-heading">
-            LENTERA
+            Bangga Online
         </h1>
         <p class="hero-sub">
             Sistem Informasi Monitoring Absensi dan Laporan Magang untuk mencatat kehadiran, mengirim laporan pekerjaan, dan memantau performa tim.

@@ -233,7 +233,7 @@
                         diterbitkan oleh Balai Sertifikasi<br>
                         Elektronik (BSrE), BSSN. Untuk memastikan keaslian tanda tangan elektronik, silakan pindai QR
                         Code<br>
-                        dan pastikan diarahkan ke alamat <b>https://lentera.bogorkab.go.id</b></i>
+                        dan pastikan diarahkan ke alamat <b>https://devlop.bogorkab.go.id/banggaonline</b></i>
                 </td>
             </tr>
         </table>

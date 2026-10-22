@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'LENTERA Kab Bogor - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor')
+@section('title', 'Bangga Online Kab Bogor - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor')
 
 @section('styles')
 <style>
@@ -427,7 +427,7 @@
     <!-- Hero -->
     <div class="hero-section">
         <h1 class="hero-heading">
-            LENTERA Kab Bogor
+            Bangga Online Kab Bogor
         </h1>
         <p class="hero-sub">
             Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor untuk mencatat kehadiran, mengirim laporan pekerjaan, dan memantau performa tim.

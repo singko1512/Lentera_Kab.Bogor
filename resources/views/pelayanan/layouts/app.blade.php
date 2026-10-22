@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'LENTERA Kab Bogor - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor')</title>
+    <title>@yield('title', 'Bangga Online Kab Bogor - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor')</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
     <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
 

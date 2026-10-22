@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aktivasi Akun LENTERA Kabupaten Bogor</title>
+    <title>Aktivasi Akun Bangga Online Kabupaten Bogor</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -84,12 +84,12 @@
 <body>
     <div class="email-card">
         <div class="email-header">
-            <h1>LENTERA Kab. Bogor</h1>
+            <h1>Bangga Online Kab. Bogor</h1>
             <p>Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</p>
         </div>
         <div class="email-body">
             <div class="greeting">Halo, {{ $name }}! 👋</div>
-            <p>Terima kasih telah mendaftar di sistem pelayanan <strong>LENTERA Kabupaten Bogor</strong>.</p>
+            <p>Terima kasih telah mendaftar di sistem pelayanan <strong>Bangga Online Kabupaten Bogor</strong>.</p>
             <p>Untuk memastikan keaslian email Anda dan mengaktifkan akun peserta magang/riset Anda, silakan klik tombol aktivasi di bawah ini:</p>
             
             <div style="text-align: center;">
@@ -99,7 +99,7 @@
             <p style="font-size: 13px; color: #64748b;">Apabila tombol di atas tidak dapat diklik, salin dan tempelkan tautan berikut ke browser Anda:</p>
             <div class="url-box">{{ $activationUrl }}</div>
             
-            <p style="margin-top: 24px; font-size: 13px; color: #64748b;">Abaikan pesan ini jika Anda merasa tidak pernah melakukan pendaftaran akun di LENTERA.</p>
+            <p style="margin-top: 24px; font-size: 13px; color: #64748b;">Abaikan pesan ini jika Anda merasa tidak pernah melakukan pendaftaran akun di Bangga Online.</p>
         </div>
         <div class="email-footer">
             &copy; {{ date('Y') }} Pemerintah Kabupaten Bogor. Seluruh hak cipta dilindungi.

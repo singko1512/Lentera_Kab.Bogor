@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Verifikasi Keabsahan Surat Rekomendasi - LENTERA Kab. Bogor')
+@section('title', 'Verifikasi Keabsahan Surat Rekomendasi - Bangga Online Kab. Bogor')
 
 @section('content')
 <main class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -12,7 +12,7 @@
             </div>
             <h1 class="text-lg font-bold uppercase tracking-wide">Pemerintah Kabupaten Bogor</h1>
             <p class="text-xs text-white/80 font-medium">Badan Kesatuan Bangsa dan Politik (Bakesbangpol)</p>
-            <p class="text-[11px] text-white/60 mt-1">Layanan Elektronik Terpadu Evaluasi dan Rekomendasi (LENTERA)</p>
+            <p class="text-[11px] text-white/60 mt-1">Sistem Perizinan Bakesbangpol (Bangga Online)</p>
         </div>
 
         <!-- Body Content -->
@@ -70,14 +70,14 @@
             <div class="mt-8 text-center">
                 <a href="{{ url('/') }}" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all shadow-md hover:shadow-lg">
                     <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-                    <span>Kembali ke Beranda LENTERA</span>
+                    <span>Kembali ke Beranda Bangga Online</span>
                 </a>
             </div>
         </div>
 
         <!-- Footer Notice -->
         <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 text-center text-[11px] text-slate-500">
-            &copy; {{ date('Y') }} Pemerintah Kabupaten Bogor. Sistem Layanan Terpadu LENTERA.
+            &copy; {{ date('Y') }} Pemerintah Kabupaten Bogor. Sistem Layanan Terpadu Bangga Online.
         </div>
     </div>
 </main>

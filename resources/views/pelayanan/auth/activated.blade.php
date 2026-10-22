@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Akun Berhasil Diaktifkan - LENTERA Kabupaten Bogor')
+@section('title', 'Akun Berhasil Diaktifkan - Bangga Online Kabupaten Bogor')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -66,7 +66,7 @@
                 Akun Berhasil Diaktifkan!
             </h1>
             <p class="text-sm sm:text-base text-on-surface-variant leading-relaxed max-w-md">
-                Selamat, email Anda <strong class="text-secondary font-semibold break-all">{{ $user->email }}</strong> telah terverifikasi. Akun LENTERA Anda telah aktif dan siap digunakan.
+                Selamat, email Anda <strong class="text-secondary font-semibold break-all">{{ $user->email }}</strong> telah terverifikasi. Akun Bangga Online Anda telah aktif dan siap digunakan.
             </p>
         </div>
 

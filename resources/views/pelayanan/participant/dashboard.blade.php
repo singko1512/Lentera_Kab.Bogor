@@ -4,7 +4,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-2">Selamat Datang, {{ $user->nama }}</h2>
-        <p class="text-gray-600 mb-6">Dashboard Peserta Magang LENTERA Kab Bogor</p>
+        <p class="text-gray-600 mb-6">Dashboard Peserta Magang Bangga Online Kab Bogor</p>
 
         <!-- Tracking Status Magang -->
         <div class="mb-8 p-4 border rounded-lg {{ $isAccepted ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200' }}">

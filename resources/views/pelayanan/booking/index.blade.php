@@ -39,7 +39,7 @@
                 
                 <div class="mb-6">
                     <label class="block text-gray-700 font-medium mb-2">Tambahkan Anggota Tim (Maksimal {{ config('magang.maksimal_anggota_tambahan', 2) }})</label>
-                    <p class="text-sm text-gray-500 mb-2">Masukkan nama atau email teman yang sudah memiliki akun pada sistem (LENTERA Kab Bogor).</p>
+                    <p class="text-sm text-gray-500 mb-2">Masukkan nama atau email teman yang sudah memiliki akun pada sistem (Bangga Online Kab Bogor).</p>
                     <input type="text" id="search-participant" class="w-full border-gray-300 rounded-lg shadow-sm mb-2" placeholder="Cari teman...">
                     <div id="search-results" class="bg-white border border-gray-200 rounded-lg shadow-sm hidden"></div>
                     

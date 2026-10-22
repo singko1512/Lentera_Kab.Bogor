@@ -9,7 +9,7 @@
             0 Anggota Di-tag
         </span>
     </div>
-    <p class="font-caption text-caption text-on-surface-variant">Ketik nama untuk men-tag akun anggota yang telah terdaftar di LENTERA</p>
+    <p class="font-caption text-caption text-on-surface-variant">Ketik nama untuk men-tag akun anggota yang telah terdaftar di Bangga Online</p>
 
     <!-- Compact Input Box (Menyerupai input form standar) -->
     <div class="relative">
@@ -56,7 +56,7 @@
                 <span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary text-xs font-semibold px-2.5 py-1 rounded-md border border-secondary/25 shadow-xs">
                     <span class="material-symbols-outlined text-[14px]">person</span>
                     <span>${user.name}</span>
-                    <span class="text-on-surface-variant/70 font-normal">(${user.asal_instansi || 'LENTERA'})</span>
+                    <span class="text-on-surface-variant/70 font-normal">(${user.asal_instansi || 'Bangga Online'})</span>
                     <button type="button" onclick="window.removeAnggotaTag(${idx})" class="w-4 h-4 rounded-full flex items-center justify-center hover:bg-secondary/20 hover:text-error transition-colors font-bold ml-0.5 cursor-pointer" title="Hapus tag">&times;</button>
                 </span>
             `).join('');

@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Instansi Tujuan Magang - LENTERA')
+@section('title', 'Instansi Tujuan Magang - Bangga Online')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>

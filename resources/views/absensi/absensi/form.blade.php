@@ -1,6 +1,6 @@
 @extends('absensi.layouts.app')
 
-@section('title', 'Form Absensi - LENTERA Kab Bogor')
+@section('title', 'Form Absensi - Bangga Online Kab Bogor')
 
 @section('styles')
 <style>

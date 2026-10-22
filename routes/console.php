@@ -11,7 +11,7 @@ Artisan::command('inspire', function () {
 Schedule::command('lentera:expire-pengajuan')->daily();
 
 Artisan::command('mail:test {email}', function (string $email) {
-    $this->info("=== Pengujian Pengiriman Email SMTP LENTERA ===");
+    $this->info("=== Pengujian Pengiriman Email SMTP Bangga Online ===");
     $this->line("Mailer: " . config('mail.default'));
     $this->line("Host  : " . config('mail.mailers.smtp.host') . ":" . config('mail.mailers.smtp.port'));
     $this->line("User  : " . (config('mail.mailers.smtp.username') ?: '(KOSONG - Isi MAIL_USERNAME di .env)'));
@@ -26,8 +26,8 @@ Artisan::command('mail:test {email}', function (string $email) {
 
     $this->info("Mengirim email percobaan ke: {$email}...");
     try {
-        \Illuminate\Support\Facades\Mail::raw("Halo!\n\nIni adalah email percobaan untuk memverifikasi bahwa konfigurasi SMTP LENTERA Kabupaten Bogor di lingkungan lokal Anda sudah aktif dan berhasil mengirim email.\n\nWaktu kirim: " . now()->toDateTimeString(), function ($msg) use ($email) {
-            $msg->to($email)->subject('Test Koneksi SMTP LENTERA Local');
+        \Illuminate\Support\Facades\Mail::raw("Halo!\n\nIni adalah email percobaan untuk memverifikasi bahwa konfigurasi SMTP Bangga Online Kabupaten Bogor di lingkungan lokal Anda sudah aktif dan berhasil mengirim email.\n\nWaktu kirim: " . now()->toDateTimeString(), function ($msg) use ($email) {
+            $msg->to($email)->subject('Test Koneksi SMTP Bangga Online Local');
         });
         $this->info("BERHASIL! Email percobaan telah berhasil dikirim ke: {$email}");
     } catch (\Throwable $e) {

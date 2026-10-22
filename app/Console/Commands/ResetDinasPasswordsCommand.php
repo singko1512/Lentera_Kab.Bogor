@@ -163,7 +163,7 @@ class ResetDinasPasswordsCommand extends Command
         $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getFont()->setSize(16)->setBold(true)->getColor()->setARGB('FF1E3A8A');
 
-        $sheet->setCellValue('A3', 'Sistem Informasi Pelayanan & Magang LENTERA - Pemerintah Kabupaten Bogor');
+        $sheet->setCellValue('A3', 'Sistem Informasi Pelayanan & Magang Bangga Online - Pemerintah Kabupaten Bogor');
         $sheet->mergeCells('A3:J3');
         $sheet->getStyle('A3')->getFont()->setSize(11)->setItalic(true)->getColor()->setARGB('FF4B5563');
 

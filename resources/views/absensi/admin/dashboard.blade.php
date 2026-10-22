@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.dinas_stitch')
 
-@section('title', 'LENTERA - Manajemen Magang & Sertifikat')
+@section('title', 'Bangga Online - Manajemen Magang & Sertifikat')
 
 @section('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

@@ -98,7 +98,7 @@
     <!-- Report Header -->
     <div class="header">
         <h2>Laporan Rekapitulasi Absensi Peserta Magang</h2>
-        <p>LENTERA - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</p>
+        <p>Bangga Online - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</p>
     </div>
 
     <!-- Metadata Info -->
@@ -160,7 +160,7 @@
             <p><strong>Penanggung Jawab</strong></p>
             <div class="signature-space"></div>
             <p style="border-bottom: 1px solid #333; padding-bottom: 2px; display: inline-block; width: 100%;"></p>
-            <p style="margin-top: 3px;">LENTERA Kab Bogor</p>
+            <p style="margin-top: 3px;">Bangga Online Kab Bogor</p>
         </div>
     </div>
 

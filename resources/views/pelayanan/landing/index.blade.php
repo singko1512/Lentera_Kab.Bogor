@@ -631,7 +631,7 @@
                                     $cardMetaClass = 'text-emerald-700 dark:text-emerald-300/80';
                                     $cardTitle = 'Selamat! ' . $pelaksanaanLabel . ' Telah Tuntas Dilaksanakan';
                                     $cardTitleClass = 'text-emerald-950 dark:text-emerald-100';
-                                    $cardDescription = 'Seluruh rangkaian ' . strtolower($pelaksanaanLabel) . ' Anda di <strong>' . e($app->dinas->name ?? 'Dinas Terkait') . '</strong> telah selesai dilaksanakan. Surat rekomendasi dan riwayat tuntas tersimpan aman di sistem LENTERA.';
+                                    $cardDescription = 'Seluruh rangkaian ' . strtolower($pelaksanaanLabel) . ' Anda di <strong>' . e($app->dinas->name ?? 'Dinas Terkait') . '</strong> telah selesai dilaksanakan. Surat rekomendasi dan riwayat tuntas tersimpan aman di sistem Bangga Online.';
                                     $cardDescClass = 'text-emerald-900/90 dark:text-emerald-200/90';
 
                                     $btns = '';
@@ -726,7 +726,7 @@
                         $cardMetaClass = 'text-blue-700 dark:text-blue-300/80';
                         $cardTitle = 'Permohonan Sedang Dalam Antrean Verifikasi';
                         $cardTitleClass = 'text-blue-950 dark:text-blue-100';
-                        $cardDescription = 'Permohonan <strong>' . e($app->jenisLayanan->nama ?? $app->jenis_permohonan) . '</strong> (#' . $app->id . ') telah diterima sistem LENTERA. Petugas verifikator Bakesbangpol Kab. Bogor saat ini sedang meneliti kelengkapan berkas dan dokumen persyaratan.';
+                        $cardDescription = 'Permohonan <strong>' . e($app->jenisLayanan->nama ?? $app->jenis_permohonan) . '</strong> (#' . $app->id . ') telah diterima sistem Bangga Online. Petugas verifikator Bakesbangpol Kab. Bogor saat ini sedang meneliti kelengkapan berkas dan dokumen persyaratan.';
                         $cardDescClass = 'text-blue-900/90 dark:text-blue-200/90';
                         $cardNote = 'Dinas Tujuan: <strong>' . e($app->dinas->name ?? $app->tempat_kegiatan ?? '-') . '</strong> &bull; Diajukan pada: <strong>' . ($app->created_at ? $app->created_at->format('d M Y, H:i') : '-') . ' WIB</strong>';
                         $cardActionHtml = '<a href="#app-row-' . $app->id . '" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-surface-container-low dark:hover:bg-slate-700 border border-outline-variant/30 dark:border-slate-700 text-on-surface dark:text-slate-200 text-xs font-semibold rounded-xl transition shadow-xs"><span class="material-symbols-outlined text-[16px]">visibility</span><span>Lihat di Tabel</span></a>';
@@ -801,13 +801,13 @@
                                         <span class="material-symbols-outlined text-[13px]">cancel</span> Ditolak
                                     </span>
                                 @else
-                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30">
                                         <span class="material-symbols-outlined text-[20px]">hourglass_top</span>
                                     </div>
                                     <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">3. Verifikasi Kesbangpol</span>
                                     <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pemeriksaan Berkas</span>
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Tahap Saat Ini
+                                    <span class="inline-flex items-center text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                        Tahap Saat Ini
                                     </span>
                                 @endif
                             </div>
@@ -827,13 +827,13 @@
                                         <span class="material-symbols-outlined text-[13px]">check_circle</span> {{ $isMagang ? 'Diterima' : 'Disetujui' }}
                                     </span>
                                 @elseif($s4_state === 'active')
-                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-indigo-600 text-white shadow-md ring-4 ring-indigo-100 dark:ring-indigo-950/70 animate-pulse">
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-indigo-600 text-white shadow-md ring-4 ring-indigo-100 dark:ring-indigo-950/70">
                                         <span class="material-symbols-outlined text-[20px]">apartment</span>
                                     </div>
                                     <span class="font-bold text-xs sm:text-sm text-indigo-700 dark:text-indigo-400 mt-2.5 leading-snug">4. Penerimaan Dinas</span>
                                     <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Pengecekan Kuota</span>
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 mt-1 px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 dark:border dark:border-indigo-800/60">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-ping"></span> Menunggu Dinas
+                                    <span class="inline-flex items-center text-[10px] font-bold text-indigo-700 dark:text-indigo-300 mt-1 px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/70 dark:border dark:border-indigo-800/60">
+                                        Menunggu Dinas
                                     </span>
                                 @elseif($s4_state === 'rejected')
                                     <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md ring-4 ring-red-100 dark:ring-red-950/70">
@@ -869,13 +869,13 @@
                                         <span class="material-symbols-outlined text-[13px]">check_circle</span> Selesai
                                     </span>
                                 @elseif($s5_state === 'active')
-                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                    <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30">
                                         <span class="material-symbols-outlined text-[20px]">{{ $pelaksanaanIcon }}</span>
                                     </div>
                                     <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">5. {{ $pelaksanaanLabel }}</span>
                                     <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">{{ $pelaksanaanSub }}</span>
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Sedang Berjalan
+                                    <span class="inline-flex items-center text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                        Sedang Berjalan
                                     </span>
                                 @else
                                     <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-surface-container-low dark:bg-slate-800/90 text-outline-variant/80 dark:text-slate-500 border-2 border-outline-variant/30 dark:border-slate-700">
@@ -937,13 +937,13 @@
                             <!-- Step 2: Pengajuan Berkas (Aktif / Tahap Saat Ini) -->
                             <div class="flex-1 flex flex-col items-center text-center relative px-1">
                                 <div class="absolute top-[22px] left-1/2 w-full h-1 -translate-y-1/2 bg-gray-200 dark:bg-slate-700/80 z-0"></div>
-                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30 animate-pulse">
+                                <div class="relative z-10 w-11 h-11 rounded-full flex items-center justify-center bg-primary dark:bg-blue-600 text-white shadow-md ring-4 ring-primary/20 dark:ring-blue-500/30">
                                     <span class="material-symbols-outlined text-[20px]">post_add</span>
                                 </div>
                                 <span class="font-bold text-xs sm:text-sm text-primary dark:text-blue-400 mt-2.5 leading-snug">2. Pengajuan Berkas</span>
                                 <span class="text-[11px] text-on-surface-variant dark:text-slate-400 font-medium mt-0.5">Tambah Layanan Baru</span>
-                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-primary dark:bg-blue-400 animate-ping"></span> Tahap Saat Ini
+                                <span class="inline-flex items-center text-[10px] font-bold text-primary dark:text-blue-300 mt-1 px-2.5 py-0.5 rounded-full bg-primary/10 dark:bg-blue-950/70 dark:border dark:border-blue-800/60">
+                                    Tahap Saat Ini
                                 </span>
                             </div>
 

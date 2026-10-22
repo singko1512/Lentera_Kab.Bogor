@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password Akun LENTERA</title>
+    <title>Reset Password Akun Bangga Online</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -84,12 +84,12 @@
 <body>
     <div class="email-card">
         <div class="email-header">
-            <h1>LENTERA Kab. Bogor</h1>
+            <h1>Bangga Online Kab. Bogor</h1>
             <p>Permintaan Reset Kata Sandi / Password</p>
         </div>
         <div class="email-body">
             <div class="greeting">Halo, {{ $name }}! 👋</div>
-            <p>Kami menerima permintaan untuk mereset kata sandi akun LENTERA yang terhubung dengan NIK dan email ini.</p>
+            <p>Kami menerima permintaan untuk mereset kata sandi akun Bangga Online yang terhubung dengan NIK dan email ini.</p>
             <p>Silakan klik tombol di bawah ini untuk membuat kata sandi baru untuk akun Anda:</p>
             
             <div style="text-align: center;">
