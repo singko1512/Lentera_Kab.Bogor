@@ -3,11 +3,13 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10 border-b border-gray-800 pb-10">
             <!-- Col 1: Brand -->
             <div>
-                <div class="flex items-center gap-3 mb-4">
-                    <img src="{{ asset('assets/logo_diskominfo_bogorkab.png') }}" alt="Logo Diskominfo Kabupaten Bogor" style="height: 52px; width: auto; object-fit: contain;">
+                <div class="flex items-center gap-3.5 mb-4">
+                    <img src="{{ asset('assets/logo_diskominfo_bogorkab.png') }}" alt="Logo Diskominfo Kabupaten Bogor" style="height: 48px; width: auto; object-fit: contain;">
+                    <div class="h-8 w-[1px] bg-gray-700"></div>
+                    <img src="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}" alt="Logo Bakesbangpol Kabupaten Bogor" style="height: 48px; width: auto; object-fit: contain;">
                 </div>
                 <p class="text-sm text-gray-400 leading-relaxed mb-4 text-left">
-                    Dinas Komunikasi dan Informatika Kabupaten Bogor. Fasilitas pelayanan online untuk mempermudah permohonan surat izin magang, penelitian, dan kegiatan lainnya.
+                    <strong class="text-gray-200">Bangga Online (Bakesbangpol Menjaga)</strong> — Sistem layanan integrasi hasil kolaborasi Dinas Komunikasi dan Informatika bersama Badan Kesatuan Bangsa dan Politik Kabupaten Bogor untuk mempermudah permohonan surat izin magang, penelitian, dan pelayanan rekomendasi lainnya secara digital.
                 </p>
                 <div class="flex gap-3">
                     <a href="https://www.instagram.com/diskominfokabbogor/?hl=en" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
@@ -65,7 +67,7 @@
         
         <div class="text-center">
             <p class="text-xs text-gray-500 tracking-widest uppercase">
-                COPYRIGHT &copy; {{ date('Y') }} DISKOMINFO KABUPATEN BOGOR 
+                COPYRIGHT &copy; {{ date('Y') }} DISKOMINFO &amp; BAKESBANGPOL KABUPATEN BOGOR 
             </p>
         </div>
     </div>

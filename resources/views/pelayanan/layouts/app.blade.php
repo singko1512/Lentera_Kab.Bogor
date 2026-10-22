@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bangga Online Kab Bogor - Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor')</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026">
 
     <script>
         // Immediately apply saved theme to documentElement before any CSS or content is rendered
@@ -131,7 +131,7 @@
         .site-nav {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 0.9rem 0;
+            padding: 0.45rem 0;
             position: sticky;
             top: 0;
             z-index: 100;

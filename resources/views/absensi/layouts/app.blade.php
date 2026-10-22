@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bangga Online Kab Bogor')</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +49,7 @@
         .site-nav {
             background: var(--white);
             border-bottom: 1px solid var(--border);
-            padding: 0.9rem 0;
+            padding: 0.45rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -240,7 +240,7 @@
     <nav class="site-nav">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="{{ route('home') }}" class="nav-brand">
-                <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" style="height: 42px; width: auto; object-fit: contain; margin-right: 0.5rem;">
+                <img src="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}" alt="Logo Bakesbangpol Kabupaten Bogor" style="height: 54px; width: auto; object-fit: contain; margin-right: 0.65rem;">
                 <div class="nav-brand-text">
                     <strong>Bangga Online Kab Bogor</strong>
                     <span>Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</span>

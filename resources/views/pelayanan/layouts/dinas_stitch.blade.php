@@ -4,8 +4,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Admin Dashboard - Kesbangpol Kab. Bogor</title>
-<link rel="icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5"/>
-<link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_lentera.png') }}?v=5"/>
+<link rel="icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026"/>
+<link rel="shortcut icon" type="image/png" href="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}?v=2026"/>
 <script>
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.classList.add('dark');

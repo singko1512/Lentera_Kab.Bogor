@@ -221,7 +221,7 @@
         // Logo Kabupaten Bogor
         $logoPath = public_path('assets/certificate/lambang_kabupaten_bogor.png');
         if (!file_exists($logoPath)) {
-            $logoPath = public_path('assets/images/logo_lentera.png');
+            $logoPath = public_path('assets/images/logo_bakesbangpol_2026.png');
         }
         $logoBase64 = '';
         if (file_exists($logoPath)) {

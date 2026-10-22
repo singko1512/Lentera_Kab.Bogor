@@ -549,7 +549,7 @@ class LayananController extends Controller
         // Embed logo
         $logoPath = public_path('assets/certificate/lambang_kabupaten_bogor.png');
         if (!file_exists($logoPath)) {
-            $logoPath = public_path('assets/images/logo_lentera.png');
+            $logoPath = public_path('assets/images/logo_bakesbangpol_2026.png');
         }
 
         // Helper: buat baris tabel 3-kolom (label : value)
