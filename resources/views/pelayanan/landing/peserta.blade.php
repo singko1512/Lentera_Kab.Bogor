@@ -109,12 +109,13 @@
 
 <!-- Main Content -->
 <main class="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-stack-lg mt-8">
-<!-- Breadcrumb -->
-<nav aria-label="Breadcrumb" class="flex items-center gap-2 mb-stack-lg text-on-surface-variant font-label-md text-label-md">
-<a class="hover:text-primary transition-colors" href="{{ route('home') }}">Beranda</a>
-<span class="material-symbols-outlined text-[16px]">chevron_right</span>
-<span class="text-on-surface font-medium">Peserta Magang Diterima</span>
-</nav>
+<!-- Back to Home Button -->
+<div class="mb-stack-lg">
+    <a href="{{ route('home') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-primary font-semibold text-sm rounded-xl transition-all border border-outline-variant/40 hover:border-primary shadow-xs group">
+        <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:-translate-x-1">arrow_back</span>
+        <span>Kembali ke Beranda</span>
+    </a>
+</div>
 
 <!-- Header Section -->
 <div class="mb-stack-lg">
@@ -221,10 +222,20 @@
     </div>
 </td>
 <td class="px-6 py-4 align-middle whitespace-nowrap text-center">
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] font-bold text-xs uppercase tracking-wide">
-        <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
-        {{ $peserta->status->nama ?? 'Diterima' }}
-    </span>
+    @php
+        $isSelesai = strtolower((string)($peserta->status ?? '')) === 'selesai' || ($peserta->tanggal_selesai && $peserta->tanggal_selesai->isPast() && !$peserta->tanggal_selesai->isToday());
+    @endphp
+    @if($isSelesai)
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEBEE] text-[#C62828] border border-[#FFCDD2] font-bold text-xs uppercase tracking-wide">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#C62828]"></span>
+            Selesai
+        </span>
+    @else
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] font-bold text-xs uppercase tracking-wide">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
+            Aktif
+        </span>
+    @endif
 </td>
 </tr>
 @empty

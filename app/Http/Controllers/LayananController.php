@@ -401,7 +401,8 @@ class LayananController extends Controller
             if ($request->wantsJson()) {
                 return response()->json([
                     'status' => 'success',
-                    'message' => 'Permohonan berhasil dikirim!'
+                    'message' => 'Permohonan berhasil dikirim!',
+                    'permohonan_id' => $permohonan->id,
                 ]);
             }
 

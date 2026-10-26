@@ -91,7 +91,7 @@
         <div class="absolute inset-0 z-0 mix-blend-overlay opacity-30 bg-cover bg-center" style="background-image: url('{{ asset('assets/tugu_pancakarsa.jpg') }}')"></div>
         
         <div class="relative z-10 flex items-center gap-3">
-                <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" class="h-8 w-auto object-contain">
+                <img src="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}" alt="Logo Bakesbangpol Kabupaten Bogor" class="h-10 w-auto object-contain">
                 <span class="text-[24px] font-bold tracking-tight">BANGGA ONLINE</span>
             </div>
             
@@ -110,7 +110,7 @@
         <div class="w-full max-w-xl bg-surface-container-lowest rounded-xl ambient-shadow-level-1 border-t-4 border-primary-container p-6 md:p-stack-lg my-auto">
             
             <div class="md:hidden flex items-center gap-2 mb-stack-md text-primary-container">
-                <img src="{{ asset('assets/certificate/lambang_kabupaten_bogor.png') }}" alt="Logo Tegar Beriman" class="h-8 w-auto object-contain">
+                <img src="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}" alt="Logo Bakesbangpol Kabupaten Bogor" class="h-9 w-auto object-contain">
                 <span class="text-[24px] font-bold">BANGGA ONLINE</span>
             </div>
 

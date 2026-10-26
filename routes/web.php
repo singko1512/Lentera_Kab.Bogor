@@ -20,6 +20,7 @@ use App\Http\Controllers\Bidang\DashboardController as BidangDashboardController
 use App\Http\Controllers\Simalam\AdminController as SimalamAdminController;
 use App\Http\Controllers\Simalam\AttendanceController as SimalamAttendanceController;
 use App\Http\Controllers\Simalam\ProjectTimelineController as SimalamProjectTimelineController;
+use App\Http\Controllers\AppReviewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,6 +34,7 @@ Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' =
 Route::get('/instansi', [LandingController::class, 'instansiList'])->name('landing.instansi');
 Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
 Route::get('/statistik-instansi', [LandingController::class, 'statistikInstansi'])->name('landing.statistik_instansi');
+Route::get('/analytics/chart-data', [LandingController::class, 'getChartData'])->name('landing.chart_data');
 Route::get('/verifikasi-surat/{token}', [LandingController::class, 'verifikasiSurat'])->name('surat.verifikasi');
 Route::get('/sertifikat/{slug}', function($slug) { return redirect()->route('absensi.admin.dashboard'); })->name('sertifikat.show');
 Route::get('/absensi/home', [SimalamAttendanceController::class, 'home'])->name('absensi.home');
@@ -165,6 +167,7 @@ Route::middleware(['auth', 'role.user'])->group(function () {
     Route::post('/layanan/{id}/update', [LayananController::class, 'update'])->name('layanan.update');
     Route::delete('/layanan/{id}', [LayananController::class, 'destroy'])->name('layanan.destroy');
     Route::post('/layanan/{id}/delete', [LayananController::class, 'destroy']);
+    Route::post('/app-review', [AppReviewController::class, 'store'])->name('app_review.store');
 
     // Rute Pendaftaran Magang
     Route::get('/magang/apply/{rekrutmen_id}', [MagangController::class, 'applyForm'])->name('magang.apply');
@@ -215,7 +218,13 @@ Route::middleware(['auth', 'role.kesbangpol'])->group(function () {
         
         // History
         Route::get('/history', [KesbangpolHistoryController::class, 'index'])->name('history.index');
+
+        // Ulasan / Kritik & Saran (Bakesbangpol & Superadmin)
+        Route::get('/reviews', [AppReviewController::class, 'superadminIndex'])->name('reviews.index');
     });
+
+    // Alias rute review superadmin (dapat diakses oleh Superadmin & Bakesbangpol)
+    Route::get('/superadmin/reviews', [AppReviewController::class, 'superadminIndex'])->name('superadmin.reviews.index');
 });
 
 /*

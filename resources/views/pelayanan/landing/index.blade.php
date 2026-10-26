@@ -346,10 +346,10 @@
 
 <!-- Hero Action Buttons -->
 <div class="flex flex-wrap items-center justify-center gap-4 mt-3 reveal-element">
-    <!-- Button 1: Data Layanan -->
+    <!-- Button 1: Rekap Statistik -->
     <a href="#analytics-section" class="hero-btn-primary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base relative overflow-hidden shadow-lg">
         <span class="material-symbols-outlined text-[22px] hero-btn-icon-main">monitoring</span>
-        <span class="tracking-wide">Data Layanan</span>
+        <span class="tracking-wide">Rekap Statistik</span>
         <span class="material-symbols-outlined text-[18px] hero-btn-icon-arrow">arrow_downward</span>
     </a>
 
@@ -1073,7 +1073,7 @@
                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
 
                                 @if($app->file_surat_final)
-                                    <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs" title="Unduh Surat Rekomendasi Final (PDF)">
+                                    <a href="{{ route('surat.pdf', ['id' => $app->id, 'download' => 1]) }}" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-secondary transition-all shadow-xs cursor-pointer" title="Unduh Surat Rekomendasi Final (PDF)">
                                         <span class="material-symbols-outlined text-[16px]">download</span>
                                         <span>Unduh Surat</span>
                                     </a>
@@ -1085,17 +1085,17 @@
                                 @endif
 
                                 @if(in_array($statusKode, ['perlu_revisi', 'menunggu_verifikasi']))
-                                    <button type="button" onclick="openEditModal('{{ $app->id }}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700 transition-all shadow-xs" title="Edit / Revisi Permohonan">
+                                    <button type="button" onclick="openEditModal('{{ $app->id }}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700 transition-all shadow-xs cursor-pointer" title="Edit / Revisi Permohonan">
                                         <span class="material-symbols-outlined text-[15px]">edit</span>
                                         <span>Edit</span>
                                     </button>
                                 @endif
 
                                 @if($statusKode == 'menunggu_verifikasi')
-                                    <form action="{{ route('layanan.destroy', $app->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus permohonan ini?')" class="inline">
+                                    <form action="{{ route('layanan.destroy', $app->id) }}" method="POST" onsubmit="event.preventDefault(); confirmDeletePermohonan(this);" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-all shadow-xs" title="Hapus Permohonan">
+                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 transition-all shadow-xs cursor-pointer" title="Hapus Permohonan">
                                             <span class="material-symbols-outlined text-[15px]">delete</span>
                                             <span>Hapus</span>
                                         </button>
@@ -1131,9 +1131,9 @@
         @if(in_array($appStatusKode, ['perlu_revisi', 'menunggu_verifikasi']))
         <div id="edit_modal_{{ $app->id }}" class="fixed inset-0 z-[120] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div id="edit_backdrop_{{ $app->id }}" class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 opacity-0" onclick="closeEditModal('{{ $app->id }}')"></div>
+                <div id="edit_backdrop_{{ $app->id }}" class="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 opacity-0 z-10" onclick="closeEditModal('{{ $app->id }}')"></div>
                 <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div id="edit_modal_box_{{ $app->id }}" class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <div id="edit_modal_box_{{ $app->id }}" class="relative z-20 inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                     <div class="bg-surface-container-low px-6 py-4 border-b border-outline-variant/20 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-amber-600 text-[24px]">edit_square</span>
@@ -1427,7 +1427,7 @@
 <section id="statistics-section" class="max-w-container-max mx-auto px-margin-desktop pt-8 pb-12 relative z-20 w-full">
 <div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
     <h2 class="font-headline-lg text-headline-lg text-on-surface">
-        Data Layanan Pendaftaran
+        Rekap Statistik
     </h2>
     <p class="font-body-md text-body-md text-on-surface-variant">Statistik real-time pendaftaran & status kelulusan.</p>
 </div>
@@ -1470,19 +1470,70 @@
 <!-- Interactive Analytics Section -->
 <section id="analytics-section" class="max-w-container-max mx-auto px-margin-desktop pb-16 relative z-20 reveal-scale w-full">
     <div class="bg-surface-container-lowest rounded-xl shadow-ambient border border-outline-variant/30 p-8 flex flex-col gap-8">
-        <!-- Section Header -->
-        <div class="flex items-center justify-start border-b border-outline-variant/20 pb-6">
-            <!-- Service Selector Dropdown -->
-            <div class="flex flex-col gap-2 min-w-[320px]">
-                <label for="service-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider">Pilih Jenis Layanan:</label>
-                <div class="relative">
-                    <select id="service-selector" class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-pointer" style="background-image: none;">
-                        @foreach(array_keys($chartData) as $service)
-                            <option value="{{ $service }}">{{ $service }}</option>
-                        @endforeach
-                    </select>
-                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+        <!-- Section Header: Filter Bar -->
+        <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4 border-b border-outline-variant/20 pb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
+                <!-- 1. Service Selector -->
+                <div class="flex flex-col gap-1.5">
+                    <label for="service-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px] text-secondary">category</span>
+                        Pilih Jenis Layanan:
+                    </label>
+                    <div class="relative">
+                        <select id="service-selector" class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-pointer" style="background-image: none;">
+                            @foreach(array_keys($chartData) as $service)
+                                <option value="{{ $service }}">{{ $service }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+                    </div>
                 </div>
+
+                <!-- 2. Year Selector -->
+                <div class="flex flex-col gap-1.5">
+                    <label for="year-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px] text-secondary">calendar_today</span>
+                        Pilih Tahun:
+                    </label>
+                    <div class="relative">
+                        <select id="year-selector" class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-pointer" style="background-image: none;">
+                            <option value="all">Semua Tahun</option>
+                            @foreach($availableYears as $yr)
+                                <option value="{{ $yr }}">{{ $yr }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- 3. Month Selector -->
+                <div class="flex flex-col gap-1.5">
+                    <label for="month-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[18px] text-secondary">event_repeat</span>
+                        Pilih Bulan:
+                    </label>
+                    <div class="relative">
+                        <select id="month-selector" disabled class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-not-allowed opacity-60" style="background-image: none;">
+                            <option value="all">Pilih Tahun Dahulu</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Status & Loading Indicator -->
+            <div class="flex items-center gap-3 shrink-0 self-start xl:self-end pb-1 text-xs text-on-surface-variant">
+                <span id="filter-loading-spinner" class="hidden items-center gap-1.5 text-secondary font-medium whitespace-nowrap shrink-0">
+                    <svg class="animate-spin h-3.5 w-3.5 text-secondary shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span class="whitespace-nowrap">Memuat data...</span>
+                </span>
+                <span id="active-filter-badge" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary/10 text-secondary text-[11px] font-semibold border border-secondary/20 whitespace-nowrap shrink-0 shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shrink-0"></span>
+                    <span id="active-filter-text" class="whitespace-nowrap inline-block leading-none">Semua Periode</span>
+                </span>
             </div>
         </div>
 
@@ -1540,75 +1591,6 @@
             </div>
         </div>
     </div>
-</section>
-
-<!-- Instansi Tujuan Magang -->
-<section id="instansi-section" class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
-<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-stack-lg">
-<div class="flex flex-col gap-2">
-<h2 class="font-headline-lg text-headline-lg text-on-surface">Instansi Tujuan Magang</h2>
-<p class="font-body-md text-body-md text-on-surface-variant">Pilih instansi tujuan magang yang sesuai dengan minat Anda. Memprioritaskan instansi dengan kuota yang tersedia.</p>
-</div>
-<a href="{{ route('landing.instansi') }}" class="group inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-semibold rounded-lg transition-all border border-outline-variant/30 hover:border-primary shadow-sm hover:shadow">
-    <span>Lihat Selengkapnya</span>
-    <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
-</a>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-container">
-@forelse($featuredInstansis as $instansi)
-<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->id) }}">
-<div class="flex justify-between items-start mb-4">
-  <div class="w-16 h-16 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
-    <span class="material-symbols-outlined text-[32px] text-primary group-hover:scale-110 transition-transform">
-        @if(str_contains(strtolower($instansi->name), 'pendidikan') || str_contains(strtolower($instansi->name), 'sekolah')) school
-        @elseif(str_contains(strtolower($instansi->name), 'kesehatan') || str_contains(strtolower($instansi->name), 'rsud') || str_contains(strtolower($instansi->name), 'puskesmas')) medical_services
-        @elseif(str_contains(strtolower($instansi->name), 'komputer') || str_contains(strtolower($instansi->name), 'informasi') || str_contains(strtolower($instansi->name), 'komunikasi')) computer
-        @elseif(str_contains(strtolower($instansi->name), 'sosial')) people
-        @else domain @endif
-    </span>
-  </div>
-  <div class="font-caption text-caption text-secondary uppercase tracking-wider bg-secondary/10 px-3 py-1 rounded font-bold text-center">
-      {{ str_contains(strtolower($instansi->name), 'kecamatan') ? 'KECAMATAN' : 'INSTANSI PERANGKAT DAERAH' }}
-  </div>
-</div>
-<h3 class="font-title-lg text-title-lg text-on-surface group-hover:text-primary mb-2 transition-colors line-clamp-2">{{ $instansi->name }}</h3>
-<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-3">
-    {{ $instansi->deskripsi }}
-</p>
-
-<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
-  @if($instansi->sisa_kuota > 0)
-    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-lg font-label-md text-caption font-bold">
-      <span class="material-symbols-outlined text-[16px]">check_circle</span>
-      <span>{{ $instansi->sisa_kuota }} Kuota Tersedia</span>
-    </div>
-  @else
-    @php $badge = $instansi->status_badge; @endphp
-    <div class="flex items-center gap-1 px-3 py-1.5 {{ $badge['bg_class'] }} rounded-lg font-label-md text-caption font-bold">
-      <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span>
-      <span>{{ $badge['label'] }}</span>
-    </div>
-  @endif
-  <div class="py-2 px-4 bg-surface-container-low text-primary font-label-md text-label-md rounded-md hover:bg-surface-container transition-colors text-center inline-block">Lihat Detail</div>
-</div>
-</a>
-@empty
-<div class="col-span-1 md:col-span-2 lg:col-span-3 py-12 px-6 text-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center">
-    <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-4">
-        <span class="material-symbols-outlined text-3xl">domain_disabled</span>
-    </div>
-    <h3 class="text-title-lg font-bold text-on-surface mb-2">Saat Ini Belum Ada Kuota Terbuka di Beranda</h3>
-    <p class="text-body-md text-on-surface-variant max-w-lg mb-6">
-        Instansi tujuan magang saat ini belum membuka slot baru atau kuota sedang terisi. Anda dapat melihat daftar lengkap seluruh instansi Pemerintah Kabupaten Bogor melalui tautan di bawah ini.
-    </p>
-    <a href="{{ route('landing.instansi') }}" class="px-5 py-2.5 bg-primary text-white rounded-xl font-label-md text-sm font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
-        <span>Lihat Selengkapnya</span>
-        <span class="material-symbols-outlined text-sm">arrow_forward</span>
-    </a>
-</div>
-@endforelse
-</div>
-
 </section>
 
 <!-- Peserta Magang Diterima -->
@@ -1688,10 +1670,20 @@
             </div>
         </td>
         <td class="px-6 py-4 align-middle whitespace-nowrap text-center">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] font-bold text-xs uppercase tracking-wide">
-                <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
-                {{ $peserta->status->nama ?? 'Diterima' }}
-            </span>
+            @php
+                $isSelesai = strtolower((string)($peserta->status ?? '')) === 'selesai' || ($peserta->tanggal_selesai && $peserta->tanggal_selesai->isPast() && !$peserta->tanggal_selesai->isToday());
+            @endphp
+            @if($isSelesai)
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFEBEE] text-[#C62828] border border-[#FFCDD2] font-bold text-xs uppercase tracking-wide">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#C62828]"></span>
+                    Selesai
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] font-bold text-xs uppercase tracking-wide">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D32]"></span>
+                    Aktif
+                </span>
+            @endif
         </td>
     </tr>
     @empty
@@ -1706,6 +1698,75 @@
 </div>
 </div>
 </div>
+</section>
+
+<!-- Instansi Tujuan Magang -->
+<section id="instansi-section" class="max-w-container-max mx-auto px-margin-desktop py-16 w-full">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-stack-lg">
+<div class="flex flex-col gap-2">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Instansi Tujuan Magang</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Pilih instansi tujuan magang yang sesuai dengan minat Anda. Memprioritaskan instansi dengan kuota yang tersedia.</p>
+</div>
+<a href="{{ route('landing.instansi') }}" class="group inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-semibold rounded-lg transition-all border border-outline-variant/30 hover:border-primary shadow-sm hover:shadow">
+    <span>Lihat Selengkapnya</span>
+    <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-container">
+@forelse($featuredInstansis as $instansi)
+<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->id) }}">
+<div class="flex justify-between items-start mb-4">
+  <div class="w-16 h-16 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
+    <span class="material-symbols-outlined text-[32px] text-primary group-hover:scale-110 transition-transform">
+        @if(str_contains(strtolower($instansi->name), 'pendidikan') || str_contains(strtolower($instansi->name), 'sekolah')) school
+        @elseif(str_contains(strtolower($instansi->name), 'kesehatan') || str_contains(strtolower($instansi->name), 'rsud') || str_contains(strtolower($instansi->name), 'puskesmas')) medical_services
+        @elseif(str_contains(strtolower($instansi->name), 'komputer') || str_contains(strtolower($instansi->name), 'informasi') || str_contains(strtolower($instansi->name), 'komunikasi')) computer
+        @elseif(str_contains(strtolower($instansi->name), 'sosial')) people
+        @else domain @endif
+    </span>
+  </div>
+  <div class="font-caption text-caption text-secondary uppercase tracking-wider bg-secondary/10 px-3 py-1 rounded font-bold text-center">
+      {{ str_contains(strtolower($instansi->name), 'kecamatan') ? 'KECAMATAN' : 'INSTANSI PERANGKAT DAERAH' }}
+  </div>
+</div>
+<h3 class="font-title-lg text-title-lg text-on-surface group-hover:text-primary mb-2 transition-colors line-clamp-2">{{ $instansi->name }}</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow line-clamp-3">
+    {{ $instansi->deskripsi }}
+</p>
+
+<div class="mt-auto flex items-center justify-between pt-4 border-t border-surface-container-high">
+  @if($instansi->sisa_kuota > 0)
+    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] rounded-lg font-label-md text-caption font-bold">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>
+      <span>{{ $instansi->sisa_kuota }} Kuota Tersedia</span>
+    </div>
+  @else
+    @php $badge = $instansi->status_badge; @endphp
+    <div class="flex items-center gap-1 px-3 py-1.5 {{ $badge['bg_class'] }} rounded-lg font-label-md text-caption font-bold">
+      <span class="material-symbols-outlined text-[16px]">{{ $badge['icon'] }}</span>
+      <span>{{ $badge['label'] }}</span>
+    </div>
+  @endif
+  <div class="py-2 px-4 bg-surface-container-low text-primary font-label-md text-label-md rounded-md hover:bg-surface-container transition-colors text-center inline-block">Lihat Detail</div>
+</div>
+</a>
+@empty
+<div class="col-span-1 md:col-span-2 lg:col-span-3 py-12 px-6 text-center bg-surface-container-lowest rounded-2xl border border-outline-variant/30 flex flex-col items-center justify-center">
+    <div class="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary mb-4">
+        <span class="material-symbols-outlined text-3xl">domain_disabled</span>
+    </div>
+    <h3 class="text-title-lg font-bold text-on-surface mb-2">Saat Ini Belum Ada Kuota Terbuka di Beranda</h3>
+    <p class="text-body-md text-on-surface-variant max-w-lg mb-6">
+        Instansi tujuan magang saat ini belum membuka slot baru atau kuota sedang terisi. Anda dapat melihat daftar lengkap seluruh instansi Pemerintah Kabupaten Bogor melalui tautan di bawah ini.
+    </p>
+    <a href="{{ route('landing.instansi') }}" class="px-5 py-2.5 bg-primary text-white rounded-xl font-label-md text-sm font-semibold inline-flex items-center gap-2 hover:opacity-90 transition-opacity">
+        <span>Lihat Selengkapnya</span>
+        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+    </a>
+</div>
+@endforelse
+</div>
+
 </section>
 @endguest
 @if(isset($userMagang) && $userMagang)
@@ -2272,14 +2333,20 @@
         const modal = document.getElementById('edit_modal_' + id);
         const backdrop = document.getElementById('edit_backdrop_' + id);
         const modalBox = document.getElementById('edit_modal_box_' + id);
-        if (!modal) return;
+        if (!modal) {
+            console.error('Modal element not found for id:', id);
+            return;
+        }
         
         modal.classList.remove('hidden');
-        setTimeout(() => {
-            backdrop.classList.remove('opacity-0');
-            modalBox.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
-            modalBox.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
-        }, 10);
+        modal.style.display = 'block';
+        requestAnimationFrame(() => {
+            if (backdrop) backdrop.classList.remove('opacity-0');
+            if (modalBox) {
+                modalBox.classList.remove('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+                modalBox.classList.add('opacity-100', 'translate-y-0', 'sm:scale-100');
+            }
+        });
         document.body.style.overflow = 'hidden';
     }
 
@@ -2289,14 +2356,49 @@
         const modalBox = document.getElementById('edit_modal_box_' + id);
         if (!modal) return;
         
-        backdrop.classList.add('opacity-0');
-        modalBox.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
-        modalBox.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+        if (backdrop) backdrop.classList.add('opacity-0');
+        if (modalBox) {
+            modalBox.classList.remove('opacity-100', 'translate-y-0', 'sm:scale-100');
+            modalBox.classList.add('opacity-0', 'translate-y-4', 'sm:translate-y-0', 'sm:scale-95');
+        }
         
         setTimeout(() => {
             modal.classList.add('hidden');
+            modal.style.display = 'none';
             document.body.style.overflow = '';
         }, 300);
+    }
+
+    function confirmDeletePermohonan(form) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Hapus Permohonan?',
+                text: 'Apakah Anda yakin ingin membatalkan dan menghapus permohonan surat ini? Tindakan ini tidak dapat dibatalkan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-2xl border-0 shadow-2xl p-6',
+                    title: 'text-lg font-bold text-gray-800',
+                    confirmButton: 'rounded-xl px-5 py-2.5 font-bold shadow-sm',
+                    cancelButton: 'rounded-xl px-5 py-2.5 font-bold'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return false;
+        } else {
+            if (confirm('Apakah Anda yakin ingin membatalkan dan menghapus permohonan surat ini?')) {
+                form.submit();
+            }
+            return false;
+        }
     }
 
     // Scroll and Stagger Animations via Intersection Observer
@@ -2404,20 +2506,54 @@
             }
         }
 
-        function renderCharts(serviceName) {
-            const data = serviceStats[serviceName];
+        const monthNames = [
+            { num: 1, name: 'Januari' },
+            { num: 2, name: 'Februari' },
+            { num: 3, name: 'Maret' },
+            { num: 4, name: 'April' },
+            { num: 5, name: 'Mei' },
+            { num: 6, name: 'Juni' },
+            { num: 7, name: 'Juli' },
+            { num: 8, name: 'Agustus' },
+            { num: 9, name: 'September' },
+            { num: 10, name: 'Oktober' },
+            { num: 11, name: 'November' },
+            { num: 12, name: 'Desember' }
+        ];
+
+        let currentChartData = null;
+        const serviceSelector = document.getElementById('service-selector');
+        const yearSelector = document.getElementById('year-selector');
+        const monthSelector = document.getElementById('month-selector');
+        const activeFilterText = document.getElementById('active-filter-text');
+        const filterLoadingSpinner = document.getElementById('filter-loading-spinner');
+
+        function renderChartsWithData(serviceName, data) {
             if (!data) return;
 
             // Highlight the card in the service list
             highlightServiceCard(serviceName);
 
+            const registered = Number(data.registered || 0);
+            const accepted = Number(data.accepted || 0);
+            const processOrOther = Math.max(0, registered - accepted);
+
             // Update stats summary in HTML
-            document.getElementById('stat-registered-val').textContent = Number(data.registered).toLocaleString('id-ID');
-            document.getElementById('stat-accepted-val').textContent = Number(data.accepted).toLocaleString('id-ID');
+            const regEl = document.getElementById('stat-registered-val');
+            const accEl = document.getElementById('stat-accepted-val');
+            if (regEl) regEl.textContent = registered.toLocaleString('id-ID');
+            if (accEl) accEl.textContent = accepted.toLocaleString('id-ID');
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const chartLabelColor = isDark ? '#f8fafc' : '#1e293b';
+            const chartSubColor = isDark ? '#cbd5e1' : '#64748b';
+            const chartGridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
 
             // Donut Chart Config
+            const donutSeries = registered > 0 ? [processOrOther, accepted] : [0, 0];
+
             const donutOptions = {
-                series: [data.registered - data.accepted, data.accepted],
+                series: donutSeries,
                 chart: {
                     type: 'donut',
                     height: 280,
@@ -2438,7 +2574,7 @@
                     }
                 },
                 dataLabels: {
-                    enabled: true,
+                    enabled: registered > 0,
                     style: {
                         fontSize: '11px',
                         fontWeight: '700',
@@ -2456,17 +2592,27 @@
                     }
                 },
                 tooltip: {
-                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                    theme: isDark ? 'dark' : 'light',
                     y: {
                         formatter: function (value) {
                             return value + " Berkas";
                         }
                     }
                 },
+                noData: {
+                    text: 'Belum ada berkas terdaftar pada periode ini',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    style: {
+                        color: chartSubColor,
+                        fontSize: '12px',
+                        fontFamily: 'Plus Jakarta Sans, sans-serif'
+                    }
+                },
                 plotOptions: {
                     pie: {
                         donut: {
-                            size: '52%', // Thicker ring to fit labels
+                            size: '52%',
                             labels: {
                                 show: true,
                                 total: {
@@ -2475,8 +2621,8 @@
                                     color: 'var(--tw-on-surface-variant)',
                                     fontSize: '12px',
                                     fontWeight: '600',
-                                    formatter: function (w) {
-                                        return data.registered.toLocaleString('id-ID');
+                                    formatter: function () {
+                                        return registered.toLocaleString('id-ID');
                                     }
                                 },
                                 value: {
@@ -2495,12 +2641,7 @@
 
             // Bar Chart Config: Top 10 Dinas Terbanyak Pendaftarnya
             const topDinasData = data.top_dinas || { categories: [], full_names: [], series: [] };
-            const isDark = document.documentElement.classList.contains('dark');
-            const chartLabelColor = isDark ? '#f8fafc' : '#1e293b';
-            const chartSubColor = isDark ? '#cbd5e1' : '#64748b';
-            const chartGridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
 
-            // Modern distinct color palette highlighting #1 with Emerald Green
             const top10Colors = [
                 '#10b981', // 1: Emerald highlight (Peringkat 1)
                 '#3b82f6', // 2: Blue
@@ -2532,7 +2673,7 @@
                         speed: 500
                     }
                 },
-                colors: top10Colors.slice(0, (topDinasData.series || []).length),
+                colors: top10Colors.slice(0, Math.max(1, (topDinasData.series || []).length)),
                 plotOptions: {
                     bar: {
                         borderRadius: 6,
@@ -2557,6 +2698,16 @@
                 },
                 legend: {
                     show: false
+                },
+                noData: {
+                    text: 'Belum ada pendaftar pada instansi untuk periode ini',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    style: {
+                        color: chartSubColor,
+                        fontSize: '12px',
+                        fontFamily: 'Plus Jakarta Sans, sans-serif'
+                    }
                 },
                 xaxis: {
                     categories: topDinasData.categories || [],
@@ -2599,7 +2750,7 @@
                     }
                 },
                 tooltip: {
-                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                    theme: isDark ? 'dark' : 'light',
                     custom: function({ series, seriesIndex, dataPointIndex }) {
                         const count = series[seriesIndex][dataPointIndex];
                         const shortName = topDinasData.categories[dataPointIndex] || '';
@@ -2639,20 +2790,122 @@
             }
         }
 
-        // Initialize selector & charts
-        const serviceSelector = document.getElementById('service-selector');
-        if (serviceSelector) {
-            renderCharts(serviceSelector.value);
+        function updateMonthDropdown(selectedYear) {
+            if (!monthSelector) return;
 
-            serviceSelector.addEventListener('change', function(e) {
-                renderCharts(e.target.value);
+            if (!selectedYear || selectedYear === 'all') {
+                monthSelector.disabled = true;
+                monthSelector.innerHTML = '<option value="all">Pilih Tahun Dahulu</option>';
+                monthSelector.classList.add('cursor-not-allowed', 'opacity-60');
+                monthSelector.classList.remove('cursor-pointer');
+                monthSelector.value = 'all';
+            } else {
+                const prevMonth = monthSelector.value;
+                monthSelector.disabled = false;
+                monthSelector.classList.remove('cursor-not-allowed', 'opacity-60');
+                monthSelector.classList.add('cursor-pointer');
+
+                let html = `<option value="all">Semua Bulan (${selectedYear})</option>`;
+                monthNames.forEach(m => {
+                    html += `<option value="${m.num}">${m.name} ${selectedYear}</option>`;
+                });
+                monthSelector.innerHTML = html;
+
+                if (prevMonth && prevMonth !== 'all' && monthNames.some(m => m.num == prevMonth)) {
+                    monthSelector.value = prevMonth;
+                } else {
+                    monthSelector.value = 'all';
+                }
+            }
+        }
+
+        function updateFilterBadge(serviceName, year, month) {
+            if (!activeFilterText) return;
+            let label = '';
+            if (year === 'all') {
+                label = 'Semua\u00A0Periode';
+            } else if (month === 'all') {
+                label = `Tahun\u00A0${year}`;
+            } else {
+                const mObj = monthNames.find(m => m.num == month);
+                const mLabel = mObj ? mObj.name : `Bulan\u00A0${month}`;
+                label = `${mLabel}\u00A0${year}`;
+            }
+            activeFilterText.textContent = label;
+        }
+
+        async function applyFilters() {
+            const service = serviceSelector ? serviceSelector.value : 'Semua Layanan';
+            const year = yearSelector ? yearSelector.value : 'all';
+            const month = monthSelector ? monthSelector.value : 'all';
+
+            highlightServiceCard(service);
+            updateFilterBadge(service, year, month);
+
+            // Fast path: if year is 'all' and month is 'all', use pre-loaded serviceStats
+            if (year === 'all' && month === 'all' && serviceStats && serviceStats[service]) {
+                currentChartData = serviceStats[service];
+                renderChartsWithData(service, currentChartData);
+                return;
+            }
+
+            // AJAX call to fetch filtered data
+            if (filterLoadingSpinner) {
+                filterLoadingSpinner.classList.remove('hidden');
+                filterLoadingSpinner.classList.add('inline-flex');
+            }
+            try {
+                const url = `{{ route('landing.chart_data') }}?service=${encodeURIComponent(service)}&year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+                const res = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const json = await res.json();
+                if (json && json.status === 'success' && json.data) {
+                    currentChartData = json.data;
+                    renderChartsWithData(service, currentChartData);
+                }
+            } catch (err) {
+                console.error('Failed to load chart data:', err);
+            } finally {
+                if (filterLoadingSpinner) {
+                    filterLoadingSpinner.classList.add('hidden');
+                    filterLoadingSpinner.classList.remove('inline-flex');
+                }
+            }
+        }
+
+        // Initialize selector & charts
+        if (serviceSelector) {
+            currentChartData = serviceStats[serviceSelector.value];
+            renderChartsWithData(serviceSelector.value, currentChartData);
+
+            serviceSelector.addEventListener('change', function() {
+                applyFilters();
             });
+
+            if (yearSelector) {
+                yearSelector.addEventListener('change', function(e) {
+                    updateMonthDropdown(e.target.value);
+                    applyFilters();
+                });
+            }
+
+            if (monthSelector) {
+                monthSelector.addEventListener('change', function() {
+                    applyFilters();
+                });
+            }
 
             // Re-render charts when theme is switched between light and dark
             const indexThemeObserver = new MutationObserver((mutations) => {
                 for (const mutation of mutations) {
                     if (mutation.attributeName === 'class') {
-                        renderCharts(serviceSelector.value);
+                        if (currentChartData) {
+                            renderChartsWithData(serviceSelector.value, currentChartData);
+                        }
                     }
                 }
             });
@@ -2669,7 +2922,7 @@
                 const serviceName = this.getAttribute('data-service');
                 if (serviceName && serviceSelector) {
                     serviceSelector.value = serviceName;
-                    renderCharts(serviceName);
+                    applyFilters();
                     // Smooth scroll to analytics section
                     const targetSection = document.getElementById('analytics-section');
                     if (targetSection) {

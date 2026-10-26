@@ -240,20 +240,11 @@
 <div class="min-h-screen bg-slate-50/80 dark:bg-[#0b1c30] text-slate-900 dark:text-slate-100 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
     <div class="max-w-7xl mx-auto flex flex-col gap-8">
         
-        <!-- Breadcrumb & Navigasi Kembali -->
-        <div class="flex items-center justify-between flex-wrap gap-4 no-print">
-            <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                <a href="{{ route('home') }}" class="hover:text-primary transition-colors flex items-center gap-1 font-medium">
-                    <span class="material-symbols-outlined text-[16px]">home</span>
-                    Beranda
-                </a>
-                <span>/</span>
-                <span class="text-slate-800 dark:text-slate-200 font-bold">Statistik Instansi</span>
-            </nav>
-            
-            <a href="{{ route('home') }}#analytics-section" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-[#10243d] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-xs">
-                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
-                Kembali ke Beranda
+        <!-- Navigasi Kembali ke Beranda -->
+        <div class="flex items-center no-print">
+            <a href="{{ route('home') }}#analytics-section" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white dark:bg-[#10243d] text-primary dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-xs group">
+                <span class="material-symbols-outlined text-[18px] transition-transform duration-200 group-hover:-translate-x-1">arrow_back</span>
+                <span>Kembali ke Beranda</span>
             </a>
         </div>
 

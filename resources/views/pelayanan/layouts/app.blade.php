@@ -429,6 +429,10 @@
         });
         window.addEventListener('focus', syncCsrfToken);
     </script>
+    @auth
+        @include('pelayanan.partials.review_modal')
+    @endauth
+    @include('pelayanan.partials.form_field_reminder')
     @yield('scripts')
 </body>
 </html>

@@ -397,18 +397,27 @@
     
     <div id="success-box" class="relative bg-surface-container-lowest rounded-[24px] p-8 md:p-10 max-w-md w-full text-center shadow-[0_10px_40px_rgba(0,0,0,0.1)] opacity-0 scale-90 transition-all duration-500 ease-out">
         
+        <!-- Tombol Tutup (X) di Pojok Kanan Atas -->
+        <a href="{{ route('home') }}" class="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-variant/50 transition-colors" title="Tutup">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+        </a>
+        
         <!-- Animated Checkmark -->
         <div class="w-24 h-24 bg-[#e6f4ea] rounded-full flex items-center justify-center mx-auto mb-6 transform transition-transform duration-700 delay-150 scale-0" id="success-icon" style="transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);">
             <span class="material-symbols-outlined text-[64px] text-[#137333]">check_circle</span>
         </div>
         
         <h3 class="font-headline-md text-headline-md text-primary mb-3">Pengajuan Berhasil!</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant mb-8 leading-relaxed">
-            Silahkan tunggu <span class="font-bold text-on-surface">1-3 hari kerja</span> dan nantikan informasinya melalui email atau whatsapp.
+        <p class="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
+            Silahkan tunggu <span class="font-bold text-on-surface">3-5 hari kerja</span> dan nantikan informasinya di dashboard anda.
         </p>
         
-        <a href="{{ route('home') }}" class="inline-block w-full py-3.5 bg-primary text-white font-label-md text-label-md rounded-xl hover:bg-primary-container hover:text-white transition-colors shadow-sm">
-            Kembali ke Beranda
+        <button type="button" onclick="openAppReviewModal()" class="w-full py-3 px-4 bg-gradient-to-r from-primary to-secondary text-white font-label-md text-label-md font-bold rounded-xl shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 mb-2">
+            <span class="material-symbols-outlined text-[19px]">rate_review</span>
+            <span>Beri Penilaian Aplikasi</span>
+        </button>
+        <a href="{{ route('home') }}" class="inline-block w-full py-2.5 text-on-surface-variant hover:text-on-surface text-xs font-semibold">
+            Lewati &amp; Kembali ke Beranda
         </a>
     </div>
 </div>
@@ -750,25 +759,8 @@
             btnSubmit.disabled = false;
             
             if (data.status === 'success') {
-                sessionStorage.removeItem(storageKey);
-                sessionStorage.removeItem(formDataKey);
-                const modal = document.getElementById('success-modal');
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    setTimeout(() => {
-                        const backdrop = document.getElementById('success-backdrop');
-                        if (backdrop) backdrop.classList.replace('opacity-0', 'opacity-100');
-                        const box = document.getElementById('success-box');
-                        if (box) {
-                            box.classList.replace('opacity-0', 'opacity-100');
-                            box.classList.replace('scale-90', 'scale-100');
-                        }
-                        const icon = document.getElementById('success-icon');
-                        if (icon) icon.classList.replace('scale-0', 'scale-100');
-                    }, 10);
-                    setTimeout(() => {
-                        window.location.href = "{{ route('home') }}";
-                    }, 3500);
+                if (typeof handleLayananSubmitSuccess === 'function') {
+                    handleLayananSubmitSuccess(data, storageKey, formDataKey);
                 } else {
                     window.location.href = "{{ route('home') }}";
                 }

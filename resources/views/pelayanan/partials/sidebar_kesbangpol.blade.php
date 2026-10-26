@@ -25,6 +25,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('superadmin.reviews.index') }}" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 fw-semibold text-dark @if(Route::is('superadmin.reviews.*', 'kesbangpol.reviews.*')) active @endif" style="transition: all 0.2s;">
+                    <i class="fa-solid fa-comment-dots"></i> Kritik &amp; Saran
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="#" class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3 fw-semibold text-muted hover-bg-light" style="transition: all 0.2s;">
                     <i class="fa-solid fa-file-alt"></i> Pengajuan Magang
                 </a>

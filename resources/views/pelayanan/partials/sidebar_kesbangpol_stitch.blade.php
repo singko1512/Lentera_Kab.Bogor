@@ -15,7 +15,7 @@
 <div x-data="{ 
     open: (() => {
         try {
-            return (localStorage.getItem('sidebar_kesbangpol_pengajuan') !== null ? localStorage.getItem('sidebar_kesbangpol_pengajuan') === 'true' : true) || {{ (Route::is('kesbangpol.layanan*', 'kesbangpol.participants*', 'kesbangpol.history*') || (Route::is('kesbangpol.dashboard') && request('tab', 'pelayanan') === 'pelayanan')) ? 'true' : 'false' }};
+            return (localStorage.getItem('sidebar_kesbangpol_pengajuan') !== null ? localStorage.getItem('sidebar_kesbangpol_pengajuan') === 'true' : true) || {{ (Route::is('kesbangpol.layanan*', 'kesbangpol.participants*', 'kesbangpol.history*', 'superadmin.reviews*', 'kesbangpol.reviews*') || (Route::is('kesbangpol.dashboard') && request('tab', 'pelayanan') === 'pelayanan')) ? 'true' : 'false' }};
         } catch (e) {
             return true;
         }
@@ -48,6 +48,11 @@
         <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ Route::is('kesbangpol.history*') ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ route('kesbangpol.history.index') }}">
             <span class="material-symbols-outlined shrink-0 text-[20px] {{ Route::is('kesbangpol.history*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">history</span>
             <span class="text-label-md font-label-md min-w-0 leading-snug truncate">Riwayat Pengajuan</span>
+        </a>
+
+        <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ Route::is('superadmin.reviews*', 'kesbangpol.reviews*') ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ route('superadmin.reviews.index') }}">
+            <span class="material-symbols-outlined shrink-0 text-[20px] {{ Route::is('superadmin.reviews*', 'kesbangpol.reviews*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">rate_review</span>
+            <span class="text-label-md font-label-md min-w-0 leading-snug truncate">Kritik &amp; Saran</span>
         </a>
     </div>
 </div>
@@ -108,9 +113,9 @@
 <div x-data="{ 
     open: (() => {
         try {
-            return (localStorage.getItem('sidebar_kesbangpol_master') !== null ? localStorage.getItem('sidebar_kesbangpol_master') === 'true' : {{ Route::is('kesbangpol.dinas*', 'admin.surat*') ? 'true' : 'false' }}) || {{ Route::is('kesbangpol.dinas*', 'admin.surat*') ? 'true' : 'false' }};
+            return (localStorage.getItem('sidebar_kesbangpol_master') !== null ? localStorage.getItem('sidebar_kesbangpol_master') === 'true' : {{ Route::is('kesbangpol.dinas*', 'admin.surat*', 'superadmin.reviews*') ? 'true' : 'false' }}) || {{ Route::is('kesbangpol.dinas*', 'admin.surat*', 'superadmin.reviews*') ? 'true' : 'false' }};
         } catch (e) {
-            return {{ Route::is('kesbangpol.dinas*', 'admin.surat*') ? 'true' : 'false' }};
+            return {{ Route::is('kesbangpol.dinas*', 'admin.surat*', 'superadmin.reviews*') ? 'true' : 'false' }};
         }
     })() 
 }" class="mt-3">
@@ -131,6 +136,11 @@
         <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ Route::is('admin.surat*') ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ route('admin.surat.index') }}">
             <span class="material-symbols-outlined shrink-0 text-[20px] {{ Route::is('admin.surat*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">mail</span>
             <span class="text-label-md font-label-md min-w-0 leading-snug truncate">Kelola Surat</span>
+        </a>
+
+        <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ Route::is('superadmin.reviews*', 'kesbangpol.reviews*') ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ route('superadmin.reviews.index') }}">
+            <span class="material-symbols-outlined shrink-0 text-[20px] {{ Route::is('superadmin.reviews*', 'kesbangpol.reviews*') ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">rate_review</span>
+            <span class="text-label-md font-label-md min-w-0 leading-snug truncate">Kritik &amp; Saran</span>
         </a>
     </div>
 </div>

@@ -54,9 +54,9 @@ class LandingController extends Controller
         // Gabungkan: utamakan yang memiliki kuota, jika kurang/kosong diisi instansi lainnya (1 row = 3 card)
         $featuredInstansis = $withKuota->concat($withoutKuota)->take(3)->values();
 
-        // 3. Ambil Peserta Magang Diterima
+        // 3. Ambil Peserta Magang (Diterima, Aktif, Selesai)
         $pesertas = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang'])
-            ->where('status', 'diterima')
+            ->whereIn('status', ['diterima', 'aktif', 'selesai'])
             ->orderBy('updated_at', 'desc')
             ->take(10)
             ->get();
@@ -251,11 +251,16 @@ class LandingController extends Controller
             }
         }
 
+        $dbYears = PermohonanLayanan::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->filter()->toArray();
+        $availableYears = array_values(array_unique(array_merge([now()->year, now()->year - 1], $dbYears)));
+        rsort($availableYears);
+
         return view('pelayanan.landing.index', compact(
             'rekrutmens', 
             'featuredInstansis', 
             'pesertas', 
             'chartData', 
+            'availableYears',
             'pastDayNames',
             'totalRegistered',
             'totalAccepted',
@@ -269,6 +274,91 @@ class LandingController extends Controller
         ));
     }
 
+    /**
+     * AJAX Endpoint untuk data analitik filter (Layanan, Tahun, Bulan)
+     */
+    public function getChartData(Request $request)
+    {
+        $serviceName = $request->input('service', 'Semua Layanan');
+        $year = $request->input('year', 'all');
+        $month = $request->input('month', 'all');
+
+        $servicesList = [
+            'Semua Layanan' => 'all',
+            'Penelitian (Perguruan Tinggi)' => 'penelitian_pt',
+            'Penelitian (Instansi / Lembaga Lainnya)' => 'penelitian_instansi',
+            'KKL / PKL / Magang (Mahasiswa)' => 'kkl_mahasiswa',
+            'KKN Mahasiswa' => 'kkn_mahasiswa',
+            'KKL / PKL / Magang (Siswa Sekolah)' => 'kkl_siswa',
+            'Pelaksanaan Kegiatan' => 'pelaksanaan_kegiatan',
+            'Perpanjangan Izin Rekomendasi' => 'perpanjangan',
+        ];
+
+        $slug = $servicesList[$serviceName] ?? 'all';
+
+        $baseQuery = PermohonanLayanan::query();
+
+        if ($slug !== 'all') {
+            $baseQuery->whereHas('jenisLayanan', function($q) use ($slug) {
+                $q->where('slug', $slug);
+            });
+        }
+
+        if ($year !== 'all' && is_numeric($year)) {
+            $baseQuery->whereYear('created_at', (int) $year);
+        }
+
+        if ($month !== 'all' && is_numeric($month)) {
+            $baseQuery->whereMonth('created_at', (int) $month);
+        }
+
+        $registeredCount = (clone $baseQuery)->count();
+
+        $acceptedCount = (clone $baseQuery)->whereHas('statusMaster', function($q) {
+            $q->whereIn('kode', ['disetujui', 'selesai']);
+        })->count();
+
+        // Top 10 Dinas Terbanyak Pendaftarnya
+        $topDinasRaw = (clone $baseQuery)
+            ->whereNotNull('dinas_id')
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->orderByDesc('total')
+            ->take(10)
+            ->with('dinas')
+            ->get();
+
+        $topDinasCategories = [];
+        $topDinasFullNames = [];
+        $topDinasSeries = [];
+
+        foreach ($topDinasRaw as $row) {
+            $dName = $row->dinas?->name ?? 'Dinas';
+            $topDinasCategories[] = Dinas::formatSingkatan($dName);
+            $topDinasFullNames[] = $dName;
+            $topDinasSeries[] = (int) $row->total;
+        }
+
+        $firstItem = $topDinasRaw->first();
+        $topDinasBadge = $firstItem
+            ? (Dinas::formatSingkatan($firstItem->dinas?->name ?? 'Diskominfo') . ' (' . $firstItem->total . ' Orang)')
+            : '-';
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'registered' => $registeredCount,
+                'accepted' => $acceptedCount,
+                'top_dinas' => [
+                    'categories' => $topDinasCategories,
+                    'full_names' => $topDinasFullNames,
+                    'series' => $topDinasSeries,
+                    'top_badge' => $topDinasBadge,
+                ]
+            ]
+        ]);
+    }
+
     public function peserta(Request $request)
     {
         $search = $request->input('search');
@@ -276,7 +366,7 @@ class LandingController extends Controller
         $dinasId = $request->input('dinas_id');
 
         $query = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang', 'permohonanLayanan.jenisLayanan'])
-            ->where('status', 'diterima');
+            ->whereIn('status', ['diterima', 'aktif', 'selesai']);
 
         if ($search) {
             $query->whereHas('user', function($q) use ($search) {
@@ -298,11 +388,11 @@ class LandingController extends Controller
 
         $pesertas = $query->orderBy('updated_at', 'desc')->paginate(12);
 
-        // Ambil semua instansi unik dari peserta magang yang diterima
+        // Ambil semua instansi unik dari peserta magang yang diterima / aktif / selesai
         $semuaInstansi = \App\Models\PermohonanLayanan::whereIn('id', function($q) {
             $q->select('permohonan_layanan_id')
               ->from('magang_applications')
-              ->where('status', 'diterima');
+              ->whereIn('status', ['diterima', 'aktif', 'selesai']);
         })->pluck('asal_instansi')->filter()->unique()->values();
 
         // Ambil semua dinas untuk filter
