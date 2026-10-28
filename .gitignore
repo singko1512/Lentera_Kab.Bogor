@@ -24,3 +24,6 @@ temp_docx/
 storage/logs/*.log
 storage/app/public/test_*.docx
 .DS_Store
+*.xlsx
+~$*.xlsx
+DAFTAR_AKUN_DINAS.md
