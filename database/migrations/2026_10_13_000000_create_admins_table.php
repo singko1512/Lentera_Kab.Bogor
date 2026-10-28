@@ -64,14 +64,14 @@ return new class extends Migration
 
         // Pastikan akun default Super Admin dan Admin tersedia di tabel admins jika belum ada
         $now = now();
-        $defaultPassword = Hash::make('AdminLenteraBogor#2026!');
+        $defaultPassword = Hash::make('AdminBanggaBogor#2026!');
 
         DB::table('admins')->updateOrInsert(
             ['username' => 'superadmin'],
             [
-                'name' => 'Super Admin Lentera',
-                'email' => 'superadmin@lentera.com',
-                'password' => $defaultPassword,
+                'name' => 'Super Administrator',
+                'email' => 'superadmin@dinas.com',
+                'password' => Hash::make('SuperAdmin#Bangga2026!'),
                 'role' => 'superadmin',
                 'status_akun' => 'aktif',
                 'created_at' => $now,
@@ -82,9 +82,9 @@ return new class extends Migration
         DB::table('admins')->updateOrInsert(
             ['username' => 'admin'],
             [
-                'name' => 'Administrator Lentera',
-                'email' => 'admin@lentera.com',
-                'password' => Hash::make('admin123'),
+                'name' => 'Administrator Bangga Online',
+                'email' => 'admin@dinas.com',
+                'password' => Hash::make('AdminBangga#2026!'),
                 'role' => 'admin',
                 'status_akun' => 'aktif',
                 'created_at' => $now,

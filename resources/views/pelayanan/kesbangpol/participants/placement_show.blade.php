@@ -102,9 +102,12 @@
                         @php
                             $dokumenList = [
                                 ['nama' => 'KTP', 'field' => 'file_ktp', 'file' => $application->permohonanLayanan->file_ktp, 'icon' => 'badge'],
-                                ['nama' => 'KTM', 'field' => 'file_ktm', 'file' => $application->permohonanLayanan->file_ktm, 'icon' => 'branding_watermark'],
-                                ['nama' => 'Surat Pengantar', 'field' => 'file_surat_pengantar', 'file' => $application->permohonanLayanan->file_surat_pengantar, 'icon' => 'article'],
-                                ['nama' => 'Proposal', 'field' => 'file_proposal', 'file' => $application->permohonanLayanan->file_proposal, 'icon' => 'book'],
+                                ['nama' => 'KTM / Kartu Pelajar', 'field' => 'file_ktm', 'file' => $application->permohonanLayanan->file_ktm ?: ($application->permohonanLayanan->file_kartu_pelajar ?: $application->permohonanLayanan->file_id_card), 'icon' => 'branding_watermark'],
+                                ['nama' => 'Surat Pengantar Asli', 'field' => 'file_surat_pengantar', 'file' => $application->permohonanLayanan->file_surat_pengantar ?: $application->permohonanLayanan->file_surat_permohonan, 'icon' => 'article'],
+                                ['nama' => 'Surat Izin Lokasi Kegiatan', 'field' => 'file_surat_lokasi', 'file' => $application->permohonanLayanan->file_surat_lokasi, 'icon' => 'holiday_village'],
+                                ['nama' => 'Proposal Kegiatan', 'field' => 'file_proposal', 'file' => $application->permohonanLayanan->file_proposal, 'icon' => 'book'],
+                                ['nama' => 'Surat Rekomendasi Lama', 'field' => 'file_surat_rekomendasi_lama', 'file' => $application->permohonanLayanan->file_surat_rekomendasi_lama, 'icon' => 'history'],
+                                ['nama' => 'Dokumen Pendukung', 'field' => 'file_pendukung', 'file' => $application->permohonanLayanan->file_pendukung, 'icon' => 'folder'],
                             ];
                         @endphp
                         

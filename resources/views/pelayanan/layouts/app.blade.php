@@ -433,6 +433,7 @@
         @include('pelayanan.partials.review_modal')
     @endauth
     @include('pelayanan.partials.form_field_reminder')
+    @include('pelayanan.partials.summary_modal')
     @yield('scripts')
 </body>
 </html>

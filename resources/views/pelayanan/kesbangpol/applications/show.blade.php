@@ -146,7 +146,10 @@
                                 </div>
                             </div>
                             
-                            @if($application->file_proposal)
+                            @php
+                                $fileProposal = $application->file_proposal ?: $application->permohonanLayanan?->file_proposal;
+                            @endphp
+                            @if($fileProposal)
                             <!-- Doc 2 -->
                             <div class="flex flex-col border-t border-outline-variant/40">
                                 <div class="p-4 flex items-center justify-between hover:bg-white hover:shadow-sm transition-all group">

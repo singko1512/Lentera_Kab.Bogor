@@ -119,4 +119,29 @@ class PermohonanLayanan extends Model
     {
         return $this->hasMany(MagangApplication::class, 'permohonan_layanan_id');
     }
+
+    public function getFileSuratPengantarAttribute($value)
+    {
+        return $value ?: ($this->attributes['file_surat_permohonan'] ?? null);
+    }
+
+    public function getFileSuratPermohonanAttribute($value)
+    {
+        return $value ?: ($this->attributes['file_surat_pengantar'] ?? null);
+    }
+
+    public function getFileKtmAttribute($value)
+    {
+        return $value ?: ($this->attributes['file_kartu_pelajar'] ?? $this->attributes['file_id_card'] ?? null);
+    }
+
+    public function getFileKartuPelajarAttribute($value)
+    {
+        return $value ?: ($this->attributes['file_ktm'] ?? null);
+    }
+
+    public function getFileIdCardAttribute($value)
+    {
+        return $value ?: ($this->attributes['file_ktm'] ?? null);
+    }
 }

@@ -9,7 +9,7 @@
         @page {
             size: A4 portrait;
             margin-top: 1.2cm;
-            margin-bottom: 2.2cm;
+            margin-bottom: 2cm;
             margin-left: 2.2cm;
             margin-right: 2cm;
         }
@@ -21,39 +21,6 @@
             color: #000;
             margin: 0;
             padding: 0;
-        }
-
-        /* Fixed Footer on all pages */
-        .fixed-footer {
-            position: fixed;
-            bottom: -1.8cm;
-            left: 0;
-            right: 0;
-            height: 1.5cm;
-        }
-
-        .footer-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .footer-table td {
-            vertical-align: middle;
-            padding: 0;
-        }
-
-        /* Dikosongkan sesuai permintaan: untuk ditempel QR code manual oleh Kesbangpol */
-        .footer-qr-placeholder {
-            width: 52px;
-            height: 52px;
-        }
-
-        .footer-text {
-            padding-left: 12px;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 7.5pt;
-            color: #222;
-            line-height: 1.35;
         }
 
         /* Kop Surat */
@@ -196,7 +163,7 @@
         .signature-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 35px;
         }
 
         .signature-table td {
@@ -206,6 +173,7 @@
         .tembusan-box {
             font-size: 9.5pt;
             line-height: 1.4;
+            padding-top: 10px;
         }
 
         /* Ruang kosong untuk ditempel E-Sign manual oleh Kesbangpol */
@@ -229,47 +197,77 @@
             $logoBase64 = 'data:image/png;base64,' . base64_encode($logoData);
         }
 
-        // Variabel Data Dinamis dari Input / Database
+        // Slug Layanan
+        $slug = $layanan->jenisLayanan->slug ?? 'kkl_mahasiswa';
+        $jenisLayananNama = $layanan->jenisLayanan->nama ?? 'Praktik Kerja Lapangan (PKL)';
+
+        // Variabel Tanggal
         $tglSurat = \Carbon\Carbon::parse($layanan->updated_at ?? now())->translatedFormat('d F Y');
         $tglAsal = \Carbon\Carbon::parse($layanan->created_at ?? now())->translatedFormat('d F Y');
         $tglMulai = \Carbon\Carbon::parse($layanan->tanggal_mulai ?? now())->translatedFormat('d F Y');
         $tglSelesai = \Carbon\Carbon::parse($layanan->tanggal_selesai ?? now())->translatedFormat('d F Y');
 
-        $nomorSurat = $layanan->suratRekomendasi->nomor_surat ?? ('400.14.5.4 / ' . $layanan->id . ' - Wasnas');
+        // Nomor Surat & Hal Sesuai Template
+        $prefixNomor = match($slug) {
+            'penelitian_pt', 'penelitian_instansi', 'kkn_mahasiswa' => '000.9.2 / ',
+            'pelaksanaan_kegiatan' => '000.6.9.3 / ',
+            default => '400.14.5.4 / ',
+        };
 
-        $jenisLayananNama = $layanan->jenisLayanan->nama ?? 'Praktik Kerja Lapangan (PKL)';
-        
-        // Sesuaikan nama perihal agar baku
-        $halSurat = 'Rekomendasi ' . $jenisLayananNama;
-        if (str_contains(strtolower($jenisLayananNama), 'kkl') || str_contains(strtolower($jenisLayananNama), 'pkl')) {
-            $halSurat = 'Rekomendasi Praktik Kerja Lapangan (PKL)';
-        } elseif (str_contains(strtolower($jenisLayananNama), 'kkn')) {
-            $halSurat = 'Rekomendasi Kuliah Kerja Nyata (KKN)';
-        } elseif (str_contains(strtolower($jenisLayananNama), 'penelitian')) {
-            $halSurat = 'Rekomendasi Surat Izin Penelitian';
+        if ($layanan->suratRekomendasi && !empty($layanan->suratRekomendasi->nomor_surat)) {
+            $rawNomor = trim($layanan->suratRekomendasi->nomor_surat);
+            if (preg_match('/^(?:000\.9\.2|400\.14\.5\.4|000\.6\.9\.3)\s*\//i', $rawNomor)) {
+                $nomorSurat = $rawNomor;
+            } else {
+                $nomorSurat = $prefixNomor . $rawNomor;
+            }
+            if (!str_contains(strtolower($nomorSurat), 'wasnas')) {
+                $nomorSurat .= ' - Wasnas';
+            }
+        } else {
+            $nomorSurat = $prefixNomor . $layanan->id . ' - Wasnas';
         }
 
-        $singkatanLayanan = 'PKL/Magang';
-        if (str_contains(strtolower($jenisLayananNama), 'penelitian')) {
-            $singkatanLayanan = 'Penelitian';
-        } elseif (str_contains(strtolower($jenisLayananNama), 'kkn')) {
-            $singkatanLayanan = 'KKN';
-        } elseif (str_contains(strtolower($jenisLayananNama), 'kkl')) {
-            $singkatanLayanan = 'KKL/PKL';
+        $halSurat = match($slug) {
+            'penelitian_pt', 'penelitian_instansi' => 'Rekomendasi Surat Izin Penelitian',
+            'kkn_mahasiswa' => 'Rekomendasi Kuliah Kerja Nyata (KKN)',
+            'pelaksanaan_kegiatan' => 'Rekomendasi Pelaksanaan Kegiatan',
+            default => 'Rekomendasi Praktik Kerja Lapangan (PKL)',
+        };
+
+        // Tujuan & Tempat Tujuan
+        $dinasNameRaw = $layanan->tempat_kegiatan ?: ($layanan->dinas->name ?? 'Dinas Komunikasi dan Informatika');
+        $dinasFormatted = ucwords(strtolower(trim($dinasNameRaw)));
+        if (!str_contains(strtolower($dinasFormatted), 'kabupaten') && !str_contains(strtolower($dinasFormatted), 'kab.')) {
+            $dinasFormatted .= ' Kab. Bogor';
         }
 
-        $dinasNameRaw = $layanan->tempat_kegiatan ?? 'Dinas Komunikasi dan Informatika';
-        $dinasNameFormatted = ucwords(strtolower(trim($dinasNameRaw)));
-        if (!str_contains(strtolower($dinasNameFormatted), 'kabupaten') && !str_contains(strtolower($dinasNameFormatted), 'kab.')) {
-            $dinasNameFormatted .= ' Kab. Bogor';
+        $tujuanSurat = 'Kepala ' . $dinasFormatted;
+        $tempatTujuan = 'Cibinong';
+        if (str_contains(strtolower($dinasNameRaw), 'kecamatan')) {
+            $kecClean = preg_replace('/^kantor\s+/i', '', $dinasFormatted);
+            if (!str_starts_with(strtolower($kecClean), 'camat')) {
+                $tujuanSurat = 'Camat ' . preg_replace('/^kecamatan\s+/i', '', $kecClean);
+            } else {
+                $tujuanSurat = $kecClean;
+            }
+            if (preg_match('/kecamatan\s+([a-zA-Z\s]+)/i', $dinasNameRaw, $mKec)) {
+                $tempatTujuan = ucwords(strtolower(trim($mKec[1])));
+            }
+        } elseif ($slug === 'kkn_mahasiswa' && str_contains(strtolower($dinasFormatted), 'kecamatan')) {
+            $tujuanSurat = 'Camat ' . preg_replace('/^kecamatan\s+/i', '', $dinasFormatted);
         }
 
-        $tempatKegiatan = 'Kantor ' . ucwords(strtolower(trim($dinasNameRaw))) . ' Kabupaten Bogor.';
+        $tempatKegiatan = 'Kantor ' . ucwords(strtolower(trim($dinasNameRaw)));
+        if (!str_contains(strtolower($tempatKegiatan), 'kabupaten') && !str_contains(strtolower($tempatKegiatan), 'kab.')) {
+            $tempatKegiatan .= ' Kabupaten Bogor';
+        }
 
+        // Asal Instansi
         $asalInstansi = $layanan->asal_instansi ?? ($layanan->user->asal_instansi ?? 'Perguruan Tinggi / Sekolah');
         $nomorAsal = $layanan->nomor_surat_pengantar ?: ('1832/D/' . strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $asalInstansi), 0, 6)) . '/' . date('Y'));
 
-        // Parsing Daftar Nama Pemohon (Mendukung satu atau banyak nama yang diinput pemohon)
+        // Nama Pemohon (Mendukung Multi-nama)
         $rawNama = $layanan->atas_nama ?: ($layanan->user->name ?? 'PEMOHON');
         if (preg_match_all('/(?:\d+[\.\)]\s*)?([^\r\n,]+)/', $rawNama, $matches)) {
             $namaList = array_values(array_filter(array_map('trim', $matches[1])));
@@ -285,7 +283,7 @@
         $terbilang = $terbilangMap[$jumlahAnggota] ?? (string) $jumlahAnggota;
         $jumlahPesertaFormatted = $jumlahAnggota . ' (' . $terbilang . ') Orang';
 
-        $alamatPemohon = $layanan->user->alamat ?? ($layanan->alamat ?? 'Jl. Pakuan P.O. Box 452');
+        $alamatPemohon = $layanan->user->alamat ?? ($layanan->alamat ?? 'Kabupaten Bogor');
         $penanggungJawab = $layanan->user->pembimbing_magang ?: ($layanan->atas_nama ?: ($layanan->user->name ?? '-'));
 
         $pimpinanAsalInstansi = 'Dekan / Pimpinan ' . $asalInstansi;
@@ -295,24 +293,8 @@
             $pimpinanAsalInstansi = 'Kepala ' . $asalInstansi;
         }
 
-        $perihalSurat = $layanan->judul_kegiatan ?: ($jenisLayananNama);
+        $perihalSurat = $layanan->judul_kegiatan ?: $jenisLayananNama;
     @endphp
-
-    <!-- FIXED FOOTER PADA SEMUA HALAMAN (AREA QR CODE DIKOSONGKAN SESUAI INSTRUKSI) -->
-    <div class="fixed-footer">
-        <table class="footer-table">
-            <tr>
-                <td style="width: 55px;">
-                    <!-- Area kosong reserved untuk QR Code BSrE manual -->
-                    <div class="footer-qr-placeholder"></div>
-                </td>
-                <td class="footer-text">
-                    Dokumen ini telah ditandatangani secara elektronik menggunakan sertifikat elektronik yang diterbitkan oleh<br>
-                    <strong>Balai Sertifikasi Elektronik (BSrE) Badan Siber dan Sandi Negara</strong>
-                </td>
-            </tr>
-        </table>
-    </div>
 
     <!-- ========================================== -->
     <!-- HALAMAN 1                                  -->
@@ -371,9 +353,9 @@
 
         <!-- TUJUAN SURAT -->
         <div class="tujuan-block">
-            Yth. Kepala {{ $dinasNameFormatted }}<br>
+            Yth. {{ $tujuanSurat }}<br>
             <span style="margin-left: 20px;">di</span><br>
-            <span style="margin-left: 20px;">Cibinong</span>
+            <span style="margin-left: 20px;">{{ $tempatTujuan }}</span>
         </div>
 
         <!-- DASAR HUKUM -->
@@ -409,12 +391,16 @@
         <!-- TABEL DATA PEMOHON -->
         <table class="data-table">
             <tr>
-                <td class="data-label">Nama</td>
+                <td class="data-label">{{ in_array($slug, ['penelitian_pt', 'penelitian_instansi']) ? 'Nama Peneliti' : 'Nama' }}</td>
                 <td class="data-colon">:</td>
                 <td>
-                    @foreach($namaList as $idx => $namaItem)
-                        <div><strong>{{ $idx + 1 }}. {{ strtoupper($namaItem) }}</strong></div>
-                    @endforeach
+                    @if(count($namaList) === 1)
+                        <strong>{{ strtoupper($namaList[0]) }}</strong>
+                    @else
+                        @foreach($namaList as $idx => $namaItem)
+                            <div><strong>{{ $idx + 1 }}. {{ strtoupper($namaItem) }}</strong></div>
+                        @endforeach
+                    @endif
                 </td>
             </tr>
             <tr>
@@ -422,6 +408,13 @@
                 <td class="data-colon">:</td>
                 <td>{{ $alamatPemohon }}</td>
             </tr>
+            @if(in_array($slug, ['penelitian_pt', 'penelitian_instansi']))
+            <tr>
+                <td class="data-label">Judul Penelitian</td>
+                <td class="data-colon">:</td>
+                <td>{{ $layanan->judul_kegiatan ?: $jenisLayananNama }}</td>
+            </tr>
+            @endif
             <tr>
                 <td class="data-label">Penanggung Jawab</td>
                 <td class="data-colon">:</td>
@@ -442,6 +435,13 @@
                 <td class="data-colon">:</td>
                 <td>{{ $tempatKegiatan }}</td>
             </tr>
+            @if($slug === 'pelaksanaan_kegiatan')
+            <tr>
+                <td class="data-label">Nama Kegiatan</td>
+                <td class="data-colon">:</td>
+                <td>{{ $layanan->judul_kegiatan ?: $jenisLayananNama }}</td>
+            </tr>
+            @endif
         </table>
 
         <!-- KATA SAMBUNG DI KANAN BAWAH HALAMAN 1 -->
@@ -479,31 +479,59 @@
             - 2 -
         </div>
 
-        <!-- KETENTUAN -->
+        <!-- KETENTUAN RESMI SESUAI TEMPLATE SURAT -->
         <div style="font-size: 10pt; line-height: 1.4; margin-bottom: 6px;">
             Dengan ketentuan sebagai berikut :
         </div>
+        @php
+            $ketentuanList = match($slug) {
+                'penelitian_pt' => [
+                    'Menaati ketentuan peraturan perundang-undangan;',
+                    'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi Penelitian;',
+                    'Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan penelitian;',
+                    'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas;',
+                    'Setelah selesai melaksanakan kegiatan, agar Mahasiswa yang bersangkutan melaporkan hasilnya kepada Bupati Bogor melalui Kepala Badan Kesatuan Bangsa dan Politik Kabupaten Bogor.',
+                ],
+                'penelitian_instansi' => [
+                    'Menaati ketentuan peraturan perundang-undangan;',
+                    'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi Penelitian;',
+                    'Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan penelitian;',
+                    'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas;',
+                    'Setelah selesai melaksanakan kegiatan, agar yang bersangkutan melaporkan hasilnya kepada Bupati Bogor melalui Kepala Badan Kesatuan Bangsa dan Politik Kabupaten Bogor.',
+                ],
+                'kkn_mahasiswa' => [
+                    'Mentaati ketentuan Peraturan Perundang-undangan;',
+                    'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi KKN;',
+                    'Senantiasa berkoordinasi dan mengikuti petunjuk dan arahan dari Forum Koordinasi Pimpinan Kecamatan (Forkopimcam) setempat;',
+                    'Mematuhi aturan yang berlaku di lokasi KKN;',
+                    'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas;',
+                    'Setelah selesai melaksanakan kegiatan, agar Mahasiswa yang bersangkutan melaporkan hasilnya kepada Bupati Bogor melalui Kepala Badan Kesatuan Bangsa dan Politik Kabupaten Bogor.',
+                ],
+                'pelaksanaan_kegiatan' => [
+                    'Mentaati ketentuan Peraturan Perundang-undangan;',
+                    'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi Pelaksanaan Kegiatan;',
+                    'Senantiasa berkoordinasi dan mengikuti petunjuk dan arahan dari Forum Koordinasi Pimpinan Kecamatan (Forkopimcam) setempat;',
+                    'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas;',
+                    'Mengadakan koordinasi dengan stakeholder terkait;',
+                    'Mematuhi aturan yang berlaku di lokasi Pelaksanaan Kegiatan;',
+                    'Setelah selesai melaksanakan kegiatan, agar yang bersangkutan melaporkan hasilnya kepada Bupati Bogor melalui Kepala Badan Kesatuan Bangsa dan Politik Kabupaten Bogor.',
+                ],
+                default => [
+                    'Mentaati ketentuan peraturan perundang-undangan;',
+                    'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi PKL/Magang;',
+                    'Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan PKL/Magang;',
+                    'Mematuhi aturan dan jam kerja yang berlaku di lokasi PKL/Magang;',
+                    'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas.',
+                ],
+            };
+        @endphp
         <table class="list-table" style="margin-bottom: 10px;">
-            <tr>
-                <td class="list-no">1.</td>
-                <td class="list-content">Mentaati ketentuan peraturan perundang-undangan;</td>
-            </tr>
-            <tr>
-                <td class="list-no">2.</td>
-                <td class="list-content">Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi {{ $singkatanLayanan }};</td>
-            </tr>
-            <tr>
-                <td class="list-no">3.</td>
-                <td class="list-content">Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan {{ $singkatanLayanan }};</td>
-            </tr>
-            <tr>
-                <td class="list-no">4.</td>
-                <td class="list-content">Mematuhi aturan dan jam kerja yang berlaku di lokasi {{ $singkatanLayanan }};</td>
-            </tr>
-            <tr>
-                <td class="list-no">5.</td>
-                <td class="list-content">Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas.</td>
-            </tr>
+            @foreach($ketentuanList as $kIdx => $kItem)
+                <tr>
+                    <td class="list-no">{{ $kIdx + 1 }}.</td>
+                    <td class="list-content">{{ $kItem }}</td>
+                </tr>
+            @endforeach
         </table>
 
         <!-- PENUTUP -->
@@ -515,26 +543,27 @@
         <table class="signature-table">
             <tr>
                 <td style="width: 52%; vertical-align: top;">
-                    <!-- TEMBUSAN -->
+                    <!-- TEMBUSAN RESMI -->
                     <div class="tembusan-box">
-                        <strong>Tembusan :</strong>
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 3px; font-size: 9.5pt;">
-                            <tr>
-                                <td style="width: 18px; vertical-align: top;">1.</td>
-                                <td style="vertical-align: top;">Yth. Bupati Bogor;</td>
-                            </tr>
-                            <tr>
-                                <td style="vertical-align: top; padding-top: 2px;">2.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. Wakil Bupati Bogor;</td>
-                            </tr>
-                            <tr>
-                                <td style="vertical-align: top; padding-top: 2px;">3.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. Sekretaris Daerah Kabupaten Bogor;</td>
-                            </tr>
-                            <tr>
-                                <td style="vertical-align: top; padding-top: 2px;">4.</td>
-                                <td style="vertical-align: top; padding-top: 2px;">Yth. {{ $pimpinanAsalInstansi }}.</td>
-                            </tr>
+                        <div style="font-weight: bold; margin-bottom: 4px;">Tembusan :</div>
+                        @php
+                            $tembusanList = [
+                                'Yth. Bupati Bogor;',
+                                'Yth. Wakil Bupati Bogor;',
+                                'Yth. Sekretaris Daerah Kabupaten Bogor;',
+                            ];
+                            if (in_array($slug, ['penelitian_pt', 'kkn_mahasiswa'])) {
+                                $tembusanList[] = 'Yth. Kepala Badan Perencanaan Pembangunan, Riset dan Inovasi Daerah;';
+                            }
+                            $tembusanList[] = 'Yth. ' . $pimpinanAsalInstansi . '.';
+                        @endphp
+                        <table style="width: 100%; border-collapse: collapse; font-size: 9.5pt; line-height: 1.35;">
+                            @foreach($tembusanList as $tIdx => $tItem)
+                                <tr>
+                                    <td style="width: 18px; vertical-align: top; padding: 2px 0;">{{ $tIdx + 1 }}.</td>
+                                    <td style="vertical-align: top; padding: 2px 0;">{{ $tItem }}</td>
+                                </tr>
+                            @endforeach
                         </table>
                     </div>
                 </td>

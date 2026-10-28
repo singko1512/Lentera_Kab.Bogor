@@ -123,38 +123,185 @@
 <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Daftar peserta yang telah resmi diterima dalam program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
 </div>
 <!-- Filters & Search -->
-<form method="GET" action="{{ route('landing.peserta') }}">
-<div class="bg-surface-container-lowest p-gutter rounded-lg shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-t-4 border-primary mb-stack-lg">
-<div class="grid grid-cols-1 md:grid-cols-12 gap-stack-md items-end">
-<div class="md:col-span-5 flex flex-col gap-stack-sm">
-<label class="font-label-md text-label-md text-on-surface" for="search">Cari Peserta</label>
-<div class="relative">
-<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-<span class="material-symbols-outlined text-outline">search</span>
-</div>
-<input name="search" value="{{ $search }}" class="bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-secondary focus:border-secondary block w-full ps-10 p-2.5" id="search" placeholder="Cari nama peserta, institusi, jurusan..." type="text"/>
-</div>
-</div>
-<div class="md:col-span-3 flex flex-col gap-stack-sm">
-<label class="font-label-md text-label-md text-on-surface" for="dinas">Tujuan Dinas</label>
-<select name="dinas_id" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-secondary focus:border-secondary block w-full p-2.5" id="dinas">
-<option value="">Semua Dinas</option>
-@foreach($semuaDinas as $dn)
-<option value="{{ $dn->id }}" {{ $dinasId == $dn->id ? 'selected' : '' }}>{{ \App\Models\Dinas::formatTitleCaseKbbi($dn->name) }}</option>
-@endforeach
-</select>
-</div>
-<div class="md:col-span-4 flex flex-col gap-stack-sm">
-<label class="font-label-md text-label-md text-on-surface" for="instansi">Instansi Pendidikan</label>
-<select name="instansi_asal" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-secondary focus:border-secondary block w-full p-2.5" id="instansi">
-<option value="">Semua Instansi Pendidikan</option>
-@foreach($semuaInstansi as $inst)
-<option value="{{ $inst }}" {{ $instansiAsal == $inst ? 'selected' : '' }}>{{ $inst }}</option>
-@endforeach
-</select>
-</div>
-<button type="submit" class="hidden">Filter</button>
-</div>
+<form method="GET" action="{{ route('landing.peserta') }}" id="filter-peserta-form">
+<div class="bg-surface-container-lowest p-gutter rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-t-4 border-primary mb-stack-lg">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-stack-md">
+        
+        <!-- Cari Peserta -->
+        <div class="md:col-span-4 flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5" for="search">
+                <span class="material-symbols-outlined text-[18px] text-primary">person_search</span>
+                <span>Cari Peserta</span>
+            </label>
+            <div class="relative">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <span class="material-symbols-outlined text-outline text-[20px]">search</span>
+                </div>
+                <input name="search" value="{{ $search }}" class="bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary block w-full ps-10 p-2.5 transition-all shadow-xs" id="search" placeholder="Cari nama peserta, institusi, jurusan..." type="text"/>
+                @if(!empty($search))
+                    <button type="button" onclick="document.getElementById('search').value=''; document.getElementById('filter-peserta-form').submit();" class="absolute inset-y-0 end-0 flex items-center pe-3 text-outline hover:text-red-500 transition-colors" title="Hapus pencarian">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                @endif
+            </div>
+        </div>
+
+        <!-- Tujuan Dinas (Searchable Dropdown) -->
+        <div class="md:col-span-4 flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px] text-primary">apartment</span>
+                <span>Tujuan Dinas</span>
+            </label>
+            
+            <div class="searchable-dropdown relative" id="dropdown-dinas">
+                <input type="hidden" name="dinas_id" value="{{ $dinasId }}" class="searchable-input-val">
+                <button type="button" class="searchable-trigger w-full flex items-center justify-between text-left bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary p-2.5 transition-all shadow-xs cursor-pointer" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="searchable-label truncate font-medium">
+                        {{ $selectedDinasName ?? 'Semua Dinas' }}
+                    </span>
+                    <span class="material-symbols-outlined text-outline text-[20px] transition-transform duration-200 chevron-icon">expand_more</span>
+                </button>
+
+                <div class="searchable-menu hidden absolute z-50 mt-1 w-full min-w-[280px] bg-white dark:bg-[#0f243d] border border-outline-variant/60 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                    <div class="p-2 border-b border-outline-variant/20 dark:border-slate-700/60 bg-surface-container-low/50 dark:bg-slate-900/40">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                            <input type="text" class="searchable-filter-input w-full bg-white dark:bg-[#152d4b] border border-outline-variant/50 dark:border-slate-600 rounded-lg pl-8 pr-3 py-1.5 text-xs text-on-surface placeholder-outline-variant focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Ketik untuk mencari dinas..." autocomplete="off">
+                        </div>
+                    </div>
+                    <ul class="searchable-list max-h-56 overflow-y-auto py-1 text-xs text-on-surface" role="listbox">
+                        <li class="searchable-item px-3 py-2 cursor-pointer hover:bg-secondary/10 dark:hover:bg-blue-900/40 flex items-center justify-between transition-colors font-semibold text-primary {{ empty($dinasId) ? 'bg-secondary/10' : '' }}" data-value="" data-label="Semua Dinas">
+                            <span>Semua Dinas</span>
+                            @if(empty($dinasId))
+                                <span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                            @endif
+                        </li>
+                        @foreach($semuaDinas as $dn)
+                        @php $dName = \App\Models\Dinas::formatTitleCaseKbbi($dn->name); @endphp
+                        <li class="searchable-item px-3 py-2 cursor-pointer hover:bg-secondary/10 dark:hover:bg-blue-900/40 flex items-center justify-between transition-colors {{ (string)$dinasId === (string)$dn->id ? 'bg-secondary/10 font-bold text-secondary' : '' }}" data-value="{{ $dn->id }}" data-label="{{ $dName }}">
+                            <span class="truncate" title="{{ $dName }}">{{ $dName }}</span>
+                            @if((string)$dinasId === (string)$dn->id)
+                                <span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                            @endif
+                        </li>
+                        @endforeach
+                        <li class="searchable-no-match hidden px-3 py-4 text-center text-outline text-xs">
+                            Tidak ada dinas yang cocok
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instansi Pendidikan (Searchable Dropdown) -->
+        <div class="md:col-span-4 flex flex-col gap-1.5">
+            <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5">
+                <span class="material-symbols-outlined text-[18px] text-primary">school</span>
+                <span>Instansi Pendidikan</span>
+            </label>
+            
+            <div class="searchable-dropdown relative" id="dropdown-instansi">
+                <input type="hidden" name="instansi_asal" value="{{ $instansiAsal }}" class="searchable-input-val">
+                <button type="button" class="searchable-trigger w-full flex items-center justify-between text-left bg-surface border border-outline-variant text-on-surface text-sm rounded-lg focus:ring-2 focus:ring-secondary focus:border-secondary p-2.5 transition-all shadow-xs cursor-pointer" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="searchable-label truncate font-medium">
+                        {{ !empty($instansiAsal) ? $instansiAsal : 'Semua Instansi Pendidikan' }}
+                    </span>
+                    <span class="material-symbols-outlined text-outline text-[20px] transition-transform duration-200 chevron-icon">expand_more</span>
+                </button>
+
+                <div class="searchable-menu hidden absolute z-50 mt-1 w-full min-w-[280px] bg-white dark:bg-[#0f243d] border border-outline-variant/60 dark:border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                    <div class="p-2 border-b border-outline-variant/20 dark:border-slate-700/60 bg-surface-container-low/50 dark:bg-slate-900/40">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                            <input type="text" class="searchable-filter-input w-full bg-white dark:bg-[#152d4b] border border-outline-variant/50 dark:border-slate-600 rounded-lg pl-8 pr-3 py-1.5 text-xs text-on-surface placeholder-outline-variant focus:outline-none focus:ring-1 focus:ring-secondary" placeholder="Ketik untuk mencari instansi..." autocomplete="off">
+                        </div>
+                    </div>
+                    <ul class="searchable-list max-h-56 overflow-y-auto py-1 text-xs text-on-surface" role="listbox">
+                        <li class="searchable-item px-3 py-2 cursor-pointer hover:bg-secondary/10 dark:hover:bg-blue-900/40 flex items-center justify-between transition-colors font-semibold text-primary {{ empty($instansiAsal) ? 'bg-secondary/10' : '' }}" data-value="" data-label="Semua Instansi Pendidikan">
+                            <span>Semua Instansi Pendidikan</span>
+                            @if(empty($instansiAsal))
+                                <span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                            @endif
+                        </li>
+                        @foreach($semuaInstansi as $inst)
+                        <li class="searchable-item px-3 py-2 cursor-pointer hover:bg-secondary/10 dark:hover:bg-blue-900/40 flex items-center justify-between transition-colors {{ $instansiAsal === $inst ? 'bg-secondary/10 font-bold text-secondary' : '' }}" data-value="{{ $inst }}" data-label="{{ $inst }}">
+                            <span class="truncate" title="{{ $inst }}">{{ $inst }}</span>
+                            @if($instansiAsal === $inst)
+                                <span class="material-symbols-outlined text-secondary text-[16px]">check</span>
+                            @endif
+                        </li>
+                        @endforeach
+                        <li class="searchable-no-match hidden px-3 py-4 text-center text-outline text-xs">
+                            Tidak ada instansi yang cocok
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2: Filter Periode Tahun & Bulan + Summary & Reset Button -->
+        <div class="md:col-span-12 border-t border-outline-variant/20 pt-3 mt-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-wrap">
+                <!-- Filter Tahun -->
+                <div class="flex items-center gap-2">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5 whitespace-nowrap" for="filter-year">
+                        <span class="material-symbols-outlined text-[18px] text-amber-500">calendar_today</span>
+                        <span>Tahun:</span>
+                    </label>
+                    <div class="relative w-full sm:w-36">
+                        <select name="year" id="filter-year" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-on-surface text-xs font-semibold rounded-lg pl-3 pr-8 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary block w-full appearance-none [background-image:none] cursor-pointer shadow-xs">
+                            <option value="all" {{ ($year === 'all' || empty($year)) ? 'selected' : '' }}>Semua Tahun</option>
+                            @foreach($availableYears as $yr)
+                                <option value="{{ $yr }}" {{ (string)$year === (string)$yr ? 'selected' : '' }}>{{ $yr }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- Filter Bulan -->
+                <div class="flex items-center gap-2">
+                    <label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5 whitespace-nowrap" for="filter-month">
+                        <span class="material-symbols-outlined text-[18px] text-amber-500">event_repeat</span>
+                        <span>Bulan:</span>
+                    </label>
+                    <div class="relative w-full sm:w-44">
+                        <select name="month" id="filter-month" onchange="this.form.submit()" class="bg-surface border border-outline-variant text-on-surface text-xs font-semibold rounded-lg pl-3 pr-8 py-2 focus:ring-2 focus:ring-secondary focus:border-secondary block w-full appearance-none [background-image:none] cursor-pointer shadow-xs">
+                            <option value="all" {{ ($month === 'all' || empty($month)) ? 'selected' : '' }}>Semua Bulan</option>
+                            @php
+                                $months = [
+                                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                ];
+                            @endphp
+                            @foreach($months as $num => $name)
+                                <option value="{{ $num }}" {{ (string)$month === (string)$num ? 'selected' : '' }}>{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Filter Badges & Reset Button -->
+            @php
+                $hasActiveFilter = !empty($search) || !empty($dinasId) || !empty($instansiAsal) || ($year && $year !== 'all') || ($month && $month !== 'all');
+            @endphp
+            <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                @if($hasActiveFilter)
+                    <a href="{{ route('landing.peserta') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 rounded-lg border border-red-200 dark:border-red-900/60 transition-colors shadow-xs">
+                        <span class="material-symbols-outlined text-[16px]">filter_alt_off</span>
+                        <span>Reset Filter</span>
+                    </a>
+                @endif
+                <span class="text-xs text-on-surface-variant font-medium">
+                    Total: <strong class="text-on-surface font-bold">{{ $pesertas->total() }}</strong> Peserta Diterima
+                </span>
+            </div>
+        </div>
+
+    </div>
 </div>
 </form>
 
@@ -258,9 +405,124 @@
 </div>
 </main>
 
+@endsection
 
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.searchable-dropdown');
 
+    dropdowns.forEach(dropdown => {
+        const trigger = dropdown.querySelector('.searchable-trigger');
+        const menu = dropdown.querySelector('.searchable-menu');
+        const searchInput = dropdown.querySelector('.searchable-filter-input');
+        const options = dropdown.querySelectorAll('.searchable-item');
+        const noMatch = dropdown.querySelector('.searchable-no-match');
+        const hiddenInput = dropdown.querySelector('.searchable-input-val');
+        const chevron = trigger ? trigger.querySelector('.chevron-icon') : null;
+        const form = dropdown.closest('form');
 
+        if (!trigger || !menu) return;
+
+        // Toggle dropdown open/close
+        trigger.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const isOpen = !menu.classList.contains('hidden');
+
+            // Close other dropdowns
+            dropdowns.forEach(other => {
+                if (other !== dropdown) {
+                    other.querySelector('.searchable-menu')?.classList.add('hidden');
+                    const otherChevron = other.querySelector('.chevron-icon');
+                    if (otherChevron) otherChevron.style.transform = '';
+                }
+            });
+
+            if (isOpen) {
+                menu.classList.add('hidden');
+                if (chevron) chevron.style.transform = '';
+            } else {
+                menu.classList.remove('hidden');
+                if (chevron) chevron.style.transform = 'rotate(180deg)';
+                if (searchInput) {
+                    searchInput.value = '';
+                    filterOptions('');
+                    setTimeout(() => searchInput.focus(), 60);
+                }
+            }
+        });
+
+        // Filter options based on input text
+        function filterOptions(query) {
+            const cleanQuery = query.toLowerCase().trim();
+            let matchCount = 0;
+
+            options.forEach(opt => {
+                const label = (opt.getAttribute('data-label') || '').toLowerCase();
+                if (!cleanQuery || label.includes(cleanQuery)) {
+                    opt.classList.remove('hidden');
+                    matchCount++;
+                } else {
+                    opt.classList.add('hidden');
+                }
+            });
+
+            if (noMatch) {
+                if (matchCount === 0) {
+                    noMatch.classList.remove('hidden');
+                } else {
+                    noMatch.classList.add('hidden');
+                }
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterOptions(this.value);
+            });
+            searchInput.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Option select
+        options.forEach(opt => {
+            opt.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const val = this.getAttribute('data-value');
+                if (hiddenInput) hiddenInput.value = val;
+                menu.classList.add('hidden');
+                if (chevron) chevron.style.transform = '';
+                if (form) form.submit();
+            });
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        dropdowns.forEach(dropdown => {
+            const menu = dropdown.querySelector('.searchable-menu');
+            const chevron = dropdown.querySelector('.chevron-icon');
+            if (menu && !menu.classList.contains('hidden') && !dropdown.contains(e.target)) {
+                menu.classList.add('hidden');
+                if (chevron) chevron.style.transform = '';
+            }
+        });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            dropdowns.forEach(dropdown => {
+                dropdown.querySelector('.searchable-menu')?.classList.add('hidden');
+                const chevron = dropdown.querySelector('.chevron-icon');
+                if (chevron) chevron.style.transform = '';
+            });
+        }
+    });
+});
+</script>
 @endsection
 
 

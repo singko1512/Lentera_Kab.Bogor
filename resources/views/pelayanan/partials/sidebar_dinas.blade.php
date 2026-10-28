@@ -10,7 +10,7 @@
 </div>
 </div>
 @php
-    $isKesbangpol = Auth::check() && Auth::user()?->dinas && Auth::user()->dinas->is_kesbangpol;
+    $isKesbangpol = Auth::check() && in_array(Auth::user()->role, ['kesbangpol', 'admin', 'superadmin']);
 @endphp
 <nav class="flex-1 space-y-1.5 overflow-y-auto">
 <a class="flex items-center gap-3 px-3.5 py-2.5 overflow-hidden {{ Route::is('dinas.dashboard') ? 'bg-primary text-white shadow-md shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-colors duration-150" href="{{ route('dinas.dashboard') }}">

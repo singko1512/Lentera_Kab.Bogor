@@ -18,7 +18,7 @@
                 </span>
             </div>
             <h1 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-surface mb-2 tracking-tight">
-                Selamat Datang, <span class="text-primary">{{ auth()->user()->name ?? 'Admin Bakesbangpol' }}</span>
+                Selamat Datang, <span class="text-primary">{{ trim(preg_replace('/\s*\(.*?\)/i', '', auth()->user()->name ?? 'Bakesbangpol')) }}</span>
             </h1>
             <p class="text-body-md font-body-md text-on-surface-variant max-w-2xl leading-relaxed">
                 Kelola pendaftaran, verifikasi, dan monitoring rekomendasi magang & penelitian untuk seluruh instansi Pemerintah Kabupaten Bogor.

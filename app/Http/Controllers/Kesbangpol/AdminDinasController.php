@@ -16,16 +16,15 @@ class AdminDinasController extends Controller
     {
         $search = $request->input('search');
 
-        $query = Dinas::with(['admins' => function($q) {
-            $q->where('role', 'dinas');
-        }, 'bidang'])->orderBy('name', 'asc');
+        $query = Dinas::with(['admins', 'bidang'])->orderBy('name', 'asc');
 
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
                   ->orWhereHas('admins', function($u) use ($search) {
-                      $u->where('email', 'LIKE', "%{$search}%");
+                      $u->where('email', 'LIKE', "%{$search}%")
+                        ->orWhere('username', 'LIKE', "%{$search}%");
                   });
             });
         }
@@ -33,7 +32,7 @@ class AdminDinasController extends Controller
         $dinasList = $query->paginate(12)->withQueryString();
 
         $totalDinas = Dinas::count();
-        $totalAkun = Admin::where('role', 'dinas')->count();
+        $totalAkun = Admin::whereIn('role', ['dinas', 'kesbangpol'])->count();
         $totalBidang = \App\Models\Bidang::count();
 
         return view('pelayanan.kesbangpol.dinas.index', compact(
@@ -50,7 +49,7 @@ class AdminDinasController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => 'nullable|string|min:6',
             'telepon' => 'nullable|string|max:20',
             'alamat' => 'nullable|string',
             'deskripsi' => 'nullable|string',
@@ -61,7 +60,7 @@ class AdminDinasController extends Controller
             'name.required' => 'Nama Dinas / Perangkat Daerah wajib diisi.',
             'email.required' => 'Email login wajib diisi.',
             'email.unique' => 'Email tersebut sudah digunakan oleh akun lain.',
-            'password.required' => 'Password wajib diisi (minimal 6 karakter).',
+            'password.min' => 'Password minimal 6 karakter.',
             'kop_surat.image' => 'File Kop Surat harus berupa gambar.',
         ]);
 
@@ -69,6 +68,8 @@ class AdminDinasController extends Controller
         if ($request->hasFile('kop_surat')) {
             $kopSuratPath = $request->file('kop_surat')->store('dinas/kop', 'public');
         }
+
+        $isKesbangpol = stripos($request->name, 'KESATUAN BANGSA DAN POLITIK') !== false;
 
         // 1. Buat record Dinas
         $dinas = Dinas::create([
@@ -80,30 +81,34 @@ class AdminDinasController extends Controller
             'nama_kepala' => $request->nama_kepala,
             'nip_kepala' => $request->nip_kepala,
             'kop_surat' => $kopSuratPath,
-            'is_kesbangpol' => stripos($request->name, 'KESATUAN BANGSA DAN POLITIK') !== false,
+            'is_kesbangpol' => $isKesbangpol,
         ]);
 
         // 2. Buat record Admin untuk Dinas di tabel admins
         $username = $request->username ? mb_strtoupper(trim($request->username)) : mb_strtoupper(str_replace(' ', '', $request->name));
+        $plainPass = !empty($request->password) ? $request->password : Str::password(12);
 
         Admin::create([
             'name' => 'Admin ' . $dinas->name,
             'username' => $username,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => Hash::make($plainPass),
             'role' => 'dinas',
             'dinas_id' => $dinas->id,
             'status_akun' => 'aktif',
         ]);
 
         return redirect()->route('kesbangpol.dinas.index')
-            ->with('success', 'Akun Dinas "' . $dinas->name . '" berhasil ditambahkan.');
+            ->with('success', 'Akun Dinas "' . $dinas->name . '" berhasil ditambahkan dengan password unik: ' . $plainPass);
     }
 
     public function update(Request $request, $id)
     {
         $dinas = Dinas::findOrFail($id);
-        $admin = Admin::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
+        $targetAdminId = $request->input('admin_id');
+        $admin = $targetAdminId 
+            ? Admin::where('id', $targetAdminId)->where('dinas_id', $dinas->id)->first()
+            : Admin::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
 
         $adminId = $admin ? $admin->id : null;
 
@@ -143,7 +148,7 @@ class AdminDinasController extends Controller
 
         if ($admin) {
             $adminData = [
-                'name' => 'Admin ' . $dinas->name,
+                'name' => $admin->role === 'kesbangpol' ? 'Bakesbangpol' : 'Admin ' . $dinas->name,
                 'username' => $username,
                 'email' => $request->email,
             ];
@@ -174,7 +179,10 @@ class AdminDinasController extends Controller
     public function resetPassword(Request $request, $id)
     {
         $dinas = Dinas::findOrFail($id);
-        $admin = Admin::where('dinas_id', $dinas->id)->where('role', 'dinas')->first();
+        $targetAdminId = $request->input('admin_id');
+        $admin = $targetAdminId 
+            ? Admin::where('id', $targetAdminId)->where('dinas_id', $dinas->id)->first()
+            : Admin::where('dinas_id', $dinas->id)->first();
 
         if ($admin) {
             $newPassword = Str::password(12);
@@ -182,7 +190,7 @@ class AdminDinasController extends Controller
                 'password' => Hash::make($newPassword)
             ]);
             return redirect()->route('kesbangpol.dinas.index')
-                ->with('success', 'Password akun "' . $dinas->name . '" berhasil di-reset menjadi: ' . $newPassword . ' (Harap simpan password ini).');
+                ->with('success', 'Password akun ' . $admin->name . ' (' . $admin->email . ') berhasil di-reset menjadi: ' . $newPassword . ' (Harap simpan password unik ini).');
         }
 
         return redirect()->route('kesbangpol.dinas.index')

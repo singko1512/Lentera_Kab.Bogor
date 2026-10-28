@@ -250,10 +250,6 @@
 
         <!-- Header Dashboard Title (Aesthetika Talas Dashboard) -->
         <div class="text-center my-2">
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700/80 mb-2">
-                <span class="material-symbols-outlined text-[16px]">monitoring</span>
-                Dashboard Analitik Pemerintah Kabupaten Bogor
-            </span>
             <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold uppercase tracking-wide text-slate-900 dark:text-white">
                 Statistik Pendaftaran Instansi
             </h1>
@@ -286,7 +282,7 @@
                     <span class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300 material-symbols-outlined text-[20px]">group</span>
                 </div>
                 <div class="mt-4">
-                    <span class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ number_format($summary['total_pendaftar'], 0, ',', '.') }}</span>
+                    <span id="kpi-total-pendaftar" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ number_format($summary['total_pendaftar'], 0, ',', '.') }}</span>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">Pemohon terdaftar di sistem</p>
                 </div>
             </div>
@@ -297,7 +293,7 @@
                     <span class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 material-symbols-outlined text-[20px]">verified</span>
                 </div>
                 <div class="mt-4">
-                    <span class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">{{ number_format($summary['total_diterima'], 0, ',', '.') }}</span>
+                    <span id="kpi-total-diterima" class="text-2xl sm:text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">{{ number_format($summary['total_diterima'], 0, ',', '.') }}</span>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">Permohonan disetujui / selesai</p>
                 </div>
             </div>
@@ -308,8 +304,82 @@
                     <span class="p-2 rounded-lg bg-amber-50 dark:bg-amber-900/50 text-amber-600 dark:text-amber-300 material-symbols-outlined text-[20px]">pending</span>
                 </div>
                 <div class="mt-4">
-                    <span class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400">{{ number_format($summary['total_proses'], 0, ',', '.') }}</span>
+                    <span id="kpi-total-proses" class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400">{{ number_format($summary['total_proses'], 0, ',', '.') }}</span>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">Verifikasi berkas & seleksi</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar: Periode Tahun & Bulan -->
+        <div class="stat-card p-4 sm:p-5 no-print flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-[24px]">filter_alt</span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-extrabold uppercase tracking-wide text-slate-900 dark:text-white flex items-center gap-2">
+                        Filter Periode Pendaftaran
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                        Saring data statistik perangkat daerah & kecamatan berdasarkan tahun dan bulan
+                    </p>
+                </div>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <!-- Pilih Tahun -->
+                <div class="flex items-center gap-2">
+                    <label for="filter-year" class="text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px] text-amber-500">calendar_today</span>
+                        Tahun:
+                    </label>
+                    <div class="relative w-full sm:w-36">
+                        <select id="filter-year" class="w-full text-xs font-semibold rounded-lg pl-3 pr-9 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#152c48] text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none transition-all cursor-pointer appearance-none [background-image:none]">
+                            <option value="all" {{ $year === 'all' ? 'selected' : '' }}>Semua Tahun</option>
+                            @foreach($availableYears as $yr)
+                                <option value="{{ $yr }}" {{ (string)$year === (string)$yr ? 'selected' : '' }}>{{ $yr }}</option>
+                            @endforeach
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[18px]">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- Pilih Bulan -->
+                <div class="flex items-center gap-2">
+                    <label for="filter-month" class="text-xs font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap flex items-center gap-1">
+                        <span class="material-symbols-outlined text-[16px] text-amber-500">event_repeat</span>
+                        Bulan:
+                    </label>
+                    <div class="relative w-full sm:w-44">
+                        <select id="filter-month" class="w-full text-xs font-semibold rounded-lg pl-3 pr-9 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#152c48] text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none transition-all cursor-pointer appearance-none [background-image:none]">
+                            <option value="all" {{ $month === 'all' ? 'selected' : '' }}>Semua Bulan</option>
+                            <option value="1" {{ (string)$month === '1' ? 'selected' : '' }}>Januari</option>
+                            <option value="2" {{ (string)$month === '2' ? 'selected' : '' }}>Februari</option>
+                            <option value="3" {{ (string)$month === '3' ? 'selected' : '' }}>Maret</option>
+                            <option value="4" {{ (string)$month === '4' ? 'selected' : '' }}>April</option>
+                            <option value="5" {{ (string)$month === '5' ? 'selected' : '' }}>Mei</option>
+                            <option value="6" {{ (string)$month === '6' ? 'selected' : '' }}>Juni</option>
+                            <option value="7" {{ (string)$month === '7' ? 'selected' : '' }}>Juli</option>
+                            <option value="8" {{ (string)$month === '8' ? 'selected' : '' }}>Agustus</option>
+                            <option value="9" {{ (string)$month === '9' ? 'selected' : '' }}>September</option>
+                            <option value="10" {{ (string)$month === '10' ? 'selected' : '' }}>Oktober</option>
+                            <option value="11" {{ (string)$month === '11' ? 'selected' : '' }}>November</option>
+                            <option value="12" {{ (string)$month === '12' ? 'selected' : '' }}>Desember</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[18px]">expand_more</span>
+                    </div>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <span id="filter-loading-spinner" class="hidden items-center gap-1.5 text-amber-600 dark:text-amber-400 text-xs font-semibold whitespace-nowrap">
+                        <svg class="animate-spin h-3.5 w-3.5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                        <span>Memuat...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -327,11 +397,6 @@
                         </h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Dinas, Badan, Sekretariat, dan RSUD Kabupaten Bogor</p>
                     </div>
-                    <!-- Legend Pill (Talas Dashboard Style) -->
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-xs font-bold text-amber-800 dark:text-amber-300 self-start sm:self-auto">
-                        <span class="w-3 h-3 rounded bg-amber-500 inline-block"></span>
-                        <span>Jumlah Pendaftar</span>
-                    </div>
                 </div>
 
                 <!-- Scrollable container for full list of Dinas -->
@@ -339,7 +404,7 @@
                     <div id="chart-dinas-container" class="w-full"></div>
                 </div>
                 <div class="text-[11px] text-slate-500 dark:text-slate-400 text-right pt-2 border-t border-slate-200 dark:border-slate-700/80 font-medium">
-                    Menampilkan {{ count($dinasList) }} Perangkat Daerah
+                    Menampilkan <span id="count-dinas">{{ count($dinasList) }}</span> Perangkat Daerah
                 </div>
             </div>
 
@@ -353,11 +418,6 @@
                         </h2>
                         <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">Seluruh Kecamatan di Wilayah Kabupaten Bogor</p>
                     </div>
-                    <!-- Legend Pill (Talas Dashboard Style) -->
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/60 border border-purple-300 dark:border-purple-700 text-xs font-bold text-purple-800 dark:text-purple-300 self-start sm:self-auto">
-                        <span class="w-3 h-3 rounded bg-purple-500 inline-block"></span>
-                        <span>Jumlah Pendaftar</span>
-                    </div>
                 </div>
 
                 <!-- Scrollable container for full list of Kecamatan -->
@@ -365,7 +425,7 @@
                     <div id="chart-kecamatan-container" class="w-full"></div>
                 </div>
                 <div class="text-[11px] text-slate-500 dark:text-slate-400 text-right pt-2 border-t border-slate-200 dark:border-slate-700/80 font-medium">
-                    Menampilkan {{ count($kecamatanList) }} Kecamatan
+                    Menampilkan <span id="count-kecamatan">{{ count($kecamatanList) }}</span> Kecamatan
                 </div>
             </div>
 
@@ -401,13 +461,13 @@
                     <!-- Filter Tabs -->
                     <div class="filter-tab-container inline-flex rounded-lg p-0.5 text-xs font-semibold">
                         <button type="button" onclick="filterTable('all')" id="filter-all-btn" class="filter-tab filter-tab-active px-3 py-1.5 rounded-md transition-all font-bold">
-                            Semua ({{ count($tableData) }})
+                            Semua (<span id="tab-count-all">{{ count($tableData) }}</span>)
                         </button>
                         <button type="button" onclick="filterTable('Perangkat Daerah')" id="filter-dinas-btn" class="filter-tab filter-tab-inactive px-3 py-1.5 rounded-md transition-all font-medium">
-                            Kedinasan ({{ count($dinasList) }})
+                            Kedinasan (<span id="tab-count-dinas">{{ count($dinasList) }}</span>)
                         </button>
                         <button type="button" onclick="filterTable('Kecamatan')" id="filter-kec-btn" class="filter-tab filter-tab-inactive px-3 py-1.5 rounded-md transition-all font-medium">
-                            Kecamatan ({{ count($kecamatanList) }})
+                            Kecamatan (<span id="tab-count-kec">{{ count($kecamatanList) }}</span>)
                         </button>
                     </div>
                 </div>
@@ -537,8 +597,8 @@
 @section('scripts')
 <script>
     // Data dari Controller
-    const dinasData = @json($chartDinas);
-    const kecamatanData = @json($chartKecamatan);
+    let currentDinasData = @json($chartDinas);
+    let currentKecamatanData = @json($chartKecamatan);
 
     let chartDinasInstance = null;
     let chartKecInstance = null;
@@ -550,7 +610,7 @@
         const axisColor = isDark ? '#94a3b8' : '#64748b';       // Label sumbu X
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
         const barColor = type === 'dinas' ? '#c59b27' : '#a855f7';
-        const data = type === 'dinas' ? dinasData : kecamatanData;
+        const data = type === 'dinas' ? currentDinasData : currentKecamatanData;
         const chartHeight = Math.max(720, data.categories.length * 24);
 
         return {
@@ -640,10 +700,151 @@
         }
     }
 
+    // AJAX Filter Instansi (Year & Month)
+    async function applyInstansiFilter() {
+        const yearSelect = document.getElementById('filter-year');
+        const monthSelect = document.getElementById('filter-month');
+        const year = yearSelect ? yearSelect.value : 'all';
+        const month = monthSelect ? monthSelect.value : 'all';
+
+        const spinner = document.getElementById('filter-loading-spinner');
+        if (spinner) {
+            spinner.classList.remove('hidden');
+            spinner.classList.add('inline-flex');
+        }
+
+        try {
+            const url = `{{ route('landing.statistik_instansi') }}?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const json = await res.json();
+            if (json && json.status === 'success') {
+                currentDinasData = json.chartDinas;
+                currentKecamatanData = json.chartKecamatan;
+                updateChartsTheme();
+
+                // Update KPI Cards
+                if (document.getElementById('kpi-total-pendaftar')) {
+                    document.getElementById('kpi-total-pendaftar').textContent = Number(json.summary.total_pendaftar || 0).toLocaleString('id-ID');
+                }
+                if (document.getElementById('kpi-total-diterima')) {
+                    document.getElementById('kpi-total-diterima').textContent = Number(json.summary.total_diterima || 0).toLocaleString('id-ID');
+                }
+                if (document.getElementById('kpi-total-proses')) {
+                    document.getElementById('kpi-total-proses').textContent = Number(json.summary.total_proses || 0).toLocaleString('id-ID');
+                }
+
+                // Update Period Label Badge
+                if (document.getElementById('filter-period-label')) {
+                    document.getElementById('filter-period-label').textContent = json.periodLabel;
+                }
+
+                // Update Chart Footers
+                if (document.getElementById('count-dinas')) {
+                    document.getElementById('count-dinas').textContent = json.totalDinasCount;
+                }
+                if (document.getElementById('count-kecamatan')) {
+                    document.getElementById('count-kecamatan').textContent = json.totalKecamatanCount;
+                }
+
+                // Update Table Filter Tab Counts
+                if (document.getElementById('tab-count-all')) {
+                    document.getElementById('tab-count-all').textContent = json.tableData.length;
+                }
+                if (document.getElementById('tab-count-dinas')) {
+                    document.getElementById('tab-count-dinas').textContent = json.totalDinasCount;
+                }
+                if (document.getElementById('tab-count-kec')) {
+                    document.getElementById('tab-count-kec').textContent = json.totalKecamatanCount;
+                }
+
+                // Rebuild Table
+                rebuildTableBody(json.tableData);
+            }
+        } catch (err) {
+            console.error('Failed to filter instansi:', err);
+        } finally {
+            if (spinner) {
+                spinner.classList.add('hidden');
+                spinner.classList.remove('inline-flex');
+            }
+        }
+    }
+
+    // Rebuild Table Body dynamically
+    function rebuildTableBody(data) {
+        const tbody = document.getElementById('table-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        data.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.className = 'table-instansi-row table-row-item';
+            tr.setAttribute('data-type', row.tipe);
+            tr.setAttribute('data-name', `${(row.name || '').toLowerCase()} ${(row.singkatan || '').toLowerCase()}`);
+
+            const typeBadge = row.is_kecamatan
+                ? `<span class="badge-tipe-kec px-2.5 py-1 rounded-full text-[11px] font-bold inline-block">Kecamatan</span>`
+                : `<span class="badge-tipe-dinas px-2.5 py-1 rounded-full text-[11px] font-bold inline-block">Kedinasan</span>`;
+
+            const kuotaBadge = row.sisa_kuota > 0
+                ? `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${row.sisa_kuota} Kuota</span>`
+                : `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Tidak Ada Kuota</span>`;
+
+            tr.innerHTML = `
+                <td class="text-center font-bold text-slate-500 dark:text-slate-400 py-3">${index + 1}</td>
+                <td class="py-3 px-3">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="instansi-title">${row.name}</span>
+                            <span class="badge-singkatan px-2 py-0.5 rounded text-[10px]">${row.singkatan}</span>
+                        </div>
+                        <span class="instansi-email mt-0.5 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[13px] opacity-70">mail</span>
+                            ${row.email}
+                        </span>
+                    </div>
+                </td>
+                <td class="text-center py-3">${typeBadge}</td>
+                <td class="text-center py-3 font-extrabold text-sm text-slate-900 dark:text-white" data-value="${row.total_pendaftar}">
+                    ${row.total_pendaftar}
+                </td>
+                <td class="text-center py-3 font-bold" data-value="${row.diterima}">
+                    <span class="px-2.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 inline-block font-bold">
+                        ${row.diterima}
+                    </span>
+                </td>
+                <td class="text-center py-3 font-bold">
+                    <span class="px-2.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/80 inline-block font-bold">
+                        ${row.proses}
+                    </span>
+                </td>
+                <td class="text-center py-3">${kuotaBadge}</td>
+                <td class="text-center py-3 no-print">
+                    <a href="/instansi/${row.id}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-primary/10 text-primary dark:text-blue-300 hover:bg-primary hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-colors" title="Lihat Profil Instansi">
+                        <span>Detail</span>
+                        <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
+                    </a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        currentPage = 1;
+        renderTablePage();
+    }
+
     // Initial Execution
     document.addEventListener('DOMContentLoaded', function() {
         updateChartsTheme();
         initTablePagination();
+
+        // Filter event listeners
+        const filterYear = document.getElementById('filter-year');
+        const filterMonth = document.getElementById('filter-month');
+        if (filterYear) filterYear.addEventListener('change', applyInstansiFilter);
+        if (filterMonth) filterMonth.addEventListener('change', applyInstansiFilter);
 
         // Observer untuk mendeteksi perubahan tema (Light/Dark) dari navbar secara realtime
         const themeObserver = new MutationObserver((mutations) => {

@@ -51,7 +51,7 @@ Artisan::command('admin:set-superadmin {password=admin123}', function (string $p
     $admin = \App\Models\Admin::updateOrCreate(
         ['username' => 'superadmin'],
         [
-            'email' => 'superadmin@lentera.com',
+            'email' => 'superadmin@dinas.com',
             'name' => 'Super Administrator',
             'password' => $hashed,
             'role' => 'superadmin',
@@ -61,7 +61,7 @@ Artisan::command('admin:set-superadmin {password=admin123}', function (string $p
 
     // Also update any matching user record if exists
     \App\Models\User::where('username', 'superadmin')
-        ->orWhere('email', 'superadmin@lentera.com')
+        ->orWhere('email', 'superadmin@dinas.com')
         ->update(['password' => $hashed, 'status_akun' => 'aktif']);
 
     $this->info("Superadmin credentials updated successfully!");
@@ -110,7 +110,7 @@ Artisan::command('users:export-excel', function () {
     $sheet1->mergeCells('A1:J1');
     $sheet1->getStyle('A1')->getFont()->setName('Arial')->setSize(14)->setBold(true)->getColor()->setARGB('FF1E3A8A');
 
-    $sheet1->setCellValue('A2', 'Aplikasi Bangga Online - Lentera Kabupaten Bogor');
+    $sheet1->setCellValue('A2', 'Aplikasi Bangga Online - Pemerintah Kabupaten Bogor');
     $sheet1->mergeCells('A2:J2');
     $sheet1->getStyle('A2')->getFont()->setName('Arial')->setSize(11)->setBold(true)->getColor()->setARGB('FF475569');
 
@@ -243,7 +243,7 @@ Artisan::command('users:export-excel', function () {
     $sheet2->setCellValueExplicit('B' . $adminRow, 'Superadmin', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
     $sheet2->setCellValueExplicit('C' . $adminRow, 'Super Administrator', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
     $sheet2->setCellValueExplicit('D' . $adminRow, 'superadmin', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
-    $sheet2->setCellValueExplicit('E' . $adminRow, 'superadmin@lentera.com', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+    $sheet2->setCellValueExplicit('E' . $adminRow, 'superadmin@dinas.com', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
     $sheet2->setCellValueExplicit('F' . $adminRow, 'admin123', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
     $sheet2->setCellValueExplicit('G' . $adminRow, 'Login di /login -> Master Data -> Ulasan Aplikasi (/superadmin/reviews)', \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
@@ -272,8 +272,8 @@ Artisan::command('users:export-excel', function () {
     $spreadsheet->setActiveSheetIndex(0);
 
     // Simpan di root folder dan di public folder
-    $fileRoot = base_path('Daftar_Akun_Uji_Coba_Lentera.xlsx');
-    $filePublic = public_path('Daftar_Akun_Uji_Coba_Lentera.xlsx');
+    $fileRoot = base_path('Daftar_Akun_Uji_Coba_Bangga_Online.xlsx');
+    $filePublic = public_path('Daftar_Akun_Uji_Coba_Bangga_Online.xlsx');
 
     $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
@@ -281,7 +281,7 @@ Artisan::command('users:export-excel', function () {
     try {
         $writer->save($fileRoot);
     } catch (\Throwable $e) {
-        $savedRoot = base_path('Daftar_Akun_Uji_Coba_Lentera_Terbaru.xlsx');
+        $savedRoot = base_path('Daftar_Akun_Uji_Coba_Bangga_Online_Terbaru.xlsx');
         $writer->save($savedRoot);
     }
 
@@ -289,7 +289,7 @@ Artisan::command('users:export-excel', function () {
     try {
         $writer->save($filePublic);
     } catch (\Throwable $e) {
-        $savedPublic = public_path('Daftar_Akun_Uji_Coba_Lentera_Terbaru.xlsx');
+        $savedPublic = public_path('Daftar_Akun_Uji_Coba_Bangga_Online_Terbaru.xlsx');
         $writer->save($savedPublic);
     }
 

@@ -75,6 +75,10 @@ class AuthController extends Controller
             Auth::shouldUse('admin');
             $request->session()->regenerate();
 
+            if ($admin->isKesbangpol()) {
+                return redirect()->intended('/kesbangpol/dashboard');
+            }
+
             if ($admin->isDinas()) {
                 return redirect()->intended('/dinas/dashboard');
             }

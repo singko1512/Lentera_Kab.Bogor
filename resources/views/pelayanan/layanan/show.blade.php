@@ -28,13 +28,25 @@
                 <h6 class="text-muted fw-bold mb-2">Dokumen Terlampir</h6>
                 <div class="d-flex flex-column gap-2">
                     @if($layanan->file_ktp)
-                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_ktp']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP</a>
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_ktp']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-id-card me-2"></i> KTP / Identitas</a>
                     @endif
-                    @if($layanan->file_surat_pengantar)
-                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_surat_pengantar']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar</a>
+                    @if($layanan->file_ktm || $layanan->file_kartu_pelajar || $layanan->file_id_card)
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_ktm']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-address-card me-2"></i> KTM / Kartu Pelajar / ID Card</a>
+                    @endif
+                    @if($layanan->file_surat_pengantar || $layanan->file_surat_permohonan)
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_surat_pengantar']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Surat Pengantar Asli</a>
+                    @endif
+                    @if($layanan->file_surat_lokasi)
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_surat_lokasi']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-map-location-dot me-2"></i> Surat Izin Lokasi Kegiatan</a>
                     @endif
                     @if($layanan->file_proposal)
-                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_proposal']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-pdf me-2"></i> Proposal / Rencana Kegiatan</a>
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_proposal']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-file-lines me-2"></i> Proposal Kegiatan</a>
+                    @endif
+                    @if($layanan->file_surat_rekomendasi_lama)
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_surat_rekomendasi_lama']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-clock-rotate-left me-2"></i> Surat Rekomendasi Lama</a>
+                    @endif
+                    @if($layanan->file_pendukung)
+                        <a href="{{ route('berkas.preview', [$layanan->id, 'file_pendukung']) }}" target="_blank" class="btn btn-sm btn-outline-secondary text-start"><i class="fa-solid fa-paperclip me-2"></i> Dokumen Pendukung Lainnya</a>
                     @endif
                 </div>
             </div>

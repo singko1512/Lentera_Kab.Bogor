@@ -1470,10 +1470,10 @@
 <!-- Interactive Analytics Section -->
 <section id="analytics-section" class="max-w-container-max mx-auto px-margin-desktop pb-16 relative z-20 reveal-scale w-full">
     <div class="bg-surface-container-lowest rounded-xl shadow-ambient border border-outline-variant/30 p-8 flex flex-col gap-8">
-        <!-- Section Header: Filter Bar -->
-        <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-4 border-b border-outline-variant/20 pb-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1">
-                <!-- 1. Service Selector -->
+        <!-- Section Header: Service Filter Bar -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/20 pb-6">
+            <div class="max-w-md w-full">
+                <!-- Service Selector -->
                 <div class="flex flex-col gap-1.5">
                     <label for="service-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
                         <span class="material-symbols-outlined text-[18px] text-secondary">category</span>
@@ -1488,56 +1488,18 @@
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
                     </div>
                 </div>
-
-                <!-- 2. Year Selector -->
-                <div class="flex flex-col gap-1.5">
-                    <label for="year-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[18px] text-secondary">calendar_today</span>
-                        Pilih Tahun:
-                    </label>
-                    <div class="relative">
-                        <select id="year-selector" class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-pointer" style="background-image: none;">
-                            <option value="all">Semua Tahun</option>
-                            @foreach($availableYears as $yr)
-                                <option value="{{ $yr }}">{{ $yr }}</option>
-                            @endforeach
-                        </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
-                    </div>
-                </div>
-
-                <!-- 3. Month Selector -->
-                <div class="flex flex-col gap-1.5">
-                    <label for="month-selector" class="font-label-md text-label-md text-on-surface-variant font-bold uppercase tracking-wider flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[18px] text-secondary">event_repeat</span>
-                        Pilih Bulan:
-                    </label>
-                    <div class="relative">
-                        <select id="month-selector" disabled class="w-full rounded-lg border-outline-variant/60 bg-surface-container-low text-on-surface font-label-md text-label-md p-3 pr-10 focus:border-secondary focus:ring focus:ring-secondary/20 transition-all appearance-none [background-image:none] cursor-not-allowed opacity-60" style="background-image: none;">
-                            <option value="all">Pilih Tahun Dahulu</option>
-                        </select>
-                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
-                    </div>
-                </div>
             </div>
 
-            <!-- Filter Status & Loading Indicator -->
-            <div class="flex items-center gap-3 shrink-0 self-start xl:self-end pb-1 text-xs text-on-surface-variant">
-                <span id="filter-loading-spinner" class="hidden items-center gap-1.5 text-secondary font-medium whitespace-nowrap shrink-0">
-                    <svg class="animate-spin h-3.5 w-3.5 text-secondary shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <span class="whitespace-nowrap">Memuat data...</span>
-                </span>
-                <span id="active-filter-badge" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary/10 text-secondary text-[11px] font-semibold border border-secondary/20 whitespace-nowrap shrink-0 shadow-sm">
+            <!-- Service Filter Active Badge -->
+            <div class="flex items-center gap-3 shrink-0 self-start md:self-end pb-1 text-xs text-on-surface-variant">
+                <span id="active-service-badge" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-secondary/10 text-secondary text-[11px] font-semibold border border-secondary/20 whitespace-nowrap shrink-0 shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shrink-0"></span>
-                    <span id="active-filter-text" class="whitespace-nowrap inline-block leading-none">Semua Periode</span>
+                    <span id="active-service-text" class="whitespace-nowrap inline-block leading-none">Semua Layanan</span>
                 </span>
             </div>
         </div>
 
-        <!-- Charts Grid -->
+        <!-- Charts Grid (Status Kelulusan Berkas & Top 10 Instansi) -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <!-- Left Card: Donut Chart (Total Registered vs Accepted) -->
             <div class="lg:col-span-2 bg-surface-container-low/40 rounded-xl p-6 border border-outline-variant/20 flex flex-col gap-6">
@@ -2506,32 +2468,14 @@
             }
         }
 
-        const monthNames = [
-            { num: 1, name: 'Januari' },
-            { num: 2, name: 'Februari' },
-            { num: 3, name: 'Maret' },
-            { num: 4, name: 'April' },
-            { num: 5, name: 'Mei' },
-            { num: 6, name: 'Juni' },
-            { num: 7, name: 'Juli' },
-            { num: 8, name: 'Agustus' },
-            { num: 9, name: 'September' },
-            { num: 10, name: 'Oktober' },
-            { num: 11, name: 'November' },
-            { num: 12, name: 'Desember' }
-        ];
-
-        let currentChartData = null;
+        let currentServiceData = null;
         const serviceSelector = document.getElementById('service-selector');
-        const yearSelector = document.getElementById('year-selector');
-        const monthSelector = document.getElementById('month-selector');
-        const activeFilterText = document.getElementById('active-filter-text');
-        const filterLoadingSpinner = document.getElementById('filter-loading-spinner');
+        const activeServiceText = document.getElementById('active-service-text');
 
+        // Render Service Charts (Donut & Top 10 Instansi)
         function renderChartsWithData(serviceName, data) {
             if (!data) return;
 
-            // Highlight the card in the service list
             highlightServiceCard(serviceName);
 
             const registered = Number(data.registered || 0);
@@ -2565,7 +2509,7 @@
                     }
                 },
                 labels: ['Sedang Diproses / Lainnya', 'Diterima'],
-                colors: ['#f59e0b', '#10b981'], // Amber and Emerald Green
+                colors: ['#f59e0b', '#10b981'],
                 legend: {
                     show: true,
                     position: 'bottom',
@@ -2600,7 +2544,7 @@
                     }
                 },
                 noData: {
-                    text: 'Belum ada berkas terdaftar pada periode ini',
+                    text: 'Belum ada berkas terdaftar pada layanan ini',
                     align: 'center',
                     verticalAlign: 'middle',
                     style: {
@@ -2643,16 +2587,8 @@
             const topDinasData = data.top_dinas || { categories: [], full_names: [], series: [] };
 
             const top10Colors = [
-                '#10b981', // 1: Emerald highlight (Peringkat 1)
-                '#3b82f6', // 2: Blue
-                '#6366f1', // 3: Indigo
-                '#8b5cf6', // 4: Purple
-                '#0ea5e9', // 5: Sky
-                '#06b6d4', // 6: Cyan
-                '#14b8a6', // 7: Teal
-                '#f59e0b', // 8: Amber
-                '#84cc16', // 9: Lime
-                '#64748b'  // 10: Slate
+                '#10b981', '#3b82f6', '#6366f1', '#8b5cf6', '#0ea5e9',
+                '#06b6d4', '#14b8a6', '#f59e0b', '#84cc16', '#64748b'
             ];
 
             const barOptions = {
@@ -2664,9 +2600,7 @@
                     type: 'bar',
                     height: 300,
                     fontFamily: 'Plus Jakarta Sans, sans-serif',
-                    toolbar: {
-                        show: false
-                    },
+                    toolbar: { show: false },
                     animations: {
                         enabled: true,
                         easing: 'easeinout',
@@ -2696,11 +2630,9 @@
                         return val > 0 ? val : '';
                     }
                 },
-                legend: {
-                    show: false
-                },
+                legend: { show: false },
                 noData: {
-                    text: 'Belum ada pendaftar pada instansi untuk periode ini',
+                    text: 'Belum ada pendaftar pada instansi untuk layanan ini',
                     align: 'center',
                     verticalAlign: 'middle',
                     style: {
@@ -2722,32 +2654,20 @@
                         trim: true,
                         maxHeight: 75
                     },
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false
-                    }
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
                 },
                 yaxis: {
                     labels: {
-                        style: {
-                            colors: chartSubColor
-                        },
-                        formatter: function (val) {
-                            return Math.round(val);
-                        }
+                        style: { colors: chartSubColor },
+                        formatter: function (val) { return Math.round(val); }
                     }
                 },
                 grid: {
                     borderColor: chartGridColor,
                     opacity: 0.1,
                     strokeDashArray: 4,
-                    yaxis: {
-                        lines: {
-                            show: true
-                        }
-                    }
+                    yaxis: { lines: { show: true } }
                 },
                 tooltip: {
                     theme: isDark ? 'dark' : 'light',
@@ -2790,127 +2710,56 @@
             }
         }
 
-        function updateMonthDropdown(selectedYear) {
-            if (!monthSelector) return;
-
-            if (!selectedYear || selectedYear === 'all') {
-                monthSelector.disabled = true;
-                monthSelector.innerHTML = '<option value="all">Pilih Tahun Dahulu</option>';
-                monthSelector.classList.add('cursor-not-allowed', 'opacity-60');
-                monthSelector.classList.remove('cursor-pointer');
-                monthSelector.value = 'all';
-            } else {
-                const prevMonth = monthSelector.value;
-                monthSelector.disabled = false;
-                monthSelector.classList.remove('cursor-not-allowed', 'opacity-60');
-                monthSelector.classList.add('cursor-pointer');
-
-                let html = `<option value="all">Semua Bulan (${selectedYear})</option>`;
-                monthNames.forEach(m => {
-                    html += `<option value="${m.num}">${m.name} ${selectedYear}</option>`;
-                });
-                monthSelector.innerHTML = html;
-
-                if (prevMonth && prevMonth !== 'all' && monthNames.some(m => m.num == prevMonth)) {
-                    monthSelector.value = prevMonth;
-                } else {
-                    monthSelector.value = 'all';
-                }
+        // Apply Service Filter
+        async function applyServiceFilter(service) {
+            if (activeServiceText) {
+                activeServiceText.textContent = service;
             }
-        }
-
-        function updateFilterBadge(serviceName, year, month) {
-            if (!activeFilterText) return;
-            let label = '';
-            if (year === 'all') {
-                label = 'Semua\u00A0Periode';
-            } else if (month === 'all') {
-                label = `Tahun\u00A0${year}`;
-            } else {
-                const mObj = monthNames.find(m => m.num == month);
-                const mLabel = mObj ? mObj.name : `Bulan\u00A0${month}`;
-                label = `${mLabel}\u00A0${year}`;
-            }
-            activeFilterText.textContent = label;
-        }
-
-        async function applyFilters() {
-            const service = serviceSelector ? serviceSelector.value : 'Semua Layanan';
-            const year = yearSelector ? yearSelector.value : 'all';
-            const month = monthSelector ? monthSelector.value : 'all';
-
             highlightServiceCard(service);
-            updateFilterBadge(service, year, month);
 
-            // Fast path: if year is 'all' and month is 'all', use pre-loaded serviceStats
-            if (year === 'all' && month === 'all' && serviceStats && serviceStats[service]) {
-                currentChartData = serviceStats[service];
-                renderChartsWithData(service, currentChartData);
+            if (serviceStats && serviceStats[service]) {
+                currentServiceData = serviceStats[service];
+                renderChartsWithData(service, currentServiceData);
                 return;
             }
 
-            // AJAX call to fetch filtered data
-            if (filterLoadingSpinner) {
-                filterLoadingSpinner.classList.remove('hidden');
-                filterLoadingSpinner.classList.add('inline-flex');
-            }
             try {
-                const url = `{{ route('landing.chart_data') }}?service=${encodeURIComponent(service)}&year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
-                const res = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                const res = await fetch(`{{ route('landing.chart_data') }}?service=${encodeURIComponent(service)}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const json = await res.json();
                 if (json && json.status === 'success' && json.data) {
-                    currentChartData = json.data;
-                    renderChartsWithData(service, currentChartData);
+                    currentServiceData = json.data;
+                    renderChartsWithData(service, currentServiceData);
                 }
             } catch (err) {
-                console.error('Failed to load chart data:', err);
-            } finally {
-                if (filterLoadingSpinner) {
-                    filterLoadingSpinner.classList.add('hidden');
-                    filterLoadingSpinner.classList.remove('inline-flex');
-                }
+                console.error('Failed to load service chart data:', err);
             }
         }
 
-        // Initialize selector & charts
+
+
+        // Initialize Services Chart
         if (serviceSelector) {
-            currentChartData = serviceStats[serviceSelector.value];
-            renderChartsWithData(serviceSelector.value, currentChartData);
+            currentServiceData = serviceStats[serviceSelector.value];
+            renderChartsWithData(serviceSelector.value, currentServiceData);
 
             serviceSelector.addEventListener('change', function() {
-                applyFilters();
+                applyServiceFilter(this.value);
             });
+        }
 
-            if (yearSelector) {
-                yearSelector.addEventListener('change', function(e) {
-                    updateMonthDropdown(e.target.value);
-                    applyFilters();
-                });
-            }
-
-            if (monthSelector) {
-                monthSelector.addEventListener('change', function() {
-                    applyFilters();
-                });
-            }
-
-            // Re-render charts when theme is switched between light and dark
-            const indexThemeObserver = new MutationObserver((mutations) => {
-                for (const mutation of mutations) {
-                    if (mutation.attributeName === 'class') {
-                        if (currentChartData) {
-                            renderChartsWithData(serviceSelector.value, currentChartData);
-                        }
+        // Re-render all charts when theme switches between light and dark
+        const indexThemeObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.attributeName === 'class') {
+                    if (serviceSelector && currentServiceData) {
+                        renderChartsWithData(serviceSelector.value, currentServiceData);
                     }
                 }
-            });
-            indexThemeObserver.observe(document.documentElement, { attributes: true });
-        }
+            }
+        });
+        indexThemeObserver.observe(document.documentElement, { attributes: true });
 
         // Handle Card Clicks in services list
         document.querySelectorAll('.service-card').forEach(card => {
@@ -2922,7 +2771,7 @@
                 const serviceName = this.getAttribute('data-service');
                 if (serviceName && serviceSelector) {
                     serviceSelector.value = serviceName;
-                    applyFilters();
+                    applyServiceFilter(serviceName);
                     // Smooth scroll to analytics section
                     const targetSection = document.getElementById('analytics-section');
                     if (targetSection) {

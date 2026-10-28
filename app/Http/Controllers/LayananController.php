@@ -354,6 +354,22 @@ class LayananController extends Controller
                 }
             }
 
+            // Sinkronisasi otomatis file_surat_pengantar & file_surat_permohonan agar terbaca di semua modul admin & dinas
+            if (!empty($permohonan->file_surat_pengantar) && empty($permohonan->file_surat_permohonan)) {
+                $permohonan->file_surat_permohonan = $permohonan->file_surat_pengantar;
+            } elseif (!empty($permohonan->file_surat_permohonan) && empty($permohonan->file_surat_pengantar)) {
+                $permohonan->file_surat_pengantar = $permohonan->file_surat_permohonan;
+            }
+
+            // Sinkronisasi identitas kartu (KTM / Kartu Pelajar / ID Card)
+            if (empty($permohonan->file_ktm)) {
+                if (!empty($permohonan->file_kartu_pelajar)) {
+                    $permohonan->file_ktm = $permohonan->file_kartu_pelajar;
+                } elseif (!empty($permohonan->file_id_card)) {
+                    $permohonan->file_ktm = $permohonan->file_id_card;
+                }
+            }
+
             $permohonan->save();
 
             // OTOMATIS MEMOTONG KUOTA INSTANSI TUJUAN & MENGIRIMKAN NOTIFIKASI KE INSTANSI TUJUAN SEJAD AWAL
@@ -560,6 +576,22 @@ class LayananController extends Controller
                 }
             }
 
+            // Sinkronisasi otomatis file_surat_pengantar & file_surat_permohonan
+            if (in_array('file_surat_pengantar', $updatedFiles) && !in_array('file_surat_permohonan', $updatedFiles)) {
+                $permohonan->file_surat_permohonan = $permohonan->file_surat_pengantar;
+            } elseif (in_array('file_surat_permohonan', $updatedFiles) && !in_array('file_surat_pengantar', $updatedFiles)) {
+                $permohonan->file_surat_pengantar = $permohonan->file_surat_permohonan;
+            }
+
+            // Sinkronisasi identitas kartu (KTM / Kartu Pelajar / ID Card)
+            if (empty($permohonan->file_ktm)) {
+                if (!empty($permohonan->file_kartu_pelajar)) {
+                    $permohonan->file_ktm = $permohonan->file_kartu_pelajar;
+                } elseif (!empty($permohonan->file_id_card)) {
+                    $permohonan->file_ktm = $permohonan->file_id_card;
+                }
+            }
+
             // Catat metadata revisi agar Admin Kesbangpol langsung mengetahui update ini
             $permohonan->status_revisi = 'sudah_direvisi';
             $permohonan->tanggal_revisi = now();
@@ -685,6 +717,17 @@ class LayananController extends Controller
             $filePath = $magangApp?->file_surat_penerimaan;
         } else {
             $filePath = $permohonan->{$field};
+            if (!$filePath && $field === 'file_surat_pengantar') {
+                $filePath = $permohonan->file_surat_permohonan;
+            } elseif (!$filePath && $field === 'file_surat_permohonan') {
+                $filePath = $permohonan->file_surat_pengantar;
+            } elseif (!$filePath && $field === 'file_ktm') {
+                $filePath = $permohonan->file_kartu_pelajar ?: $permohonan->file_id_card;
+            } elseif (!$filePath && $field === 'file_kartu_pelajar') {
+                $filePath = $permohonan->file_ktm;
+            } elseif (!$filePath && $field === 'file_id_card') {
+                $filePath = $permohonan->file_ktm;
+            }
         }
 
         if (!$filePath || !Storage::disk('public')->exists($filePath)) {

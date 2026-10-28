@@ -84,11 +84,16 @@
                                                     $labels = [
                                                         'file_ktp' => 'KTP / Identitas',
                                                         'file_ktm' => 'KTM / Kartu Pelajar',
+                                                        'file_kartu_pelajar' => 'Kartu Pelajar',
+                                                        'file_id_card' => 'ID Card / Tanda Pengenal',
                                                         'file_surat_pengantar' => 'Surat Pengantar',
+                                                        'file_surat_permohonan' => 'Surat Permohonan',
+                                                        'file_surat_lokasi' => 'Surat Izin Lokasi Kegiatan',
                                                         'file_proposal' => 'Proposal',
                                                         'file_surat_kesbangpol_jabar' => 'Surat Kesbangpol Jabar',
                                                         'file_surat_kemendagri' => 'Surat Kemendagri',
                                                         'file_surat_rekomendasi_lama' => 'Surat Rekomendasi Lama',
+                                                        'file_daftar_peserta' => 'Daftar Peserta',
                                                         'file_pendukung' => 'Dokumen Pendukung',
                                                     ];
                                                 @endphp
@@ -185,19 +190,29 @@
                         @php
                             $dokumens = [
                                 'file_ktp' => ['icon' => 'badge', 'label' => 'KTP / Identitas', 'always_show' => true],
-                                'file_ktm' => ['icon' => 'badge', 'label' => 'KTM / Kartu Pelajar', 'always_show' => true],
+                                'file_ktm' => ['icon' => 'badge', 'label' => 'KTM / Kartu Pelajar / ID Card', 'always_show' => true],
                                 'file_surat_pengantar' => ['icon' => 'description', 'label' => 'Surat Pengantar Asli', 'always_show' => true],
-                                'file_proposal' => ['icon' => 'menu_book', 'label' => 'Proposal', 'always_show' => true],
-                                'file_pendukung' => ['icon' => 'folder', 'label' => 'Dokumen Pendukung Lainnya', 'always_show' => true],
+                                'file_surat_lokasi' => ['icon' => 'holiday_village', 'label' => 'Surat Izin Tempat / Lokasi Kegiatan', 'always_show' => false],
+                                'file_proposal' => ['icon' => 'menu_book', 'label' => 'Proposal Kegiatan', 'always_show' => true],
+                                'file_surat_rekomendasi_lama' => ['icon' => 'history', 'label' => 'Surat Rekomendasi Lama', 'always_show' => false],
                                 'file_surat_kesbangpol_jabar' => ['icon' => 'verified', 'label' => 'Surat Kesbangpol Jabar', 'always_show' => false],
                                 'file_surat_kemendagri' => ['icon' => 'verified', 'label' => 'Surat Kemendagri', 'always_show' => false],
-                                'file_surat_rekomendasi_lama' => ['icon' => 'history', 'label' => 'Surat Rekomendasi Lama', 'always_show' => false],
+                                'file_daftar_peserta' => ['icon' => 'groups', 'label' => 'Daftar Nama Peserta', 'always_show' => false],
+                                'file_pendukung' => ['icon' => 'folder', 'label' => 'Dokumen Pendukung Lainnya', 'always_show' => false],
                             ];
                         @endphp
                         @foreach($dokumens as $field => $info)
-                            @if($layanan->$field)
                             @php
-                                $isNewlyRevised = is_array($layanan->dokumen_direvisi) && in_array($field, $layanan->dokumen_direvisi);
+                                $fileValue = $layanan->$field;
+                                if (!$fileValue && $field === 'file_surat_pengantar') {
+                                    $fileValue = $layanan->file_surat_permohonan;
+                                } elseif (!$fileValue && $field === 'file_ktm') {
+                                    $fileValue = $layanan->file_kartu_pelajar ?: $layanan->file_id_card;
+                                }
+                            @endphp
+                            @if($fileValue)
+                            @php
+                                $isNewlyRevised = is_array($layanan->dokumen_direvisi) && (in_array($field, $layanan->dokumen_direvisi) || ($field === 'file_surat_pengantar' && in_array('file_surat_permohonan', $layanan->dokumen_direvisi)));
                                 if (!$isNewlyRevised && $layanan->isRevisiSelesai() && !empty($layanan->keterangan)) {
                                     $ketLower = strtolower($layanan->keterangan);
                                     if (str_contains($field, 'ktp') && (str_contains($ketLower, 'ktp') || str_contains($ketLower, 'identitas'))) {
@@ -221,7 +236,7 @@
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-1">
-                                    <button type="button" @click="previewUrl = '{{ route('berkas.preview', [$layanan->id, $field]) }}'; previewTitle = '{{ $info['label'] }}'; previewExt = '{{ strtolower(pathinfo($layanan->$field, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
+                                    <button type="button" @click="previewUrl = '{{ route('berkas.preview', [$layanan->id, $field]) }}'; previewTitle = '{{ $info['label'] }}'; previewExt = '{{ strtolower(pathinfo($fileValue, PATHINFO_EXTENSION)) }}'; previewModalOpen = true" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Lihat Preview">
                                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                                     </button>
                                     <a href="{{ route('berkas.preview', [$layanan->id, $field]) }}" target="_blank" class="w-8 h-8 rounded-full flex items-center justify-center {{ $isNewlyRevised ? 'hover:bg-emerald-100 text-emerald-700' : 'hover:bg-primary/10 text-primary' }} transition-colors focus:outline-none" title="Buka / Download di Tab Baru">
@@ -283,17 +298,6 @@
                         <span class="material-symbols-outlined {{ $layanan->file_surat_final ? 'text-emerald-700' : 'text-amber-700' }} text-[22px]">verified_user</span>
                         <h3 class="text-sm font-bold text-gray-900 m-0">Surat Rekomendasi Final (TTE)</h3>
                     </div>
-                    @if($layanan->file_surat_final)
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs">
-                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                            Terbit
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                            Belum Diunggah
-                        </span>
-                    @endif
                 </div>
 
                 <div class="p-6">
@@ -394,33 +398,12 @@
             </div>
 
             <!-- Box 3: Aksi Verifikasi Layanan -->
+            @php
+                $currentKode = $layanan->statusMaster->kode ?? 'menunggu_verifikasi';
+            @endphp
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h2 class="text-lg font-bold text-gray-800 m-0">Aksi Verifikasi</h2>
-                    @php
-                        $currentKode = $layanan->statusMaster->kode ?? 'menunggu_verifikasi';
-                    @endphp
-                    @if($currentKode === 'disetujui' || $currentKode === 'selesai')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold">
-                            <span class="material-symbols-outlined text-[15px]">check_circle</span>
-                            Disetujui
-                        </span>
-                    @elseif($currentKode === 'perlu_revisi')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
-                            <span class="material-symbols-outlined text-[15px]">warning</span>
-                            Perlu Revisi
-                        </span>
-                    @elseif($currentKode === 'ditolak')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold">
-                            <span class="material-symbols-outlined text-[15px]">cancel</span>
-                            Ditolak
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">
-                            <span class="material-symbols-outlined text-[15px]">pending</span>
-                            Menunggu Verifikasi
-                        </span>
-                    @endif
                 </div>
                 <div class="p-6">
                     @if(in_array($currentKode, ['disetujui', 'selesai']))
@@ -464,15 +447,14 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Keputusan</label>
                             <select name="status" id="status" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" required onchange="toggleRevisiField()">
-                                <option value="">-- Pilih --</option>
-                                <option value="disetujui" {{ in_array($currentKode, ['disetujui', 'selesai']) ? 'selected' : '' }}>Setujui Layanan</option>
-                                <option value="perlu_revisi" {{ $currentKode === 'perlu_revisi' ? 'selected' : '' }}>Revisi Layanan</option>
+                                <option value="">-- Pilih Keputusan --</option>
+                                <option value="disetujui" {{ in_array($currentKode, ['disetujui', 'selesai']) ? 'selected' : '' }}>Terima (Setujui Layanan)</option>
                                 <option value="ditolak" {{ $currentKode === 'ditolak' ? 'selected' : '' }}>Tolak Layanan</option>
                             </select>
                         </div>
                         
-                        <div id="keterangan_field" class="{{ in_array($currentKode, ['perlu_revisi', 'ditolak']) ? '' : 'hidden' }}">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan / Catatan Revisi / Alasan Tolak</label>
+                        <div id="keterangan_field" class="{{ $currentKode === 'ditolak' ? '' : 'hidden' }}">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan / Alasan Tolak</label>
                             <textarea name="keterangan" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50 shadow-sm text-sm" rows="3">{{ $layanan->keterangan }}</textarea>
                         </div>
 
@@ -579,7 +561,7 @@ function toggleRevisiField() {
     var surat = document.getElementById('surat_field');
     var textarea = document.querySelector('textarea[name="keterangan"]');
     
-    if (status === 'perlu_revisi' || status === 'ditolak') {
+    if (status === 'ditolak') {
         if (ket) ket.classList.remove('hidden');
         if (textarea) textarea.required = true;
     } else {

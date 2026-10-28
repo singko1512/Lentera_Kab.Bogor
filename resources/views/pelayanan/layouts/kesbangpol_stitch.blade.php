@@ -167,7 +167,7 @@
     <span class="material-symbols-outlined text-primary text-[22px]">admin_panel_settings</span>
     @php
         $rawHeaderName = auth()->user()?->name ?? (auth()->user()?->dinas?->name ?? "Admin");
-        $cleanHeaderName = trim(preg_replace('/^Admin\s+/i', '', $rawHeaderName));
+        $cleanHeaderName = trim(preg_replace('/\s*\(.*?\)/i', '', preg_replace('/^Admin\s+/i', '', $rawHeaderName)));
         $shortHeaderName = 'Admin ' . \App\Models\Dinas::formatSingkatan($cleanHeaderName ?: 'Bakesbangpol');
     @endphp
     <h2 class="text-title-lg font-title-lg font-bold text-on-surface tracking-tight">{{ $shortHeaderName }}</h2>

@@ -183,6 +183,6 @@ class User extends Authenticatable
 
     public function isKesbangpol(): bool
     {
-        return $this->isAdmin() || $this->role === 'kesbangpol' || ($this->isDinas() && $this->dinas && $this->dinas->is_kesbangpol);
+        return $this->isAdmin() || $this->role === 'kesbangpol';
     }
 }

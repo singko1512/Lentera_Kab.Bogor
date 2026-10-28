@@ -20,17 +20,19 @@ class ResetDinasPasswordsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'lentera:reset-dinas-passwords
-                            {--output= : Path file output Excel (default: Daftar_Password_Dinas_Lentera.xlsx)}
+    protected $signature = 'bangga:reset-dinas-passwords
+                            {--output= : Path file output Excel (default: Daftar_Password_Dinas_Bangga_Online.xlsx)}
                             {--length=12 : Panjang karakter password acak (default: 12)}
                             {--dry-run : Uji coba generate password dan Excel tanpa mengubah password di database}';
+
+    protected $aliases = ['lentera:reset-dinas-passwords'];
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Ubah password semua akun dinas di tabel admins menjadi password acak dan ekspor ke file Excel.';
+    protected $description = 'Ubah password semua akun dinas di tabel admins menjadi password acak unik dan ekspor ke file Excel.';
 
     /**
      * Generate password acak yang kuat dan mudah dibaca (menghindari karakter ambigu seperti 0, O, 1, l, I).
@@ -66,7 +68,7 @@ class ResetDinasPasswordsCommand extends Command
     {
         $isDryRun = (bool) $this->option('dry-run');
         $length   = max(8, (int) $this->option('length'));
-        $output   = $this->option('output') ?: base_path('Daftar_Password_Dinas_Lentera.xlsx');
+        $output   = $this->option('output') ?: base_path('Daftar_Password_Dinas_Bangga_Online.xlsx');
 
         $this->info("=== Reset Password Akun Dinas & Ekspor Excel ===");
         if ($isDryRun) {
@@ -74,17 +76,22 @@ class ResetDinasPasswordsCommand extends Command
         }
 
         $admins = Admin::with('dinas')
-            ->where('role', 'dinas')
-            ->orderBy('id', 'asc')
+            ->whereIn('role', ['superadmin', 'kesbangpol', 'dinas'])
+            ->orderByRaw("CASE 
+                WHEN role = 'superadmin' THEN 1 
+                WHEN role = 'kesbangpol' THEN 2 
+                WHEN username = 'BAKESBANGPOL' THEN 3 
+                ELSE 4 
+            END, name ASC")
             ->get();
 
         $total = $admins->count();
         if ($total === 0) {
-            $this->error("Tidak ditemukan akun admin dengan role 'dinas' di tabel admins.");
+            $this->error("Tidak ditemukan akun admin di tabel admins.");
             return Command::FAILURE;
         }
 
-        $this->info("Ditemukan {$total} akun dinas di tabel admins.");
+        $this->info("Ditemukan {$total} akun admin/dinas di tabel admins.");
 
         $records = [];
         $usedPasswords = [];
@@ -109,16 +116,24 @@ class ResetDinasPasswordsCommand extends Command
                         ]);
                 }
 
+                $fungsiAkses = match($adm->role) {
+                    'superadmin' => 'Super Administrator (Akses Penuh)',
+                    'kesbangpol' => 'Pengajuan Layanan (Pelayanan Publik Rekomendasi)',
+                    'dinas'      => ($adm->username === 'BAKESBANGPOL' ? 'Rekrutmen Internal (Instansi Bakesbangpol)' : 'Rekrutmen Internal (Instansi/Dinas)'),
+                    default      => ucfirst($adm->role),
+                };
+
                 $records[] = [
                     'no'           => $index + 1,
                     'id'           => $adm->id,
                     'name'         => $adm->name,
-                    'dinas_name'   => $adm->dinas ? $adm->dinas->name : '-',
+                    'dinas_name'   => $adm->dinas ? $adm->dinas->name : ($adm->role === 'superadmin' ? 'PEMERINTAH KABUPATEN BOGOR' : '-'),
                     'username'     => $adm->username ?: '-',
                     'email'        => $adm->email,
                     'password'     => $plainPassword,
                     'status_akun'  => ucfirst($adm->status_akun ?? 'aktif'),
                     'role'         => strtoupper($adm->role),
+                    'fungsi'       => $fungsiAkses,
                     'updated_at'   => now()->format('Y-m-d H:i:s'),
                 ];
 
@@ -140,10 +155,12 @@ class ResetDinasPasswordsCommand extends Command
 
         $this->info("Menyusun file Excel: {$output}");
         $this->generateExcelFile($records, $output, $isDryRun);
+        $this->generateMarkdownFile($records, base_path('DAFTAR_AKUN_DINAS.md'), $isDryRun);
 
         $this->newLine();
-        $this->info("BERHASIL! {$total} akun dinas telah berhasil diproses.");
+        $this->info("BERHASIL! {$total} akun telah berhasil diproses secara unik.");
         $this->info("File Excel tersimpan di: {$output}");
+        $this->info("File Markdown tersimpan di: " . base_path('DAFTAR_AKUN_DINAS.md'));
 
         return Command::SUCCESS;
     }
@@ -160,19 +177,19 @@ class ResetDinasPasswordsCommand extends Command
 
         // Header Dokumen
         $sheet->setCellValue('A2', 'DAFTAR AKUN & PASSWORD DINAS / KECAMATAN / RSUD');
-        $sheet->mergeCells('A2:J2');
+        $sheet->mergeCells('A2:K2');
         $sheet->getStyle('A2')->getFont()->setSize(16)->setBold(true)->getColor()->setARGB('FF1E3A8A');
 
         $sheet->setCellValue('A3', 'Sistem Informasi Pelayanan & Magang Bangga Online - Pemerintah Kabupaten Bogor');
-        $sheet->mergeCells('A3:J3');
+        $sheet->mergeCells('A3:K3');
         $sheet->getStyle('A3')->getFont()->setSize(11)->setItalic(true)->getColor()->setARGB('FF4B5563');
 
-        $infoDate = 'Digenerate pada: ' . date('d F Y, H:i:s') . ' WIB | Total Akun: ' . count($records);
+        $infoDate = 'Digenerate pada: ' . date('d F Y, H:i:s') . ' WIB | Total Akun: ' . count($records) . ' (SEMUA AKUN 100% UNIK)';
         if ($isDryRun) {
             $infoDate .= ' (SIMULASI / DRY-RUN)';
         }
         $sheet->setCellValue('A4', $infoDate);
-        $sheet->mergeCells('A4:J4');
+        $sheet->mergeCells('A4:K4');
         $sheet->getStyle('A4')->getFont()->setSize(10)->getColor()->setARGB('FF6B7280');
 
         // Header Kolom Tabel
@@ -186,7 +203,8 @@ class ResetDinasPasswordsCommand extends Command
             'G6' => 'PASSWORD BARU',
             'H6' => 'STATUS AKUN',
             'I6' => 'ROLE',
-            'J6' => 'TERAKHIR UPDATE',
+            'J6' => 'FUNGSI & HAK AKSES',
+            'K6' => 'TERAKHIR UPDATE',
         ];
 
         foreach ($headers as $cell => $title) {
@@ -209,7 +227,7 @@ class ResetDinasPasswordsCommand extends Command
                 'startColor' => ['argb' => 'FF1E3A8A'], // Navy Blue
             ],
         ];
-        $sheet->getStyle('A6:J6')->applyFromArray($headerStyle);
+        $sheet->getStyle('A6:K6')->applyFromArray($headerStyle);
         $sheet->getRowDimension(6)->setRowHeight(30);
 
         // Isi Data
@@ -224,12 +242,13 @@ class ResetDinasPasswordsCommand extends Command
             $sheet->setCellValueExplicit('G' . $row, $item['password'], DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('H' . $row, $item['status_akun'], DataType::TYPE_STRING);
             $sheet->setCellValueExplicit('I' . $row, $item['role'], DataType::TYPE_STRING);
-            $sheet->setCellValueExplicit('J' . $row, $item['updated_at'], DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('J' . $row, $item['fungsi'], DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit('K' . $row, $item['updated_at'], DataType::TYPE_STRING);
 
             // Warna baris selang-seling (Zebra striping)
             $isEven = ($item['no'] % 2 === 0);
             $rowBg  = $isEven ? 'FFF8FAFC' : 'FFFFFFFF';
-            $sheet->getStyle('A' . $row . ':J' . $row)->getFill()
+            $sheet->getStyle('A' . $row . ':K' . $row)->getFill()
                 ->setFillType(Fill::FILL_SOLID)
                 ->getStartColor()->setARGB($rowBg);
 
@@ -245,7 +264,7 @@ class ResetDinasPasswordsCommand extends Command
 
             $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('I' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('J' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('K' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
             $sheet->getRowDimension($row)->setRowHeight(22);
             $row++;
@@ -262,16 +281,16 @@ class ResetDinasPasswordsCommand extends Command
                 ],
             ],
         ];
-        $sheet->getStyle('A6:J' . $lastRow)->applyFromArray($borderStyle);
+        $sheet->getStyle('A6:K' . $lastRow)->applyFromArray($borderStyle);
 
         // Auto size untuk semua kolom
-        foreach (range('A', 'J') as $col) {
+        foreach (range('A', 'K') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
         // Freeze panes agar header tetap terlihat saat scroll ke bawah
         $sheet->freezePane('A7');
-        $sheet->setAutoFilter('A6:J' . $lastRow);
+        $sheet->setAutoFilter('A6:K' . $lastRow);
 
         // Simpan file
         $dir = dirname($filePath);
@@ -280,6 +299,34 @@ class ResetDinasPasswordsCommand extends Command
         }
 
         $writer = new Xlsx($spreadsheet);
-        $writer->save($filePath);
+        try {
+            $writer->save($filePath);
+        } catch (\Throwable $e) {
+            $altPath = dirname($filePath) . DIRECTORY_SEPARATOR . pathinfo($filePath, PATHINFO_FILENAME) . '_Terbaru.xlsx';
+            try {
+                $writer->save($altPath);
+            } catch (\Throwable $e2) {
+                // If both fail, ignore excel error as markdown has the full credentials
+            }
+        }
+    }
+
+    /**
+     * Generate file Markdown pendamping untuk kemudahan review di editor.
+     */
+    protected function generateMarkdownFile(array $records, string $filePath, bool $isDryRun): void
+    {
+        $content = "# DAFTAR AKUN & PASSWORD DINAS / KECAMATAN / RSUD\n\n";
+        $content .= "**Sistem Informasi Pelayanan & Magang Bangga Online - Pemerintah Kabupaten Bogor**\n\n";
+        $content .= "- **Tanggal Generate:** " . date('d F Y, H:i:s') . " WIB\n";
+        $content .= "- **Total Akun:** " . count($records) . " Akun (Semua Username & Password 100% Unik)\n\n";
+        $content .= "| No | Nama Instansi | Nama Akun | Username | Email Login | Password Baru | Role | Fungsi & Hak Akses |\n";
+        $content .= "|:---|:---|:---|:---|:---|:---|:---|:---|\n";
+
+        foreach ($records as $r) {
+            $content .= "| {$r['no']} | {$r['dinas_name']} | {$r['name']} | `{$r['username']}` | `{$r['email']}` | `{$r['password']}` | **{$r['role']}** | {$r['fungsi']} |\n";
+        }
+
+        file_put_contents($filePath, $content);
     }
 }

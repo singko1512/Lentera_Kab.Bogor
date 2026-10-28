@@ -6,11 +6,27 @@
 </div>
 <div>
 <h1 class="text-headline-md font-headline-md font-bold text-on-surface leading-tight tracking-tight">BANGGA ONLINE</h1>
-<p class="text-caption font-caption text-on-surface-variant font-medium">Kabupaten Bogor</p>
+<p class="text-caption font-caption text-on-surface-variant font-medium">
+    @if(Auth::user()?->role === 'kesbangpol')
+        Pelayanan Publik
+    @elseif(Auth::user()?->role === 'dinas')
+        Rekrutmen Internal
+    @else
+        Kabupaten Bogor
+    @endif
+</p>
 </div>
 </div>
+@php
+    $sidebarUser = Auth::user();
+    $sidebarRole = $sidebarUser?->role;
+    $isAdmin = in_array($sidebarRole, ['admin', 'superadmin']);
+    $canSeePelayanan = $isAdmin || $sidebarRole === 'kesbangpol';
+    $canSeeInternal = $isAdmin || $sidebarRole === 'dinas';
+@endphp
 <nav class="flex-1 space-y-1.5 overflow-y-auto">
 
+@if($canSeePelayanan)
 <!-- Pelayanan Publik Dropdown -->
 <div x-data="{ 
     open: (() => {
@@ -56,12 +72,14 @@
         </a>
     </div>
 </div>
+@endif
 
+@if($canSeeInternal)
 <!-- Rekrutmen Internal Dropdown -->
 <div x-data="{ 
     open: (() => {
         try {
-            return (localStorage.getItem('sidebar_kesbangpol_internal') !== null ? localStorage.getItem('sidebar_kesbangpol_internal') === 'true' : true) || {{ (Route::is('dinas.bidang*', 'dinas.rekrutmen*', 'dinas.applications*', 'dinas.participants*', 'absensi.*') || (Route::is('kesbangpol.dashboard') && request('tab') === 'internal')) ? 'true' : 'false' }};
+            return (localStorage.getItem('sidebar_kesbangpol_internal') !== null ? localStorage.getItem('sidebar_kesbangpol_internal') === 'true' : true) || {{ (Route::is('dinas.bidang*', 'dinas.rekrutmen*', 'dinas.applications*', 'dinas.participants*', 'absensi.*') || Route::is('dinas.dashboard') || (Route::is('kesbangpol.dashboard') && request('tab') === 'internal')) ? 'true' : 'false' }};
         } catch (e) {
             return true;
         }
@@ -76,8 +94,8 @@
     </button>
     
     <div x-show="open" x-collapse class="ml-3.5 pl-3 border-l-2 border-outline-variant/60 space-y-1 my-1.5">
-        <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ (Route::is('kesbangpol.dashboard') && request('tab') === 'internal') ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ route('kesbangpol.dashboard', ['tab' => 'internal']) }}">
-            <span class="material-symbols-outlined shrink-0 text-[20px] {{ (Route::is('kesbangpol.dashboard') && request('tab') === 'internal') ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">dashboard</span>
+        <a class="flex items-center gap-2.5 px-3 py-2 overflow-hidden {{ (Route::is('dinas.dashboard') || (Route::is('kesbangpol.dashboard') && request('tab') === 'internal')) ? 'bg-primary text-white shadow-sm shadow-primary/20 font-semibold' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-primary' }} rounded-xl transition-all duration-150 group" href="{{ $isAdmin ? route('kesbangpol.dashboard', ['tab' => 'internal']) : route('dinas.dashboard') }}">
+            <span class="material-symbols-outlined shrink-0 text-[20px] {{ (Route::is('dinas.dashboard') || (Route::is('kesbangpol.dashboard') && request('tab') === 'internal')) ? 'icon-filled' : '' }} transition-transform group-hover:scale-105">dashboard</span>
             <span class="text-label-md font-label-md min-w-0 leading-snug truncate">Dashboard</span>
         </a>
 
@@ -107,6 +125,7 @@
         </a>
     </div>
 </div>
+@endif
 
 <!-- Master Data Superadmin -->
 @if(in_array(Auth::user()->role, ['superadmin', 'admin']))

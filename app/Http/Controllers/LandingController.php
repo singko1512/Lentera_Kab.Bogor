@@ -251,7 +251,9 @@ class LandingController extends Controller
             }
         }
 
-        $dbYears = PermohonanLayanan::selectRaw('YEAR(created_at) as year')->distinct()->pluck('year')->filter()->toArray();
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $yearExpr = $isSqlite ? "strftime('%Y', created_at)" : "YEAR(created_at)";
+        $dbYears = PermohonanLayanan::selectRaw("{$yearExpr} as year")->distinct()->pluck('year')->filter()->map(fn($y) => (int)$y)->toArray();
         $availableYears = array_values(array_unique(array_merge([now()->year, now()->year - 1], $dbYears)));
         rsort($availableYears);
 
@@ -260,7 +262,6 @@ class LandingController extends Controller
             'featuredInstansis', 
             'pesertas', 
             'chartData', 
-            'availableYears',
             'pastDayNames',
             'totalRegistered',
             'totalAccepted',
@@ -275,13 +276,11 @@ class LandingController extends Controller
     }
 
     /**
-     * AJAX Endpoint untuk data analitik filter (Layanan, Tahun, Bulan)
+     * AJAX Endpoint untuk data analitik filter Jenis Layanan
      */
     public function getChartData(Request $request)
     {
         $serviceName = $request->input('service', 'Semua Layanan');
-        $year = $request->input('year', 'all');
-        $month = $request->input('month', 'all');
 
         $servicesList = [
             'Semua Layanan' => 'all',
@@ -304,18 +303,10 @@ class LandingController extends Controller
             });
         }
 
-        if ($year !== 'all' && is_numeric($year)) {
-            $baseQuery->whereYear('created_at', (int) $year);
-        }
-
-        if ($month !== 'all' && is_numeric($month)) {
-            $baseQuery->whereMonth('created_at', (int) $month);
-        }
-
         $registeredCount = (clone $baseQuery)->count();
 
         $acceptedCount = (clone $baseQuery)->whereHas('statusMaster', function($q) {
-            $q->whereIn('kode', ['disetujui', 'selesai']);
+            $q->whereIn('kode', ['disetujui', 'selesai', 'diterima', 'aktif']);
         })->count();
 
         // Top 10 Dinas Terbanyak Pendaftarnya
@@ -359,53 +350,285 @@ class LandingController extends Controller
         ]);
     }
 
+    /**
+     * AJAX Endpoint untuk data chart tren aktivitas pendaftaran (Tahun & Bulan)
+     */
+    public function getTrendChartData(Request $request)
+    {
+        $yearInput = $request->input('year', now()->year);
+        $year = is_numeric($yearInput) ? (int) $yearInput : now()->year;
+        $month = $request->input('month', 'all');
+
+        $trendData = $this->buildTrendData($year, $month);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $trendData
+        ]);
+    }
+
+    /**
+     * Helper untuk mengolah series tren pendaftaran per periode tahun / bulan
+     */
+    protected function buildTrendData(int $year, $month = 'all'): array
+    {
+        $query = PermohonanLayanan::query()
+            ->whereYear('created_at', $year)
+            ->with('statusMaster');
+
+        if ($month !== 'all' && is_numeric($month)) {
+            $month = (int) $month;
+            $query->whereMonth('created_at', $month);
+        }
+
+        $records = $query->get(['id', 'status_master_id', 'created_at']);
+
+        $monthNamesShort = [
+            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
+            7 => 'Jul', 8 => 'Agu', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+        ];
+
+        $monthNamesLong = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $categories = [];
+        $registeredSeries = [];
+        $acceptedSeries = [];
+
+        $isAccepted = function($record) {
+            $kode = strtolower($record->statusMaster?->kode ?? '');
+            return in_array($kode, ['disetujui', 'selesai', 'diterima', 'aktif']);
+        };
+
+        if ($month === 'all') {
+            for ($m = 1; $m <= 12; $m++) {
+                $categories[] = $monthNamesShort[$m];
+                $monthRecords = $records->filter(function($r) use ($m) {
+                    return (int) $r->created_at->format('n') === $m;
+                });
+                $registeredSeries[] = $monthRecords->count();
+                $acceptedSeries[] = $monthRecords->filter($isAccepted)->count();
+            }
+            $periodLabel = "Tahun {$year}";
+            $periodType = 'year';
+        } else {
+            $daysInMonth = \Carbon\Carbon::createFromDate($year, (int)$month, 1)->daysInMonth;
+            for ($d = 1; $d <= $daysInMonth; $d++) {
+                $categories[] = (string) $d;
+                $dayRecords = $records->filter(function($r) use ($d) {
+                    return (int) $r->created_at->format('j') === $d;
+                });
+                $registeredSeries[] = $dayRecords->count();
+                $acceptedSeries[] = $dayRecords->filter($isAccepted)->count();
+            }
+            $mName = $monthNamesLong[(int)$month] ?? "Bulan {$month}";
+            $periodLabel = "{$mName} {$year}";
+            $periodType = 'month';
+        }
+
+        $totalRegistered = array_sum($registeredSeries);
+        $totalAccepted = array_sum($acceptedSeries);
+        $approvalRate = $totalRegistered > 0 ? round(($totalAccepted / $totalRegistered) * 100, 1) : 0;
+        $countUnits = count($registeredSeries);
+        $avgPerUnit = $countUnits > 0 ? round($totalRegistered / $countUnits, 1) : 0;
+
+        // Query pendaftar per instansi pada periode tahun & bulan ini (dibatasi Top 10)
+        $instansiQuery = PermohonanLayanan::query()
+            ->whereYear('created_at', $year)
+            ->when($month !== 'all' && is_numeric($month), function($q) use ($month) {
+                $q->whereMonth('created_at', (int) $month);
+            })
+            ->whereNotNull('dinas_id');
+
+        $totalInstansiCount = (clone $instansiQuery)->distinct('dinas_id')->count('dinas_id');
+
+        $instansiRaw = (clone $instansiQuery)
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->orderByDesc('total')
+            ->take(10)
+            ->with('dinas')
+            ->get();
+
+        $topDinasIds = $instansiRaw->pluck('dinas_id');
+
+        $instansiAcceptedMap = (clone $instansiQuery)
+            ->whereIn('dinas_id', $topDinasIds)
+            ->whereHas('statusMaster', function($q) {
+                $q->whereIn('kode', ['disetujui', 'selesai', 'diterima', 'aktif']);
+            })
+            ->select('dinas_id', DB::raw('count(*) as total'))
+            ->groupBy('dinas_id')
+            ->pluck('total', 'dinas_id');
+
+        $instansiCategories = [];
+        $instansiFullNames = [];
+        $instansiRegistered = [];
+        $instansiAcceptedSeries = [];
+
+        foreach ($instansiRaw as $row) {
+            $fullName = $row->dinas?->name ?? 'Dinas';
+            $shortName = Dinas::formatSingkatan($fullName);
+            $instansiCategories[] = $shortName;
+            $instansiFullNames[] = $fullName;
+            $instansiRegistered[] = (int) $row->total;
+            $instansiAcceptedSeries[] = (int) ($instansiAcceptedMap[$row->dinas_id] ?? 0);
+        }
+
+        $topInstansiBadge = count($instansiCategories) > 0 
+            ? "{$instansiCategories[0]} ({$instansiRegistered[0]} Pendaftar)" 
+            : '-';
+
+        return [
+            'year' => $year,
+            'month' => $month,
+            'period_label' => $periodLabel,
+            'period_type' => $periodType,
+            'categories' => $categories,
+            'series' => [
+                [
+                    'name' => 'Total Pendaftar',
+                    'data' => $registeredSeries
+                ]
+            ],
+            'instansi_data' => [
+                'categories' => $instansiCategories,
+                'full_names' => $instansiFullNames,
+                'series' => [
+                    [
+                        'name' => 'Total Pendaftar',
+                        'data' => $instansiRegistered
+                    ]
+                ],
+                'registered' => $instansiRegistered,
+                'top_badge' => $topInstansiBadge,
+                'total_instansi' => $totalInstansiCount,
+            ],
+            'summary' => [
+                'total_registered' => $totalRegistered,
+                'total_accepted' => $totalAccepted,
+                'approval_rate' => $approvalRate,
+                'average' => $avgPerUnit,
+                'top_instansi' => $topInstansiBadge,
+                'total_instansi' => $totalInstansiCount,
+            ]
+        ];
+    }
+
     public function peserta(Request $request)
     {
         $search = $request->input('search');
         $instansiAsal = $request->input('instansi_asal');
         $dinasId = $request->input('dinas_id');
+        $year = $request->input('year', 'all');
+        $month = $request->input('month', 'all');
 
-        $query = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang', 'permohonanLayanan.jenisLayanan'])
+        $query = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang', 'permohonanLayanan.jenisLayanan', 'dinas', 'bidang'])
             ->whereIn('status', ['diterima', 'aktif', 'selesai']);
 
         if ($search) {
-            $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                       ->orWhere('program_studi', 'like', "%{$search}%")
+                       ->orWhere('asal_instansi', 'like', "%{$search}%");
+                })->orWhereHas('permohonanLayanan', function($pq) use ($search) {
+                    $pq->where('asal_instansi', 'like', "%{$search}%");
+                });
             });
         }
 
         if ($instansiAsal) {
-            $query->whereHas('permohonanLayanan', function($q) use ($instansiAsal) {
-                $q->where('asal_instansi', $instansiAsal);
+            $query->where(function($q) use ($instansiAsal) {
+                $q->whereHas('permohonanLayanan', function($pq) use ($instansiAsal) {
+                    $pq->where('asal_instansi', $instansiAsal);
+                })->orWhereHas('user', function($uq) use ($instansiAsal) {
+                    $uq->where('asal_instansi', $instansiAsal);
+                });
             });
         }
 
         if ($dinasId) {
-            $query->whereHas('rekrutmen', function($q) use ($dinasId) {
-                $q->where('dinas_id', $dinasId);
+            $query->where(function($q) use ($dinasId) {
+                $q->where('dinas_id', $dinasId)
+                  ->orWhereHas('rekrutmen', function($rq) use ($dinasId) {
+                      $rq->where('dinas_id', $dinasId);
+                  });
             });
         }
 
-        $pesertas = $query->orderBy('updated_at', 'desc')->paginate(12);
+        if ($year && $year !== 'all') {
+            $query->whereYear('created_at', $year);
+        }
+
+        if ($month && $month !== 'all') {
+            $query->whereMonth('created_at', $month);
+        }
+
+        $pesertas = $query->orderBy('updated_at', 'desc')->paginate(12)->withQueryString();
+
+        // Ambil semua tahun unik yang tersedia dari peserta magang
+        $availableYears = MagangApplication::whereIn('status', ['diterima', 'aktif', 'selesai'])
+            ->whereNotNull('created_at')
+            ->selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year')
+            ->toArray();
+
+        $currentYear = (int) date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            $availableYears[] = $currentYear;
+            rsort($availableYears);
+        }
 
         // Ambil semua instansi unik dari peserta magang yang diterima / aktif / selesai
-        $semuaInstansi = \App\Models\PermohonanLayanan::whereIn('id', function($q) {
+        $instansiFromPermohonan = \App\Models\PermohonanLayanan::whereIn('id', function($q) {
             $q->select('permohonan_layanan_id')
               ->from('magang_applications')
               ->whereIn('status', ['diterima', 'aktif', 'selesai']);
-        })->pluck('asal_instansi')->filter()->unique()->values();
+        })->pluck('asal_instansi')->filter();
+
+        $instansiFromUser = \App\Models\User::whereIn('id', function($q) {
+            $q->select('user_id')
+              ->from('magang_applications')
+              ->whereIn('status', ['diterima', 'aktif', 'selesai']);
+        })->pluck('asal_instansi')->filter();
+
+        $semuaInstansi = $instansiFromPermohonan->merge($instansiFromUser)
+            ->map(fn($item) => trim($item))
+            ->filter()
+            ->unique()
+            ->sort(SORT_NATURAL | SORT_FLAG_CASE)
+            ->values();
 
         // Ambil semua dinas untuk filter
         $semuaDinas = \App\Models\Dinas::orderBy('name')->get();
 
+        $selectedDinas = $dinasId ? \App\Models\Dinas::find($dinasId) : null;
+        $selectedDinasName = $selectedDinas ? \App\Models\Dinas::formatTitleCaseKbbi($selectedDinas->name) : null;
+
         foreach ($pesertas as $p) {
             $p->jurusan = $p->user?->program_studi ?: ($p->permohonanLayanan?->jenisLayanan?->nama ?? 'Umum');
             $p->instansi_asal = $p->user?->asal_instansi ?: ($p->permohonanLayanan?->asal_instansi ?? 'Instansi/Kampus');
-            $p->dinas = $p->rekrutmen?->dinas;
-            $p->bidang = $p->rekrutmen?->bidang;
+            $p->dinas = $p->dinas ?: $p->rekrutmen?->dinas;
+            $p->bidang = $p->bidang ?: $p->rekrutmen?->bidang;
         }
 
-        return view('pelayanan.landing.peserta', compact('pesertas', 'search', 'instansiAsal', 'dinasId', 'semuaInstansi', 'semuaDinas'));
+        return view('pelayanan.landing.peserta', compact(
+            'pesertas', 
+            'search', 
+            'instansiAsal', 
+            'dinasId', 
+            'selectedDinasName',
+            'year',
+            'month',
+            'availableYears',
+            'semuaInstansi', 
+            'semuaDinas'
+        ));
     }
 
     public function instansiList(Request $request)
@@ -628,17 +851,41 @@ class LandingController extends Controller
     /**
      * Halaman Statistik dan Rekapitulasi Pendaftaran Seluruh Instansi (Kedinasan & Kecamatan)
      */
-    public function statistikInstansi()
+    public function statistikInstansi(Request $request)
     {
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $yearExpr = $isSqlite ? "strftime('%Y', created_at)" : "YEAR(created_at)";
+        $dbYears = PermohonanLayanan::selectRaw("{$yearExpr} as year")
+            ->whereNotNull('created_at')
+            ->distinct()
+            ->pluck('year')
+            ->filter()
+            ->map(fn($y) => (int)$y)
+            ->toArray();
+        $availableYears = array_values(array_unique(array_merge([now()->year], $dbYears)));
+        rsort($availableYears);
+
+        $defaultYear = !empty($availableYears) ? $availableYears[0] : (int)date('Y');
+        $year = $request->input('year', (string) $defaultYear);
+        $month = $request->input('month', 'all');
+
+        $query = PermohonanLayanan::whereNotNull('dinas_id');
+        if ($year !== 'all' && is_numeric($year)) {
+            $query->whereYear('created_at', (int) $year);
+        }
+        if ($month !== 'all' && is_numeric($month)) {
+            $query->whereMonth('created_at', (int) $month);
+        }
+
         // 1. Agregasi pendaftar per dinas
-        $aggregates = PermohonanLayanan::whereNotNull('dinas_id')
+        $aggregates = (clone $query)
             ->select('dinas_id', DB::raw('count(*) as total'))
             ->groupBy('dinas_id')
             ->pluck('total', 'dinas_id');
 
-        $acceptedAggregates = PermohonanLayanan::whereNotNull('dinas_id')
+        $acceptedAggregates = (clone $query)
             ->whereHas('statusMaster', function($q) {
-                $q->whereIn('kode', ['disetujui', 'selesai']);
+                $q->whereIn('kode', ['disetujui', 'selesai', 'diterima', 'aktif']);
             })
             ->select('dinas_id', DB::raw('count(*) as total'))
             ->groupBy('dinas_id')
@@ -715,13 +962,45 @@ class LandingController extends Controller
             'total_proses' => array_sum(array_column($tableData, 'proses')),
         ];
 
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        if ($year === 'all') {
+            $periodLabel = 'Semua Periode';
+        } elseif ($month === 'all') {
+            $periodLabel = "Tahun {$year}";
+        } else {
+            $mName = $monthNames[(int)$month] ?? "Bulan {$month}";
+            $periodLabel = "{$mName} {$year}";
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'chartDinas' => $chartDinas,
+                'chartKecamatan' => $chartKecamatan,
+                'tableData' => $tableData,
+                'summary' => $summary,
+                'year' => $year,
+                'month' => $month,
+                'periodLabel' => $periodLabel,
+                'totalDinasCount' => count($dinasList),
+                'totalKecamatanCount' => count($kecamatanList),
+            ]);
+        }
+
         return view('pelayanan.landing.statistik_instansi', compact(
             'dinasList',
             'kecamatanList',
             'chartDinas',
             'chartKecamatan',
             'tableData',
-            'summary'
+            'summary',
+            'availableYears',
+            'year',
+            'month',
+            'periodLabel'
         ));
     }
 }

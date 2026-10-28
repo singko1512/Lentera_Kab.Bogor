@@ -12,7 +12,8 @@ use App\Models\MagangApplication;
 use App\Models\JenisLayanan;
 use App\Models\StatusMaster;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DummyPendaftarSeeder extends Seeder
 {
@@ -22,67 +23,69 @@ class DummyPendaftarSeeder extends Seeder
 
         $defaultPassword = Hash::make('password123');
 
-        // Ambil Jenis Layanan PKL / KKL Mahasiswa
-        $jenisLayanan = JenisLayanan::where('slug', 'kkl_mahasiswa')->first()
-            ?? JenisLayanan::first();
-
-        // 1. Ambil 10 Dinas Teratas
-        $diskominfo = Dinas::where('name', 'like', '%KOMUNIKASI%')->firstOrFail();
-        $bpkad = Dinas::where('name', 'like', '%KEUANGAN%')->firstOrFail();
-        $dinkes = Dinas::where('name', 'like', '%KESEHATAN%')->firstOrFail();
-        $disdik = Dinas::where('name', 'like', '%PENDIDIKAN%')->firstOrFail();
-        $bapperida = Dinas::where('name', 'like', '%INOVASI%')->firstOrFail();
-        $dinsos = Dinas::where('name', 'like', '%SOSIAL%')->firstOrFail();
-        $bkpsdm = Dinas::where('name', 'like', '%KEPEGAWAIAN%')->firstOrFail();
-        $disdukcapil = Dinas::where('name', 'like', '%PENDUDUKAN%')->firstOrFail();
-        $cibinong = Dinas::where('name', 'like', '%KECAMATAN CIBINONG%')->firstOrFail();
-        $bojonggede = Dinas::where('name', 'like', '%KECAMATAN BOJONGGEDE%')->firstOrFail();
-
-        // Pastikan Diskominfo memiliki lowongan / rekrutmen aktif dengan kuota melimpah
-        $diskominfoBidangs = $diskominfo->bidang;
-        if ($diskominfoBidangs->isNotEmpty()) {
-            foreach ($diskominfoBidangs as $b) {
-                Rekrutmen::firstOrCreate(
-                    [
-                        'dinas_id' => $diskominfo->id,
-                        'bidang_id' => $b->id,
-                    ],
-                    [
-                        'judul' => 'Magang ' . $b->name,
-                        'deskripsi_persyaratan' => 'Terbuka untuk mahasiswa/siswa jurusan IT, Komunikasi, dan Administrasi.',
-                        'kuota' => 25,
-                        'is_active' => true,
-                    ]
-                );
-            }
+        // Bersihkan data dummy pendaftar sebelumnya agar tidak terjadi duplikasi
+        $existingDummyUserIds = User::where('email', 'like', '%@lentera.test')->pluck('id');
+        if ($existingDummyUserIds->isNotEmpty()) {
+            MagangApplication::whereIn('user_id', $existingDummyUserIds)->delete();
+            PermohonanLayanan::whereIn('user_id', $existingDummyUserIds)->delete();
+            User::whereIn('id', $existingDummyUserIds)->delete();
         }
 
-        // Susun 10 Dinas Terbesar (Total: 55 pendaftar)
+        // Ambil semua jenis layanan
+        $allJenisLayanan = JenisLayanan::all();
+        if ($allJenisLayanan->isEmpty()) {
+            $this->command->error("Jenis layanan tidak ditemukan.");
+            return;
+        }
+
+        // Ambil semua Status Master
+        $statusApproved = StatusMaster::whereIn('kode', ['disetujui', 'selesai'])->get();
+        $statusPending = StatusMaster::whereIn('kode', ['menunggu_verifikasi', 'perlu_revisi'])->get();
+        $defaultStatus = StatusMaster::first();
+
+        // 1. Ambil 10 Dinas Teratas
+        $diskominfo = Dinas::where('name', 'like', '%KOMUNIKASI%')->first() ?? Dinas::first();
+        $bpkad = Dinas::where('name', 'like', '%KEUANGAN%')->first() ?? Dinas::skip(1)->first();
+        $dinkes = Dinas::where('name', 'like', '%KESEHATAN%')->first() ?? Dinas::skip(2)->first();
+        $disdik = Dinas::where('name', 'like', '%PENDIDIKAN%')->first() ?? Dinas::skip(3)->first();
+        $bapperida = Dinas::where('name', 'like', '%INOVASI%')->orWhere('name', 'like', '%BAPEDA%')->first() ?? Dinas::skip(4)->first();
+        $dinsos = Dinas::where('name', 'like', '%SOSIAL%')->first() ?? Dinas::skip(5)->first();
+        $bkpsdm = Dinas::where('name', 'like', '%KEPEGAWAIAN%')->first() ?? Dinas::skip(6)->first();
+        $disdukcapil = Dinas::where('name', 'like', '%PENDUDUKAN%')->first() ?? Dinas::skip(7)->first();
+        $cibinong = Dinas::where('name', 'like', '%KECAMATAN CIBINONG%')->first() ?? Dinas::skip(8)->first();
+        $bojonggede = Dinas::where('name', 'like', '%KECAMATAN BOJONGGEDE%')->first() ?? Dinas::skip(9)->first();
+
+        // Konfigurasi Pendaftar:
+        // Diskominfo = 55 (paling banyak dan beda sendiri)
+        // Dinas lainnya maksimal 50
         $topDinasConfig = [
-            ['dinas' => $diskominfo, 'count' => 30],
-            ['dinas' => $bpkad, 'count' => 4],
-            ['dinas' => $dinkes, 'count' => 4],
-            ['dinas' => $disdik, 'count' => 3],
-            ['dinas' => $bapperida, 'count' => 3],
-            ['dinas' => $dinsos, 'count' => 3],
-            ['dinas' => $bkpsdm, 'count' => 2],
-            ['dinas' => $disdukcapil, 'count' => 2],
-            ['dinas' => $cibinong, 'count' => 2],
-            ['dinas' => $bojonggede, 'count' => 2],
+            ['dinas' => $diskominfo,  'count' => 55],
+            ['dinas' => $bpkad,       'count' => 48],
+            ['dinas' => $dinkes,      'count' => 42],
+            ['dinas' => $disdik,      'count' => 36],
+            ['dinas' => $bapperida,   'count' => 30],
+            ['dinas' => $dinsos,      'count' => 25],
+            ['dinas' => $bkpsdm,      'count' => 20],
+            ['dinas' => $disdukcapil, 'count' => 16],
+            ['dinas' => $cibinong,    'count' => 12],
+            ['dinas' => $bojonggede,  'count' => 8],
         ];
 
         $topDinasIds = array_map(fn($item) => $item['dinas']->id, $topDinasConfig);
 
-        // Ambil 45 Dinas & Kecamatan lainnya yang bukan Top 10 dan bukan Kesbangpol
+        // Ambil semua dinas dan kecamatan lainnya (bukan kesbangpol dan bukan top 10)
         $otherDinas = Dinas::whereNotIn('id', $topDinasIds)
             ->where('is_kesbangpol', false)
             ->orderBy('name')
-            ->take(45)
             ->get();
 
-        // Siapkan rekrutmen default jika belum ada
-        foreach (array_merge($topDinasConfig, $otherDinas->map(fn($d) => ['dinas' => $d, 'count' => 1])->all()) as $item) {
-            $targetDinas = $item['dinas'];
+        // Pastikan setiap dinas punya rekrutmen aktif
+        $allTargetDinas = array_merge(
+            array_map(fn($item) => $item['dinas'], $topDinasConfig),
+            $otherDinas->all()
+        );
+
+        foreach ($allTargetDinas as $targetDinas) {
             $hasRek = Rekrutmen::where('dinas_id', $targetDinas->id)->where('is_active', true)->exists();
             if (!$hasRek) {
                 $firstBidang = $targetDinas->bidang->first();
@@ -91,45 +94,52 @@ class DummyPendaftarSeeder extends Seeder
                     'bidang_id' => $firstBidang?->id,
                     'judul' => 'Penerimaan Magang / PKL ' . $targetDinas->name,
                     'deskripsi_persyaratan' => 'Terbuka untuk siswa dan mahasiswa berprestasi.',
-                    'kuota' => 15,
+                    'kuota' => 60,
                     'is_active' => true,
                 ]);
             }
         }
 
-        // Susun daftar instansi target untuk 100 pendaftar
+        // Susun target pendaftaran:
+        // 1. Top 10 sesuai kuota
         $targets = [];
         foreach ($topDinasConfig as $item) {
             for ($k = 0; $k < $item['count']; $k++) {
                 $targets[] = $item['dinas'];
             }
         }
+
+        // 2. Dinas lainnya diberi 1 s.d. 3 pendaftar per dinas (maksimal 50)
         foreach ($otherDinas as $d) {
-            $targets[] = $d;
+            $pendaftarCount = rand(1, 3);
+            for ($k = 0; $k < $pendaftarCount; $k++) {
+                $targets[] = $d;
+            }
         }
 
-        // Daftar 100 Nama Lengkap
-        $names = [
-            'Aditya Pratama', 'Ahmad Fauzi', 'Aisyah Putri', 'Alif Ramadan', 'Amanda Rahmawati',
-            'Andika Saputra', 'Anisa Fitriani', 'Arif Hidayat', 'Arya Pratama', 'Bagas Kurniawan',
-            'Bima Prasetya', 'Budi Santoso', 'Cahya Wulandari', 'Cantika Dewi', 'Citra Lestari',
-            'Danu Wicaksono', 'Dedi Irawan', 'Dewi Sartika', 'Dian Anggraini', 'Diki Wahyudi',
-            'Dimas Anggara', 'Dwi Cahyono', 'Eka Kurniawan', 'Elsa Safitri', 'Fajar Nugraha',
-            'Faisal Rahman', 'Farhan Maulana', 'Fatimah Azzahra', 'Febrianto', 'Firman Utina',
-            'Galih Permana', 'Gilang Ramadhan', 'Gita Gutawa', 'Habibie Ramadhan', 'Hafiz Al-Ghifari',
-            'Hana Pertiwi', 'Hendra Wijaya', 'Hesti Purwanti', 'Ilham Akbar', 'Indah Permatasari',
-            'Intan Nuraini', 'Irfan Hakim', 'Joko Prasetyo', 'Jonathan Christie', 'Kartika Sari',
-            'Kevin Sanjaya', 'Laila Majnun', 'Latifah Hanum', 'Lukman Hakim', 'M. Rizki Fadillah',
-            'Maya Indriyani', 'Mega Silviana', 'Melati Kusuma', 'Mochamad Ilham', 'Muhammad Al-Fatih',
-            'Nabila Syakieb', 'Nadya Hutagalung', 'Naufal Azhar', 'Nia Daniati', 'Nova Riyanti',
-            'Nurul Hidayati', 'Oktavia Rahayu', 'Panji Petualang', 'Praditya Putra', 'Pratama Arhan',
-            'Putri Handayani', 'Qori Hidayat', 'Raditya Dika', 'Rafli Ahmad', 'Rahmawati Kusuma',
-            'Raihan Saputra', 'Rendi Pangalila', 'Reza Rahadian', 'Rian Firmansyah', 'Rina Nose',
-            'Rinto Harahap', 'Riska Amalia', 'Rizki Febian', 'Sabrina Chairunnisa', 'Sandiaga Salahuddin',
-            'Sarah Sechan', 'Satria Tama', 'Setya Novanto', 'Sinta Nuriyah', 'Siti Badriah',
-            'Siti Nurhaliza', 'Sulaiman Syah', 'Syahrul Gunawan', 'Tania Putri', 'Taufik Hidayat',
-            'Tegar Septian', 'Tiara Andini', 'Tri Handoko', 'Ujang Koswara', 'Vina Panduwinata',
-            'Wahyu Hidayat', 'Wawan Setiawan', 'Wisnu Wardhana', 'Yanto Basna', 'Yusuf Mansur',
+        $firstNames = [
+            'Aditya', 'Ahmad', 'Aisyah', 'Alif', 'Amanda', 'Andika', 'Anisa', 'Arif', 'Arya', 'Bagas',
+            'Bima', 'Budi', 'Cahya', 'Cantika', 'Citra', 'Danu', 'Dedi', 'Dewi', 'Dian', 'Diki',
+            'Dimas', 'Dwi', 'Eka', 'Elsa', 'Fajar', 'Faisal', 'Farhan', 'Fatimah', 'Febrianto', 'Firman',
+            'Galih', 'Gilang', 'Gita', 'Habibie', 'Hafiz', 'Hana', 'Hendra', 'Hesti', 'Ilham', 'Indah',
+            'Intan', 'Irfan', 'Joko', 'Jonathan', 'Kartika', 'Kevin', 'Laila', 'Latifah', 'Lukman', 'M. Rizki',
+            'Maya', 'Mega', 'Melati', 'Mochamad', 'Muhammad', 'Nabila', 'Nadya', 'Naufal', 'Nia', 'Nova',
+            'Nurul', 'Oktavia', 'Panji', 'Praditya', 'Pratama', 'Putri', 'Qori', 'Raditya', 'Rafli', 'Rahmawati',
+            'Raihan', 'Rendi', 'Reza', 'Rian', 'Rina', 'Rinto', 'Riska', 'Rizki', 'Sabrina', 'Sandiaga',
+            'Sarah', 'Satria', 'Setya', 'Sinta', 'Siti', 'Sulaiman', 'Syahrul', 'Tania', 'Taufik', 'Tegar',
+            'Tiara', 'Tri', 'Ujang', 'Vina', 'Wahyu', 'Wawan', 'Wisnu', 'Yanto', 'Yusuf', 'Zahra', 'Zulham'
+        ];
+
+        $lastNames = [
+            'Pratama', 'Fauzi', 'Putri', 'Ramadan', 'Rahmawati', 'Saputra', 'Fitriani', 'Hidayat', 'Kurniawan', 'Prasetya',
+            'Santoso', 'Wulandari', 'Dewi', 'Lestari', 'Wicaksono', 'Irawan', 'Sartika', 'Anggraini', 'Wahyudi', 'Anggara',
+            'Cahyono', 'Safitri', 'Nugraha', 'Rahman', 'Maulana', 'Azzahra', 'Permana', 'Ramadhan', 'Gutawa', 'Al-Ghifari',
+            'Pertiwi', 'Wijaya', 'Purwanti', 'Akbar', 'Permatasari', 'Nuraini', 'Hakim', 'Prasetyo', 'Sari', 'Sanjaya',
+            'Majnun', 'Hanum', 'Fadillah', 'Indriyani', 'Silviana', 'Kusuma', 'Al-Fatih', 'Syakieb', 'Hutagalung', 'Azhar',
+            'Daniati', 'Riyanti', 'Hidayati', 'Rahayu', 'Petualang', 'Handayani', 'Dika', 'Ahmad', 'Kusuma', 'Pangalila',
+            'Rahadian', 'Firmansyah', 'Nose', 'Harahap', 'Amalia', 'Febian', 'Chairunnisa', 'Salahuddin', 'Sechan', 'Tama',
+            'Novanto', 'Nuriyah', 'Badriah', 'Nurhaliza', 'Syah', 'Gunawan', 'Andini', 'Handoko', 'Koswara', 'Panduwinata',
+            'Setiawan', 'Wardhana', 'Basna', 'Mansur'
         ];
 
         $campuses = [
@@ -161,140 +171,121 @@ class DummyPendaftarSeeder extends Seeder
             'D3 Teknik Komputer Jaringan',
         ];
 
-        $recordsSummary = [];
+        $totalPendaftar = count($targets);
+        $this->command->info("Membuat {$totalPendaftar} data pendaftar (Diskominfo: 55, lainnya maksimal 48)...");
 
-        for ($i = 1; $i <= 100; $i++) {
-            $idx = $i - 1;
-            $nama = $names[$idx] ?? ('Peserta Lentera ' . $i);
-            $targetDinas = $targets[$idx];
+        DB::beginTransaction();
+        try {
+            for ($i = 1; $i <= $totalPendaftar; $i++) {
+                $idx = $i - 1;
+                $targetDinas = $targets[$idx];
 
-            $emailNum = sprintf('%03d', $i);
-            $username = 'peserta' . $emailNum;
-            $email = 'peserta' . $emailNum . '@lentera.test';
-            $campus = $campuses[array_rand($campuses)];
-            $major = $majors[array_rand($majors)];
+                // Nama acak yang alami
+                $fName = $firstNames[array_rand($firstNames)];
+                $lName = $lastNames[array_rand($lastNames)];
+                $nama = "{$fName} {$lName}";
 
-            // Status pembagian realistis:
-            if ($i <= 30) {
-                if ($i <= 18) {
-                    $statusKbKode = 'menunggu_verifikasi';
-                    $statusMagang = 'menunggu';
-                    $statusTeks = 'Menunggu Verifikasi';
-                } elseif ($i <= 26) {
-                    $statusKbKode = 'disetujui';
+                $emailNum = sprintf('%04d', $i);
+                $username = 'pendaftar_' . $emailNum;
+                $email = 'pendaftar_' . $emailNum . '@lentera.test';
+                $campus = $campuses[array_rand($campuses)];
+                $major = $majors[array_rand($majors)];
+
+                // Tentukan status kelulusan (sekitar 70% diterima/disetujui, 30% proses/lainnya)
+                $isAccepted = (rand(1, 100) <= 70);
+                if ($isAccepted) {
+                    $statusObj = $statusApproved->isNotEmpty() ? $statusApproved->random() : $defaultStatus;
                     $statusMagang = 'diterima';
-                    $statusTeks = 'Diterima / Aktif';
-                } elseif ($i <= 28) {
-                    $statusKbKode = 'perlu_revisi';
-                    $statusMagang = 'menunggu';
-                    $statusTeks = 'Perlu Revisi Berkas';
+                    $role = 'peserta';
                 } else {
-                    $statusKbKode = 'selesai';
-                    $statusMagang = 'diterima';
-                    $statusTeks = 'Selesai Magang';
-                }
-            } else {
-                $randVal = $i % 10;
-                if ($randVal < 7) {
-                    $statusKbKode = 'menunggu_verifikasi';
+                    $statusObj = $statusPending->isNotEmpty() ? $statusPending->random() : $defaultStatus;
                     $statusMagang = 'menunggu';
-                    $statusTeks = 'Menunggu Verifikasi';
-                } elseif ($randVal < 9) {
-                    $statusKbKode = 'disetujui';
-                    $statusMagang = 'diterima';
-                    $statusTeks = 'Diterima / Aktif';
-                } else {
-                    $statusKbKode = 'perlu_revisi';
-                    $statusMagang = 'menunggu';
-                    $statusTeks = 'Perlu Revisi Berkas';
+                    $role = 'user';
                 }
-            }
 
-            $statusMaster = StatusMaster::where('kode', $statusKbKode)->first()
-                ?? StatusMaster::find(3);
-
-            // Tentukan bidang penempatan jika statusnya diterima
-            $bidangPenempatan = null;
-            if ($statusMagang === 'diterima') {
-                $targetBidangs = $targetDinas->bidang;
-                if ($targetBidangs->isNotEmpty()) {
-                    $bidangPenempatan = $targetBidangs->random();
+                // Pilih bidang jika diterima
+                $bidangPenempatan = null;
+                if ($isAccepted && $targetDinas->bidang->isNotEmpty()) {
+                    $bidangPenempatan = $targetDinas->bidang->random();
                 }
-            }
 
-            // Ambil Rekrutmen yang cocok
-            $rekrutmen = null;
-            if ($bidangPenempatan) {
-                $rekrutmen = Rekrutmen::where('dinas_id', $targetDinas->id)
-                    ->where('bidang_id', $bidangPenempatan->id)
-                    ->where('is_active', true)
-                    ->first();
-            }
-            if (!$rekrutmen) {
+                // Ambil rekrutmen dinas
                 $rekrutmen = Rekrutmen::where('dinas_id', $targetDinas->id)
                     ->where('is_active', true)
                     ->first();
-            }
 
-            // 1. Buat / Update User
-            $user = User::updateOrCreate(
-                ['email' => $email],
-                [
+                // Pilih jenis layanan secara bervariasi
+                $jenisLayananItem = $allJenisLayanan->random();
+
+                // Tentukan tanggal pendaftaran (created_at)
+                // 90% pendaftaran dibuat pada tahun 2026 (Januari s.d. Oktober 2026)
+                // 10% pendaftaran pada tahun 2025
+                if ($targetDinas->id === $diskominfo->id || rand(1, 10) <= 9) {
+                    $month = rand(1, 10);
+                    $day = rand(1, 28);
+                    $hour = rand(8, 16);
+                    $minute = rand(0, 59);
+                    $createdAt = Carbon::create(2026, $month, $day, $hour, $minute, 0);
+                } else {
+                    $month = rand(1, 12);
+                    $day = rand(1, 28);
+                    $hour = rand(8, 16);
+                    $minute = rand(0, 59);
+                    $createdAt = Carbon::create(2025, $month, $day, $hour, $minute, 0);
+                }
+
+                // 1. Buat User
+                $user = User::create([
                     'username' => $username,
+                    'email' => $email,
                     'name' => $nama,
                     'password' => $defaultPassword,
-                    'role' => ($statusMagang === 'diterima') ? 'peserta' : 'user',
+                    'role' => $role,
                     'dinas_id' => $targetDinas->id,
                     'bidang_id' => $bidangPenempatan?->id,
                     'status_akun' => 'aktif',
-                    'email_verified_at' => now(),
+                    'email_verified_at' => $createdAt,
                     'asal_instansi' => $campus,
                     'program_studi' => $major,
                     'nim' => '2024' . sprintf('%06d', $i),
                     'nik' => '320101' . sprintf('%010d', 1000000000 + $i),
-                    'no_hp' => '0812' . rand(1000, 9999) . sprintf('%04d', $i),
+                    'no_hp' => '0812' . rand(1000, 9999) . sprintf('%04d', $i % 10000),
                     'tempat_lahir' => 'Bogor',
                     'tanggal_lahir' => '2003-05-15',
                     'alamat' => 'Jl. Tegar Beriman No. ' . $i . ', Cibinong, Kab. Bogor',
-                    'tanggal_mulai_magang' => now()->subDays(rand(1, 10))->toDateString(),
-                    'tanggal_selesai_magang' => now()->addMonths(3)->toDateString(),
-                ]
-            );
+                    'tanggal_mulai_magang' => $createdAt->copy()->addDays(rand(1, 10))->toDateString(),
+                    'tanggal_selesai_magang' => $createdAt->copy()->addMonths(3)->toDateString(),
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
 
-            // 2. Buat Permohonan Layanan
-            $permohonan = PermohonanLayanan::updateOrCreate(
-                [
+                // 2. Buat PermohonanLayanan
+                $permohonan = PermohonanLayanan::create([
                     'user_id' => $user->id,
                     'dinas_id' => $targetDinas->id,
-                ],
-                [
-                    'jenis_layanan_id' => $jenisLayanan->id,
-                    'status_master_id' => $statusMaster->id,
+                    'jenis_layanan_id' => $jenisLayananItem->id,
+                    'status_master_id' => $statusObj->id,
                     'jenis_permohonan' => 'Individu',
                     'atas_nama' => $user->name,
                     'no_hp' => $user->no_hp,
                     'asal_instansi' => $user->asal_instansi,
-                    'judul_kegiatan' => 'Praktik Kerja Lapangan / Magang Mandiri Mahasiswa pada ' . $targetDinas->name,
+                    'judul_kegiatan' => 'Permohonan Layanan ' . $jenisLayananItem->nama . ' pada ' . $targetDinas->name,
                     'tempat_kegiatan' => $targetDinas->name,
-                    'tanggal_mulai' => now()->addDays(rand(1, 14))->toDateString(),
-                    'tanggal_selesai' => now()->addMonths(3)->toDateString(),
-                    'keterangan' => ($statusKbKode === 'perlu_revisi')
-                        ? 'Mohon unggah kembali Surat Pengantar dari Kampus yang dibubuhi stempel basah/TTE.'
-                        : 'Permohonan Magang atas nama ' . $user->name,
+                    'tanggal_mulai' => $user->tanggal_mulai_magang,
+                    'tanggal_selesai' => $user->tanggal_selesai_magang,
+                    'keterangan' => 'Pengajuan berkas atas nama ' . $user->name,
                     'file_ktp' => 'permohonan/dummy_ktp.pdf',
                     'file_ktm' => 'permohonan/dummy_ktm.pdf',
                     'file_surat_pengantar' => 'permohonan/dummy_surat_pengantar.pdf',
                     'file_proposal' => 'permohonan/dummy_proposal.pdf',
-                ]
-            );
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
 
-            // 3. Buat MagangApplication
-            MagangApplication::updateOrCreate(
-                [
+                // 3. Buat MagangApplication
+                MagangApplication::create([
                     'user_id' => $user->id,
                     'permohonan_layanan_id' => $permohonan->id,
-                ],
-                [
                     'dinas_id' => $targetDinas->id,
                     'rekrutmen_id' => $rekrutmen?->id,
                     'bidang_id' => $bidangPenempatan?->id,
@@ -302,47 +293,22 @@ class DummyPendaftarSeeder extends Seeder
                     'pesan_lamaran' => $permohonan->judul_kegiatan,
                     'tanggal_mulai' => $permohonan->tanggal_mulai,
                     'tanggal_selesai' => $permohonan->tanggal_selesai,
-                    'berlaku_sampai' => now()->addDays(30)->toDateString(),
-                    'expired_at' => now()->addDays(30),
+                    'berlaku_sampai' => $createdAt->copy()->addDays(30)->toDateString(),
+                    'expired_at' => $createdAt->copy()->addDays(30),
                     'jumlah_orang' => 1,
-                    'catatan_admin' => ($statusMagang === 'diterima')
-                        ? 'Selamat, Anda ditempatkan pada ' . ($bidangPenempatan?->name ?? 'Bidang Terkait') . '.'
-                        : (($statusKbKode === 'perlu_revisi') ? 'Harap revisi surat pengantar.' : null),
-                ]
-            );
+                    'catatan_admin' => $isAccepted
+                        ? 'Diterima pada ' . ($bidangPenempatan?->name ?? 'Bidang Terkait') . '.'
+                        : null,
+                    'created_at' => $createdAt,
+                    'updated_at' => $createdAt,
+                ]);
+            }
 
-            $recordsSummary[] = [
-                'no' => $i,
-                'nama' => $user->name,
-                'email' => $user->email,
-                'username' => $user->username,
-                'password' => 'password123',
-                'kampus' => $user->asal_instansi,
-                'instansi_tujuan' => $targetDinas->name,
-                'bidang' => $bidangPenempatan?->name ?? '-',
-                'status' => $statusTeks,
-            ];
+            DB::commit();
+            $this->command->info("Selesai! Berhasil membuat {$totalPendaftar} data pendaftar. Diskominfo: 55 data (terbanyak), dinas lain maksimal 48 data.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $this->command->error("Gagal melakukan seeding: " . $e->getMessage());
         }
-
-        // Tulis rangkuman 100 akun ke file Markdown
-        $mdContent = "# DAFTAR 100 AKUN PENDAFTAR LOKAL LENTERA KAB. BOGOR\n\n";
-        $mdContent .= "**Password semua akun:** `password123`\n\n";
-        $mdContent .= "### Ringkasan Pendaftaran:\n";
-        $mdContent .= "- **Total Akun:** 100 Akun\n";
-        $mdContent .= "- **Peringkat 1 (Terbanyak):** Diskominfo (30 Pendaftar)\n";
-        $mdContent .= "- **Peringkat 2:** BPKAD (4 Pendaftar)\n";
-        $mdContent .= "- **Peringkat 3:** Dinkes (4 Pendaftar)\n";
-        $mdContent .= "- **Peringkat 4-6:** Disdik, Bapperida, Dinsos (Masing-masing 3 pendaftar)\n";
-        $mdContent .= "- **Peringkat 7-10:** BKPSDM, Disdukcapil, Kec. Cibinong, Kec. Bojonggede (Masing-masing 2 pendaftar)\n";
-        $mdContent .= "- **Dinas & Kecamatan Lainnya:** 45 Akun (Masing-masing 1 pendaftar)\n\n";
-        $mdContent .= "| No | Nama Lengkap | Email (Login) | Username | Password | Instansi Tujuan | Bidang Penempatan | Status Pengajuan |\n";
-        $mdContent .= "|---|---|---|---|---|---|---|---|\n";
-
-        foreach ($recordsSummary as $r) {
-            $mdContent .= "| {$r['no']} | {$r['nama']} | `{$r['email']}` | `{$r['username']}` | `password123` | {$r['instansi_tujuan']} | {$r['bidang']} | **{$r['status']}** |\n";
-        }
-
-        File::put(base_path('DAFTAR_100_AKUN.md'), $mdContent);
-        $this->command->info("Berhasil membuat 100 akun pemohon dan menyimpan daftar ke DAFTAR_100_AKUN.md");
     }
 }
