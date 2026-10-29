@@ -599,7 +599,8 @@ class LayananController extends Controller
 
         $qrUrl = route('surat.verifikasi', $surat->verification_token);
 
-        $pdf = Pdf::loadView('pdf.surat_kesbangpol', compact('layanan', 'qrUrl'))
+        $htmlContent = \App\Services\SuratTemplateService::renderHtml($layanan);
+        $pdf = Pdf::loadHTML($htmlContent)
             ->setPaper('a4', 'portrait');
 
         $fileName = 'Draf_Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . \Illuminate\Support\Str::slug($layanan->atas_nama ?? 'pemohon') . '.pdf';

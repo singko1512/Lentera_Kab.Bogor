@@ -24,8 +24,30 @@ class SecurityHeadersMiddleware
         // Header keamanan tambahan standar OWASP & Acunetix
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('X-XSS-Protection', '1; mode=block');
+        // X-XSS-Protection diset ke '0' sesuai rekomendasi OWASP & peramban modern (Chrome, Firefox)
+        // karena legacy auditor '1; mode=block' sudah deprecated dan dapat memicu celah di browser lama.
+        // Mitigasi XSS modern sepenuhnya dikelola oleh Content-Security-Policy (CSP) di bawah.
+        $response->headers->set('X-XSS-Protection', '0');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        // Content Security Policy (CSP) untuk mitigasi XSS & data injection
+        $csp = "default-src 'self'; " .
+               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
+               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
+               "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; " .
+               "img-src 'self' data: blob: https:; " .
+               "connect-src 'self' https://nominatim.openstreetmap.org https://*.openstreetmap.org; " .
+               "frame-src 'self' https://www.google.com; " .
+               "frame-ancestors 'self'; " .
+               "object-src 'none'; " .
+               "base-uri 'self';";
+        $response->headers->set('Content-Security-Policy', $csp);
+
+        // Permissions-Policy untuk mengontrol akses fitur sensitif browser
+        // Kamera dan Geolocation diizinkan untuk origin sendiri (self) untuk kebutuhan absensi selfie & lokasi GPS
+        // Fitur yang tidak dipakai (microphone, payment, usb, sensor) dimatikan total ()
+        $permissionsPolicy = "camera=(self), geolocation=(self), microphone=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=()";
+        $response->headers->set('Permissions-Policy', $permissionsPolicy);
 
         return $response;
     }

@@ -1676,7 +1676,7 @@
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-container">
 @forelse($featuredInstansis as $instansi)
-<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->id) }}">
+<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->hashid) }}">
 <div class="flex justify-between items-start mb-4">
   <div class="w-16 h-16 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
     <span class="material-symbols-outlined text-[32px] text-primary group-hover:scale-110 transition-transform">

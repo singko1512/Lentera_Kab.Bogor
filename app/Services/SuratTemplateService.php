@@ -3,18 +3,42 @@
 namespace App\Services;
 
 use App\Models\PermohonanLayanan;
+use App\Models\TemplateSurat;
+use App\Models\SuratRekomendasi;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ZipArchive;
 
 class SuratTemplateService
 {
     /**
-     * Dapatkan file template DOCX dari root folder template_surat berdasarkan jenis layanan permohonan.
+     * Dapatkan file template DOCX dari database template_surats (atau fallback ke direktori filesystem).
      */
     public static function getTemplateFile(PermohonanLayanan $layanan): string
     {
         $slug = $layanan->jenisLayanan->slug ?? '';
+
+        // 1. Cari template dari database template_surats
+        $dbTemplate = null;
+        if (!empty($layanan->jenis_layanan_id)) {
+            $dbTemplate = TemplateSurat::where('jenis_layanan_id', $layanan->jenis_layanan_id)
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if (!$dbTemplate && !empty($slug)) {
+            $dbTemplate = TemplateSurat::where('slug', $slug)
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if ($dbTemplate && file_exists($dbTemplate->absolute_path)) {
+            return $dbTemplate->absolute_path;
+        }
+
+        // 2. Fallback jika belum tersinkronisasi di database
         $baseDir = base_path('template_surat');
 
         return match ($slug) {
@@ -30,9 +54,118 @@ class SuratTemplateService
     }
 
     /**
+     * Render string HTML surat dari database template_surats (bebas ketergantungan file docx).
+     */
+    public static function renderHtml(PermohonanLayanan $layanan, ?TemplateSurat $template = null): string
+    {
+        $slug = $layanan->jenisLayanan->slug ?? 'kkl_mahasiswa';
+        if (!$template) {
+            $template = TemplateSurat::where('jenis_layanan_id', $layanan->jenis_layanan_id)
+                ->orWhere('slug', $slug)
+                ->first();
+        }
+
+        $data = self::prepareTemplateData($layanan, $template);
+
+        if ($template && !empty($template->konten_html)) {
+            try {
+                return \Illuminate\Support\Facades\Blade::render($template->konten_html, $data);
+            } catch (\Throwable $e) {
+                Log::warning("Gagal render Blade string dari database template_surats: " . $e->getMessage());
+            }
+        }
+
+        // Fallback ke blade template jika database template kosong
+        return view('pdf.surat_kesbangpol', array_merge($data, [
+            'layanan' => $layanan,
+            'qrUrl' => route('surat.pdf', $layanan->id)
+        ]))->render();
+    }
+
+    /**
+     * Buat otomatis file draf (PDF dan DOCX) langsung saat pemohon mengajukan formulir.
+     * Tidak terpaku pada file docs; PDF dibuat langsung dari struktur HTML di database.
+     */
+    public static function generateInitialFiles(PermohonanLayanan $layanan): array
+    {
+        // 1. Pastikan record SuratRekomendasi terbuat
+        $surat = $layanan->suratRekomendasi;
+        $dbTemplate = TemplateSurat::where('jenis_layanan_id', $layanan->jenis_layanan_id)
+            ->orWhere('slug', $layanan->jenisLayanan->slug ?? '')
+            ->first();
+
+        $prefix = $dbTemplate->nomor_prefix ?? '000.9.2 / ';
+        $nomorAwal = trim($prefix) . ' ' . $layanan->id . ' - Wasnas';
+
+        if (!$surat) {
+            $surat = SuratRekomendasi::create([
+                'permohonan_layanan_id' => $layanan->id,
+                'nomor_surat' => $nomorAwal,
+                'tanggal_surat' => now(),
+                'sifat_surat' => $dbTemplate->sifat_surat ?? 'Biasa',
+                'lampiran_surat' => $dbTemplate->lampiran_surat ?? '-',
+                'pejabat_nama' => $dbTemplate->pejabat_nama ?? 'Drs. BAMBANG WIDJANARKO, M.Si',
+                'pejabat_nip' => $dbTemplate->pejabat_nip ?? '19680512 199303 1 008',
+                'pejabat_pangkat' => $dbTemplate->pejabat_pangkat ?? 'Pembina Utama Muda (IV/c)',
+                'pejabat_jabatan' => $dbTemplate->pejabat_jabatan ?? 'Kepala Badan Kesatuan Bangsa dan Politik Kabupaten Bogor',
+                'verification_token' => Str::random(40),
+            ]);
+            $layanan->setRelation('suratRekomendasi', $surat);
+        } elseif (empty($surat->verification_token)) {
+            $surat->update(['verification_token' => Str::random(40)]);
+        }
+
+        $outputDir = storage_path('app/public/permohonan/keluaran');
+        if (!file_exists($outputDir)) {
+            mkdir($outputDir, 0755, true);
+        }
+
+        $slugPemohon = Str::slug($layanan->atas_nama ?: ($layanan->user->name ?? 'pemohon'));
+        $baseFileName = 'Surat_Rekomendasi_Kesbangpol_' . $layanan->id . '_' . $slugPemohon;
+
+        $results = ['pdf' => null, 'docx' => null];
+
+        // 2. Generate PDF Draf Otomatis langsung dari template HTML kodingan di database
+        try {
+            $pdfFileName = $baseFileName . '.pdf';
+            $relativePdfPath = 'permohonan/keluaran/' . $pdfFileName;
+            $outputPdfPath = storage_path('app/public/' . $relativePdfPath);
+
+            $htmlContent = self::renderHtml($layanan, $dbTemplate);
+            $pdf = Pdf::loadHTML($htmlContent)->setPaper('a4', 'portrait');
+            $pdf->save($outputPdfPath);
+
+            $layanan->file_surat_keluaran = $relativePdfPath;
+            $results['pdf'] = $relativePdfPath;
+        } catch (\Throwable $e) {
+            Log::error("Gagal generate draf PDF saat pengajuan #{$layanan->id}: " . $e->getMessage());
+        }
+
+        // 3. Generate DOCX Draf (opsional/arsip tambahan, tidak blocking jika template fisik tidak ada)
+        try {
+            $docxFileName = $baseFileName . '.docx';
+            $relativeDocxPath = 'permohonan/keluaran/' . $docxFileName;
+            $outputDocxPath = storage_path('app/public/' . $relativeDocxPath);
+
+            self::generateDocx($layanan, $outputDocxPath);
+            $results['docx'] = $relativeDocxPath;
+        } catch (\Throwable $e) {
+            // DOCX adalah opsional sehingga kegagalan tidak membatalkan pengajuan
+            Log::info("DOCX draf dilewati atau gagal: " . $e->getMessage());
+        }
+
+        $layanan->save();
+
+        return $results;
+    }
+
+    /**
      * Ekstraksi dan format data permohonan agar sesuai dengan field template surat.
      */
-    public static function prepareTemplateData(PermohonanLayanan $layanan): array
+    /**
+     * Ekstraksi dan format data permohonan agar sesuai dengan field template surat (HTML dan DOCX).
+     */
+    public static function prepareTemplateData(PermohonanLayanan $layanan, ?TemplateSurat $dbTemplate = null): array
     {
         $tglSurat = Carbon::parse($layanan->updated_at ?? now())->translatedFormat('d F Y');
         $tglAsal = Carbon::parse($layanan->created_at ?? now())->translatedFormat('d F Y');
@@ -40,19 +173,39 @@ class SuratTemplateService
         $tglSelesai = Carbon::parse($layanan->tanggal_selesai ?? now())->translatedFormat('d F Y');
 
         $slug = $layanan->jenisLayanan->slug ?? '';
+        if (!$dbTemplate) {
+            $dbTemplate = TemplateSurat::where('jenis_layanan_id', $layanan->jenis_layanan_id)
+                ->orWhere('slug', $slug)
+                ->first();
+        }
+
+        $prefixNomor = $dbTemplate->nomor_prefix ?? (match($slug) {
+            'penelitian_pt', 'penelitian_instansi', 'kkn_mahasiswa' => '000.9.2 / ',
+            'pelaksanaan_kegiatan' => '000.6.9.3 / ',
+            default => '400.14.5.4 / ',
+        });
 
         $surat = $layanan->suratRekomendasi;
         if ($surat && !empty($surat->nomor_surat)) {
             $rawNomor = trim($surat->nomor_surat);
-            // Hapus prefix jika sudah ada di database agar tidak ganda saat digabung prefix template
-            $cleanNomor = preg_replace('/^(?:000\.9\.2|400\.14\.5\.4|000\.6\.9\.3)\s*\/\s*/i', '', $rawNomor);
-            if (!str_contains(strtolower($cleanNomor), 'wasnas')) {
-                $cleanNomor .= ' - Wasnas';
+            if (preg_match('/^(?:000\.9\.2|400\.14\.5\.4|000\.6\.9\.3)\s*\//i', $rawNomor)) {
+                $nomorSurat = $rawNomor;
+            } else {
+                $nomorSurat = $prefixNomor . $rawNomor;
             }
-            $nomorSurat = $cleanNomor;
+            if (!str_contains(strtolower($nomorSurat), 'wasnas')) {
+                $nomorSurat .= ' - Wasnas';
+            }
         } else {
-            $nomorSurat = $layanan->id . ' - Wasnas';
+            $nomorSurat = $prefixNomor . $layanan->id . ' - Wasnas';
         }
+
+        $halSurat = $dbTemplate->perihal ?? match($slug) {
+            'penelitian_pt', 'penelitian_instansi' => 'Rekomendasi Surat Izin Penelitian',
+            'kkn_mahasiswa' => 'Rekomendasi Kuliah Kerja Nyata (KKN)',
+            'pelaksanaan_kegiatan' => 'Rekomendasi Pelaksanaan Kegiatan',
+            default => 'Rekomendasi Praktik Kerja Lapangan (PKL)',
+        };
 
         $dinasNameRaw = $layanan->tempat_kegiatan ?: ($layanan->dinas->name ?? 'Dinas Komunikasi dan Informatika');
         $dinasFormatted = ucwords(strtolower(trim($dinasNameRaw)));
@@ -104,7 +257,7 @@ class SuratTemplateService
         $jumlahAnggota = count($namaList) > 1 ? count($namaList) : ($layanan->jumlah_anggota ?? 1);
         $terbilangMap = [1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima', 6 => 'Enam', 7 => 'Tujuh', 8 => 'Delapan', 9 => 'Sembilan', 10 => 'Sepuluh'];
         $terbilang = $terbilangMap[$jumlahAnggota] ?? (string) $jumlahAnggota;
-        $jumlahPeserta = $jumlahAnggota . ' (' . $terbilang . ') Orang';
+        $jumlahPesertaFormatted = $jumlahAnggota . ' (' . $terbilang . ') Orang';
 
         $alamat = $layanan->user->alamat ?? ($layanan->alamat ?? 'Kabupaten Bogor');
         $penanggungJawab = $layanan->user->pembimbing_magang ?: ($layanan->atas_nama ?: ($layanan->user->name ?? '-'));
@@ -125,7 +278,66 @@ class SuratTemplateService
             $tempatKegiatan .= ' Kabupaten Bogor';
         }
 
+        // Logo Kabupaten Bogor Base64
+        $logoPath = public_path('assets/certificate/lambang_kabupaten_bogor.png');
+        if (!file_exists($logoPath)) {
+            $logoPath = public_path('assets/images/logo_bakesbangpol_2026.png');
+        }
+        $logoBase64 = '';
+        if (file_exists($logoPath)) {
+            $logoBase64 = 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath));
+        }
+
+        $dasarHukum = $dbTemplate->dasar_hukum ?? [
+            'Peraturan Menteri Dalam Negeri Republik Indonesia Nomor 3 Tahun 2018 tentang Penerbitan Surat Keterangan Penelitian;',
+            'Peraturan Bupati Bogor Nomor 56 Tahun 2020 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi, serta Tata Kerja Badan Kesatuan Bangsa dan Politik sebagaimana telah diubah dengan Peraturan Bupati Bogor Nomor 27 Tahun 2022 tentang Kedudukan, Susunan Organisasi, Tugas dan Fungsi serta Tata Kerja Badan Kesatuan Bangsa dan Politik;',
+            'Peraturan Bupati Bogor Nomor 65 Tahun 2023 tentang Sistem Kerja Aparatur Sipil Negara Untuk Penyederhanaan Birokrasi Di Lingkungan Pemerintah Daerah.'
+        ];
+
+        $ketentuanList = $dbTemplate->ketentuan ?? [
+            'Mentaati ketentuan peraturan perundang-undangan;',
+            'Ikut menjaga situasi, stabilitas kerukunan, ketentraman dan ketertiban di lokasi PKL/Magang;',
+            'Berkoordinasi dan mengikuti petunjuk dan arahan dari Pimpinan Instansi tempat pelaksanaan PKL/Magang;',
+            'Mematuhi aturan dan jam kerja yang berlaku di lokasi PKL/Magang;',
+            'Tidak diperkenankan melaksanakan kegiatan di luar ketentuan yang ditetapkan di atas.'
+        ];
+
+        $tembusanList = $dbTemplate->tembusan ?? [
+            'Yth. Bupati Bogor;',
+            'Yth. Wakil Bupati Bogor;',
+            'Yth. Sekretaris Daerah Kabupaten Bogor;',
+            'Yth. ' . $pimpinanAsal . '.'
+        ];
+
         return [
+            // Variabel Format CamelCase (untuk Blade HTML Template)
+            'tglSurat' => $tglSurat,
+            'nomorSurat' => $nomorSurat,
+            'sifatSurat' => $dbTemplate->sifat_surat ?? 'Penting',
+            'lampiranSurat' => $dbTemplate->lampiran_surat ?? '-',
+            'halSurat' => $halSurat,
+            'tujuanSurat' => $tujuanSurat,
+            'tempatTujuan' => $tempatTujuan,
+            'dasarHukum' => $dasarHukum,
+            'asalInstansi' => $asalInstansi,
+            'nomorAsal' => $nomorAsal,
+            'tglAsal' => $tglAsal,
+            'perihalSurat' => $perihalSurat,
+            'namaList' => $namaList,
+            'namaFormatted' => $namaFormatted,
+            'alamatPemohon' => $alamat,
+            'judulKegiatan' => $layanan->judul_kegiatan ?: $jenisLayananNama,
+            'penanggungJawab' => $penanggungJawab,
+            'jumlahPesertaFormatted' => $jumlahPesertaFormatted,
+            'tglMulai' => $tglMulai,
+            'tglSelesai' => $tglSelesai,
+            'tempatKegiatan' => $tempatKegiatan,
+            'ketentuanList' => $ketentuanList,
+            'tembusanList' => $tembusanList,
+            'logoBase64' => $logoBase64,
+            'layanan' => $layanan,
+
+            // Variabel Format SnakeCase (kompatibilitas template docx & blade)
             'tanggal_surat' => $tglSurat,
             'nomor_surat' => $nomorSurat,
             'tujuan_surat' => $tujuanSurat,
@@ -134,7 +346,7 @@ class SuratTemplateService
             'nama' => $namaFormatted,
             'alamat' => $alamat,
             'penanggung_jawab' => $penanggungJawab,
-            'jumlah_peserta' => $jumlahPeserta,
+            'jumlah_peserta' => $jumlahPesertaFormatted,
             'waktu' => $tglMulai . ' s.d ' . $tglSelesai,
             'tempat' => $tempatKegiatan,
             'judul' => $layanan->judul_kegiatan ?: $jenisLayananNama,
@@ -306,7 +518,13 @@ class SuratTemplateService
                 $newP = self::emptyP($oldP);
             } else {
                 $val = $data[$m['field']] ?? '';
-                $text = (!empty($m['prefix']) ? $m['prefix'] : '') . $val;
+                $prefix = !empty($m['prefix']) ? $m['prefix'] : '';
+                // Mencegah duplikasi jika teks/nomor surat sudah mengandung prefix
+                if (!empty($prefix) && (str_starts_with(trim($val), trim($prefix)) || str_contains($val, trim($prefix)))) {
+                    $text = $val;
+                } else {
+                    $text = $prefix . $val;
+                }
                 $newP = self::replaceP($oldP, $text, !empty($m['bold']));
             }
             $xml = str_replace($oldP, $newP, $xml);

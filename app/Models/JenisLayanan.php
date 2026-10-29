@@ -22,4 +22,9 @@ class JenisLayanan extends Model
     {
         return $this->hasMany(PermohonanLayanan::class);
     }
+
+    public function templateSurat()
+    {
+        return $this->hasOne(TemplateSurat::class, 'jenis_layanan_id');
+    }
 }

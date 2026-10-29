@@ -1159,7 +1159,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Geofencing for WFO (Hadir)
-                if (statusVal === 'hadir') {
+                // Geofencing radius Diskominfo dinonaktifkan sementara agar fleksibel di seluruh instansi
+                if (false && statusVal === 'hadir') {
                     const OFFICE_LAT = -6.4829;
                     const OFFICE_LNG = 106.8285;
                     const MAX_RADIUS = 100; // in meters

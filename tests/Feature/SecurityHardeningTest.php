@@ -249,4 +249,100 @@ class SecurityHardeningTest extends TestCase
 
         $response->assertSessionHas('error', 'Tautan reset password telah kadaluarsa (lebih dari 60 menit). Silakan ajukan ulang.');
     }
+    public function test_instansi_detail_route_blocks_sql_injection_payloads(): void
+    {
+        $dinas = Dinas::create([
+            'nama' => 'Dinas Komunikasi dan Informatika',
+            'status_magang' => 'tersedia',
+            'is_kesbangpol' => false,
+        ]);
+
+        // Encrypted non-sequential hashid renders successfully
+        $this->get('/instansi/' . $dinas->hashid)->assertStatus(200);
+
+        // Raw sequential IDs (1, 2, 3, ...) are rejected with 404 to prevent resource enumeration
+        $this->get('/instansi/' . $dinas->id)->assertStatus(404);
+        $this->get('/instansi/1')->assertStatus(404);
+        $this->get('/instansi/2')->assertStatus(404);
+
+        // SQL injection and invalid payloads must be rejected with 404
+        $payloads = [
+            '1 OR 1=1',
+            "1' OR '1'='1",
+            "1' UNION SELECT 1,2,3,4--",
+            '1; DROP TABLE users;--',
+            'abc',
+            '-1',
+            '0',
+            '1.5',
+            '1e10',
+            '<script>alert(1)</script>',
+        ];
+
+        foreach ($payloads as $payload) {
+            $response = $this->get('/instansi/' . urlencode($payload));
+            $response->assertStatus(404);
+        }
+    }
+    public function test_daftar_peserta_blocks_time_based_blind_sql_injection_on_page_parameter(): void
+    {
+        // Valid page returns 200
+        $this->get('/daftar-peserta?page=1')->assertStatus(200);
+
+        // SQL injection, time-based blind payloads, and non-integer values must be immediately rejected with 404
+        $maliciousPages = [
+            '1 AND SLEEP(5)',
+            "1' OR SLEEP(5)--",
+            '(SELECT 1 FROM (SELECT(SLEEP(5)))a)',
+            '1;WAITFOR DELAY \x270:0:5\x27--',
+            '1 UNION SELECT 1,2,3--',
+            '-1',
+            '0',
+            'abc',
+            '1.5',
+            '<script>alert(1)</script>',
+        ];
+
+        foreach ($maliciousPages as $payload) {
+            $startTime = microtime(true);
+            $response = $this->get('/daftar-peserta?page=' . urlencode($payload));
+            $duration = microtime(true) - $startTime;
+
+            $response->assertStatus(404);
+            // Must return instantly without executing SLEEP
+            $this->assertLessThan(2.0, $duration, "Time-based blind payload caused significant delay: " . $payload);
+        }
+    }
+    public function test_security_headers_including_content_security_policy_are_present(): void
+    {
+        $response = $this->get('/refresh-csrf');
+        $response->assertHeader('Content-Security-Policy');
+        $response->assertHeader('Permissions-Policy');
+        $response->assertHeader('X-Content-Type-Options', 'nosniff');
+        $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $response->assertHeader('X-XSS-Protection', '0');
+        $response->assertHeader('Strict-Transport-Security');
+
+        $csp = $response->headers->get('Content-Security-Policy');
+        $this->assertStringContainsString("default-src 'self'", $csp);
+        $this->assertStringContainsString("object-src 'none'", $csp);
+        $this->assertStringContainsString("font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com", $csp);
+
+        $pp = $response->headers->get('Permissions-Policy');
+        $this->assertStringContainsString("camera=(self)", $pp);
+        $this->assertStringContainsString("geolocation=(self)", $pp);
+        $this->assertStringContainsString("microphone=()", $pp);
+        $this->assertStringContainsString("payment=()", $pp);
+    }
+
+    public function test_rate_limiting_headers_are_present_on_login_and_daftar_peserta(): void
+    {
+        $loginRes = $this->get('/login');
+        $loginRes->assertHeader('X-RateLimit-Limit');
+        $loginRes->assertHeader('X-RateLimit-Remaining');
+
+        $pesertaRes = $this->get('/daftar-peserta');
+        $pesertaRes->assertHeader('X-RateLimit-Limit');
+        $pesertaRes->assertHeader('X-RateLimit-Remaining');
+    }
 }

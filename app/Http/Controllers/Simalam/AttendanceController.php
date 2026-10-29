@@ -330,6 +330,8 @@ class AttendanceController extends Controller
             }
 
             // Validasi Geofencing untuk WFO (Hadir)
+            // Catatan: Batasan radius 100m ke kantor Diskominfo dinonaktifkan sementara agar peserta di seluruh instansi/OPD dapat absen WFO secara fleksibel
+            /*
             if ($status === 'hadir') {
                 $lat = $request->input('lokasi_latitude');
                 $lng = $request->input('lokasi_longitude');
@@ -354,6 +356,7 @@ class AttendanceController extends Controller
                     return redirect()->back()->withInput()->with('error_swal', 'Jarak Anda terlalu jauh dari kantor (' . round($distance) . ' meter). Jarak maksimal adalah 100 meter.');
                 }
             }
+            */
 
             $statusId = MasterData::idFor(MasterData::ABSENSI_STATUS, $status);
 

@@ -372,6 +372,14 @@ class LayananController extends Controller
 
             $permohonan->save();
 
+            // Otomatis langsung buat file surat (PDF dan DOCX) dari template database saat pengajuan diajukan
+            try {
+                $permohonan->loadMissing(['jenisLayanan', 'user', 'statusMaster', 'suratRekomendasi', 'dinas']);
+                \App\Services\SuratTemplateService::generateInitialFiles($permohonan);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal generate berkas surat awal saat pengajuan: ' . $e->getMessage());
+            }
+
             // OTOMATIS MEMOTONG KUOTA INSTANSI TUJUAN & MENGIRIMKAN NOTIFIKASI KE INSTANSI TUJUAN SEJAD AWAL
             if ($targetDinas && $chosenRekrutmen) {
                 $masaPengajuanHari = config('lentera.masa_berlaku_pengajuan_hari', 30);
@@ -609,6 +617,14 @@ class LayananController extends Controller
             }
             
             $permohonan->save();
+            
+            // Regenerate berkas surat draf jika pemohon memperbarui data
+            try {
+                $permohonan->loadMissing(['jenisLayanan', 'user', 'statusMaster', 'suratRekomendasi', 'dinas']);
+                \App\Services\SuratTemplateService::generateInitialFiles($permohonan);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Gagal regenerate berkas surat saat revisi: ' . $e->getMessage());
+            }
 
             // Kirim notifikasi ke admin/kesbangpol
             try {

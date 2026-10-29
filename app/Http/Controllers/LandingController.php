@@ -519,11 +519,47 @@ class LandingController extends Controller
 
     public function peserta(Request $request)
     {
+        // Validasi ketat query string untuk mitigasi SQL Injection & time-based blind injection
+        if ($request->has('page')) {
+            $rawPage = $request->query('page');
+            if (!is_numeric($rawPage) || (int) $rawPage < 1 || filter_var($rawPage, FILTER_VALIDATE_INT) === false) {
+                abort(404);
+            }
+        }
+        $page = (int) $request->query('page', 1);
+
         $search = $request->input('search');
         $instansiAsal = $request->input('instansi_asal');
+
         $dinasId = $request->input('dinas_id');
+        if ($dinasId !== null && $dinasId !== '') {
+            if (!is_numeric($dinasId) || (int) $dinasId <= 0 || filter_var($dinasId, FILTER_VALIDATE_INT) === false) {
+                abort(404);
+            }
+            $dinasId = (int) $dinasId;
+        } else {
+            $dinasId = null;
+        }
+
         $year = $request->input('year', 'all');
+        if ($year !== 'all' && $year !== null && $year !== '') {
+            if (!is_numeric($year) || (int) $year < 2000 || (int) $year > 2100 || filter_var($year, FILTER_VALIDATE_INT) === false) {
+                abort(404);
+            }
+            $year = (int) $year;
+        } else {
+            $year = 'all';
+        }
+
         $month = $request->input('month', 'all');
+        if ($month !== 'all' && $month !== null && $month !== '') {
+            if (!is_numeric($month) || (int) $month < 1 || (int) $month > 12 || filter_var($month, FILTER_VALIDATE_INT) === false) {
+                abort(404);
+            }
+            $month = (int) $month;
+        } else {
+            $month = 'all';
+        }
 
         $query = MagangApplication::with(['user', 'rekrutmen.dinas', 'rekrutmen.bidang', 'permohonanLayanan.jenisLayanan', 'dinas', 'bidang'])
             ->whereIn('status', ['diterima', 'aktif', 'selesai']);
@@ -567,7 +603,7 @@ class LandingController extends Controller
             $query->whereMonth('created_at', $month);
         }
 
-        $pesertas = $query->orderBy('updated_at', 'desc')->paginate(12)->withQueryString();
+        $pesertas = $query->orderBy('updated_at', 'desc')->paginate(12, ['*'], 'page', $page)->withQueryString();
 
         // Ambil semua tahun unik yang tersedia dari peserta magang
         $availableYears = MagangApplication::whereIn('status', ['diterima', 'aktif', 'selesai'])
@@ -633,6 +669,14 @@ class LandingController extends Controller
 
     public function instansiList(Request $request)
     {
+        if ($request->has('page')) {
+            $rawPage = $request->query('page');
+            if (!is_numeric($rawPage) || (int) $rawPage < 1 || filter_var($rawPage, FILTER_VALIDATE_INT) === false) {
+                abort(404);
+            }
+        }
+        $page = (int) $request->query('page', 1);
+
         $query = Dinas::with(['rekrutmens' => function ($q) {
             $q->where('is_active', true);
         }, 'rekrutmens.magangApplications']);
@@ -696,21 +740,27 @@ class LandingController extends Controller
             $query->orderBy('name', 'asc');
         }
 
-        $instansis = $query->paginate(40)->withQueryString();
+        $instansis = $query->paginate(40, ['*'], 'page', $page)->withQueryString();
 
         return view('pelayanan.landing.instansi', compact('instansis'));
     }
 
     public function instansiDetail($id)
     {
+        // Decode identifier terenkripsi / non-sekuensial untuk mitigasi resource enumeration & IDOR
+        $resolvedId = Dinas::decodeId($id);
+        if (!$resolvedId) {
+            abort(404);
+        }
+
         $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
             $q->where('is_active', true)->with('magangApplications');
-        }])->findOrFail($id);
+        }])->findOrFail($resolvedId);
 
-        $totalKuota = $instansi->rekrutmens->sum('kuota');
-        $slotTersedia = $instansi->rekrutmens->sum('slot_tersedia');
-        $totalDiterima = MagangApplication::whereHas('rekrutmen', function ($q) use ($id) {
-            $q->where('dinas_id', $id);
+        $totalKuota = (int) $instansi->rekrutmens->sum('kuota');
+        $slotTersedia = (int) $instansi->rekrutmens->sum('slot_tersedia');
+        $totalDiterima = (int) MagangApplication::whereHas('rekrutmen', function ($q) use ($resolvedId) {
+            $q->where('dinas_id', '=', $resolvedId);
         })->whereIn('status', ['diterima', 'aktif'])->count();
 
         return view('pelayanan.landing.instansi_detail', compact('instansi', 'totalKuota', 'totalDiterima', 'slotTersedia'));
@@ -911,6 +961,7 @@ class LandingController extends Controller
 
             $item = [
                 'id' => $dinas->id,
+                'hashid' => $dinas->hashid,
                 'name' => $nameClean,
                 'singkatan' => $singkatan,
                 'tipe' => $isKecamatan ? 'Kecamatan' : 'Perangkat Daerah',

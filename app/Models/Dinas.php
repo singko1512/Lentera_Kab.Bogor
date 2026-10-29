@@ -321,4 +321,60 @@ class Dinas extends Model
     {
         return self::formatSingkatan($this->name ?? $this->nama ?? '');
     }
+
+    /**
+     * Non-sequential encrypted identifier (Anti-enumeration / IDOR mitigation)
+     */
+    public function getHashidAttribute(): string
+    {
+        return self::encodeId($this->id);
+    }
+
+    public function getRouteKey()
+    {
+        return $this->hashid;
+    }
+
+    public static function encodeId(int|string|null $id): string
+    {
+        if (empty($id)) {
+            return '';
+        }
+        $id = (int) $id;
+        $salt = substr(hash('sha256', config('app.key', 'lentera_default_key') . '_lentera_dinas_id'), 0, 8);
+        $key = hexdec(substr(hash('sha256', $salt . '_key'), 0, 8)) & 0x7FFFFFFF;
+        $scrambled = $id ^ $key;
+        $checksum = substr(hash_hmac('sha256', (string) $id, $salt), 0, 6);
+        return dechex($scrambled) . '-' . $checksum;
+    }
+
+    public static function decodeId(?string $token): ?int
+    {
+        if (empty($token) || !str_contains($token, '-')) {
+            return null;
+        }
+
+        $parts = explode('-', $token);
+        if (count($parts) !== 2 || !ctype_xdigit($parts[0]) || !ctype_xdigit($parts[1])) {
+            return null;
+        }
+
+        $scrambled = hexdec($parts[0]);
+        $checksum = $parts[1];
+
+        $salt = substr(hash('sha256', config('app.key', 'lentera_default_key') . '_lentera_dinas_id'), 0, 8);
+        $key = hexdec(substr(hash('sha256', $salt . '_key'), 0, 8)) & 0x7FFFFFFF;
+        $id = $scrambled ^ $key;
+
+        if ($id <= 0) {
+            return null;
+        }
+
+        $expectedChecksum = substr(hash_hmac('sha256', (string) $id, $salt), 0, 6);
+        if (!hash_equals($expectedChecksum, $checksum)) {
+            return null;
+        }
+
+        return $id;
+    }
 }

@@ -246,7 +246,7 @@
 <div id="instansi-grid-container">
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 @foreach($instansis as $instansi)
-<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-ambient hover:shadow-hover hover:-translate-y-1 border border-surface-container-high hover:border-primary transition-all duration-300 relative overflow-hidden flex flex-col h-full" href="{{ route('landing.instansi_detail', $instansi->id) }}">
+<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-ambient hover:shadow-hover hover:-translate-y-1 border border-surface-container-high hover:border-primary transition-all duration-300 relative overflow-hidden flex flex-col h-full" href="{{ route('landing.instansi_detail', $instansi->hashid) }}">
 <div class="flex justify-between items-start mb-4">
   <div class="w-12 h-12 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
     <span class="material-symbols-outlined text-[28px] text-primary group-hover:scale-110 transition-transform">

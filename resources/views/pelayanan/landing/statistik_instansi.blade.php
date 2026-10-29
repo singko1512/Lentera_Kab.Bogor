@@ -561,7 +561,7 @@
                                 @endif
                             </td>
                             <td class="text-center py-3 no-print">
-                                <a href="{{ route('landing.instansi_detail', $row['id']) }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-primary/10 text-primary dark:text-blue-300 hover:bg-primary hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-colors" title="Lihat Profil Instansi">
+                                <a href="{{ route('landing.instansi_detail', $row['hashid'] ?? \App\Models\Dinas::encodeId($row['id'])) }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-primary/10 text-primary dark:text-blue-300 hover:bg-primary hover:text-white dark:hover:bg-blue-600 dark:hover:text-white transition-colors" title="Lihat Profil Instansi">
                                     <span>Detail</span>
                                     <span class="material-symbols-outlined text-[13px]">arrow_forward</span>
                                 </a>

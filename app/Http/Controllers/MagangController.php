@@ -81,14 +81,20 @@ class MagangController extends Controller
 
     public function instansiDetail($id)
     {
+        // Decode identifier terenkripsi / non-sekuensial untuk mitigasi resource enumeration & IDOR
+        $resolvedId = Dinas::decodeId($id);
+        if (!$resolvedId) {
+            abort(404);
+        }
+
         $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
             $q->where('is_active', true)->with('magangApplications');
-        }])->findOrFail($id);
+        }])->findOrFail($resolvedId);
 
-        $totalKuota = $instansi->rekrutmens->sum('kuota');
-        $slotTersedia = $instansi->rekrutmens->sum('slot_tersedia');
-        $totalDiterima = MagangApplication::whereHas('rekrutmen', function ($q) use ($id) {
-            $q->where('dinas_id', $id);
+        $totalKuota = (int) $instansi->rekrutmens->sum('kuota');
+        $slotTersedia = (int) $instansi->rekrutmens->sum('slot_tersedia');
+        $totalDiterima = (int) MagangApplication::whereHas('rekrutmen', function ($q) use ($resolvedId) {
+            $q->where('dinas_id', '=', $resolvedId);
         })->whereIn('status', ['diterima', 'aktif'])->count();
 
         return view('pelayanan.landing.instansi_detail', compact(

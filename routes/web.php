@@ -29,10 +29,10 @@ use App\Http\Controllers\AppReviewController;
 */
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/pelayanan', [LandingController::class, 'index']);
-Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->name('landing.peserta');
+Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->middleware('throttle:60,1')->name('landing.peserta');
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
 Route::get('/instansi', [LandingController::class, 'instansiList'])->name('landing.instansi');
-Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->name('landing.instansi_detail');
+Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->where('id', '[a-zA-Z0-9\-]+')->name('landing.instansi_detail');
 Route::get('/statistik-instansi', [LandingController::class, 'statistikInstansi'])->name('landing.statistik_instansi');
 Route::get('/analytics/chart-data', [LandingController::class, 'getChartData'])->name('landing.chart_data');
 Route::get('/verifikasi-surat/{token}', [LandingController::class, 'verifikasiSurat'])->name('surat.verifikasi');
@@ -67,7 +67,7 @@ Route::get('/login', function (\Illuminate\Http\Request $request) {
         'action' => url('/login'),
         'loginRole' => 'peserta'
     ]);
-})->name('login.form');
+})->middleware('throttle:30,1')->name('login.form');
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
 
