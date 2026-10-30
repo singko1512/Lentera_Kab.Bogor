@@ -1,8 +1,10 @@
 @extends('pelayanan.layouts.admin')
 
-@section('title', $activeAuthMode === 'register' ? 'Register Peserta Magang' : ($activeAuthMode === 'forgot' ? 'Lupa Password Peserta' : $title))
+@section('title', $activeAuthMode === 'register' ? 'Register Peserta' : ($activeAuthMode === 'forgot' ? 'Lupa Password Peserta' : $title))
 
 @section('styles')
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <!-- Tailwind CSS & Config for Login Redesign -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -99,7 +101,7 @@
                 Mulai Perjalanan Karir Anda Bersama Kami.
             </h1>
             <p class="text-[18px] text-on-primary-container mt-stack-md max-w-md">
-                Layanan Integrasi Izin Riset dan Magang <br class="hidden lg:block"> Kabupaten Bogor membuka peluang bagi talenta terbaik untuk berkontribusi dan berkembang.
+                Layanan Integrasi Izin Riset, Magang, dan Rekomendasi <br class="hidden lg:block"> Kabupaten Bogor membuka peluang bagi talenta terbaik untuk berkontribusi dan berkembang.
             </p>
         
 
@@ -121,7 +123,7 @@
                 </h2>
                 @if($activeAuthMode === 'register')
                     <p class="text-[16px] text-on-surface-variant">
-                        Daftar untuk mengakses layanan izin riset dan magang Pemerintah Kabupaten Bogor.
+                        Daftar untuk mengakses layanan rekomendasi dan izin Pemerintah Kabupaten Bogor.
                     </p>
                 @elseif($activeAuthMode === 'forgot')
                     <p class="text-[16px] text-on-surface-variant">
@@ -268,6 +270,10 @@
                     </div>
 
                     <!-- Actions -->
+                    <!-- Cloudflare Turnstile -->
+                    <div class="flex justify-center my-2">
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"></div>
+                    </div>
                     <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-4">
                         Daftar Sekarang
                         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
@@ -292,7 +298,7 @@
                         @error('email')<div class="text-error text-[12px] mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 mt-4">
-                        <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2">
+                    <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2">
                             <span class="material-symbols-outlined text-[18px]">send</span>
                             Kirim Tautan Reset ke Email
                         </button>
@@ -335,6 +341,10 @@
                         @endif
                     </div>
 
+                    <!-- Cloudflare Turnstile -->
+                    <div class="flex justify-center my-2">
+                        <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"></div>
+                    </div>
                     <button type="submit" class="w-full bg-primary-container text-on-primary text-[14px] font-semibold py-3 px-6 rounded-lg hover:bg-primary transition-colors flex justify-center items-center gap-2 mt-3">
                         Masuk Sistem
                         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>

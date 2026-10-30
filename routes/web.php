@@ -29,10 +29,10 @@ use App\Http\Controllers\AppReviewController;
 */
 Route::get('/', [LandingController::class, 'index'])->name('home');
 Route::get('/pelayanan', [LandingController::class, 'index']);
-Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->middleware('throttle:60,1')->name('landing.peserta');
+Route::get('/daftar-peserta', [LandingController::class, 'peserta'])->name('landing.peserta');
 Route::get('/refresh-csrf', function() { return response()->json(['csrf_token' => csrf_token()]); })->name('refresh.csrf');
 Route::get('/instansi', [LandingController::class, 'instansiList'])->name('landing.instansi');
-Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->where('id', '[a-zA-Z0-9\-]+')->name('landing.instansi_detail');
+Route::get('/instansi/{id}', [LandingController::class, 'instansiDetail'])->where('id', '[a-zA-Z0-9\-_]+')->name('landing.instansi_detail');
 Route::get('/statistik-instansi', [LandingController::class, 'statistikInstansi'])->name('landing.statistik_instansi');
 Route::get('/analytics/chart-data', [LandingController::class, 'getChartData'])->name('landing.chart_data');
 Route::get('/verifikasi-surat/{token}', [LandingController::class, 'verifikasiSurat'])->name('surat.verifikasi');
@@ -67,9 +67,9 @@ Route::get('/login', function (\Illuminate\Http\Request $request) {
         'action' => url('/login'),
         'loginRole' => 'peserta'
     ]);
-})->middleware('throttle:30,1')->name('login.form');
+})->name('login.form');
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $request) {
     Auth::guard('web')->logout();
@@ -80,12 +80,12 @@ Route::match(['get', 'post'], '/logout', function (\Illuminate\Http\Request $req
 })->name('logout');
 
 Route::get('/register', function () { return redirect()->route('login.form', ['mode' => 'register']); })->name('register');
-Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('register.store');
+Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 Route::get('/activate-account/{token}', [AuthController::class, 'activateAccount'])->name('account.activate');
-Route::post('/resend-activation', [AuthController::class, 'resendActivation'])->middleware('throttle:5,1')->name('account.activate.resend');
+Route::post('/resend-activation', [AuthController::class, 'resendActivation'])->name('account.activate.resend');
 
 Route::get('/forgot-password', function () { return redirect()->route('login.form', ['mode' => 'forgot']); })->name('password.request');
-Route::post('/forgot-password/verify', [AuthController::class, 'forgotPasswordVerify'])->middleware('throttle:5,1')->name('password.verify');
+Route::post('/forgot-password/verify', [AuthController::class, 'forgotPasswordVerify'])->name('password.verify');
 Route::get('/reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
 
@@ -221,10 +221,12 @@ Route::middleware(['auth', 'role.kesbangpol'])->group(function () {
 
         // Ulasan / Kritik & Saran (Bakesbangpol & Superadmin)
         Route::get('/reviews', [AppReviewController::class, 'superadminIndex'])->name('reviews.index');
+        Route::delete('/reviews/{id}', [AppReviewController::class, 'destroy'])->name('reviews.destroy');
     });
 
     // Alias rute review superadmin (dapat diakses oleh Superadmin & Bakesbangpol)
     Route::get('/superadmin/reviews', [AppReviewController::class, 'superadminIndex'])->name('superadmin.reviews.index');
+    Route::delete('/superadmin/reviews/{id}', [AppReviewController::class, 'destroy'])->name('superadmin.reviews.destroy');
 });
 
 /*

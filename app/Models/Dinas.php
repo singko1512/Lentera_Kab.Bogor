@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class Dinas extends Model
 {
@@ -121,6 +123,18 @@ class Dinas extends Model
     protected $casts = [
         'is_kesbangpol' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            Cache::forget('dinas_slug_records');
+            Cache::forget('dinas_slug_to_id_map_v3');
+        });
+        static::deleted(function () {
+            Cache::forget('dinas_slug_records');
+            Cache::forget('dinas_slug_to_id_map_v3');
+        });
+    }
 
     public function users(): HasMany
     {
@@ -323,6 +337,42 @@ class Dinas extends Model
     }
 
     /**
+     * Format nama instansi menjadi format URL slug yang bersih dan deskriptif.
+     * Contoh:
+     * - "BADAN KESATUAN BANGSA DAN POLITIK" -> "bakesbangpol"
+     * - "DINAS KOMUNIKASI DAN INFORMATIKA" -> "diskominfo"
+     * - "KECAMATAN CIBINONG" -> "kecamatan-cibinong"
+     * - "RUMAH SAKIT UMUM DAERAH CIAWI" -> "rsud-ciawi"
+     */
+    public static function formatSlug(?string $name): string
+    {
+        if (empty($name)) {
+            return '';
+        }
+
+        $name = trim($name);
+        $upper = strtoupper($name);
+
+        if (str_starts_with($upper, 'KECAMATAN')) {
+            return Str::slug($name);
+        }
+
+        $singkatan = self::formatSingkatan($name);
+        if (!empty($singkatan) && $singkatan !== '-') {
+            return Str::slug($singkatan);
+        }
+
+        return Str::slug($name);
+    }
+
+    public function getSlugAttribute(): string
+    {
+        $name = $this->name ?? $this->nama ?? '';
+        $slug = self::formatSlug($name);
+        return !empty($slug) ? $slug : $this->hashid;
+    }
+
+    /**
      * Non-sequential encrypted identifier (Anti-enumeration / IDOR mitigation)
      */
     public function getHashidAttribute(): string
@@ -332,7 +382,63 @@ class Dinas extends Model
 
     public function getRouteKey()
     {
-        return $this->hashid;
+        return $this->slug;
+    }
+
+    /**
+     * Cari instansi berdasarkan slug bersih atau hashid terenkripsi.
+     * Raw sequential ID (1, 2, 3...) ditolak untuk mencegah enumerasi IDOR.
+     */
+    public static function resolveBySlugOrId(?string $identifier): ?self
+    {
+        if (empty($identifier)) {
+            return null;
+        }
+
+        $identifier = trim($identifier);
+
+        // 1. Fallback hashid (kompatibilitas link lama / bookmark)
+        $decodedId = self::decodeId($identifier);
+        if ($decodedId) {
+            return self::find($decodedId);
+        }
+
+        // 2. Tolak direct sequential integer ID (misal /instansi/1) demi mencegah enumerasi IDOR
+        if (ctype_digit($identifier)) {
+            return null;
+        }
+
+        // 3. Pencarian berbasis slug bersih
+        $normalized = strtolower($identifier);
+
+        // Gunakan associative array map [slug => id] yang aman dari serialisasi objek Eloquent
+        $slugMap = Cache::remember('dinas_slug_to_id_map_v3', 3600, function () {
+            $map = [];
+            foreach (self::all() as $dinas) {
+                if ($dinas instanceof self) {
+                    $slug = strtolower(trim($dinas->slug));
+                    if ($slug !== '') {
+                        $map[$slug] = $dinas->id;
+                    }
+                }
+            }
+            return $map;
+        });
+
+        if (is_array($slugMap) && isset($slugMap[$normalized])) {
+            return self::find($slugMap[$normalized]);
+        }
+
+        // 4. Fallback langsung: iterasi model dengan pengecekan ketat instanceof self
+        foreach (self::all() as $dinas) {
+            if ($dinas instanceof self) {
+                if (strtolower(trim($dinas->slug)) === $normalized) {
+                    return $dinas;
+                }
+            }
+        }
+
+        return null;
     }
 
     public static function encodeId(int|string|null $id): string

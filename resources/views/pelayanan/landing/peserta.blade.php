@@ -1,6 +1,6 @@
 @extends('pelayanan.layouts.app')
 
-@section('title', 'Daftar Peserta Magang - Bangga Online')
+@section('title', 'Daftar Peserta - Bangga Online')
 
 @section('styles')
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -119,8 +119,8 @@
 
 <!-- Header Section -->
 <div class="mb-stack-lg">
-<h1 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-stack-sm">Peserta Magang Diterima</h1>
-<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Daftar peserta yang telah resmi diterima dalam program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
+<h1 class="font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface mb-stack-sm">Peserta Diterima</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">Daftar peserta yang telah resmi diterima di lingkungan Pemerintah Kabupaten Bogor.</p>
 </div>
 <!-- Filters & Search -->
 <form method="GET" action="{{ route('landing.peserta') }}" id="filter-peserta-form">
@@ -337,7 +337,7 @@
 <td class="px-6 py-4 align-middle whitespace-nowrap">
     <div class="flex flex-col">
         <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->user->name }}</span>
-        <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta Magang</span>
+        <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta</span>
     </div>
 </td>
 <td class="px-6 py-4 align-middle whitespace-normal min-w-[200px]">

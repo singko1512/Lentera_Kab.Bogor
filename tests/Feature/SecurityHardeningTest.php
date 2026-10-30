@@ -257,7 +257,26 @@ class SecurityHardeningTest extends TestCase
             'is_kesbangpol' => false,
         ]);
 
-        // Encrypted non-sequential hashid renders successfully
+        // Clean semantic slug renders successfully (Pendekatan 2)
+        $this->assertEquals('diskominfo', $dinas->slug);
+        $this->get('/instansi/' . $dinas->slug)->assertStatus(200);
+
+        // Multiple dinas resolution test (testing cache and non-cache paths)
+        $dinasBkpsdm = Dinas::create([
+            'nama' => 'BADAN KEPEGAWAIAN DAN PENGEMBANGAN SUMBER DAYA MANUSIA',
+            'status_magang' => 'tersedia',
+        ]);
+        $this->assertEquals('bkpsdm', $dinasBkpsdm->slug);
+        $this->get('/instansi/bkpsdm')->assertStatus(200);
+
+        $dinasKecamatan = Dinas::create([
+            'nama' => 'KECAMATAN CIBINONG',
+            'status_magang' => 'tersedia',
+        ]);
+        $this->assertEquals('kecamatan-cibinong', $dinasKecamatan->slug);
+        $this->get('/instansi/kecamatan-cibinong')->assertStatus(200);
+
+        // Encrypted non-sequential hashid renders successfully (backward compatibility)
         $this->get('/instansi/' . $dinas->hashid)->assertStatus(200);
 
         // Raw sequential IDs (1, 2, 3, ...) are rejected with 404 to prevent resource enumeration
@@ -333,16 +352,5 @@ class SecurityHardeningTest extends TestCase
         $this->assertStringContainsString("geolocation=(self)", $pp);
         $this->assertStringContainsString("microphone=()", $pp);
         $this->assertStringContainsString("payment=()", $pp);
-    }
-
-    public function test_rate_limiting_headers_are_present_on_login_and_daftar_peserta(): void
-    {
-        $loginRes = $this->get('/login');
-        $loginRes->assertHeader('X-RateLimit-Limit');
-        $loginRes->assertHeader('X-RateLimit-Remaining');
-
-        $pesertaRes = $this->get('/daftar-peserta');
-        $pesertaRes->assertHeader('X-RateLimit-Limit');
-        $pesertaRes->assertHeader('X-RateLimit-Remaining');
     }
 }

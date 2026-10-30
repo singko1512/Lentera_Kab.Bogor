@@ -608,7 +608,7 @@ class LandingController extends Controller
         // Ambil semua tahun unik yang tersedia dari peserta magang
         $availableYears = MagangApplication::whereIn('status', ['diterima', 'aktif', 'selesai'])
             ->whereNotNull('created_at')
-            ->selectRaw('YEAR(created_at) as year')
+            ->selectRaw(\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'sqlite' ? "cast(strftime('%Y', created_at) as integer) as year" : 'YEAR(created_at) as year')
             ->distinct()
             ->orderByDesc('year')
             ->pluck('year')
@@ -747,16 +747,17 @@ class LandingController extends Controller
 
     public function instansiDetail($id)
     {
-        // Decode identifier terenkripsi / non-sekuensial untuk mitigasi resource enumeration & IDOR
-        $resolvedId = Dinas::decodeId($id);
-        if (!$resolvedId) {
+        // Resolusi instansi berdasarkan slug bersih atau hashid terenkripsi (mencegah IDOR & resource enumeration)
+        $instansi = Dinas::resolveBySlugOrId($id);
+        if (!$instansi) {
             abort(404);
         }
 
-        $instansi = Dinas::with(['bidang', 'rekrutmens' => function ($q) {
+        $instansi->load(['bidang', 'rekrutmens' => function ($q) {
             $q->where('is_active', true)->with('magangApplications');
-        }])->findOrFail($resolvedId);
+        }]);
 
+        $resolvedId = $instansi->id;
         $totalKuota = (int) $instansi->rekrutmens->sum('kuota');
         $slotTersedia = (int) $instansi->rekrutmens->sum('slot_tersedia');
         $totalDiterima = (int) MagangApplication::whereHas('rekrutmen', function ($q) use ($resolvedId) {
@@ -962,6 +963,7 @@ class LandingController extends Controller
             $item = [
                 'id' => $dinas->id,
                 'hashid' => $dinas->hashid,
+                'slug' => $dinas->slug,
                 'name' => $nameClean,
                 'singkatan' => $singkatan,
                 'tipe' => $isKecamatan ? 'Kecamatan' : 'Perangkat Daerah',

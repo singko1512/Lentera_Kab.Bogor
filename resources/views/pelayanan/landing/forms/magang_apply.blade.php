@@ -193,7 +193,7 @@
                         <span class="material-symbols-outlined text-[20px]">send</span>
                         Kirim Pendaftaran
                     </button>
-                    <a href="{{ route('landing.instansi_detail', \App\Models\Dinas::encodeId($rekrutmen->dinas_id)) }}" 
+                    <a href="{{ route('landing.instansi_detail', optional($rekrutmen->dinas)->slug ?? \App\Models\Dinas::encodeId($rekrutmen->dinas_id)) }}" 
                        class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-surface-container text-on-surface-variant font-label-md font-bold rounded-xl hover:bg-surface-container-high transition-all w-full md:w-auto">
                         Batal
                     </a>

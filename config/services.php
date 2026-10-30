@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'turnstile' => [
+        'key' => env('TURNSTILE_SITE_KEY', '0x4AAAAAAFqszYB2GEhR0VEF'),
+        'secret' => env('TURNSTILE_SECRET_KEY', '0x4AAAAAAFqszdxSLg0MWrelkuE8ApGbgR0'),
+    ],
+
 ];

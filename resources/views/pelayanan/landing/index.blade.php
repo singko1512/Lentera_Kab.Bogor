@@ -341,7 +341,7 @@
 <div class="relative z-10 max-w-4xl mx-auto px-margin-desktop py-24 flex flex-col items-center text-center gap-6 stagger-container">
 <h1 class="font-display-lg text-display-lg text-white reveal-element">Mulai Riset/Magang Anda <br> Bersama Kabupaten Bogor</h1>
 <p class="font-body-lg text-body-lg text-white/90 hover:text-white transition-colors duration-300 cursor-default max-w-3xl reveal-element">
-                        Sistem informasi terintegrasi untuk pendaftaran, pengelolaan, dan pelaksanaan <br>program magang di lingkungan Pemerintah Kabupaten Bogor.
+                        Sistem informasi terintegrasi untuk pendaftaran layanan rekomendasi, permohonan izin, <br>serta pengelolaan peserta di lingkungan Pemerintah Kabupaten Bogor.
                     </p>
 
 <!-- Hero Action Buttons -->
@@ -356,7 +356,7 @@
     <!-- Button 2: Peserta Magang -->
     <a href="{{ route('landing.peserta') }}" class="hero-btn-secondary group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full text-white font-semibold text-base relative overflow-hidden">
         <span class="material-symbols-outlined text-[22px] hero-btn-icon-main">groups</span>
-        <span class="tracking-wide">Peserta Magang</span>
+        <span class="tracking-wide">Daftar Peserta</span>
         <span class="material-symbols-outlined text-[18px] hero-btn-icon-arrow">arrow_forward</span>
     </a>
 </div>
@@ -1253,9 +1253,9 @@
 <section id="timeline-section" class="max-w-container-max mx-auto px-margin-desktop pt-16 pb-8 w-full">
 <div class="flex flex-col gap-2 mb-10 pb-6 border-b border-outline-variant/30">
     <h2 class="font-headline-lg text-headline-lg text-on-surface">
-        Alur Tahapan Permohonan Magang
+        Alur Tahapan Pelayanan
     </h2>
-    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Informasi tahapan pelaksanaan program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
+    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Informasi tahapan pendaftaran layanan rekomendasi dan pengelolaan peserta di lingkungan Pemerintah Kabupaten Bogor.</p>
 </div>
 <div class="relative">
 <!-- Connecting Line -->
@@ -1270,8 +1270,8 @@
         <span class="material-symbols-outlined text-[20px] fill">description</span>
     </div>
 </div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Pendaftaran Calon Peserta Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta mengajukan pendaftaran program magang sesuai dengan ketentuan yang berlaku.</p>
+<h3 class="font-title-lg text-title-lg text-on-surface">Pendaftaran Calon Peserta</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta mengajukan pendaftaran permohonan layanan sesuai dengan ketentuan yang berlaku.</p>
 </div>
 </div>
 <!-- Stage 2 -->
@@ -1284,7 +1284,7 @@
     </div>
 </div>
 <h3 class="font-title-lg text-title-lg text-on-surface">Verifikasi Peserta</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Data dan persyaratan calon peserta melalui proses verifikasi.</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Data dan berkas persyaratan calon peserta melalui proses verifikasi oleh tim terkait.</p>
 </div>
 </div>
 <!-- Stage 3 -->
@@ -1296,8 +1296,8 @@
         <span class="material-symbols-outlined text-[20px] fill">check_circle</span>
     </div>
 </div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Penetapan Peserta Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta yang memenuhi persyaratan ditetapkan sebagai peserta magang dan memperoleh informasi penempatan.</p>
+<h3 class="font-title-lg text-title-lg text-on-surface">Penetapan Peserta</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Calon peserta yang memenuhi persyaratan ditetapkan dan memperoleh informasi rekomendasi atau penempatan.</p>
 </div>
 </div>
 <!-- Stage 4 -->
@@ -1309,8 +1309,8 @@
         <span class="material-symbols-outlined text-[20px] fill">work</span>
     </div>
 </div>
-<h3 class="font-title-lg text-title-lg text-on-surface">Pelaksanaan Program Magang</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">Peserta melaksanakan program magang pada Dinas / OPD yang telah ditetapkan sesuai dengan ketentuan yang berlaku.</p>
+<h3 class="font-title-lg text-title-lg text-on-surface">Pelaksanaan Kegiatan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Peserta melaksanakan kegiatan pada instansi/perangkat daerah yang telah ditetapkan sesuai dengan ketentuan yang berlaku.</p>
 </div>
 </div>
 </div>
@@ -1560,8 +1560,8 @@
 <div class="flex flex-col gap-8">
 <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-stack-lg">
     <div class="flex flex-col gap-2">
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Peserta Magang Diterima</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant">Daftar peserta yang telah diterima untuk mengikuti program magang di lingkungan Pemerintah Kabupaten Bogor.</p>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Peserta Diterima</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Daftar peserta yang telah resmi diterima di lingkungan Pemerintah Kabupaten Bogor.</p>
     </div>
     <a href="{{ route('landing.peserta') }}" class="group inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low hover:bg-surface-container text-primary font-label-md text-label-md font-semibold rounded-lg transition-all border border-outline-variant/30 hover:border-primary shadow-sm hover:shadow">
         <span>Lihat Selengkapnya</span>
@@ -1600,7 +1600,7 @@
         <td class="px-6 py-4 align-middle whitespace-nowrap">
             <div class="flex flex-col">
                 <span class="font-semibold text-sm text-on-surface leading-tight">{{ $peserta->user->name }}</span>
-                <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta Magang</span>
+                <span class="text-[11px] text-on-surface-variant mt-0.5">Peserta</span>
             </div>
         </td>
         <td class="px-6 py-4 align-middle whitespace-normal min-w-[200px]">
@@ -1676,7 +1676,7 @@
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-container">
 @forelse($featuredInstansis as $instansi)
-<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', $instansi->hashid) }}">
+<a class="group block bg-surface-container-lowest rounded-xl p-6 shadow-level-1 shadow-level-1-hover border-t-4 {{ $instansi->sisa_kuota > 0 ? 'border-emerald-500' : 'border-outline-variant' }} hover:border-primary transition-colors duration-300 relative overflow-hidden flex flex-col h-full border border-x-outline-variant/30 border-b-outline-variant/30 reveal-element hover-card-trigger" href="{{ route('landing.instansi_detail', is_object($instansi) ? $instansi->slug : $instansi) }}">
 <div class="flex justify-between items-start mb-4">
   <div class="w-16 h-16 bg-surface-container flex items-center justify-center rounded-lg border border-outline-variant/20">
     <span class="material-symbols-outlined text-[32px] text-primary group-hover:scale-110 transition-transform">
@@ -1847,7 +1847,7 @@
         <div class="p-8">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-lg font-bold text-on-surface">Daftar & Kehadiran Peserta Magang di Bidang Ini</h3>
+                    <h3 class="text-lg font-bold text-on-surface">Daftar & Kehadiran Peserta di Bidang Ini</h3>
                     <p class="text-xs text-on-surface-variant">Informasi presensi hari ini ({{ \Carbon\Carbon::now()->locale('id')->translatedFormat('l, d F Y') }})</p>
                 </div>
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-container text-on-surface rounded-full text-xs font-semibold">

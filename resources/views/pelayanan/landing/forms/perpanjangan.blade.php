@@ -475,7 +475,7 @@
         
         <button type="button" onclick="openAppReviewModal()" class="w-full py-3 px-4 bg-gradient-to-r from-primary to-secondary text-white font-label-md text-label-md font-bold rounded-xl shadow-md hover:opacity-95 transition-all flex items-center justify-center gap-2 mb-2">
             <span class="material-symbols-outlined text-[19px]">rate_review</span>
-            <span>Beri Penilaian Aplikasi</span>
+            <span>Beri Kritik &amp; Saran</span>
         </button>
         <a href="{{ route('home') }}" class="inline-block w-full py-2.5 text-on-surface-variant hover:text-on-surface text-xs font-semibold">
             Lewati &amp; Kembali ke Beranda

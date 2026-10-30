@@ -12,9 +12,9 @@
                     <strong class="text-gray-200">Bangga Online (Bakesbangpol Menjaga)</strong> — Sistem layanan integrasi hasil kolaborasi Dinas Komunikasi dan Informatika bersama Badan Kesatuan Bangsa dan Politik Kabupaten Bogor untuk mempermudah permohonan surat izin magang, penelitian, dan pelayanan rekomendasi lainnya secara digital.
                 </p>
                 <div class="flex gap-3">
-                    <a href="https://www.instagram.com/diskominfokabbogor/?hl=en" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://www.facebook.com/diskominfobogorkab/" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://www.youtube.com/@DISKOMINFOKABBOGOR" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="https://www.instagram.com/kesbangpolbogor/" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/kesbangpol.kabbogor/?locale=id_ID" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://www.youtube.com/@bakesbangpolkabbogor9254/videos" target="_blank" class="w-8 h-8 bg-gray-800 text-gray-300 rounded-full flex items-center justify-center hover:bg-blue-600 hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
                 </div>
             </div>
 
@@ -26,7 +26,7 @@
                         <i class="fa-brands fa-whatsapp text-green-400 mt-1"></i>
                         <div class="text-left">
                             <p class="text-sm text-gray-300 font-medium">WhatsApp Admin</p>
-                            <a href="https://wa.me/62895422603123" target="_blank" class="text-sm text-gray-400 hover:text-white transition">0895-4226-03123</a>
+                            <a href="https://wa.me/6282246512303" target="_blank" class="text-sm text-gray-400 hover:text-white transition">+62 822-4651-2303</a>
                         </div>
                     </li>
                     <li class="flex items-start gap-3">

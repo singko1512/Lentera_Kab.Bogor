@@ -173,7 +173,7 @@
                 <img src="{{ asset('assets/images/logo_bakesbangpol_2026.png') }}" alt="Logo Bakesbangpol Kabupaten Bogor" style="height: 54px; width: auto; object-fit: contain; margin-right: 0.65rem;">
                 <div class="nav-brand-text">
                     <strong>Bangga Online Kab Bogor</strong>
-                    <span>Layanan Integrasi Izin Riset dan Magang Kabupaten Bogor</span>
+                    <span>Layanan Integrasi Izin Riset, Magang & Rekomendasi Kabupaten Bogor</span>
                 </div>
             </a>
 

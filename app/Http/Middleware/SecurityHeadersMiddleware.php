@@ -32,12 +32,12 @@ class SecurityHeadersMiddleware
 
         // Content Security Policy (CSP) untuk mitigasi XSS & data injection
         $csp = "default-src 'self'; " .
-               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
+               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://challenges.cloudflare.com; " .
                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " .
                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; " .
                "img-src 'self' data: blob: https:; " .
-               "connect-src 'self' https://nominatim.openstreetmap.org https://*.openstreetmap.org; " .
-               "frame-src 'self' https://www.google.com; " .
+               "connect-src 'self' https://nominatim.openstreetmap.org https://*.openstreetmap.org https://challenges.cloudflare.com; " .
+               "frame-src 'self' https://www.google.com https://challenges.cloudflare.com; " .
                "frame-ancestors 'self'; " .
                "object-src 'none'; " .
                "base-uri 'self';";

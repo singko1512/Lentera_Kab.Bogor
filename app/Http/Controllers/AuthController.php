@@ -25,6 +25,14 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        // Verifikasi Cloudflare Turnstile CAPTCHA
+        $turnstileToken = $request->input('cf-turnstile-response');
+        if (!\App\Services\TurnstileService::verify($turnstileToken, $request->ip())) {
+            return back()
+                ->withInput($request->only('login', 'email', 'username'))
+                ->with('error', 'Verifikasi keamanan Cloudflare Turnstile gagal atau belum dicentang. Silakan coba lagi.');
+        }
+
         $request->validate([
             'login' => 'nullable|string',
             'email' => 'nullable|string',
@@ -106,7 +114,7 @@ class AuthController extends Controller
             if ($user->status_akun === 'inactive' || $user->status_akun === 'nonaktif' || is_null($user->email_verified_at)) {
                 return back()
                     ->withInput($request->only('login', 'email', 'username'))
-                    ->with('error', 'Akun Anda belum aktif. Silakan periksa inbox/spam email (' . $user->email . ') Anda untuk mengeklik tautan aktivasi akun.')
+                    ->with('error', 'Akun Anda belum aktif. Silakan periksa inbox/spam email.')
                     ->with('resend_email', $user->email);
             }
 
@@ -138,6 +146,14 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // Verifikasi Cloudflare Turnstile CAPTCHA
+        $turnstileToken = $request->input('cf-turnstile-response');
+        if (!\App\Services\TurnstileService::verify($turnstileToken, $request->ip())) {
+            return back()
+                ->withInput()
+                ->with('error', 'Verifikasi keamanan Cloudflare Turnstile gagal atau belum dicentang. Silakan coba lagi.');
+        }
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',

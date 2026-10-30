@@ -37,6 +37,11 @@ return [
 
     'mailers' => [
 
+        'brevo' => [
+            'transport' => 'brevo',
+            'key' => env('BREVO_API_KEY'),
+        ],
+
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),
@@ -83,6 +88,11 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
+
+        'brevo' => [
+            'transport' => 'brevo',
+            'key' => env('BREVO_API_KEY'),
+        ],
                 'smtp',
                 'log',
             ],
@@ -92,6 +102,11 @@ return [
         'roundrobin' => [
             'transport' => 'roundrobin',
             'mailers' => [
+
+        'brevo' => [
+            'transport' => 'brevo',
+            'key' => env('BREVO_API_KEY'),
+        ],
                 'ses',
                 'postmark',
             ],

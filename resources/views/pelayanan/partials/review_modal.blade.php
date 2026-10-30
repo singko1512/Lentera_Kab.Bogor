@@ -13,10 +13,7 @@
                     <span class="material-symbols-outlined text-[24px]">rate_review</span>
                 </div>
                 <div>
-                    <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/20 text-[10px] font-bold uppercase tracking-wider mb-1">
-                        <span>Fitur Uji Coba Pengguna (Opsional)</span>
-                    </div>
-                    <h3 class="font-bold text-lg leading-tight">Penilaian &amp; Review Aplikasi</h3>
+                    <h3 class="font-bold text-lg leading-tight">Kritik &amp; Saran Layanan</h3>
                     <p class="text-xs text-white/80 mt-0.5">Bantu kami meningkatkan kualitas layanan Bangga Online Kabupaten Bogor</p>
                 </div>
             </div>
@@ -134,7 +131,7 @@
             <div class="space-y-2 pt-3 border-t border-outline-variant/20">
                 <label for="review_kritik_saran" class="font-bold text-sm text-on-surface flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px] text-primary">comment</span>
-                    <span>Kritik dan Saran (Opsional)</span>
+                    <span>Kritik dan Saran</span>
                 </label>
                 <p class="text-xs text-on-surface-variant">Tuliskan kendala yang Anda alami atau masukan perbaikan antarmuka untuk Super Admin:</p>
                 <textarea id="review_kritik_saran" name="kritik_saran" rows="3" placeholder="Contoh: Tampilan sudah rapi dan mudah dipahami, tetapi opsi upload berkas bisa dibuat lebih besar..." class="w-full p-3.5 bg-surface border border-outline-variant/60 rounded-xl text-xs sm:text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"></textarea>
@@ -147,7 +144,7 @@
                 Lewati &amp; Kembali ke Beranda
             </button>
             <button type="button" id="btn-submit-review" onclick="submitAppReview()" class="w-full sm:w-auto px-6 py-2.5 bg-primary text-white text-xs sm:text-sm font-bold rounded-xl shadow-md hover:bg-primary-container transition-all flex items-center justify-center gap-2">
-                <span>Kirim Penilaian</span>
+                <span>Kirim Kritik &amp; Saran</span>
                 <span class="material-symbols-outlined text-[18px]">send</span>
             </button>
         </div>
@@ -250,16 +247,42 @@
     }
 
     function submitAppReview() {
-        // Cek apakah 4 pertanyaan sudah diisi
-        const missing = [];
-        if (!reviewScores.ui_ux) missing.push('1. Desain & Antarmuka (UI/UX)');
-        if (!reviewScores.kemudahan) missing.push('2. Kemudahan Penggunaan');
-        if (!reviewScores.kecepatan) missing.push('3. Kecepatan & Kinerja');
-        if (!reviewScores.kejelasan) missing.push('4. Kejelasan Informasi');
+        const kritikSaranVal = (document.getElementById('review_kritik_saran')?.value || '').trim();
 
-        if (missing.length > 0) {
-            alert('Mohon berikan penilaian (skala 1 - 10) untuk pertanyaan berikut:\n- ' + missing.join('\n- ') + '\n\nAtau klik tombol "Lewati" jika tidak ingin mengisi.');
-            return;
+        // Jika pemohon mengisi kritik/saran, nilai rating yang belum dipilih otomatis diisi nilai default (10) agar pengiriman tidak terhambat
+        if (kritikSaranVal.length > 0) {
+            if (!reviewScores.ui_ux) selectReviewScore('ui_ux', 10);
+            if (!reviewScores.kemudahan) selectReviewScore('kemudahan', 10);
+            if (!reviewScores.kecepatan) selectReviewScore('kecepatan', 10);
+            if (!reviewScores.kejelasan) selectReviewScore('kejelasan', 10);
+        } else {
+            // Jika kritik/saran kosong DAN rating juga belum dipilih sama sekali
+            const missing = [];
+            if (!reviewScores.ui_ux) missing.push('Desain & Antarmuka (UI/UX)');
+            if (!reviewScores.kemudahan) missing.push('Kemudahan Penggunaan');
+            if (!reviewScores.kecepatan) missing.push('Kecepatan & Kinerja');
+            if (!reviewScores.kejelasan) missing.push('Kejelasan Informasi');
+
+            if (missing.length > 0) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Penilaian Belum Dipilih',
+                        text: 'Silakan pilih nilai rating atau tuliskan kritik dan saran Anda.',
+                        confirmButtonText: 'Baik, Saya Isi',
+                        showCancelButton: true,
+                        cancelButtonText: 'Lewati & Selesai',
+                        confirmButtonColor: '#003366',
+                        cancelButtonColor: '#64748b',
+                        customClass: { popup: 'rounded-3xl shadow-xl' }
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.cancel) {
+                            skipAppReview();
+                        }
+                    });
+                }
+                return;
+            }
         }
 
         const btn = document.getElementById('btn-submit-review');
@@ -285,10 +308,29 @@
             btn.disabled = false;
 
             if (data.status === 'success') {
-                alert('Terima kasih! Ulasan dan masukan Anda.');
-                window.location.href = "{{ route('home') }}";
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Terima Kasih!',
+                        text: 'Kritik dan saran Anda telah berhasil terkirim.',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-3xl shadow-xl' }
+                    }).then(() => {
+                        window.location.href = "{{ route('home') }}";
+                    });
+                } else {
+                    window.location.href = "{{ route('home') }}";
+                }
             } else {
-                alert(data.message || 'Gagal menyimpan ulasan.');
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menyimpan',
+                        text: data.message || 'Gagal menyimpan ulasan.',
+                        confirmButtonColor: '#003366'
+                    });
+                }
             }
         })
         .catch(err => {

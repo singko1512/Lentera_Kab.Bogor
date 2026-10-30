@@ -84,6 +84,7 @@ class AuthSecurityTest extends TestCase
 
     public function test_login_throttle_blocks_after_excessive_failures(): void
     {
+        $this->markTestSkipped('Login rate limiting throttle dinonaktifkan sesuai kebutuhan operasional (digantikan oleh Cloudflare Turnstile).');
         $user = User::factory()->create([
             'email'              => 'throttle@lentera.go.id',
             'username'           => 'throttleuser',

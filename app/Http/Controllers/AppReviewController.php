@@ -93,4 +93,22 @@ class AppReviewController extends Controller
             'overallAvg'
         ));
     }
+
+    /**
+     * Hapus ulasan / kritik & saran aplikasi (Kesbangpol Layanan & Superadmin)
+     */
+    public function destroy($id)
+    {
+        $review = AppReview::findOrFail($id);
+        $review->delete();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ulasan / kritik & saran berhasil dihapus.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Ulasan / kritik & saran berhasil dihapus.');
+    }
 }

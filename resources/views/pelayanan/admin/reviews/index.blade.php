@@ -3,12 +3,25 @@
 @section('content')
 <div class="max-w-container-max mx-auto space-y-8 pb-12">
 
+    <!-- Flash Message -->
+    @if(session('success'))
+    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center justify-between text-sm shadow-xs">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
+            <span>{{ session('success') }}</span>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+    </div>
+    @endif
+
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-1.5">
                 <span class="material-symbols-outlined text-[16px]">rate_review</span>
-                <span>Uji Coba &amp; Evaluasi Pengguna</span>
+                <span>Evaluasi &amp; Kepuasan Pengguna</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
                 Rekapitulasi Ulasan Aplikasi
@@ -21,7 +34,7 @@
         <div class="flex items-center gap-3">
             <span class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-outline-variant/40 rounded-xl text-xs font-semibold text-on-surface">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Fitur Uji Coba Aktif</span>
+                <span>Layanan Aktif</span>
             </span>
         </div>
     </div>
@@ -179,6 +192,7 @@
                         <th class="px-4 py-3.5 text-center whitespace-nowrap">Kejelasan</th>
                         <th class="px-4 py-3.5 text-center whitespace-nowrap">Rerata</th>
                         <th class="px-6 py-3.5 whitespace-nowrap min-w-[280px]">Kritik &amp; Saran</th>
+                        <th class="px-4 py-3.5 text-center whitespace-nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-outline-variant/20 text-sm">
@@ -251,10 +265,21 @@
                             <span class="text-xs text-outline italic">Tidak menyertakan catatan khusus.</span>
                             @endif
                         </td>
+
+                        <!-- Aksi Hapus -->
+                        <td class="px-4 py-4 text-center whitespace-nowrap">
+                            <form id="delete-review-{{ $review->id }}" action="{{ route('superadmin.reviews.destroy', $review->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" onclick="confirmDeleteReview({{ $review->id }})" class="w-8 h-8 rounded-lg inline-flex items-center justify-center text-outline hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all border border-transparent hover:border-red-200" title="Hapus Ulasan &amp; Kritik">
+                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-on-surface-variant">
+                        <td colspan="9" class="py-12 text-center text-on-surface-variant">
                             <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
                                 <span class="material-symbols-outlined text-[32px]">rate_review</span>
                             </div>
@@ -276,4 +301,30 @@
         @endif
     </div>
 </div>
+
+<script>
+    function confirmDeleteReview(id) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Hapus Ulasan & Kritik?',
+                text: 'Data penilaian dan kritik saran ini akan dihapus permanen.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                customClass: { popup: 'rounded-3xl shadow-xl' }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-review-' + id).submit();
+                }
+            });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus ulasan dan kritik saran ini?')) {
+                document.getElementById('delete-review-' + id).submit();
+            }
+        }
+    }
+</script>
 @endsection

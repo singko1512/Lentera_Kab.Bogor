@@ -297,7 +297,11 @@
                     <a href="{{ route('login.form') }}" class="btn-logout justify-content-center">
                         <i class="fa-solid fa-right-to-bracket"></i> Sudah Punya Akun
                     </a>
-                    <button type="submit" class="btn-add justify-content-center">
+                    <!-- Cloudflare Turnstile -->
+                <div class="d-flex justify-content-center my-3">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"></div>
+                </div>
+                <button type="submit" class="btn-add justify-content-center">
                         <i class="fa-solid fa-user-plus"></i> Daftar Sekarang
                     </button>
                 </div>
@@ -337,7 +341,7 @@
                     </div>
 
                     <div class="login-actions">
-                        <button type="submit" class="btn-add flex-grow-1 justify-content-center">
+                <button type="submit" class="btn-add flex-grow-1 justify-content-center">
                             <i class="fa-solid fa-key"></i> Simpan Password Baru
                         </button>
                         <a href="{{ route('password.request', ['reset' => 1]) }}" class="btn-logout justify-content-center">
@@ -364,7 +368,7 @@
                     </div>
 
                     <div class="login-actions">
-                        <button type="submit" class="btn-add flex-grow-1 justify-content-center">
+                <button type="submit" class="btn-add flex-grow-1 justify-content-center">
                             <i class="fa-solid fa-magnifying-glass"></i> Cek Data
                         </button>
                         <a href="{{ route('login.form') }}" class="btn-logout justify-content-center">
@@ -422,7 +426,11 @@
                 </div>
 
                 <div class="login-actions">
-                    <button type="submit" class="btn-add flex-grow-1 justify-content-center">
+                    <!-- Cloudflare Turnstile -->
+                <div class="d-flex justify-content-center my-3">
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"></div>
+                </div>
+                <button type="submit" class="btn-add flex-grow-1 justify-content-center">
                         <i class="fa-solid fa-right-to-bracket"></i> Masuk Sistem
                     </button>
                     <a href="{{ route('home') }}" class="btn-logout justify-content-center">
